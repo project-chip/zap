@@ -25,6 +25,7 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const pino = require('pino')
+const emojiUtil = require('./emoji-util')
 const zapBaseUrl = 'http://localhost:'
 
 let saveFileFormat = 2 // This is the enabled only .zap file format
@@ -33,7 +34,7 @@ let saveFileFormat = 2 // This is the enabled only .zap file format
  * Set save file format.
  * @param {*} n
  */
-export function setSaveFileFormat(n) {
+function setSaveFileFormat(n) {
   saveFileFormat = n
 }
 
@@ -42,7 +43,7 @@ export function setSaveFileFormat(n) {
  *
  * @returns saveFileFormat
  */
-export function defaultFileFormat() {
+function defaultFileFormat() {
   return saveFileFormat
 }
 
@@ -50,7 +51,7 @@ export function defaultFileFormat() {
  *
  * @returns path to zcl.json file
  */
-export function builtinSilabsZclMetafile() {
+function builtinSilabsZclMetafile() {
   return locateProjectResource('./zcl-builtin/silabs/zcl.json')
 }
 
@@ -59,7 +60,7 @@ export function builtinSilabsZclMetafile() {
  *
  * @returns path to zcl-special.json file used by zcl-loader.test.js
  */
-export function builtinSilabsZclSpecialMetafile() {
+function builtinSilabsZclSpecialMetafile() {
   return locateProjectResource('./zcl-builtin/silabs/zcl-special.json')
 }
 
@@ -68,7 +69,7 @@ export function builtinSilabsZclSpecialMetafile() {
  *
  * @returns path to general.xml file
  */
-export function builtinSilabsZclGeneralXmlFile() {
+function builtinSilabsZclGeneralXmlFile() {
   return locateProjectResource('./zcl-builtin/silabs/general.xml')
 }
 
@@ -77,7 +78,7 @@ export function builtinSilabsZclGeneralXmlFile() {
  *
  * @returns path to general-special.xml file used by zcl-loader.test.js
  */
-export function builtinSilabsSpecialZclGeneralSpecialXmlFile() {
+function builtinSilabsSpecialZclGeneralSpecialXmlFile() {
   return locateProjectResource('./zcl-builtin/silabs/general-special.xml')
 }
 
@@ -85,7 +86,7 @@ export function builtinSilabsSpecialZclGeneralSpecialXmlFile() {
  * Get builtin matter ZCL json file
  * @returns matter ZCL json file
  */
-export function builtinMatterZclMetafile() {
+function builtinMatterZclMetafile() {
   return locateProjectResource('./zcl-builtin/matter/zcl.json')
 }
 
@@ -93,7 +94,7 @@ export function builtinMatterZclMetafile() {
  * Get builtin matter ZCL json file
  * @returns matter ZCL json file
  */
-export function builtinNewMatterZclMetafile() {
+function builtinNewMatterZclMetafile() {
   return locateProjectResource('./zcl-builtin/matter/zcl-new-data-model.json')
 }
 
@@ -101,7 +102,7 @@ export function builtinNewMatterZclMetafile() {
  * Get builtin dotdot ZCL json file
  * @returns dotdot ZCL json file
  */
-export function builtinDotdotZclMetafile() {
+function builtinDotdotZclMetafile() {
   return locateProjectResource('./zcl-builtin/dotdot/library.xml')
 }
 
@@ -109,7 +110,7 @@ export function builtinDotdotZclMetafile() {
  * Get builtin Matter ZCL json file
  * @returns matter ZCL json file
  */
-export function builtinMatterZclMetafile2() {
+function builtinMatterZclMetafile2() {
   return locateProjectResource(
     './zcl-builtin/matter/zcl-with-test-extensions.json'
   )
@@ -119,11 +120,11 @@ export function builtinMatterZclMetafile2() {
  * No builtin meta template file.
  * @returns null
  */
-export function builtinTemplateMetafile() {
+function builtinTemplateMetafile() {
   return null // No default.
 }
 
-export const environmentVariable = {
+const environmentVariable = {
   logLevel: {
     name: 'ZAP_LOGLEVEL',
     description: 'Sets the log level. If unset, then default is: warn.'
@@ -204,7 +205,7 @@ let file_pino_logger = pino(
 /**
  * Set up the devlopment environment.
  */
-export function setDevelopmentEnv() {
+function setDevelopmentEnv() {
   // @ts-ignore
   process.env.DEV = true
   // @ts-ignore
@@ -217,7 +218,7 @@ export function setDevelopmentEnv() {
 /**
  * Set up the production environment.
  */
-export function setProductionEnv() {
+function setProductionEnv() {
   // @ts-ignore
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
   // @ts-ignore
@@ -230,7 +231,7 @@ export function setProductionEnv() {
 /**
  * set explicit_logger_set
  */
-export function logInitStdout() {
+function logInitStdout() {
   if (!explicit_logger_set) {
     pino_logger = pino(pinoOptions, pino.destination(1))
     explicit_logger_set = true
@@ -240,7 +241,7 @@ export function logInitStdout() {
 /**
  * Create zap.log file for logging.
  */
-export function logInitLogFile() {
+function logInitLogFile() {
   if (!explicit_logger_set) {
     pino_logger = pino(
       pinoOptions,
@@ -257,7 +258,7 @@ export function logInitLogFile() {
  *
  * @param {*} path Absolute path. Typically '~/.zap'.
  */
-export function setAppDirectory(directoryPath) {
+function setAppDirectory(directoryPath) {
   let appDir
   if (directoryPath.startsWith('~/')) {
     appDir = path.join(os.homedir(), directoryPath.substring(2))
@@ -276,7 +277,7 @@ export function setAppDirectory(directoryPath) {
  *
  * @returns state directory, which is guaranteed to be already existing
  */
-export function appDirectory() {
+function appDirectory() {
   if (applicationStateDirectory == null) {
     let appDir = path.join(os.homedir(), '.zap')
     if (!fs.existsSync(appDir)) {
@@ -293,7 +294,7 @@ export function appDirectory() {
  *
  * @returns path to icons directory
  */
-export function iconsDirectory() {
+function iconsDirectory() {
   // @ts-ignore
   return path.join(global.__backend, '/icons')
 }
@@ -303,7 +304,7 @@ export function iconsDirectory() {
  *
  * @returns path to sqlite schema file
  */
-export function schemaFile() {
+function schemaFile() {
   // @ts-ignore
   return path.join(global.__backend, '/db/zap-schema.sql')
 }
@@ -314,7 +315,7 @@ export function schemaFile() {
  * @param {*} filename
  * @returns sqlite file path
  */
-export function sqliteFile(filename = 'zap') {
+function sqliteFile(filename = 'zap') {
   return path.join(appDirectory(), `${filename}.sqlite`)
 }
 
@@ -325,7 +326,7 @@ export function sqliteFile(filename = 'zap') {
  * @param {*} deleteExistingFile
  * @returns sqlite test file name
  */
-export function sqliteTestFile(id, deleteExistingFile = true) {
+function sqliteTestFile(id, deleteExistingFile = true) {
   let dir = path.join(__dirname, '../../test/.zap')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -339,7 +340,7 @@ export function sqliteTestFile(id, deleteExistingFile = true) {
  * Returns a version as a single on-line string.
  *
  */
-export function zapVersionAsString() {
+function zapVersionAsString() {
   let vo = zapVersion()
   return `ver. ${vo.version}, featureLevel ${vo.featureLevel}, commit: ${
     vo.hash
@@ -356,7 +357,7 @@ export function zapVersionAsString() {
  * @param filePath
  * @returns located project resource
  */
-export function locateProjectResource(filePath) {
+function locateProjectResource(filePath) {
   if (fs.existsSync(path.join(__dirname, '../../zcl-builtin/'))) {
     return path.join(__dirname, '../../', filePath)
   } else if (fs.existsSync(path.join(__dirname, '../../../zcl-builtin/'))) {
@@ -373,7 +374,7 @@ export function locateProjectResource(filePath) {
  * @returns zap version, which is an object that
  * contains 'version', 'featureLevel', 'hash', 'timestamp' and 'date'
  */
-export function zapVersion() {
+function zapVersion() {
   if (versionObject == null) {
     versionObject = {
       version: '',
@@ -419,7 +420,7 @@ export function zapVersion() {
  *
  * @returns zapBaseUrl
  */
-export function baseUrl() {
+function baseUrl() {
   return zapBaseUrl
 }
 
@@ -427,7 +428,7 @@ export function baseUrl() {
  * Prints the data to stderr, without much fuss.
  * @param msg
  */
-export function printToStderr(msg) {
+function printToStderr(msg) {
   console.error(msg)
 }
 
@@ -438,7 +439,7 @@ export function printToStderr(msg) {
  * @param {*} msg
  * @param {*} err
  */
-export function log(level, msg, err = null) {
+function log(level, msg, err = null) {
   let objectToLog = {
     msg: msg
   }
@@ -456,7 +457,7 @@ export function log(level, msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logInfo(msg, err = null) {
+function logInfo(msg, err = null) {
   log('info', msg, err)
 }
 
@@ -466,7 +467,7 @@ export function logInfo(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logError(msg, err = null) {
+function logError(msg, err = null) {
   log('error', msg, err)
 }
 
@@ -476,7 +477,7 @@ export function logError(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logWarning(msg, err = null) {
+function logWarning(msg, err = null) {
   log('warn', msg, err)
 }
 
@@ -486,7 +487,7 @@ export function logWarning(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logSql(msg, query, args) {
+function logSql(msg, query, args) {
   if (query == null) {
     log('sql', msg)
   } else {
@@ -505,7 +506,7 @@ export function logSql(msg, query, args) {
  * @param {*} msg
  * @param {*} err
  */
-export function logBrowser(msg, err = null) {
+function logBrowser(msg, err = null) {
   log('browser', msg, err)
 }
 
@@ -515,7 +516,7 @@ export function logBrowser(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logIpc(msg, err = null) {
+function logIpc(msg, err = null) {
   log('ipc', msg, err)
 }
 
@@ -525,7 +526,7 @@ export function logIpc(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logDebug(msg, err = null) {
+function logDebug(msg, err = null) {
   log('debug', msg, err)
 }
 
@@ -534,7 +535,7 @@ export function logDebug(msg, err = null) {
  *
  * @param {*} msg
  */
-export function logWarningToFile(msg) {
+function logWarningToFile(msg) {
   let objectToLog = {
     msg: msg
   }
@@ -548,7 +549,7 @@ export function logWarningToFile(msg) {
  * @param {*} providedVersion
  * @returns boolean
  */
-export function isMatchingVersion(versionsArray, providedVersion) {
+function isMatchingVersion(versionsArray, providedVersion) {
   let ret = false
   let v2 = providedVersion.split('.')
   versionsArray.forEach((element) => {
@@ -572,7 +573,7 @@ export function isMatchingVersion(versionsArray, providedVersion) {
  *
  * @returns true or false, depending on match
  */
-export function versionsCheck() {
+function versionsCheck() {
   let expectedNodeVersion = ['v14.x.x', 'v16.x.x', 'v18.x.x', 'v20.x.x']
   let expectedElectronVersion = [
     '17.4.x',
@@ -611,6 +612,62 @@ export function versionsCheck() {
  *
  * @returns full path to HTTP static content
  */
-export function httpStaticContent() {
+function httpStaticContent() {
   return httpStaticContentPath
 }
+
+/**
+ * Format a message with emoji if enabled, without if disabled.
+ * @param {string} emoji - the emoji character
+ * @param {string} message - the text message
+ * @returns {string} formatted message
+ */
+function formatEmojiMessage(emoji, message) {
+  if (emojiUtil.isEmojiDisabled()) {
+    return message
+  }
+  return `${emoji} ${message}`
+}
+
+// Complete exports for all functions
+exports.environmentVariable = environmentVariable
+exports.setSaveFileFormat = setSaveFileFormat
+exports.defaultFileFormat = defaultFileFormat
+exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
+exports.builtinSilabsZclSpecialMetafile = builtinSilabsZclSpecialMetafile
+exports.builtinSilabsZclGeneralXmlFile = builtinSilabsZclGeneralXmlFile
+exports.builtinSilabsSpecialZclGeneralSpecialXmlFile =
+  builtinSilabsSpecialZclGeneralSpecialXmlFile
+exports.builtinMatterZclMetafile = builtinMatterZclMetafile
+exports.builtinNewMatterZclMetafile = builtinNewMatterZclMetafile
+exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile
+exports.builtinMatterZclMetafile2 = builtinMatterZclMetafile2
+exports.builtinTemplateMetafile = builtinTemplateMetafile
+exports.setDevelopmentEnv = setDevelopmentEnv
+exports.setProductionEnv = setProductionEnv
+exports.logInitStdout = logInitStdout
+exports.logInitLogFile = logInitLogFile
+exports.setAppDirectory = setAppDirectory
+exports.appDirectory = appDirectory
+exports.iconsDirectory = iconsDirectory
+exports.schemaFile = schemaFile
+exports.sqliteFile = sqliteFile
+exports.sqliteTestFile = sqliteTestFile
+exports.zapVersionAsString = zapVersionAsString
+exports.locateProjectResource = locateProjectResource
+exports.zapVersion = zapVersion
+exports.baseUrl = baseUrl
+exports.printToStderr = printToStderr
+exports.log = log
+exports.logInfo = logInfo
+exports.logError = logError
+exports.logWarning = logWarning
+exports.logSql = logSql
+exports.logBrowser = logBrowser
+exports.logIpc = logIpc
+exports.logDebug = logDebug
+exports.logWarningToFile = logWarningToFile
+exports.isMatchingVersion = isMatchingVersion
+exports.versionsCheck = versionsCheck
+exports.httpStaticContent = httpStaticContent
+exports.formatEmojiMessage = formatEmojiMessage
