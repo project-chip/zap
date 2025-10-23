@@ -243,8 +243,14 @@ test(
     expect(simpleTest).toContain('Base type for ipv6adr : long_octet_string')
 
     let deviceType = genResult.content['device-types.txt']
+
+    // Default device revision if unknown: 1
     expect(deviceType).toContain(
-      '// device type: CHIP / 0x0105 => MA-colordimmerswitch // extension: '
+      '// device type: CHIP / 0x0105 : 1 => MA-colordimmerswitch // extension: '
+    )
+    // set revision for onoff: 3 right now
+    expect(deviceType).toContain(
+      '// device type: CHIP / 0x0100 : 3 => MA-onofflight // extension: '
     )
     expect(deviceType).toContain('>> Attribute: StartUpCurrentLevel [16384]')
     expect(deviceType).toContain('>> Command: MoveToLevelWithOnOff [4]')
