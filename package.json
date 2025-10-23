@@ -20,7 +20,7 @@
   "bin": "dist/src-electron/main-process/main.js",
   "scripts": {
     "download-artifact": "npx ts-node src-script/download-artifact.ts",
-    "pkg:download-artifact": "npx pkg src-script/download-artifact.js  -t node18-linux-x64,node18-linux-arm64,node18-macos-x64,node18-win-x64 --output dist/download-artifact --compress GZip",
+    "pkg:download-artifact": "npx pkg src-script/download-artifact.js  -t node16-linux-x64,node16-linux-arm64,node16-macos-x64,node16-win-x64 --output dist/download-artifact --compress GZip",
     "compile:download-artifact": "tsc src-script/download-artifact.ts --esModuleInterop",
     "test:download-artifact": "npx jest --collectCoverage=false ./test/download-artifact.test.js --testPathIgnorePatterns=[]",
     "lic": "node src-script/license-check.js --production",
