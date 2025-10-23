@@ -55,6 +55,14 @@ export function builtinSilabsZclMetafile() {
 }
 
 /**
+ *
+ * @returns path to gen-templates.json file
+ */
+export function builtinSilabsTemplatesMetaFile() {
+  return locateProjectResource('./test/gen-template/zigbee/gen-templates.json')
+}
+
+/**
  * Used to retrieve zcl-special.json by zcl reload test in zcl-loader.test.js
  *
  * @returns path to zcl-special.json file used by zcl-loader.test.js
@@ -95,6 +103,14 @@ export function builtinMatterZclMetafile() {
  */
 export function builtinNewMatterZclMetafile() {
   return locateProjectResource('./zcl-builtin/matter/zcl-new-data-model.json')
+}
+
+/**
+ *
+ * @returns path to templates.json file
+ */
+export function builtinMatterTemplatesMetaFile() {
+  return locateProjectResource('./test/gen-template/matter2/templates.json')
 }
 
 /**
