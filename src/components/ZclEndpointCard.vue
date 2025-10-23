@@ -363,9 +363,6 @@ export default {
             this.endpointType[endpointReference]
           )
         })
-        .then(() => {
-          console.log(`Endpoint ${endpointReference} deleted successfully.`)
-        })
         .catch((err) => {
           console.error(
             `Error deleting endpoint ${endpointReference}: ${err.message}`
