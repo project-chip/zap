@@ -116,7 +116,8 @@ export default {
     endpointTypeIdList: {
       get() {
         if (this.shareClusterStatesAcrossEndpoints()) {
-          return Object.keys(this.endpointId)
+          // Return endpoint type IDs for all endpoints
+          return Object.values(this.endpointType)
         } else {
           return [this.selectedEndpointTypeId]
         }
