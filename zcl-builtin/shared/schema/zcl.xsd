@@ -34,6 +34,13 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:attribute name="type" use="required" type="xs:string"/>
     <xs:attribute name="array" use="optional" type="xs:boolean"/>
     <xs:attribute name="isNullable" use="optional" type="xs:boolean"/>
+    <xs:attribute name="length" use="optional" type="xs:string"/>
+    <xs:attribute name="optional" use="optional" type="xs:boolean"/>
+    <xs:attribute name="min" use="optional" type="xs:string"/>
+    <xs:attribute name="max" use="optional" type="xs:string"/>
+    <xs:attribute name="default" use="optional" type="xs:string"/>
+    <xs:attribute name="apiMaturity" type="zclApiMaturity" use="optional"/>
+    <xs:attribute name="minLength" type="xs:integer" use="optional"/>
   </xs:complexType>
   <xs:complexType name="tag">
     <xs:attribute name="name" use="required" type="xs:string"/>
@@ -50,24 +57,43 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:attribute name="type" use="required"/>
     <xs:attribute name="length" type="xs:int"/>
     <xs:attribute name="presentIf" type="xs:string"/>
-    <xs:attribute name="optional" type="xs:integer"/>
+    <xs:attribute name="optional" type="xs:boolean"/>
     <xs:attribute name="fieldId" type="xs:integer"/>
     <xs:attribute name="countArg" type="xs:string" use="optional"/>
     <xs:attribute name="isNullable" type="xs:boolean"/>
+    <xs:attribute name="id" type="xs:string" use="optional"/>
+    <xs:attribute name="min" type="xs:string" use="optional"/>
+    <xs:attribute name="max" type="xs:string" use="optional"/>
+    <xs:attribute name="minLength" type="xs:integer" use="optional"/>
+    <xs:attribute name="apiMaturity" type="zclApiMaturity" use="optional"/>
   </xs:complexType>
   <xs:complexType name="clusterRef">
     <xs:attribute name="code" type="xs:string"/>
   </xs:complexType>
   <xs:complexType name="item">
+    <xs:choice minOccurs="0">
+      <xs:element ref="mandatoryConform"/>
+      <xs:element ref="optionalConform"/>
+    </xs:choice>
     <xs:attribute name="introducedIn" type="zclSpecVersion"/>
     <xs:attribute name="name" use="required" type="xs:string"/>
     <xs:attribute name="type" type="xs:string"/>
     <xs:attribute name="value" type="xs:string"/>
     <xs:attribute name="array" type="xs:boolean"/>
-    <xs:attribute name="enum" type="xs:boolean"/>
     <xs:attribute name="fieldId" type="xs:integer"/>
     <xs:attribute name="isNullable" type="xs:boolean"/>
     <xs:attribute name="isFabricSensitive" type="xs:boolean"/>
+    <xs:attribute name="optional" type="xs:boolean"/>
+    <xs:attribute name="min" type="xs:string"/>
+    <xs:attribute name="max" type="xs:string"/>
+    <xs:attribute name="default" type="xs:string"/>
+    <xs:attribute name="length" type="xs:string"/>
+    <xs:attribute name="minLength" type="xs:integer"/>
+    <xs:attribute name="maxLength" type="xs:integer"/>
+    <xs:attribute name="apiMaturity" type="zclApiMaturity" use="optional"/>
+    <xs:attribute name="code" type="xs:string" use="optional"/>
+    <xs:attribute name="writable" type="xs:boolean" use="optional"/>
+    <xs:attribute name="enum" type="xs:string" use="optional"/>
   </xs:complexType>
   <xs:complexType name="featureBit" mixed="true">
     <xs:attribute name="tag" use="required" type="xs:string"/>
@@ -156,12 +182,31 @@ This schema describes the format of the XML files, that describe the ZCL specifi
         <xs:element ref="name"/>
         <xs:element ref="domain"/>
         <xs:element ref="typeName"/>
-        <xs:element ref="zigbeeType"/>
-        <xs:element ref="profileId"/>
-        <xs:element ref="deviceId"/>
-        <xs:element minOccurs="0" ref="channels"/>
-        <xs:element ref="clusters"/>
-        <xs:element minOccurs="0" ref="revision"/>
+        <xs:choice>
+          <xs:element ref="zigbeeType"/>
+          <xs:element name="class" type="xs:string"/>
+          <xs:element ref="profileId"/>
+        </xs:choice>
+        <xs:choice minOccurs="0" maxOccurs="2">
+          <xs:element ref="profileId"/>
+          <xs:element ref="deviceId"/>
+        </xs:choice>
+        <xs:element name="class" type="xs:string" minOccurs="0"/>
+        <xs:element name="scope" type="xs:string" minOccurs="0"/>
+        <xs:element minOccurs="0" ref="features"/>
+        <xs:element minOccurs="0" name="superset" type="xs:string"/>
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="endpointComposition" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element ref="channels" minOccurs="0" maxOccurs="1"/>
+          <xs:element ref="clusters" minOccurs="0" maxOccurs="1"/>
+          <xs:element minOccurs="0" ref="revision"/>
+        </xs:sequence>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -220,7 +265,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:sequence>
         <xs:element maxOccurs="unbounded" ref="include"/>
       </xs:sequence>
-      <xs:attribute name="lockOthers" use="required" type="xs:boolean"/>
+      <xs:attribute name="lockOthers" use="optional" type="xs:boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="include">
@@ -228,6 +273,8 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element ref="requireAttribute"/>
         <xs:element ref="requireCommand"/>
+        <xs:element name="requireEvent" type="xs:string"/>
+        <xs:element ref="features"/>
       </xs:choice>
       <xs:attribute name="client" use="required" type="xs:boolean"/>
       <xs:attribute name="clientLocked" use="required" type="xs:boolean"/>
@@ -241,7 +288,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
   <xs:element name="global">
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="command"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="command"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="attribute"/>
       </xs:sequence>
     </xs:complexType>
@@ -255,15 +302,17 @@ This schema describes the format of the XML files, that describe the ZCL specifi
   </xs:element>
   <xs:element name="type">
     <xs:complexType>
-      <xs:attribute name="id" use="required" type="xs:string"/>
-      <xs:attribute name="name" use="required" type="xs:string"/>
-      <xs:attribute name="description" use="required" type="xs:string"/>
-      <xs:attribute name="size" type="xs:integer"/>
-      <xs:attribute name="discrete" type="xs:boolean"/>
-      <xs:attribute name="signed" type="xs:boolean"/>
-      <xs:attribute name="string" type="xs:boolean"/>
-      <xs:attribute name="char" type="xs:boolean"/>
-      <xs:attribute name="long" type="xs:boolean"/>
+  <xs:attribute name="id" use="required" type="xs:string"/>
+  <xs:attribute name="name" use="required" type="xs:string"/>
+  <xs:attribute name="description" use="required" type="xs:string"/>
+  <xs:attribute name="size" type="xs:integer"/>
+  <xs:attribute name="discrete" type="xs:boolean"/>
+  <xs:attribute name="signed" type="xs:boolean"/>
+  <xs:attribute name="string" type="xs:boolean"/>
+  <xs:attribute name="char" type="xs:boolean"/>
+  <xs:attribute name="long" type="xs:boolean"/>
+  <xs:attribute name="analog" type="xs:boolean" use="optional"/>
+  <xs:attribute name="composite" type="xs:boolean" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="bitmap">
@@ -274,6 +323,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       </xs:sequence>
       <xs:attribute name="name" use="required" type="xs:string"/>
       <xs:attribute name="type" use="required" type="xs:string"/>
+      <xs:attribute name="apiMaturity" type="zclApiMaturity" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="field">
@@ -282,6 +332,9 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="name" use="required" type="xs:string"/>
       <xs:attribute name="introducedIn" type="zclSpecVersion"/>
       <xs:attribute name="fieldId" type="xs:integer"/>
+      <xs:attribute name="default" type="xs:string" use="optional"/>
+      <xs:attribute name="apiMaturity" type="zclApiMaturity" use="optional"/>
+      <xs:attribute name="minLength" type="xs:integer" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="globalAttribute">
@@ -292,11 +345,12 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="side" use="required" type="zclSideWithEither"/>
       <xs:attribute name="code" use="required" type="xs:string"/>
       <xs:attribute name="value" use="required" type="xs:string"/>
+      <xs:attribute name="type" type="xs:string" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="cluster">
     <xs:complexType>
-      <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element ref="name"/>
         <xs:element ref="domain"/>
         <xs:element ref="description"/>
@@ -304,18 +358,73 @@ This schema describes the format of the XML files, that describe the ZCL specifi
         <xs:element ref="define"/>
         <xs:element ref="client"/>
         <xs:element ref="server"/>
-        <xs:element minOccurs="0" ref="generateCmdHandlers"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="tag" type="tag"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="globalAttribute"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="struct"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="attribute"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="command"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="event"/>
-      </xs:sequence>
-      <xs:attribute name="introducedIn" type="xs:string"/>
-      <xs:attribute name="manufacturerCode" type="zclCode"/>
+        <xs:element ref="generateCmdHandlers"/>
+        <xs:element name="tag" type="tag"/>
+        <xs:element ref="globalAttribute"/>
+        <xs:element ref="struct"/>
+        <xs:element ref="attribute"/>
+        <xs:element ref="command"/>
+        <xs:element ref="event"/>
+        <xs:element ref="features"/>
+        <!-- Matter-specific elements -->
+        <xs:element name="revisionHistory">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="revision">
+                <xs:complexType>
+                  <xs:attribute name="revision" type="xs:string" use="required"/>
+                  <xs:attribute name="summary" type="xs:string" use="required"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="clusterIds">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="clusterId">
+                <xs:complexType>
+                  <xs:attribute name="id" type="xs:string" use="required"/>
+                  <xs:attribute name="name" type="xs:string" use="required"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="classification">
+          <xs:complexType>
+            <xs:attribute name="hierarchy" type="xs:string"/>
+            <xs:attribute name="role" type="xs:string"/>
+            <xs:attribute name="picsCode" type="xs:string"/>
+            <xs:attribute name="scope" type="xs:string"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="commands">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="command"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+      <xs:attribute name="introducedIn" type="xs:string" use="optional"/>
+      <xs:attribute name="manufacturerCode" type="zclCode" use="optional"/>
       <xs:attribute name="singleton" type="xs:boolean"/>
       <xs:attribute name="apiMaturity" type="zclApiMaturity"/>
+      <!-- Matter-specific attributes -->
+      <xs:attribute name="code" type="xs:string" use="optional"/>
+      <xs:attribute name="id" type="xs:string" use="optional"/>
+      <xs:attribute name="name" type="xs:string" use="optional"/>
+      <xs:attribute name="revision" type="xs:string" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- Matter-specific all element for XML includes -->
+  <xs:element name="all">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+      </xs:sequence>
+      <xs:anyAttribute processContents="skip"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="code" type="zclCode"/>
@@ -361,6 +470,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="description"/>
       <xs:attribute name="name" use="required" type="xs:string"/>
       <xs:attribute name="type" use="required" type="xs:string"/>
+      <xs:attribute name="apiMaturity" type="zclApiMaturity" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="struct">
@@ -410,10 +520,10 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="older"/>
       </xs:sequence>
-      <xs:attribute name="dependsOn" type="zclSpecVersion"/>
-      <xs:attribute name="name"/>
-      <xs:attribute name="spec" type="zclSpecVersion"/>
-      <xs:attribute name="certifiable" type="xs:boolean"/>
+      <xs:attribute name="dependsOn" type="zclSpecVersion" use="optional"/>
+      <xs:attribute name="name" type="xs:string" use="optional"/>
+      <xs:attribute name="spec" type="zclSpecVersion" use="optional"/>
+      <xs:attribute name="certifiable" type="xs:string" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="older">
@@ -425,26 +535,38 @@ This schema describes the format of the XML files, that describe the ZCL specifi
   </xs:element>
   <xs:element name="event">
     <xs:complexType>
-      <xs:sequence>
+      <xs:choice maxOccurs="unbounded">
         <xs:element ref="description"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="field" type="eventField"/>
-      </xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="1" name="access" type="access"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="quality"/>
+        <xs:element name="field" type="eventField"/>
+        <xs:element ref="mandatoryConform"/>
+        <xs:element ref="optionalConform"/>
+        <xs:element ref="otherwiseConform"/>
+          <xs:element ref="deprecateConform"/>
+      </xs:choice>
       <xs:attribute name="code" type="xs:string"/>
       <xs:attribute name="name" type="xs:string"/>
       <xs:attribute name="side" use="required" type="zclSide"/>
       <xs:attribute name="priority" type="xs:string"/>
       <xs:attribute name="apiMaturity" type="zclApiMaturity"/>
       <xs:attribute name="isFabricSensitive" type="xs:boolean"/>
+      <xs:attribute name="optional" type="xs:boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="command">
-    <xs:complexType>
-      <xs:sequence>
+    <xs:complexType mixed="true">
+      <xs:choice maxOccurs="unbounded">
         <xs:element ref="description"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="access" type="access"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="quality"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="arg" type="arg"/>
-      </xs:sequence>
+        <xs:element ref="mandatoryConform"/>
+        <xs:element ref="optionalConform"/>
+        <xs:element ref="otherwiseConform"/>
+        <xs:element ref="deprecateConform"/>
+        <xs:element ref="describedConform"/>
+      </xs:choice>
       <xs:attribute name="cli"/>
       <xs:attribute name="cliFunctionName" type="xs:string"/>
       <xs:attribute name="code" type="xs:string"/>
@@ -458,31 +580,40 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="optional" type="xs:boolean"/>
       <xs:attribute name="source" type="xs:string"/>
       <xs:attribute name="restriction" type="xs:string"/>
-      <xs:attribute name="response" type="xs:string"/>
-      <xs:attribute name="mustUseTimedInvoke" type="xs:boolean"/>
-      <xs:attribute name="isFabricScoped" type="xs:boolean"/>
+      <xs:attribute name="response" type="xs:string" use="optional"/>
+      <xs:attribute name="isFabricScoped" type="xs:boolean" use="optional"/>
+      <xs:attribute name="mustUseTimedInvoke" type="xs:boolean" use="optional"/>
+      <xs:attribute name="removedIn" type="xs:string" use="optional"/>
+      <xs:attribute name="apiMaturity" type="zclApiMaturity" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="attribute">
     <xs:complexType mixed="true">
-      <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="description"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
-      </xs:sequence>
-      <xs:attribute name="code" use="required" type="zclCode"/>
-      <xs:attribute name="default"/>
-      <xs:attribute name="define" use="required" type="zclAttributeDefine"/>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="description"/>
+        <xs:element name="access" type="access"/>
+        <xs:element ref="quality"/>
+        <xs:element ref="mandatoryConform"/>
+        <xs:element ref="optionalConform"/>
+        <xs:element ref="otherwiseConform"/>
+        <xs:element ref="deprecateConform"/>
+        <xs:element ref="describedConform"/>
+      </xs:choice>
+      <xs:attribute name="code" type="zclCode" use="optional"/>
+      <xs:attribute name="default" use="optional"/>
+      <xs:attribute name="define" type="zclAttributeDefine" use="optional"/>
       <xs:attribute name="introducedIn" type="zclSpecVersion"/>
       <xs:attribute name="length" type="xs:integer"/>
       <xs:attribute name="manufacturerCode" type="zclCode"/>
       <xs:attribute name="max" type="xs:anySimpleType"/>
       <xs:attribute name="min" type="xs:anySimpleType"/>
+      <xs:attribute name="name" type="xs:string"/>
       <xs:attribute name="reportMaxInterval" type="xs:anySimpleType"/>
       <xs:attribute name="reportMinInterval" type="xs:anySimpleType"/>
       <xs:attribute name="reportableChange" type="xs:anySimpleType"/>
-      <xs:attribute name="optional" use="required" type="xs:boolean"/>
-      <xs:attribute name="side" use="required" type="zclSide"/>
-      <xs:attribute name="type" use="required" type="xs:string"/>
+      <xs:attribute name="optional" type="xs:boolean"/>
+      <xs:attribute name="side" type="zclSide" use="optional"/>
+      <xs:attribute name="type" type="xs:string" use="optional"/>
       <xs:attribute name="entryType" type="xs:string"/>
       <xs:attribute name="readable" type="xs:boolean"/>
       <xs:attribute name="writable" type="xs:boolean"/>
@@ -490,8 +621,14 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="reportingPolicy" type="xs:string"/>
       <xs:attribute name="array" type="xs:boolean"/>
       <xs:attribute name="isNullable" type="xs:boolean"/>
-      <xs:attribute name="mustUseTimedWrite" type="xs:boolean"/>
-      <xs:attribute name="apiMaturity" type="zclApiMaturity"/>
+      <xs:attribute name="mustUseTimedWrite" type="xs:boolean" use="optional"/>
+      <xs:attribute name="apiMaturity" type="zclApiMaturity" use="optional"/>
+      <xs:attribute name="removedIn" type="xs:string" use="optional"/>
+      <xs:attribute name="reportableChangeLength" type="xs:string" use="optional"/>
+      <xs:attribute name="persistence" type="xs:string" use="optional"/>
+      <xs:attribute name="arrayType" type="xs:string" use="optional"/>
+      <xs:attribute name="minLength" type="xs:integer" use="optional"/>
+      <xs:attribute name="mustUseAtomicWrite" type="xs:boolean" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="description">
@@ -543,6 +680,135 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="mapping"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="access">
+    <xs:complexType>
+      <xs:attribute name="operation" type="xs:string" use="required"/>
+      <xs:attribute name="role" type="xs:string" use="required"/>
+      <xs:attribute name="privilege" type="xs:string" use="optional"/>
+      <xs:attribute name="modifier" type="xs:string" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="quality">
+    <xs:complexType>
+      <xs:attribute name="changeOmitted" type="xs:boolean" use="optional"/>
+      <xs:attribute name="persistence" type="xs:string" use="optional"/>
+      <xs:attribute name="largeMessage" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="conformance" type="xs:string"/>
+  <xs:element name="otherwiseConform">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="mandatoryConform">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="feature">
+          <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="orTerm" type="xs:anyType"/>
+        <xs:element name="andTerm" type="xs:anyType"/>
+        <xs:element name="notTerm" type="xs:anyType"/>
+        <xs:element ref="attributeConformanceRef"/>
+        <xs:element name="command">
+          <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element ref="attribute"/>
+        <xs:element name="condition" type="xs:anyType"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="attributeConformanceRef">
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="deprecateConform">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="describedConform">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="provisionalConform">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="disallowConform">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="optionalConform">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="feature">
+          <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="orTerm" type="xs:anyType"/>
+        <xs:element name="andTerm" type="xs:anyType"/>
+        <xs:element name="notTerm" type="xs:anyType"/>
+        <xs:element ref="attributeConformanceRef"/>
+        <xs:element name="command">
+          <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="condition" type="xs:anyType"/>
+        <xs:element ref="attribute"/>
+      </xs:choice>
+      <xs:attribute name="choice" type="xs:string" use="optional"/>
+      <xs:attribute name="more" type="xs:string" use="optional"/>
+      <xs:attribute name="min" type="xs:string" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="features">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="feature" maxOccurs="unbounded">
+          <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+              <xs:element ref="mandatoryConform"/>
+              <xs:element ref="optionalConform"/>
+              <xs:element ref="otherwiseConform"/>
+              <xs:element ref="describedConform"/>
+              <xs:element ref="deprecateConform"/>
+              <xs:element ref="disallowConform"/>
+              <xs:element ref="provisionalConform"/>
+            </xs:choice>
+            <xs:attribute name="bit" type="xs:integer" use="optional"/>
+            <xs:attribute name="code" type="xs:string" use="required"/>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="summary" type="xs:string" use="optional"/>
+            <xs:attribute name="apiMaturity" type="zclApiMaturity" use="optional"/>
+            <xs:attribute name="default" type="xs:string" use="optional"/>
+            <xs:attribute name="introducedIn" type="zclSpecVersion" use="optional"/>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

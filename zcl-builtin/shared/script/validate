@@ -15,10 +15,9 @@ for A in ${LOC}/../../silabs/*.xml; do
     SUM=$(( $SUM + $?))
 done
 
-for A in ${LOC}/../../matter/*.xml; do
+for A in ${LOC}/../../matter/data-model/*.xml; do
     xmllint --noout --schema ${LOC}/../schema/zcl.xsd  $A
-    echo "** WARNING: Ignoring Matter validation errors. **"
-    #SUM=$(( $SUM + $?))
+    SUM=$(( $SUM + $?))
 done
 
 for A in ${LOC}/../../../test/resource/meta/*.xml; do
@@ -30,6 +29,5 @@ for A in ${LOC}/../../../test/resource/custom-cluster/!([b]*|matter*).xml; do
     xmllint --noout --schema ${LOC}/../schema/zcl.xsd  $A
     SUM=$(( $SUM + $?))
 done
-echo "** WARNING: Ignoring Matter custom xml validation errors. **"
 
 exit $SUM
