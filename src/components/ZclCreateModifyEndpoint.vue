@@ -664,11 +664,16 @@ export default {
     deleteAndAddDeviceType() {
       this.showDeviceTypeChangeDialog = false
       this.deleteEpt(this.endpointReference)
-      this.newEpt()
+        .then(() => {
+          this.newEpt()
+        })
+        .catch((err) => {
+          console.error('Error in deleteAndAddDeviceType:', err)
+        })
     },
     deleteEpt(endpointReference) {
       // Logic to delete the existing endpoint
-      this.$store
+      return this.$store
         .dispatch('zap/deleteEndpoint', endpointReference)
         .then(() => {
           return this.$store.dispatch(
@@ -677,9 +682,8 @@ export default {
           )
         })
         .catch((err) => {
-          console.error(
-            `Error deleting endpoint ${endpointReference}: ${err.message}`
-          )
+          const errorMsg = `Error deleting endpoint ${endpointReference}: ${err.message || err}`
+          throw new Error(errorMsg) // Throw formatted error
         })
     },
     reqValue(value) {
