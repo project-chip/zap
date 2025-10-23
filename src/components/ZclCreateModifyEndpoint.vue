@@ -671,6 +671,12 @@ export default {
       this.$store
         .dispatch('zap/deleteEndpoint', endpointReference)
         .then(() => {
+          return this.$store.dispatch(
+            'zap/deleteEndpointType',
+            this.endpointType[endpointReference]
+          )
+        })
+        .then(() => {
           console.log(`Endpoint ${endpointReference} deleted successfully.`)
         })
         .catch((err) => {

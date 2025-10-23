@@ -355,12 +355,22 @@ export default {
     },
     deleteEndpoint() {
       let endpointReference = this.endpointReference
-      this.$store.dispatch('zap/deleteEndpoint', endpointReference).then(() => {
-        this.$store.dispatch(
-          'zap/deleteEndpointType',
-          this.endpointType[endpointReference]
-        )
-      })
+      this.$store
+        .dispatch('zap/deleteEndpoint', endpointReference)
+        .then(() => {
+          return this.$store.dispatch(
+            'zap/deleteEndpointType',
+            this.endpointType[endpointReference]
+          )
+        })
+        .then(() => {
+          console.log(`Endpoint ${endpointReference} deleted successfully.`)
+        })
+        .catch((err) => {
+          console.error(
+            `Error deleting endpoint ${endpointReference}: ${err.message}`
+          )
+        })
     },
     toggleShowAllInformationOfEndpoint(value) {
       this.$store.commit('zap/toggleShowEndpoint', {
