@@ -373,7 +373,8 @@ exports.map = {
       label: x.NAME,
       value: x.VALUE,
       enumRef: x.ENUM_REF,
-      caption: `EnumItem, named ${x.NAME}`
+      caption: `EnumItem, named ${x.NAME}`,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -411,7 +412,8 @@ exports.map = {
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       dataTypeReference: x.DATA_TYPE_REF,
-      discriminatorName: x.DISCRIMINATOR_NAME
+      discriminatorName: x.DISCRIMINATOR_NAME,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -449,11 +451,13 @@ exports.map = {
   bitmapField: (x) => {
     if (x == null) return undefined
     return {
+      name: x.NAME,
       label: x.NAME,
       mask: x.MASK,
       type: x.TYPE,
       bitmapRef: x.BITMAP_REF,
-      caption: `BitmapField, named ${x.NAME}`
+      caption: `BitmapField, named ${x.NAME}`,
+      apiMaturity: x.API_MATURITY
     }
   },
 

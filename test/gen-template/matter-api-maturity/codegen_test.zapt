@@ -9,10 +9,17 @@ cluster {{asUpperCamelCase name}} = {{code}}
 {
   {{#zcl_enums}}
   enum {{asUpperCamelCase name preserveAcronyms=true}} : ENUM{{multiply size 8}};
+  {{#zcl_enum_items}}
+    {{#if apiMaturity}} apiMaturity {{apiMaturity}} available for enum item: {{name}}{{/if}}
+  {{/zcl_enum_items}}
 
   {{/zcl_enums}}
   {{#zcl_bitmaps}}
   bitmap {{asUpperCamelCase name preserveAcronyms=true}} : BITMAP{{multiply size 8}};
+
+  {{#zcl_bitmap_items}}
+    {{#if apiMaturity}} apiMaturity {{apiMaturity}} available for bitmap field: {{name}}{{/if}}
+  {{/zcl_bitmap_items}}
 
   {{/zcl_bitmaps}}
   {{#zcl_events}}
@@ -35,6 +42,7 @@ cluster {{asUpperCamelCase name}} = {{code}}
     {{~#if isFabricSensitive~}}fabric_sensitive {{/if~}}
     {{type}} {{asLowerCamelCase label~}}
     {{~#if isArray~}} [] {{~/if}} = {{fieldIdentifier}};
+    {{#if apiMaturity}} apiMaturity {{apiMaturity}} available for struct item: {{name}}{{/if}}
     {{/zcl_struct_items}}
   }
 

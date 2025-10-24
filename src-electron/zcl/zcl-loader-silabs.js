@@ -1443,7 +1443,8 @@ async function processEnumItems(db, filePath, packageId, knownPackages, data) {
           enumClusterCode: e.cluster ? e.cluster : null,
           name: item.$.name,
           value: parseInt(item.$.value),
-          fieldIdentifier: lastFieldId
+          fieldIdentifier: lastFieldId,
+          apiMaturity: item.$.apiMaturity
         })
       })
     }
@@ -1545,7 +1546,8 @@ async function processBitmapFields(
             bitmapClusterCode: bm.cluster ? bm.cluster : null,
             name: item.$.name,
             mask: parseInt(item.$.mask),
-            fieldIdentifier: lastFieldId
+            fieldIdentifier: lastFieldId,
+            apiMaturity: item.$.apiMaturity
           })
         })
       }
@@ -1579,7 +1581,8 @@ async function processBitmapFields(
           bitmapClusterCode: [clCode],
           name: item.$.name,
           mask: 1 << itemBit,
-          fieldIdentifier: itemBit
+          fieldIdentifier: itemBit,
+          apiMaturity: item.$.apiMaturity
         })
       })
     )
@@ -1664,7 +1667,8 @@ async function processStructItems(db, filePath, packageIds, data, context) {
           isEnum: item.$.enum == 'true' ? true : false,
           isNullable: item.$.isNullable == 'true' ? true : false,
           isOptional: item.$.optional == 'true' ? true : false,
-          isFabricSensitive: item.$.isFabricSensitive == 'true' ? true : false
+          isFabricSensitive: item.$.isFabricSensitive == 'true' ? true : false,
+          apiMaturity: item.$.apiMaturity
         })
       })
     }
@@ -1687,7 +1691,8 @@ async function processStructItems(db, filePath, packageIds, data, context) {
         isEnum: false,
         isNullable: false,
         isOptional: false,
-        isFabricSensitive: false
+        isFabricSensitive: false,
+        apiMaturity: null
       })
     }
   })

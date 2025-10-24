@@ -110,6 +110,21 @@ test(
     // Maturity for Event should be correct.
     expect(ept).toContain('info event StableEvent = 1{')
     expect(ept).toContain('info event ProvisionalEvent = 2 (provisional){')
+
+    // Testing apiMaturity on struct items
+    expect(ept).toContain(
+      'apiMaturity provisional available for struct item: Baz'
+    )
+
+    // Testing apiMaturity on enum items
+    expect(ept).toContain(
+      'apiMaturity provisional available for enum item: Beta'
+    )
+
+    // Testing apiMaturity on bitmap fields
+    expect(ept).toContain(
+      'apiMaturity provisional available for bitmap field: Second'
+    )
   },
   testUtil.timeout.long()
 )
