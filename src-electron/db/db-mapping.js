@@ -131,7 +131,8 @@ exports.map = {
       mustUseTimedWrite: dbApi.fromDbBool(x.MUST_USE_TIMED_WRITE),
       apiMaturity: x.API_MATURITY,
       isChangeOmitted: dbApi.fromDbBool(x.IS_CHANGE_OMITTED),
-      persistence: x.PERSISTENCE
+      persistence: x.PERSISTENCE,
+      entryTypeElseType: x.ARRAY_TYPE ? x.ARRAY_TYPE : x.TYPE // added for convenience between types and entry types from arrays. Precedence set using entryType then type
     }
   },
 
