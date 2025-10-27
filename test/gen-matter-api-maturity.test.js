@@ -125,6 +125,16 @@ test(
     expect(ept).toContain(
       'apiMaturity provisional available for bitmap field: Second'
     )
+
+    // Testing apiMaturity on a command
+    expect(ept).toContain('command StableCommand has apiMaturity: provisional')
+    expect(ept).not.toContain('command StableCommandResponse has apiMaturity')
+
+    // testing apiMaturity on command arguments
+    expect(ept).toContain(
+      'command argument SecondReply has apiMaturity: provisional'
+    )
+    expect(ept).not.toContain('command argument FirstReply has apiMaturity')
   },
   testUtil.timeout.long()
 )

@@ -518,7 +518,8 @@ function prepareCluster(cluster, context, isExtension = false) {
         isDefaultResponseEnabled:
           command.$.disableDefaultResponse == 'true' ? false : true,
         isFabricScoped: command.$.isFabricScoped == 'true',
-        isLargeMessage: quality ? quality.largeMessage == 'true' : false
+        isLargeMessage: quality ? quality.largeMessage == 'true' : false,
+        apiMaturity: command.$.apiMaturity
       }
       cmd.access = extractAccessIntoArray(command)
       if (cmd.manufacturerCode == null) {
@@ -552,7 +553,8 @@ function prepareCluster(cluster, context, isExtension = false) {
               countArg: arg.$.countArg,
               fieldIdentifier: lastFieldId,
               introducedIn: arg.$.introducedIn,
-              removedIn: arg.$.removedIn
+              removedIn: arg.$.removedIn,
+              apiMaturity: arg.$.apiMaturity
             })
         })
       }

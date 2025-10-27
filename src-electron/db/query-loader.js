@@ -107,12 +107,13 @@ INSERT INTO COMMAND (
   INTRODUCED_IN_REF,
   REMOVED_IN_REF,
   IS_DEFAULT_RESPONSE_ENABLED,
-  IS_LARGE_MESSAGE
+  IS_LARGE_MESSAGE,
+  API_MATURITY
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  ?, ?
+  ?, ?, ?
 )`
 
 const INSERT_COMMAND_ARG_QUERY = `
@@ -132,11 +133,13 @@ INSERT INTO COMMAND_ARG (
   COUNT_ARG,
   FIELD_IDENTIFIER,
   INTRODUCED_IN_REF,
-  REMOVED_IN_REF
+  REMOVED_IN_REF,
+  API_MATURITY
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  ?
 )`
 
 // Replace here is used to prevent custom cluster extensions from being re-loaded again.
@@ -321,7 +324,8 @@ function commandMap(clusterId, packageId, commands) {
     command.removedIn,
     packageId,
     dbApi.toDbBool(command.isDefaultResponseEnabled),
-    dbApi.toDbBool(command.isLargeMessage)
+    dbApi.toDbBool(command.isLargeMessage),
+    command.apiMaturity
   ])
 }
 
@@ -377,7 +381,8 @@ function argMap(cmdId, packageId, args) {
     arg.introducedIn,
     packageId,
     arg.removedIn,
-    packageId
+    packageId,
+    arg.apiMaturity
   ])
 }
 /**

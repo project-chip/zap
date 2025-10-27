@@ -61,6 +61,7 @@ cluster {{asUpperCamelCase name}} = {{code}}
   {{/zcl_attributes_server}}
 
   {{#zcl_commands}}
+  // {{#if apiMaturity}} command {{commandName}} has apiMaturity: {{apiMaturity}} {{/if}}
   command {{asUpperCamelCase commandName}} = {{code}} {
   {{#zcl_command_arguments}}
     {{#if isOptional~}}optional {{/if~}}
@@ -68,6 +69,7 @@ cluster {{asUpperCamelCase name}} = {{code}}
     {{~#if isFabricSensitive~}}fabric_sensitive {{/if~}}
     {{type}} {{asLowerCamelCase label~}}
     {{~#if isArray~}} [] {{~/if}} = {{fieldIdentifier}};
+    // {{#if apiMaturity}} command argument {{name}} has apiMaturity: {{apiMaturity}} {{/if}}
   {{/zcl_command_arguments}}
   }
 

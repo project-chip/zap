@@ -55,7 +55,7 @@ limitations under the License.
     <attribute side="server" code="0x0003" define="STRUCT_ATTR_1" type="StableStruct" writable="true" optional="true">StructAttr1</attribute>
     <attribute side="server" code="0x0004" define="STRUCT_ATTR_2" type="ProvisionalStruct" writable="true" optional="true">StructAttr2</attribute>
 
-    <command source="client" code="0x00" name="StableCommand" response="StableCommandResponse" optional="false" >
+    <command source="client" code="0x00" name="StableCommand" response="StableCommandResponse" optional="false" apiMaturity="provisional">
       <description>A Test command</description>
       <access op="invoke" privilege="administer"/>
       <arg name="First" type="INT16U"/>
@@ -65,7 +65,7 @@ limitations under the License.
     <command source="server" code="0x01" name="StableCommandResponse" optional="false">
       <description>A Test command reply</description>
       <arg name="FirstReply" type="INT16U"/>
-      <arg name="SecondReply" type="CHAR_STRING"/>
+      <arg name="SecondReply" type="CHAR_STRING" apiMaturity="provisional"/>
     </command>
 
     <event code="0x0001" name="StableEvent" priority="info" side="server">

@@ -229,7 +229,8 @@ exports.map = {
       isIncoming: x.INCOMING,
       isOutgoing: x.OUTGOING,
       isDefaultResponseEnabled: x.IS_DEFAULT_RESPONSE_ENABLED,
-      isLargeMessage: dbApi.fromDbBool(x.IS_LARGE_MESSAGE)
+      isLargeMessage: dbApi.fromDbBool(x.IS_LARGE_MESSAGE),
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -256,7 +257,8 @@ exports.map = {
       introducedInRef: x.INTRODUCED_IN_REF,
       removedInRef: x.REMOVED_IN_REF,
       countArg: x.COUNT_ARG,
-      caption: `Command argument of type ${x.TYPE}`
+      caption: `Command argument of type ${x.TYPE}`,
+      apiMaturity: x.API_MATURITY
     }
   },
 
