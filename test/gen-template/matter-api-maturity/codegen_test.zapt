@@ -8,11 +8,20 @@ cluster {{asUpperCamelCase name}} = {{code}}
   {{~#if apiMaturity}} ({{apiMaturity}}){{/if}} {{!~}}
 {
   {{#zcl_enums}}
+  {{#if apiMaturity}}// enum {{name}} has apiMaturity: {{apiMaturity}}{{/if}}
   enum {{asUpperCamelCase name preserveAcronyms=true}} : ENUM{{multiply size 8}};
+  {{#zcl_enum_items}}
+    {{#if apiMaturity}} apiMaturity {{apiMaturity}} available for enum item: {{name}}{{/if}}
+  {{/zcl_enum_items}}
 
   {{/zcl_enums}}
   {{#zcl_bitmaps}}
+  {{#if apiMaturity}}// bitmap {{name}} has apiMaturity: {{apiMaturity}}{{/if}}
   bitmap {{asUpperCamelCase name preserveAcronyms=true}} : BITMAP{{multiply size 8}};
+
+  {{#zcl_bitmap_items}}
+    {{#if apiMaturity}} apiMaturity {{apiMaturity}} available for bitmap field: {{name}}{{/if}}
+  {{/zcl_bitmap_items}}
 
   {{/zcl_bitmaps}}
   {{#zcl_events}}
@@ -23,6 +32,7 @@ cluster {{asUpperCamelCase name}} = {{code}}
     {{~#if isFabricSensitive~}}fabric_sensitive {{/if~}}
     {{type}} {{asLowerCamelCase name~}}
     {{~#if isArray~}} [] {{~/if}} = {{fieldIdentifier}};
+    {{#if apiMaturity}} apiMaturity {{apiMaturity}} available for event field: {{name}}{{/if}}
     {{/zcl_event_fields}}
   }
 
@@ -35,6 +45,7 @@ cluster {{asUpperCamelCase name}} = {{code}}
     {{~#if isFabricSensitive~}}fabric_sensitive {{/if~}}
     {{type}} {{asLowerCamelCase label~}}
     {{~#if isArray~}} [] {{~/if}} = {{fieldIdentifier}};
+    {{#if apiMaturity}} apiMaturity {{apiMaturity}} available for struct item: {{name}}{{/if}}
     {{/zcl_struct_items}}
   }
 
@@ -53,6 +64,7 @@ cluster {{asUpperCamelCase name}} = {{code}}
   {{/zcl_attributes_server}}
 
   {{#zcl_commands}}
+  // {{#if apiMaturity}} command {{commandName}} has apiMaturity: {{apiMaturity}} {{/if}}
   command {{asUpperCamelCase commandName}} = {{code}} {
   {{#zcl_command_arguments}}
     {{#if isOptional~}}optional {{/if~}}
@@ -60,6 +72,7 @@ cluster {{asUpperCamelCase name}} = {{code}}
     {{~#if isFabricSensitive~}}fabric_sensitive {{/if~}}
     {{type}} {{asLowerCamelCase label~}}
     {{~#if isArray~}} [] {{~/if}} = {{fieldIdentifier}};
+    // {{#if apiMaturity}} command argument {{name}} has apiMaturity: {{apiMaturity}} {{/if}}
   {{/zcl_command_arguments}}
   }
 

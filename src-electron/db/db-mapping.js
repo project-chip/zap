@@ -168,7 +168,8 @@ exports.map = {
       defaultValue: x.DEFAULT_VALUE,
       isArray: dbApi.fromDbBool(x.IS_ARRAY),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
-      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL)
+      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -229,7 +230,8 @@ exports.map = {
       isIncoming: x.INCOMING,
       isOutgoing: x.OUTGOING,
       isDefaultResponseEnabled: x.IS_DEFAULT_RESPONSE_ENABLED,
-      isLargeMessage: dbApi.fromDbBool(x.IS_LARGE_MESSAGE)
+      isLargeMessage: dbApi.fromDbBool(x.IS_LARGE_MESSAGE),
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -256,7 +258,8 @@ exports.map = {
       introducedInRef: x.INTRODUCED_IN_REF,
       removedInRef: x.REMOVED_IN_REF,
       countArg: x.COUNT_ARG,
-      caption: `Command argument of type ${x.TYPE}`
+      caption: `Command argument of type ${x.TYPE}`,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -362,7 +365,8 @@ exports.map = {
       name: x.NAME,
       caption: `Enum of size ${x.SIZE} byte`,
       enumClusterCount: x.ENUM_CLUSTER_COUNT,
-      size: x.SIZE
+      size: x.SIZE,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -373,7 +377,8 @@ exports.map = {
       label: x.NAME,
       value: x.VALUE,
       enumRef: x.ENUM_REF,
-      caption: `EnumItem, named ${x.NAME}`
+      caption: `EnumItem, named ${x.NAME}`,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -411,7 +416,8 @@ exports.map = {
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       dataTypeReference: x.DATA_TYPE_REF,
-      discriminatorName: x.DISCRIMINATOR_NAME
+      discriminatorName: x.DISCRIMINATOR_NAME,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -442,18 +448,21 @@ exports.map = {
       name: x.NAME,
       type: x.TYPE,
       bitmapClusterCount: x.BITMAP_CLUSTER_COUNT,
-      size: x.SIZE
+      size: x.SIZE,
+      apiMaturity: x.API_MATURITY
     }
   },
 
   bitmapField: (x) => {
     if (x == null) return undefined
     return {
+      name: x.NAME,
       label: x.NAME,
       mask: x.MASK,
       type: x.TYPE,
       bitmapRef: x.BITMAP_REF,
-      caption: `BitmapField, named ${x.NAME}`
+      caption: `BitmapField, named ${x.NAME}`,
+      apiMaturity: x.API_MATURITY
     }
   },
 

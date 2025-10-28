@@ -110,6 +110,49 @@ test(
     // Maturity for Event should be correct.
     expect(ept).toContain('info event StableEvent = 1{')
     expect(ept).toContain('info event ProvisionalEvent = 2 (provisional){')
+
+    // Testing apiMaturity on struct items
+    expect(ept).toContain(
+      'apiMaturity provisional available for struct item: Baz'
+    )
+
+    // Testing apiMaturity for enums
+    expect(ept).toContain('enum StableEnum2 has apiMaturity: provisional')
+
+    expect(ept).not.toContain('enum StableEnum has apiMaturity')
+
+    // Testing apiMaturity on enum items
+    expect(ept).toContain(
+      'apiMaturity provisional available for enum item: Beta'
+    )
+
+    // Testing apiMaturity for bitmaps
+    expect(ept).toContain('bitmap StableBitmap2 has apiMaturity: provisional')
+
+    expect(ept).not.toContain('bitmap StableBitmap has apiMaturity')
+
+    // Testing apiMaturity on bitmap fields
+    expect(ept).toContain(
+      'apiMaturity provisional available for bitmap field: Second'
+    )
+
+    // Testing apiMaturity on a command
+    expect(ept).toContain('command StableCommand has apiMaturity: provisional')
+    expect(ept).not.toContain('command StableCommandResponse has apiMaturity')
+
+    // testing apiMaturity on command arguments
+    expect(ept).toContain(
+      'command argument SecondReply has apiMaturity: provisional'
+    )
+    expect(ept).not.toContain('command argument FirstReply has apiMaturity')
+
+    // testing apiMaturity for event fields
+    expect(ept).toContain(
+      'apiMaturity provisional available for event field: arg3'
+    )
+    expect(ept).not.toContain(
+      'apiMaturity provisional available for event field: arg2'
+    )
   },
   testUtil.timeout.long()
 )

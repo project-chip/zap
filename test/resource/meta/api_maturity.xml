@@ -25,8 +25,32 @@ limitations under the License.
   <struct name="StableStruct">
     <cluster code="0x1122"/>
     <item fieldId="0" name="Foo" type="INT24U" isNullable="true"/>
-    <item fieldId="1" name="Baz" type="INT8U" isNullable="true"/>
+    <item fieldId="1" name="Baz" type="INT8U" isNullable="true" apiMaturity="provisional"/>
   </struct>
+
+  <enum name="StableEnum" type="ENUM8">
+    <cluster code="0x1122"/>
+    <item name="Alpha" value="0x0"/>
+    <item name="Beta" value="0x1" apiMaturity="provisional"/>
+  </enum>
+
+  <enum name="StableEnum2" type="ENUM8" apiMaturity="provisional">
+    <cluster code="0x1122"/>
+    <item name="item1" value="0x0"/>
+    <item name="item2" value="0x1"/>
+  </enum>
+
+  <bitmap name="StableBitmap" type="BITMAP8">
+    <cluster code="0x1122"/>
+    <field name="First" mask="0x1"/>
+    <field name="Second" mask="0x2" apiMaturity="provisional"/>
+  </bitmap>
+
+  <bitmap name="StableBitmap2" type="BITMAP8" apiMaturity="provisional">
+    <cluster code="0x1122"/>
+    <field name="field1" mask="0x1"/>
+    <field name="field2" mask="0x2"/>
+  </bitmap>
 
   <cluster apiMaturity="internal">
     <name>Api Maturity Test</name>
@@ -43,7 +67,7 @@ limitations under the License.
     <attribute side="server" code="0x0003" define="STRUCT_ATTR_1" type="StableStruct" writable="true" optional="true">StructAttr1</attribute>
     <attribute side="server" code="0x0004" define="STRUCT_ATTR_2" type="ProvisionalStruct" writable="true" optional="true">StructAttr2</attribute>
 
-    <command source="client" code="0x00" name="StableCommand" response="StableCommandResponse" optional="false" >
+    <command source="client" code="0x00" name="StableCommand" response="StableCommandResponse" optional="false" apiMaturity="provisional">
       <description>A Test command</description>
       <access op="invoke" privilege="administer"/>
       <arg name="First" type="INT16U"/>
@@ -53,7 +77,7 @@ limitations under the License.
     <command source="server" code="0x01" name="StableCommandResponse" optional="false">
       <description>A Test command reply</description>
       <arg name="FirstReply" type="INT16U"/>
-      <arg name="SecondReply" type="CHAR_STRING"/>
+      <arg name="SecondReply" type="CHAR_STRING" apiMaturity="provisional"/>
     </command>
 
     <event code="0x0001" name="StableEvent" priority="info" side="server">
@@ -66,6 +90,7 @@ limitations under the License.
       <description>A Provisional Test event</description>
       <field id="1" name="arg1" type="INT8U" isNullable="true"/>
       <field id="2" name="arg2" type="INT32U" array="true"/>
+      <field id="3" name="arg3" type="INT32U" array="true" apiMaturity="provisional"/>
     </event>
 
   </cluster>

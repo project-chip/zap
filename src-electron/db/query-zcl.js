@@ -48,7 +48,8 @@ SELECT
   B.BITMAP_ID,
   DT.NAME,
   (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = B.BITMAP_ID) AS BITMAP_CLUSTER_COUNT,
-  B.SIZE
+  B.SIZE,
+  B.API_MATURITY
 FROM
   BITMAP AS B
 INNER JOIN
@@ -78,25 +79,8 @@ async function selectAllBitmapFieldsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, MASK, TYPE FROM BITMAP_FIELD WHERE BITMAP_REF = ? ORDER BY FIELD_IDENTIFIER',
+      'SELECT NAME, MASK, TYPE, API_MATURITY FROM BITMAP_FIELD WHERE BITMAP_REF = ? ORDER BY FIELD_IDENTIFIER',
       [id]
-    )
-    .then((rows) => rows.map(dbMapping.map.bitmapField))
-}
-
-/**
- * Get all bitmap fields from the given package ID.
- *
- * @param {*} db
- * @param {*} packageId
- * @returns Promise of bitmap fields
- */
-async function selectAllBitmapFields(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      'SELECT NAME, MASK, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, FIELD_IDENTIFIER',
-      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
@@ -465,7 +449,8 @@ SELECT
   STRUCT_ITEM.IS_NULLABLE,
   STRUCT_ITEM.IS_OPTIONAL,
   STRUCT_ITEM.IS_FABRIC_SENSITIVE,
-  STRUCT_ITEM.DATA_TYPE_REF
+  STRUCT_ITEM.DATA_TYPE_REF,
+  STRUCT_ITEM.API_MATURITY
 FROM
   STRUCT_ITEM
 INNER JOIN
@@ -520,7 +505,8 @@ async function selectAllStructItemsByStructName(
     SI.IS_NULLABLE,
     SI.IS_OPTIONAL,
     SI.IS_FABRIC_SENSITIVE,
-    SI.DATA_TYPE_REF
+    SI.DATA_TYPE_REF,
+    SI.API_MATURITY
   FROM
     STRUCT_ITEM AS SI
   INNER JOIN
@@ -1320,7 +1306,6 @@ ORDER BY
 
 //exports
 exports.selectClusterBitmaps = selectClusterBitmaps
-exports.selectAllBitmapFields = selectAllBitmapFields
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
 
 exports.selectAllDomains = selectAllDomains

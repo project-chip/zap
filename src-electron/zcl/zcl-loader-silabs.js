@@ -518,7 +518,8 @@ function prepareCluster(cluster, context, isExtension = false) {
         isDefaultResponseEnabled:
           command.$.disableDefaultResponse == 'true' ? false : true,
         isFabricScoped: command.$.isFabricScoped == 'true',
-        isLargeMessage: quality ? quality.largeMessage == 'true' : false
+        isLargeMessage: quality ? quality.largeMessage == 'true' : false,
+        apiMaturity: command.$.apiMaturity
       }
       cmd.access = extractAccessIntoArray(command)
       if (cmd.manufacturerCode == null) {
@@ -552,7 +553,8 @@ function prepareCluster(cluster, context, isExtension = false) {
               countArg: arg.$.countArg,
               fieldIdentifier: lastFieldId,
               introducedIn: arg.$.introducedIn,
-              removedIn: arg.$.removedIn
+              removedIn: arg.$.removedIn,
+              apiMaturity: arg.$.apiMaturity
             })
         })
       }
@@ -596,7 +598,8 @@ function prepareCluster(cluster, context, isExtension = false) {
               isOptional: field.$.optional == 'true' ? true : false,
               fieldIdentifier: lastFieldId,
               introducedIn: field.$.introducedIn,
-              removedIn: field.$.removedIn
+              removedIn: field.$.removedIn,
+              apiMaturity: field.$.apiMaturity
             })
           }
         })
@@ -1387,7 +1390,8 @@ function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
       : a.$.cluster_code
         ? [{ $: { code: a.$.cluster_code[0] } }]
         : null, // else case: Treating features in a cluster as a bitmap
-    discriminator_ref: dataType
+    discriminator_ref: dataType,
+    apiMaturity: a.$.apiMaturity
   }
 }
 
@@ -1443,7 +1447,8 @@ async function processEnumItems(db, filePath, packageId, knownPackages, data) {
           enumClusterCode: e.cluster ? e.cluster : null,
           name: item.$.name,
           value: parseInt(item.$.value),
-          fieldIdentifier: lastFieldId
+          fieldIdentifier: lastFieldId,
+          apiMaturity: item.$.apiMaturity
         })
       })
     }
@@ -1545,7 +1550,8 @@ async function processBitmapFields(
             bitmapClusterCode: bm.cluster ? bm.cluster : null,
             name: item.$.name,
             mask: parseInt(item.$.mask),
-            fieldIdentifier: lastFieldId
+            fieldIdentifier: lastFieldId,
+            apiMaturity: item.$.apiMaturity
           })
         })
       }
@@ -1579,7 +1585,8 @@ async function processBitmapFields(
           bitmapClusterCode: [clCode],
           name: item.$.name,
           mask: 1 << itemBit,
-          fieldIdentifier: itemBit
+          fieldIdentifier: itemBit,
+          apiMaturity: item.$.apiMaturity
         })
       })
     )
@@ -1664,7 +1671,8 @@ async function processStructItems(db, filePath, packageIds, data, context) {
           isEnum: item.$.enum == 'true' ? true : false,
           isNullable: item.$.isNullable == 'true' ? true : false,
           isOptional: item.$.optional == 'true' ? true : false,
-          isFabricSensitive: item.$.isFabricSensitive == 'true' ? true : false
+          isFabricSensitive: item.$.isFabricSensitive == 'true' ? true : false,
+          apiMaturity: item.$.apiMaturity
         })
       })
     }
@@ -1687,7 +1695,8 @@ async function processStructItems(db, filePath, packageIds, data, context) {
         isEnum: false,
         isNullable: false,
         isOptional: false,
-        isFabricSensitive: false
+        isFabricSensitive: false,
+        apiMaturity: null
       })
     }
   })

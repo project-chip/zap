@@ -23,6 +23,7 @@
  */
 
 const dbApi = require('./db-api')
+const dbEnum = require('../../src-shared/db-enum')
 
 /**
  * Formulate a sqlite query string for a data type from the given cluster ID and package IDs.
@@ -47,12 +48,21 @@ function sqlQueryForDataTypeByNameAndClusterId(
     typeDiscriminator == 'struct'
       ? 'STRUCT.IS_FABRIC_SCOPED, DATA_TYPE.DISCRIMINATOR_REF, '
       : ''
+  let apiMaturityString = ''
+  if (typeDiscriminator == dbEnum.zclType.enum) {
+    apiMaturityString = 'ENUM.API_MATURITY, '
+  } else if (typeDiscriminator == dbEnum.zclType.bitmap) {
+    apiMaturityString = 'BITMAP.API_MATURITY, '
+  } else if (typeDiscriminator == dbEnum.zclType.struct) {
+    apiMaturityString = 'STRUCT.API_MATURITY, '
+  }
   let selectQueryString = `
   SELECT
       ${typeTableName}.${typeTableName}_ID,
       ${structExtensionString}
       DATA_TYPE.NAME AS NAME,
       ${numberExtensionString}
+      ${apiMaturityString}
       ${typeTableName}.SIZE AS SIZE
     FROM ${typeTableName}
     INNER JOIN
@@ -110,6 +120,14 @@ function sqlQueryForDataTypeByNameAndClusterName(
     typeDiscriminator == 'struct'
       ? 'STRUCT.IS_FABRIC_SCOPED, DATA_TYPE.DISCRIMINATOR_REF, '
       : ''
+  let apiMaturityString = ''
+  if (typeDiscriminator == dbEnum.zclType.enum) {
+    apiMaturityString = 'ENUM.API_MATURITY, '
+  } else if (typeDiscriminator == dbEnum.zclType.bitmap) {
+    apiMaturityString = 'BITMAP.API_MATURITY, '
+  } else if (typeDiscriminator == dbEnum.zclType.struct) {
+    apiMaturityString = 'STRUCT.API_MATURITY, '
+  }
   let selectQueryString = `
   SELECT
     ${typeTableName}.${typeTableName}_ID,
@@ -117,6 +135,7 @@ function sqlQueryForDataTypeByNameAndClusterName(
     DATA_TYPE.NAME AS NAME,
     (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = ${typeTableName}.${typeTableName}_ID) AS ${typeTableName}_CLUSTER_COUNT,
     ${numberExtensionString}
+    ${apiMaturityString}
     ${typeTableName}.SIZE AS SIZE,
     CLUSTER.NAME AS CLUSTER_NAME
   FROM ${typeTableName}
