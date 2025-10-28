@@ -83,11 +83,13 @@ INSERT INTO EVENT_FIELD (
   IS_NULLABLE,
   IS_OPTIONAL,
   INTRODUCED_IN_REF,
-  REMOVED_IN_REF
+  REMOVED_IN_REF,
+  API_MATURITY
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  ?
 )
 `
 const INSERT_COMMAND_QUERY = `
@@ -350,7 +352,8 @@ function fieldMap(eventId, packageId, fields) {
     field.introducedIn,
     packageId,
     field.removedIn,
-    packageId
+    packageId,
+    field.apiMaturity
   ])
 }
 
@@ -1830,7 +1833,7 @@ async function insertEnum(db, packageIds, data) {
     db,
     `
 INSERT INTO
-  ENUM (ENUM_ID, SIZE)
+  ENUM (ENUM_ID, SIZE, API_MATURITY)
 VALUES (
   (SELECT
     CASE
@@ -1891,7 +1894,7 @@ VALUES (
           DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
           AND DATA_TYPE.NAME = ?
           AND DATA_TYPE.DISCRIMINATOR_REF = ?)
-    END AS SIZE))`,
+    END AS SIZE), ?)`,
     data.map((at) => [
       at.name,
       at.discriminator_ref,
@@ -1905,7 +1908,8 @@ VALUES (
       at.discriminator_ref,
       at.type,
       at.type,
-      at.discriminator_ref
+      at.discriminator_ref,
+      at.apiMaturity
     ])
   )
 }
@@ -2058,7 +2062,7 @@ async function insertBitmap(db, packageIds, data) {
     db,
     `
   INSERT INTO
-    BITMAP (BITMAP_ID, SIZE)
+    BITMAP (BITMAP_ID, SIZE, API_MATURITY)
   VALUES (
     (SELECT
       CASE
@@ -2118,7 +2122,7 @@ async function insertBitmap(db, packageIds, data) {
             DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
             AND DATA_TYPE.NAME = ?
             AND DATA_TYPE.DISCRIMINATOR_REF = ?)
-      END AS SIZE))`,
+      END AS SIZE), ?)`,
     data.map((at) => [
       at.name,
       at.discriminator_ref,
@@ -2132,7 +2136,8 @@ async function insertBitmap(db, packageIds, data) {
       at.discriminator_ref,
       at.type,
       at.type,
-      at.discriminator_ref
+      at.discriminator_ref,
+      at.apiMaturity
     ])
   )
 }

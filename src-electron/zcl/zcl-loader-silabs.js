@@ -598,7 +598,8 @@ function prepareCluster(cluster, context, isExtension = false) {
               isOptional: field.$.optional == 'true' ? true : false,
               fieldIdentifier: lastFieldId,
               introducedIn: field.$.introducedIn,
-              removedIn: field.$.removedIn
+              removedIn: field.$.removedIn,
+              apiMaturity: field.$.apiMaturity
             })
           }
         })
@@ -1389,7 +1390,8 @@ function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
       : a.$.cluster_code
         ? [{ $: { code: a.$.cluster_code[0] } }]
         : null, // else case: Treating features in a cluster as a bitmap
-    discriminator_ref: dataType
+    discriminator_ref: dataType,
+    apiMaturity: a.$.apiMaturity
   }
 }
 

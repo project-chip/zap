@@ -168,7 +168,8 @@ exports.map = {
       defaultValue: x.DEFAULT_VALUE,
       isArray: dbApi.fromDbBool(x.IS_ARRAY),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
-      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL)
+      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -364,7 +365,8 @@ exports.map = {
       name: x.NAME,
       caption: `Enum of size ${x.SIZE} byte`,
       enumClusterCount: x.ENUM_CLUSTER_COUNT,
-      size: x.SIZE
+      size: x.SIZE,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -446,7 +448,8 @@ exports.map = {
       name: x.NAME,
       type: x.TYPE,
       bitmapClusterCount: x.BITMAP_CLUSTER_COUNT,
-      size: x.SIZE
+      size: x.SIZE,
+      apiMaturity: x.API_MATURITY
     }
   },
 

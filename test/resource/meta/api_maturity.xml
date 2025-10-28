@@ -34,10 +34,22 @@ limitations under the License.
     <item name="Beta" value="0x1" apiMaturity="provisional"/>
   </enum>
 
+  <enum name="StableEnum2" type="ENUM8" apiMaturity="provisional">
+    <cluster code="0x1122"/>
+    <item name="item1" value="0x0"/>
+    <item name="item2" value="0x1"/>
+  </enum>
+
   <bitmap name="StableBitmap" type="BITMAP8">
     <cluster code="0x1122"/>
     <field name="First" mask="0x1"/>
     <field name="Second" mask="0x2" apiMaturity="provisional"/>
+  </bitmap>
+
+  <bitmap name="StableBitmap2" type="BITMAP8" apiMaturity="provisional">
+    <cluster code="0x1122"/>
+    <field name="field1" mask="0x1"/>
+    <field name="field2" mask="0x2"/>
   </bitmap>
 
   <cluster apiMaturity="internal">
@@ -78,6 +90,7 @@ limitations under the License.
       <description>A Provisional Test event</description>
       <field id="1" name="arg1" type="INT8U" isNullable="true"/>
       <field id="2" name="arg2" type="INT32U" array="true"/>
+      <field id="3" name="arg3" type="INT32U" array="true" apiMaturity="provisional"/>
     </event>
 
   </cluster>

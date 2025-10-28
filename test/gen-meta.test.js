@@ -132,7 +132,7 @@ test(
       ) {
         expect(clusters.length).toBe(1)
         expect(clusters[0].code).toBe(0xabcd)
-      } else if (e.name == 'StableEnum') {
+      } else if (e.name == 'StableEnum' || e.name == 'StableEnum2') {
         expect(clusters.length).toBe(1)
         expect(clusters[0].code).toBe(4386)
       } else {
@@ -141,13 +141,13 @@ test(
     }
 
     const bitmaps = await queryZcl.selectAllBitmaps(db, zclContext.packageId)
-    expect(bitmaps.length).toBe(11)
+    expect(bitmaps.length).toBe(12)
     for (const b of bitmaps) {
       let clusters = await queryZcl.selectBitmapClusters(db, b.id)
       if (b.name == 'ClusterBitmap') {
         expect(clusters.length).toBe(1)
         expect(clusters[0].code).toBe(0xabcd)
-      } else if (b.name == 'StableBitmap') {
+      } else if (b.name == 'StableBitmap' || b.name == 'StableBitmap2') {
         expect(clusters.length).toBe(1)
         expect(clusters[0].code).toBe(4386)
       } else {
