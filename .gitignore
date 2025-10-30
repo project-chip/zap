@@ -11,8 +11,8 @@ docs/zap-schema.dot
 .quasar
 /dist
 
-#We don't save the coverage within 
-#this repo. 
+#We don't save the coverage within
+#this repo.
 test/jest/coverage
 test/jest/__tests__/data/zap.sqlite
 test/.zap
@@ -85,6 +85,9 @@ reports
 
 # clinic.js performance profiling data
 .clinic
+
+# Compiled JavaScript output from TypeScript source
+src-script/download-artifact.js
 
 # Downloaded artifacts from Nexus / Github / etc via download-artifact script
 artifacts

@@ -49,10 +49,16 @@ const enum DownloadSources {
 // cheap and secure
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 
+/**
+ * Returns the Artifactory server URL.
+ */
 function artifactoryServerUrl(opts: DlOptions) {
   return `https://${opts.artifactoryUrl}`
 }
 
+/**
+ * Gets the latest folder from Artifactory.
+ */
 async function artifactoryGetLatestFolder(
   opt: DlOptions
 ): Promise<LatestFolder> {
@@ -62,6 +68,9 @@ async function artifactoryGetLatestFolder(
   return { folder, paths }
 }
 
+/**
+ * Gets folders from Artifactory and sorts them by date.
+ */
 async function artifactoryGetFolders(
   opt: DlOptions,
   uri: string = ''
@@ -95,6 +104,9 @@ async function artifactoryGetFolders(
   return { folders, paths: [resp?.uri] }
 }
 
+/**
+ * Gets storage info from Artifactory.
+ */
 async function artifactoryStorageGet(
   dlOptions: DlOptions,
   uri: string = ''
@@ -107,12 +119,18 @@ async function artifactoryStorageGet(
   return httpGet(url)
 }
 
+/**
+ * Gets content (files) from Artifactory for given paths.
+ */
 async function artifactoryGetContent(paths: string[]): Promise<string[]> {
   const resp = await httpGet(paths.join(''))
   const files = resp?.children.map((x: any) => x.uri)
   return files
 }
 
+/**
+ * Performs HTTP GET request.
+ */
 async function httpGet(url: string) {
   try {
     if (DEBUG) console.log(`GET: ${url}`)
@@ -124,6 +142,9 @@ async function httpGet(url: string) {
   }
 }
 
+/**
+ * Verifies if artifact name matches platform and format.
+ */
 function verifyPlatformAndFormat(
   name: string,
   platforms: string[],
@@ -147,6 +168,9 @@ function verifyPlatformAndFormat(
   return true
 }
 
+/**
+ * Downloads artifacts from GitHub.
+ */
 async function githubDownloadArtifacts(
   artifacts: any,
   dlOptions: DlOptions,
@@ -212,6 +236,9 @@ async function githubDownloadArtifacts(
   }
 }
 
+/**
+ * Lists artifact names from GitHub and writes to file.
+ */
 async function githubListArtifacts(
   artifacts: any,
   dlOptions: DlOptions,
@@ -259,6 +286,9 @@ async function githubListArtifacts(
   }
 }
 
+/**
+ * Downloads a file from a given URL.
+ */
 async function download(
   archive_download_url: string,
   outDir: string,
@@ -294,6 +324,9 @@ async function download(
   }
 }
 
+/**
+ * Determines platforms to use based on arguments.
+ */
 function platforms(argv: any) {
   let platformMap: { [index: string]: any } = {
     linux: 'linux',
@@ -316,6 +349,9 @@ function platforms(argv: any) {
   return list
 }
 
+/**
+ * Gets existing branches from GitHub repo.
+ */
 async function getExistingGithubBranches(
   options: DlOptions
 ): Promise<string[]> {
@@ -324,7 +360,10 @@ async function getExistingGithubBranches(
 
   try {
     if (DEBUG) console.log(`GET: ${url}`)
-    let resp = await axios.get(url)
+    const headers = options.githubToken
+      ? { Authorization: `token ${options.githubToken}` }
+      : undefined
+    let resp = await axios.get(url, { headers })
     branches = resp?.data?.map((x: any) => x.name)
   } catch (error) {
     console.error(error)
@@ -333,6 +372,9 @@ async function getExistingGithubBranches(
   return branches
 }
 
+/**
+ * Downloads artifacts from Artifactory.
+ */
 async function artifactoryDownloadArtifacts(
   latest: LatestFolder,
   dlOptions: DlOptions,
@@ -389,11 +431,12 @@ async function artifactoryDownloadArtifacts(
  * @returns list of artifact entries following Github Artifacts schema
  *          https://docs.github.com/en/rest/actions/artifacts
  */
+/**
+ * Gets artifacts from GitHub Actions for given repo and branch.
+ */
 async function githubGetArtifacts(options: DlOptions) {
   let { owner, repo, branch, commit, githubToken } = options
-  const octokit = new Octokit({
-    githubToken
-  })
+  const octokit = new Octokit()
   let refCommit: string | undefined = ''
   let refWorkflowRunId: number | undefined = 0
 
@@ -401,7 +444,8 @@ async function githubGetArtifacts(options: DlOptions) {
     'GET /repos/{owner}/{repo}/actions/artifacts',
     {
       owner,
-      repo
+      repo,
+      headers: { authorization: `token ${githubToken}` }
     }
   )
 
@@ -452,6 +496,9 @@ async function githubGetArtifacts(options: DlOptions) {
   }
 }
 
+/**
+ * Configures yargs command line options.
+ */
 function configureBuildCommand() {
   return yargs
     .option('mac', {
@@ -547,6 +594,9 @@ interface DlOptions {
   artifactoryUrl: string
 }
 
+/**
+ * Main entry point for the script.
+ */
 async function main() {
   let y = configureBuildCommand()
   let dlOptions: DlOptions = {
