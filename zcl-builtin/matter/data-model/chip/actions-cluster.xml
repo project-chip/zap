@@ -64,6 +64,9 @@ limitations under the License.
     <item value="1" name="room"/>
     <item value="2" name="zone"/>
   </enum>
+  <enum name="TestStatusEnumAcrossClusters" type="ENUM8">
+    <item name="TestStatusEnumItem1" value="0x02"/>
+  </enum>
 
   <struct name="ActionStruct">
     <cluster code="0x0025"/>
