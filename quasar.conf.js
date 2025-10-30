@@ -2,6 +2,7 @@
 // https://quasar.dev/quasar-cli/quasar-conf-js
 const ESLintPlugin = require('eslint-webpack-plugin')
 const { configure } = require('quasar/wrappers')
+const path = require('path')
 
 module.exports = configure(function (ctx) {
   return {
@@ -84,6 +85,39 @@ module.exports = configure(function (ctx) {
           loader: 'file-loader',
           exclude: /node_modules/
         })
+      },
+      chainWebpack(chain, { isServer, isClient }) {
+        // Add Istanbul loader for coverage when testing
+        if (process.env.CYPRESS_COVERAGE) {
+          // Handle JS files
+          chain.module
+            .rule('istanbul-js')
+            .test(/\.js$/)
+            .enforce('post')
+            .include.add(path.resolve(__dirname, 'src'))
+            .add(path.resolve(__dirname, 'src-electron'))
+            .add(path.resolve(__dirname, 'src-shared'))
+            .end()
+            .exclude.add(/node_modules/)
+            .add(/\.spec\.js$/)
+            .add(/cypress/)
+            .end()
+            .use('istanbul-instrumenter-loader')
+            .loader('istanbul-instrumenter-loader')
+            .options({
+              esModules: true
+            })
+
+          // Handle Vue files - target the compiled JavaScript from vue-loader
+          chain.module
+            .rule('vue')
+            .use('istanbul-instrumenter-loader')
+            .loader('istanbul-instrumenter-loader')
+            .options({
+              esModules: true
+            })
+            .before('vue-loader')
+        }
       }
     },
 

@@ -9,7 +9,17 @@ export default defineConfig({
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
-      return require('./cypress/plugins/index.js')(on, config)
+      require('@cypress/code-coverage/task')(on, config)
+
+      // Optional: Add coverage configuration
+      on('task', {
+        coverage(coverage) {
+          // Custom coverage processing if needed
+          return null
+        }
+      })
+
+      return config
     },
     testIsolation: false,
     excludeSpecPattern: [

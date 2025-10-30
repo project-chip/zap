@@ -17,6 +17,12 @@ module.exports = (api) => {
     presets: [
       ['@quasar/babel-preset-app', envOptions],
       '@babel/preset-typescript'
-    ]
+    ],
+    plugins: [
+      // Add Istanbul plugin for code coverage instrumentation when testing
+      process.env.NODE_ENV === 'test' && 'istanbul',
+      // Add coverage plugin for Cypress
+      process.env.CYPRESS_COVERAGE && 'istanbul'
+    ].filter(Boolean)
   }
 }
