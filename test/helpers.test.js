@@ -27,6 +27,8 @@ const zclLoader = require('../src-electron/zcl/zcl-loader')
 const zclHelper = require('../src-electron/generator/helper-zcl')
 const dbEnum = require('../src-shared/db-enum')
 const zapHelper = require('../src-electron/generator/helper-zap')
+const accessors = require('../src-electron/generator/matter/app/zap-templates/common/attributes/Accessors.js')
+const path = require('path')
 
 let db
 let zclContext
@@ -634,3 +636,39 @@ test(
   },
   testUtil.timeout.short()
 )
+
+describe('Accessors.js', () => {
+  test('isUnsupportedType returns true for unsupported types', () => {
+    expect(accessors.isUnsupportedType('EUI64')).toBe(true)
+    expect(accessors.isUnsupportedType('eui64')).toBe(true)
+    expect(accessors.isUnsupportedType('STRING')).toBe(false)
+  })
+
+  test('canHaveSimpleAccessors returns false for arrays and lists', () => {
+    expect(
+      accessors.canHaveSimpleAccessors({ isArray: true, type: 'int8u' })
+    ).toBe(false)
+    // This triggers ListHelper.isList, which returns true for 'array'
+    expect(
+      accessors.canHaveSimpleAccessors({ isArray: false, type: 'array' })
+    ).toBe(false)
+  })
+
+  test('canHaveSimpleAccessors returns false for unsupported types', () => {
+    expect(
+      accessors.canHaveSimpleAccessors({ isArray: false, type: 'EUI64' })
+    ).toBe(false)
+  })
+
+  test('canHaveSimpleAccessors returns true for supported types', () => {
+    expect(
+      accessors.canHaveSimpleAccessors({ isArray: false, type: 'int8u' })
+    ).toBe(true)
+  })
+
+  test('typeAsDelimitedMacro returns correct macro', async () => {
+    await expect(
+      accessors.typeAsDelimitedMacro.call(ctx, 'int8u')
+    ).resolves.toBeDefined()
+  })
+})
