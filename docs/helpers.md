@@ -1912,6 +1912,7 @@ This module contains the API for templating. For more detailed instructions, rea
 * [Templating API: user-data specific helpers](#module_Templating API_ user-data specific helpers)
     * [~user_endpoints(options)](#module_Templating API_ user-data specific helpers..user_endpoints)
     * [~user_device_types(options)](#module_Templating API_ user-data specific helpers..user_device_types)
+    * [~user_endpoint_composition_requirements(options)](#module_Templating API_ user-data specific helpers..user_endpoint_composition_requirements)
     * [~user_endpoint_types(options)](#module_Templating API_ user-data specific helpers..user_endpoint_types)
     * [~user_clusters(options)](#module_Templating API_ user-data specific helpers..user_clusters)
     * [~user_cluster_attributes(options)](#module_Templating API_ user-data specific helpers..user_cluster_attributes) ⇒
@@ -1988,6 +1989,19 @@ Creates block iterator over the endpoints.
 ### Templating API: user-data specific helpers~user\_device\_types(options)
 Creates device type iterator over an endpoint type id.
 This works inside user_endpoints or user_endpoint_types.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ user-data specific helpers..user_endpoint_composition_requirements"></a>
+
+### Templating API: user-data specific helpers~user\_endpoint\_composition\_requirements(options)
+Creates iterator over endpoint composition requirements for a device type.
+This works inside user_device_types context where device type ref is available.
+Returns required device types that must be on separate endpoints.
 
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
 

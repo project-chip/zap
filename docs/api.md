@@ -3476,6 +3476,7 @@ This module provides queries for device types.
     * [~selectDeviceTypesWithCompositionByEndpointTypeId(db, endpointTypeId)](#module_DB API_ device type database access..selectDeviceTypesWithCompositionByEndpointTypeId) ⇒ <code>Promise.&lt;Array&gt;</code>
     * [~selectDeviceTypesByEndpointTypeId(db, endpointTypeId)](#module_DB API_ device type database access..selectDeviceTypesByEndpointTypeId) ⇒
     * [~selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(db, endpointTypeId, clusterId)](#module_DB API_ device type database access..selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId) ⇒
+    * [~selectEndpointCompositionRequirementsByDeviceTypeRef(db, deviceTypeRef)](#module_DB API_ device type database access..selectEndpointCompositionRequirementsByDeviceTypeRef) ⇒ <code>Promise.&lt;Array&gt;</code>
 
 <a name="module_DB API_ device type database access..selectAllDeviceTypes"></a>
 
@@ -3747,6 +3748,24 @@ Note: Use clusterId as 'all' to get all features for an endpoint type id.
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 | clusterId | <code>\*</code> | 
+
+<a name="module_DB API_ device type database access..selectEndpointCompositionRequirementsByDeviceTypeRef"></a>
+
+### DB API: device type database access~selectEndpointCompositionRequirementsByDeviceTypeRef(db, deviceTypeRef) ⇒ <code>Promise.&lt;Array&gt;</code>
+Retrieves the endpoint composition requirements for a given device type.
+Returns all required device types that must be on separate endpoints, along with
+their conformance and constraint information.
+
+Example: For an Oven device type, this would return that it requires
+at least 1 Temperature Controlled Cabinet device type on a separate endpoint.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - A promise that resolves with an array of required device types with their constraints.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>Object</code> | The database connection object. |
+| deviceTypeRef | <code>number</code> | The device type reference ID (DEVICE_TYPE_ID). |
 
 <a name="module_DB API_ endpoint type queries against the database."></a>
 
@@ -10801,6 +10820,7 @@ This module contains the API for templating. For more detailed instructions, rea
 * [Templating API: user-data specific helpers](#module_Templating API_ user-data specific helpers)
     * [~user_endpoints(options)](#module_Templating API_ user-data specific helpers..user_endpoints)
     * [~user_device_types(options)](#module_Templating API_ user-data specific helpers..user_device_types)
+    * [~user_endpoint_composition_requirements(options)](#module_Templating API_ user-data specific helpers..user_endpoint_composition_requirements)
     * [~user_endpoint_types(options)](#module_Templating API_ user-data specific helpers..user_endpoint_types)
     * [~user_clusters(options)](#module_Templating API_ user-data specific helpers..user_clusters)
     * [~user_cluster_attributes(options)](#module_Templating API_ user-data specific helpers..user_cluster_attributes) ⇒
@@ -10877,6 +10897,19 @@ Creates block iterator over the endpoints.
 ### Templating API: user-data specific helpers~user\_device\_types(options)
 Creates device type iterator over an endpoint type id.
 This works inside user_endpoints or user_endpoint_types.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ user-data specific helpers..user_endpoint_composition_requirements"></a>
+
+### Templating API: user-data specific helpers~user\_endpoint\_composition\_requirements(options)
+Creates iterator over endpoint composition requirements for a device type.
+This works inside user_device_types context where device type ref is available.
+Returns required device types that must be on separate endpoints.
 
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
 
@@ -15821,6 +15854,8 @@ This module provides the REST API to the user specific data.
     * [~httpPatchEndpoint(db)](#module_REST API_ endpoint..httpPatchEndpoint) ⇒
     * [~httpPostEndpointType(db)](#module_REST API_ endpoint..httpPostEndpointType) ⇒
     * [~httpGetInitialComposition(db)](#module_REST API_ endpoint..httpGetInitialComposition) ⇒ <code>function</code>
+    * [~httpGetEndpointCompositionRequirements(db)](#module_REST API_ endpoint..httpGetEndpointCompositionRequirements) ⇒
+    * [~httpGetDeviceTypesByEndpointTypeId(db)](#module_REST API_ endpoint..httpGetDeviceTypesByEndpointTypeId) ⇒
     * [~httpPatchEndpointType(db)](#module_REST API_ endpoint..httpPatchEndpointType) ⇒
 
 <a name="module_REST API_ endpoint..httpDeleteEndpoint"></a>
@@ -15894,6 +15929,30 @@ Handles the HTTP GET request to retrieve the root node.
 | Param | Type | Description |
 | --- | --- | --- |
 | db | <code>Object</code> | The database connection object. |
+
+<a name="module_REST API_ endpoint..httpGetEndpointCompositionRequirements"></a>
+
+### REST API: endpoint~httpGetEndpointCompositionRequirements(db) ⇒
+HTTP GET: endpoint composition requirements for a device type
+
+**Kind**: inner method of [<code>REST API: endpoint</code>](#module_REST API_ endpoint)  
+**Returns**: callback for the express uri registration  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ endpoint..httpGetDeviceTypesByEndpointTypeId"></a>
+
+### REST API: endpoint~httpGetDeviceTypesByEndpointTypeId(db) ⇒
+HTTP GET: device types by endpoint type ID
+
+**Kind**: inner method of [<code>REST API: endpoint</code>](#module_REST API_ endpoint)  
+**Returns**: callback for the express uri registration  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
 
 <a name="module_REST API_ endpoint..httpPatchEndpointType"></a>
 
