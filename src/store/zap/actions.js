@@ -486,6 +486,7 @@ export function updateEndpoint(context, endpoint) {
 }
 /**
  * Loads the composition by fetching the root node data and adding endpoint types and endpoints.
+ * Also automatically creates required endpoints for endpoint composition requirements.
  *
  * @param {Object} context - The Vuex context object.
  * @returns {Promise<void>} - A promise that resolves when the composition is loaded.
@@ -497,6 +498,8 @@ export async function loadComposition(context) {
   if (!res.data) {
     return null // Return null or any appropriate value indicating no endpoints were added
   }
+
+  // Handle root node composition (high priority - keep existing logic)
   if (res.data.type == dbEnum.composition.rootNode) {
     let dataArray = {
       deviceTypeRef: [res.data.deviceTypeRef],
@@ -505,17 +508,165 @@ export async function loadComposition(context) {
       name: res.data.name
     }
 
-    let endpointTypeData = await addEndpointType(context, dataArray) // Call addEndpointType with the array containing deviceTypeRef
+    let endpointTypeData = await addEndpointType(
+      context,
+      dataArray
+    ) // Call addEndpointType with the array containing deviceTypeRef
 
-    let endpoint = await addEndpoint(context, {
+    let rootEndpoint = await addEndpoint(context, {
       endpointId: dbEnum.rootNode.endpointId,
       parentEndpointIdentifier: dbEnum.rootNode.parentEndpointIdentifier,
       endpointType: endpointTypeData.id,
       profileId: dbEnum.rootNode.profileID
     })
-    return endpoint
+
+    // After creating root node, check for endpoint composition requirements
+    // and automatically create required endpoints
+    if (res.data.deviceTypeRef) {
+      console.log(
+        `[loadComposition] Checking endpoint composition requirements for device type ref: ${res.data.deviceTypeRef}`
+      )
+      await createRequiredEndpointsForComposition(
+        context,
+        res.data.deviceTypeRef,
+        rootEndpoint.id,
+        rootEndpoint.endpointId
+      )
+    }
+
+    return rootEndpoint
   }
+
+  // Handle non-root node compositions
+  // TODO: Implement if needed for other composition types
   return null
+}
+
+/**
+ * Creates required endpoints for a device type's endpoint composition requirements.
+ *
+ * @param {Object} context - The Vuex context object.
+ * @param {number} deviceTypeRef - The device type reference ID to check for requirements.
+ * @param {number} parentEndpointId - The ID of the parent endpoint (for parent reference).
+ * @param {number} parentEndpointIdentifier - The endpoint identifier of the parent.
+ * @returns {Promise<Array>} - Array of created endpoints.
+ */
+async function createRequiredEndpointsForComposition(
+  context,
+  deviceTypeRef,
+  parentEndpointId,
+  parentEndpointIdentifier
+) {
+  try {
+    console.log(
+      `[createRequiredEndpointsForComposition] Querying requirements for device type ref: ${deviceTypeRef}`
+    )
+    // Query endpoint composition requirements using device type ref
+    let requirementsRes = await axiosRequests.$serverGet(
+      restApi.uri.endpointCompositionRequirements,
+      {
+        params: {
+          deviceTypeRef: deviceTypeRef
+        }
+      }
+    )
+
+    console.log(
+      `[createRequiredEndpointsForComposition] Requirements response:`,
+      requirementsRes.data
+    )
+
+    if (!requirementsRes.data || requirementsRes.data.length === 0) {
+      console.log(
+        `[createRequiredEndpointsForComposition] No requirements found for device type ref: ${deviceTypeRef}`
+      )
+      return [] // No requirements, return empty array
+    }
+
+    let createdEndpoints = []
+    let nextEndpointId = parentEndpointIdentifier + 1
+
+    // Process each requirement
+    // Handle constraints - deviceConstraint might indicate minimum count (e.g., "min 1" = 1)
+    // For now, create at least one endpoint per requirement
+    for (let requirement of requirementsRes.data) {
+      if (!requirement.requiredDeviceTypeRef) {
+        console.warn(
+          `Device type ref not available for requirement: ${requirement.requiredDeviceName}`
+        )
+        continue
+      }
+
+      // Determine how many endpoints to create based on constraint
+      // deviceConstraint might be a number indicating minimum count
+      let minCount = 1
+      if (requirement.deviceConstraint != null) {
+        // Try to parse constraint - could be a number or string like "min 1"
+        if (typeof requirement.deviceConstraint === 'number') {
+          minCount = Math.max(1, requirement.deviceConstraint)
+        } else if (typeof requirement.deviceConstraint === 'string') {
+          // Try to extract number from string like "min 1"
+          let match = requirement.deviceConstraint.match(/min\s*(\d+)/i)
+          if (match) {
+            minCount = parseInt(match[1], 10)
+          }
+        }
+      }
+
+      console.log(
+        `[createRequiredEndpointsForComposition] Processing requirement: ${requirement.requiredDeviceName} (ref: ${requirement.requiredDeviceTypeRef}), minCount: ${minCount}`
+      )
+
+      // Create the minimum required endpoints
+      for (let i = 0; i < minCount; i++) {
+        // Create endpoint type for the required device
+        let endpointTypeData = await addEndpointType(context, {
+          deviceTypeRef: [requirement.requiredDeviceTypeRef],
+          deviceIdentifier: requirement.requiredDeviceCode,
+          deviceVersion: 1, // Default version, could be enhanced to get from device type
+          name: requirement.requiredDeviceName || `Device ${requirement.requiredDeviceCode}`
+        })
+
+        console.log(
+          `[createRequiredEndpointsForComposition] Created endpoint type: ${endpointTypeData.id} for device: ${requirement.requiredDeviceName}`
+        )
+
+        // Create endpoint for the required device type
+        let endpoint = await addEndpoint(context, {
+          endpointId: nextEndpointId++,
+          parentEndpointIdentifier: parentEndpointIdentifier,
+          endpointType: endpointTypeData.id,
+          profileId: dbEnum.rootNode.profileID // Use same profile as root node
+        })
+
+        console.log(
+          `[createRequiredEndpointsForComposition] Created endpoint: ${endpoint.id} (endpointId: ${endpoint.endpointId})`
+        )
+
+        createdEndpoints.push(endpoint)
+
+        // Recursively check if this required device also has composition requirements
+        if (requirement.requiredDeviceTypeRef) {
+          let nestedEndpoints =
+            await createRequiredEndpointsForComposition(
+              context,
+              requirement.requiredDeviceTypeRef,
+              endpoint.id,
+              endpoint.endpointId
+            )
+          createdEndpoints = createdEndpoints.concat(nestedEndpoints)
+        }
+      }
+    }
+
+    return createdEndpoints
+  } catch (error) {
+    console.error(
+      'Error creating required endpoints for composition:',
+      error.message
+    )
+    return []
+  }
 }
 
 /**
@@ -524,23 +675,56 @@ export async function loadComposition(context) {
  * @param {*} newEndpointContext
  * @returns endpoint data
  */
-export function addEndpoint(context, newEndpointContext) {
-  return axiosRequests
-    .$serverPost(restApi.uri.endpoint, newEndpointContext)
-    .then((res) => {
-      let arg = res.data
-      context.commit('addEndpoint', {
-        id: arg.id,
-        endpointId: arg.endpointId,
-        parentEndpointIdentifier: arg.parentEndpointIdentifier,
-        endpointTypeRef: arg.endpointType,
-        networkId: arg.networkId,
-        profileId: arg.profileId,
-        endpointIdValidationIssues: arg.validationIssues.endpointId,
-        networkIdValidationIssues: arg.validationIssues.networkId
-      })
-      return arg
-    })
+export async function addEndpoint(context, newEndpointContext) {
+  let res = await axiosRequests.$serverPost(restApi.uri.endpoint, newEndpointContext)
+  let arg = res.data
+  context.commit('addEndpoint', {
+    id: arg.id,
+    endpointId: arg.endpointId,
+    parentEndpointIdentifier: arg.parentEndpointIdentifier,
+    endpointTypeRef: arg.endpointType,
+    networkId: arg.networkId,
+    profileId: arg.profileId,
+    endpointIdValidationIssues: arg.validationIssues.endpointId,
+    networkIdValidationIssues: arg.validationIssues.networkId
+  })
+
+  // Check if this endpoint's device types have endpoint composition requirements
+  // and automatically create required endpoints
+  if (arg.endpointType) {
+    console.log(
+      `[addEndpoint] Checking endpoint composition requirements for endpoint type: ${arg.endpointType}`
+    )
+    
+    // Get device types for this endpoint type
+    let deviceTypesRes = await axiosRequests.$serverGet(
+      restApi.uri.deviceTypesByEndpointTypeId,
+      {
+        params: {
+          endpointTypeId: arg.endpointType
+        }
+      }
+    )
+
+    if (deviceTypesRes.data && deviceTypesRes.data.length > 0) {
+      // Check each device type for endpoint composition requirements
+      for (let deviceType of deviceTypesRes.data) {
+        if (deviceType.deviceTypeRef) {
+          console.log(
+            `[addEndpoint] Checking device type ref: ${deviceType.deviceTypeRef}`
+          )
+          await createRequiredEndpointsForComposition(
+            context,
+            deviceType.deviceTypeRef,
+            arg.id,
+            arg.endpointId
+          )
+        }
+      }
+    }
+  }
+
+  return arg
 }
 
 /**
