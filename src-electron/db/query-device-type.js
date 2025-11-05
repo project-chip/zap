@@ -570,7 +570,7 @@ async function selectDeviceTypesWithCompositionByEndpointTypeId(
   JOIN
     DEVICE_TYPE AS DT ON ETD.DEVICE_TYPE_REF = DT.DEVICE_TYPE_ID
   LEFT JOIN
-    ENDPOINT_COMPOSITION AS EC ON DT.CODE = EC.CODE
+    ENDPOINT_COMPOSITION AS EC ON DT.DEVICE_TYPE_ID = EC.DEVICE_TYPE_REF
   WHERE
     ETD.ENDPOINT_TYPE_REF = ?`,
     [endpointTypeId]
@@ -661,6 +661,73 @@ async function selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(
   return rows.map(dbMapping.map.endpointTypeDeviceExtended)
 }
 
+/**
+ * Retrieves the endpoint composition requirements for a given device type.
+ * Returns all required device types that must be on separate endpoints, along with
+ * their conformance and constraint information.
+ *
+ * Example: For an Oven device type, this would return that it requires
+ * at least 1 Temperature Controlled Cabinet device type on a separate endpoint.
+ *
+ * @param {Object} db - The database connection object.
+ * @param {number} deviceTypeRef - The device type reference ID (DEVICE_TYPE_ID).
+ * @returns {Promise<Array>} A promise that resolves with an array of required device types with their constraints.
+ */
+async function selectEndpointCompositionRequirementsByDeviceTypeRef(
+  db,
+  deviceTypeRef
+) {
+  // Check if this device type exists in ENDPOINT_COMPOSITION table
+  const endpointCompositionQuery = `
+    SELECT ENDPOINT_COMPOSITION_ID
+    FROM ENDPOINT_COMPOSITION
+    WHERE DEVICE_TYPE_REF = ?
+  `
+  const endpointComposition = await dbApi.dbGet(
+    db,
+    endpointCompositionQuery,
+    [deviceTypeRef]
+  )
+
+  if (!endpointComposition) {
+    return [] // No endpoint composition found for this device type
+  }
+
+  const endpointCompositionId = endpointComposition.ENDPOINT_COMPOSITION_ID
+
+  // Query DEVICE_COMPOSITION table by the foreign key ENDPOINT_COMPOSITION_REF
+  const query = `
+    SELECT
+      DC.CONFORMANCE,
+      DC.DEVICE_CONSTRAINT,
+      DC.DEVICE_TYPE_REF as required_device_type_ref,
+      DT_REQ.NAME as required_device_name,
+      DT_REQ.CODE as required_device_code,
+      EC.TYPE as composition_type,
+      EC.ENDPOINT_COMPOSITION_ID
+    FROM
+      DEVICE_COMPOSITION DC
+    JOIN
+      ENDPOINT_COMPOSITION EC ON DC.ENDPOINT_COMPOSITION_REF = EC.ENDPOINT_COMPOSITION_ID
+    LEFT JOIN
+      DEVICE_TYPE DT_REQ ON DC.DEVICE_TYPE_REF = DT_REQ.DEVICE_TYPE_ID
+    WHERE
+      DC.ENDPOINT_COMPOSITION_REF = ?
+    ORDER BY
+      DC.DEVICE_TYPE_REF
+  `
+  const rows = await dbApi.dbAll(db, query, [endpointCompositionId])
+  return rows.map((row) => ({
+    requiredDeviceCode: row.required_device_code,
+    requiredDeviceName: row.required_device_name,
+    requiredDeviceTypeRef: row.required_device_type_ref,
+    conformance: row.CONFORMANCE,
+    deviceConstraint: row.DEVICE_CONSTRAINT,
+    compositionType: row.composition_type,
+    endpointCompositionId: row.ENDPOINT_COMPOSITION_ID
+  }))
+}
+
 exports.selectAllDeviceTypes = selectAllDeviceTypes
 exports.selectDeviceTypeById = selectDeviceTypeById
 exports.selectDeviceTypeByCodeAndName = selectDeviceTypeByCodeAndName
@@ -681,3 +748,5 @@ exports.selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId =
   selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId
 exports.selectDeviceTypesWithCompositionByEndpointTypeId =
   selectDeviceTypesWithCompositionByEndpointTypeId
+exports.selectEndpointCompositionRequirementsByDeviceTypeRef =
+  selectEndpointCompositionRequirementsByDeviceTypeRef
