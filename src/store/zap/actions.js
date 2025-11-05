@@ -508,10 +508,7 @@ export async function loadComposition(context) {
       name: res.data.name
     }
 
-    let endpointTypeData = await addEndpointType(
-      context,
-      dataArray
-    ) // Call addEndpointType with the array containing deviceTypeRef
+    let endpointTypeData = await addEndpointType(context, dataArray) // Call addEndpointType with the array containing deviceTypeRef
 
     let rootEndpoint = await addEndpoint(context, {
       endpointId: dbEnum.rootNode.endpointId,
@@ -523,14 +520,12 @@ export async function loadComposition(context) {
     // After creating root node, check for endpoint composition requirements
     // and automatically create required endpoints
     if (res.data.deviceTypeRef) {
-      console.log(
-        `[loadComposition] Checking endpoint composition requirements for device type ref: ${res.data.deviceTypeRef}`
-      )
       await createRequiredEndpointsForComposition(
         context,
         res.data.deviceTypeRef,
         rootEndpoint.id,
-        rootEndpoint.endpointId
+        rootEndpoint.endpointId,
+        new Set()
       )
     }
 
@@ -549,18 +544,25 @@ export async function loadComposition(context) {
  * @param {number} deviceTypeRef - The device type reference ID to check for requirements.
  * @param {number} parentEndpointId - The ID of the parent endpoint (for parent reference).
  * @param {number} parentEndpointIdentifier - The endpoint identifier of the parent.
+ * @param {Set<number>} compositionChain - Set of device type refs already processed in this composition chain (for cycle detection).
  * @returns {Promise<Array>} - Array of created endpoints.
  */
 async function createRequiredEndpointsForComposition(
   context,
   deviceTypeRef,
   parentEndpointId,
-  parentEndpointIdentifier
+  parentEndpointIdentifier,
+  compositionChain = new Set()
 ) {
   try {
-    console.log(
-      `[createRequiredEndpointsForComposition] Querying requirements for device type ref: ${deviceTypeRef}`
-    )
+    // Cycle detection: if this device type is already in the composition chain, skip to prevent infinite recursion
+    if (compositionChain.has(deviceTypeRef)) {
+      return []
+    }
+
+    // Add current device type to the composition chain
+    compositionChain.add(deviceTypeRef)
+
     // Query endpoint composition requirements using device type ref
     let requirementsRes = await axiosRequests.$serverGet(
       restApi.uri.endpointCompositionRequirements,
@@ -571,15 +573,7 @@ async function createRequiredEndpointsForComposition(
       }
     )
 
-    console.log(
-      `[createRequiredEndpointsForComposition] Requirements response:`,
-      requirementsRes.data
-    )
-
     if (!requirementsRes.data || requirementsRes.data.length === 0) {
-      console.log(
-        `[createRequiredEndpointsForComposition] No requirements found for device type ref: ${deviceTypeRef}`
-      )
       return [] // No requirements, return empty array
     }
 
@@ -588,12 +582,8 @@ async function createRequiredEndpointsForComposition(
 
     // Process each requirement
     // Handle constraints - deviceConstraint might indicate minimum count (e.g., "min 1" = 1)
-    // For now, create at least one endpoint per requirement
     for (let requirement of requirementsRes.data) {
       if (!requirement.requiredDeviceTypeRef) {
-        console.warn(
-          `Device type ref not available for requirement: ${requirement.requiredDeviceName}`
-        )
         continue
       }
 
@@ -613,10 +603,6 @@ async function createRequiredEndpointsForComposition(
         }
       }
 
-      console.log(
-        `[createRequiredEndpointsForComposition] Processing requirement: ${requirement.requiredDeviceName} (ref: ${requirement.requiredDeviceTypeRef}), minCount: ${minCount}`
-      )
-
       // Create the minimum required endpoints
       for (let i = 0; i < minCount; i++) {
         // Create endpoint type for the required device
@@ -624,36 +610,36 @@ async function createRequiredEndpointsForComposition(
           deviceTypeRef: [requirement.requiredDeviceTypeRef],
           deviceIdentifier: requirement.requiredDeviceCode,
           deviceVersion: 1, // Default version, could be enhanced to get from device type
-          name: requirement.requiredDeviceName || `Device ${requirement.requiredDeviceCode}`
+          name:
+            requirement.requiredDeviceName ||
+            `Device ${requirement.requiredDeviceCode}`
         })
-
-        console.log(
-          `[createRequiredEndpointsForComposition] Created endpoint type: ${endpointTypeData.id} for device: ${requirement.requiredDeviceName}`
-        )
 
         // Create endpoint for the required device type
-        let endpoint = await addEndpoint(context, {
-          endpointId: nextEndpointId++,
-          parentEndpointIdentifier: parentEndpointIdentifier,
-          endpointType: endpointTypeData.id,
-          profileId: dbEnum.rootNode.profileID // Use same profile as root node
-        })
-
-        console.log(
-          `[createRequiredEndpointsForComposition] Created endpoint: ${endpoint.id} (endpointId: ${endpoint.endpointId})`
+        // Skip composition check to avoid redundant recursion (addEndpoint would trigger it again)
+        let endpoint = await addEndpoint(
+          context,
+          {
+            endpointId: nextEndpointId++,
+            parentEndpointIdentifier: parentEndpointIdentifier,
+            endpointType: endpointTypeData.id,
+            profileId: dbEnum.rootNode.profileID // Use same profile as root node
+          },
+          true // skipCompositionCheck = true
         )
 
         createdEndpoints.push(endpoint)
 
         // Recursively check if this required device also has composition requirements
+        // Pass a new Set instance to maintain the chain but allow parallel branches
         if (requirement.requiredDeviceTypeRef) {
-          let nestedEndpoints =
-            await createRequiredEndpointsForComposition(
-              context,
-              requirement.requiredDeviceTypeRef,
-              endpoint.id,
-              endpoint.endpointId
-            )
+          let nestedEndpoints = await createRequiredEndpointsForComposition(
+            context,
+            requirement.requiredDeviceTypeRef,
+            endpoint.id,
+            endpoint.endpointId,
+            new Set(compositionChain)
+          )
           createdEndpoints = createdEndpoints.concat(nestedEndpoints)
         }
       }
@@ -673,10 +659,18 @@ async function createRequiredEndpointsForComposition(
  * Add endpoint in ZAP UI.
  * @param {*} context
  * @param {*} newEndpointContext
+ * @param {boolean} skipCompositionCheck - If true, skip automatic composition requirement checking (used internally to avoid redundant recursion)
  * @returns endpoint data
  */
-export async function addEndpoint(context, newEndpointContext) {
-  let res = await axiosRequests.$serverPost(restApi.uri.endpoint, newEndpointContext)
+export async function addEndpoint(
+  context,
+  newEndpointContext,
+  skipCompositionCheck = false
+) {
+  let res = await axiosRequests.$serverPost(
+    restApi.uri.endpoint,
+    newEndpointContext
+  )
   let arg = res.data
   context.commit('addEndpoint', {
     id: arg.id,
@@ -691,11 +685,8 @@ export async function addEndpoint(context, newEndpointContext) {
 
   // Check if this endpoint's device types have endpoint composition requirements
   // and automatically create required endpoints
-  if (arg.endpointType) {
-    console.log(
-      `[addEndpoint] Checking endpoint composition requirements for endpoint type: ${arg.endpointType}`
-    )
-    
+  // Skip this check if called from createRequiredEndpointsForComposition to avoid redundant recursion
+  if (!skipCompositionCheck && arg.endpointType) {
     // Get device types for this endpoint type
     let deviceTypesRes = await axiosRequests.$serverGet(
       restApi.uri.deviceTypesByEndpointTypeId,
@@ -710,14 +701,12 @@ export async function addEndpoint(context, newEndpointContext) {
       // Check each device type for endpoint composition requirements
       for (let deviceType of deviceTypesRes.data) {
         if (deviceType.deviceTypeRef) {
-          console.log(
-            `[addEndpoint] Checking device type ref: ${deviceType.deviceTypeRef}`
-          )
           await createRequiredEndpointsForComposition(
             context,
             deviceType.deviceTypeRef,
             arg.id,
-            arg.endpointId
+            arg.endpointId,
+            new Set()
           )
         }
       }
