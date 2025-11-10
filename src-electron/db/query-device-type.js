@@ -677,25 +677,8 @@ async function selectEndpointCompositionRequirementsByDeviceTypeRef(
   db,
   deviceTypeRef
 ) {
-  // Check if this device type exists in ENDPOINT_COMPOSITION table
-  const endpointCompositionQuery = `
-    SELECT ENDPOINT_COMPOSITION_ID
-    FROM ENDPOINT_COMPOSITION
-    WHERE DEVICE_TYPE_REF = ?
-  `
-  const endpointComposition = await dbApi.dbGet(
-    db,
-    endpointCompositionQuery,
-    [deviceTypeRef]
-  )
-
-  if (!endpointComposition) {
-    return [] // No endpoint composition found for this device type
-  }
-
-  const endpointCompositionId = endpointComposition.ENDPOINT_COMPOSITION_ID
-
-  // Query DEVICE_COMPOSITION table by the foreign key ENDPOINT_COMPOSITION_REF
+  // Single query that joins ENDPOINT_COMPOSITION and DEVICE_COMPOSITION
+  // using DEVICE_TYPE_REF directly, avoiding the need for two separate queries
   const query = `
     SELECT
       DC.CONFORMANCE,
@@ -706,17 +689,17 @@ async function selectEndpointCompositionRequirementsByDeviceTypeRef(
       EC.TYPE as composition_type,
       EC.ENDPOINT_COMPOSITION_ID
     FROM
-      DEVICE_COMPOSITION DC
+      ENDPOINT_COMPOSITION EC
     JOIN
-      ENDPOINT_COMPOSITION EC ON DC.ENDPOINT_COMPOSITION_REF = EC.ENDPOINT_COMPOSITION_ID
+      DEVICE_COMPOSITION DC ON DC.ENDPOINT_COMPOSITION_REF = EC.ENDPOINT_COMPOSITION_ID
     LEFT JOIN
       DEVICE_TYPE DT_REQ ON DC.DEVICE_TYPE_REF = DT_REQ.DEVICE_TYPE_ID
     WHERE
-      DC.ENDPOINT_COMPOSITION_REF = ?
+      EC.DEVICE_TYPE_REF = ?
     ORDER BY
       DC.DEVICE_TYPE_REF
   `
-  const rows = await dbApi.dbAll(db, query, [endpointCompositionId])
+  const rows = await dbApi.dbAll(db, query, [deviceTypeRef])
   return rows.map((row) => ({
     requiredDeviceCode: row.required_device_code,
     requiredDeviceName: row.required_device_name,
