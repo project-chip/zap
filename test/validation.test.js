@@ -239,7 +239,8 @@ test(
     const { size, isSigned } = await validation.getIntegerAttributeSize(
       db,
       sid,
-      attribute.type
+      attribute.type,
+      attribute.clusterRef
     )
     //Test Constraints
     let minMax = await validation.getBoundsInteger(attribute, size, isSigned)

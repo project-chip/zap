@@ -13449,6 +13449,7 @@ Available Options:
 - language: determines the output of the helper based on language
 for eg: (as_type_min_value language='c++') will give the output specific to
 the c++ language.
+- clusterId: The ID of the cluster the type belongs to
 Note: If language is not specified then helper throws an error.  
 
 | Param | Type |
@@ -13468,6 +13469,7 @@ Available Options:
 - language: determines the output of the helper based on language
 for eg: (as_type_max_value language='c++') will give the output specific to
 the c++ language.
+- clusterId: The ID of the cluster the type belongs to
 Note: If language is not specified then the helper returns size of type in
 bits.  
 
@@ -13495,10 +13497,10 @@ Returns the size of the zcl type if possible else returns -1
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: size of zcl type  
 
-| Param | Type |
-| --- | --- |
-| type | <code>\*</code> | 
-| options | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> |  |
+| options | <code>\*</code> | Available Options: - clusterId: The ID of the cluster the type belongs to |
 
 <a name="module_Templating API_ static zcl helpers..if_compare"></a>
 
@@ -18871,7 +18873,6 @@ Extract project name from the Studio project path
 ## JS API: type related utilities
 
 * [JS API: type related utilities](#module_JS API_ type related utilities)
-    * [~typeSize(db, zclPackageId, type)](#module_JS API_ type related utilities..typeSize)
     * [~typeSizeAttribute(db, zclPackageIds, at, [defaultValue])](#module_JS API_ type related utilities..typeSizeAttribute) ⇒
     * [~convertFloatToBigEndian(value, size)](#module_JS API_ type related utilities..convertFloatToBigEndian) ⇒
     * [~convertIntToBigEndian(value, size)](#module_JS API_ type related utilities..convertIntToBigEndian) ⇒
@@ -18883,23 +18884,11 @@ Extract project name from the Studio project path
     * [~isOneBytePrefixedString(type)](#module_JS API_ type related utilities..isOneBytePrefixedString) ⇒
     * [~isTwoBytePrefixedString(type)](#module_JS API_ type related utilities..isTwoBytePrefixedString) ⇒
     * [~nullStringDefaultValue(type)](#module_JS API_ type related utilities..nullStringDefaultValue) ⇒ <code>string</code>
+    * [~processZclTypeSignAndSize(db, dataType, type, packageIds, options, clusterId, clusterName)](#module_JS API_ type related utilities..processZclTypeSignAndSize) ⇒
     * [~getSignAndSizeOfZclType(type, context, options)](#module_JS API_ type related utilities..getSignAndSizeOfZclType) ⇒
+    * [~getSignAndSizeOfZclTypeAndClusterId(db, type, clusterId, packageIds, options)](#module_JS API_ type related utilities..getSignAndSizeOfZclTypeAndClusterId) ⇒ <code>size:&#x27;bits&#x27;</code>
     * [~intToHexString(n, byteCount)](#module_JS API_ type related utilities..intToHexString) ⇒
     * [~hexStringToInt(s)](#module_JS API_ type related utilities..hexStringToInt) ⇒
-
-<a name="module_JS API_ type related utilities..typeSize"></a>
-
-### JS API: type related utilities~typeSize(db, zclPackageId, type)
-This function resolves with the size of a given type.
--1 means that this size is variable.
-
-**Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| zclPackageId | <code>\*</code> | 
-| type | <code>\*</code> | 
 
 <a name="module_JS API_ type related utilities..typeSizeAttribute"></a>
 
@@ -19050,6 +19039,26 @@ does not need to be aware of these details.
 | --- | --- | --- |
 | type | <code>string</code> | The type of the string, which determines its null representation. |
 
+<a name="module_JS API_ type related utilities..processZclTypeSignAndSize"></a>
+
+### JS API: type related utilities~processZclTypeSignAndSize(db, dataType, type, packageIds, options, clusterId, clusterName) ⇒
+Common helper function to process ZCL type sign and size from a dataType object.
+This function handles the common logic for determining type signature and size
+regardless of whether the dataType was obtained globally or cluster-specifically.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
+**Returns**: returns sign, size and info of zcl device type  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| db | <code>\*</code> |  | Database connection |
+| dataType | <code>\*</code> |  | The dataType object from the database |
+| type | <code>\*</code> |  | The type name (for error logging) |
+| packageIds | <code>\*</code> |  | Package IDs |
+| options | <code>\*</code> |  | Processing options |
+| clusterId | <code>\*</code> | <code></code> | Optional cluster ID for cluster-specific queries |
+| clusterName | <code>\*</code> | <code></code> | Optional cluster name for error logging |
+
 <a name="module_JS API_ type related utilities..getSignAndSizeOfZclType"></a>
 
 ### JS API: type related utilities~getSignAndSizeOfZclType(type, context, options) ⇒
@@ -19064,12 +19073,41 @@ Available Options:
 or bytes
 for eg: getSignAndSizeOfZclType('int8u' this size='bits') will return
 the size in bits which will be 8. If not mentioned then it will return the size
-in bytes i.e. 1 in this case.  
+in bytes i.e. 1 in this case.
+- noCeiling: If true, returns the exact size without rounding up to the nearest
+power of 2. If false or not provided, rounds up to the nearest power of 2.  
 
 | Param | Type |
 | --- | --- |
 | type | <code>\*</code> | 
 | context | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="module_JS API_ type related utilities..getSignAndSizeOfZclTypeAndClusterId"></a>
+
+### JS API: type related utilities~getSignAndSizeOfZclTypeAndClusterId(db, type, clusterId, packageIds, options) ⇒ <code>size:&#x27;bits&#x27;</code>
+Given a zcl device type and cluster name returns its sign, size and zcl data type info stored
+in the database table. This function considers cluster-specific type definitions first, then
+falls back to the global getSignAndSizeOfZclType function.
+Note: Enums and Bitmaps are considered to be unsigned.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
+**Returns**: <code>size:&#x27;bits&#x27;</code> - returns sign, size and info of zcl device type
+Available Options:
+- size: Determine whether to calculate the size of zcl device type in bits
+or bytes
+for eg: getSignAndSizeOfZclTypeAndClusterId('int8u', '1', packageIds, ) will return
+the size in bits which will be 8. If not mentioned then it will return the size
+in bytes i.e. 1 in this case.
+- noCeiling: If true, returns the exact size without rounding up to the nearest
+power of 2. If false or not provided, rounds up to the nearest power of 2.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| type | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
 | options | <code>\*</code> | 
 
 <a name="module_JS API_ type related utilities..intToHexString"></a>
@@ -19466,6 +19504,9 @@ This module provides the API to access various zcl utilities.
     * [~isStruct(db, struct_name, packageIds)](#module_REST API_ various zcl utilities..isStruct) ⇒
     * [~isEvent(db, event_name, packageId)](#module_REST API_ various zcl utilities..isEvent) ⇒
     * [~isBitmap(db, bitmap_name, packageIds)](#module_REST API_ various zcl utilities..isBitmap) ⇒
+    * [~isEnumWithCluster(db, enum_name, clusterId, packageIds)](#module_REST API_ various zcl utilities..isEnumWithCluster) ⇒
+    * [~isStructWithCluster(db, struct_name, clusterId, packageIds)](#module_REST API_ various zcl utilities..isStructWithCluster) ⇒
+    * [~isBitmapWithCluster(db, bitmap_name, clusterId, packageIds)](#module_REST API_ various zcl utilities..isBitmapWithCluster) ⇒
     * [~defaultMessageForTypeConversion(fromType, toType, noWarning)](#module_REST API_ various zcl utilities..defaultMessageForTypeConversion)
     * [~dataTypeHelper(type, options, packageIds, db, resolvedType, overridable)](#module_REST API_ various zcl utilities..dataTypeHelper) ⇒
     * [~asUnderlyingZclTypeWithPackageId(type, options, packageIds, currentInstance)](#module_REST API_ various zcl utilities..asUnderlyingZclTypeWithPackageId)
@@ -19712,6 +19753,51 @@ Local function that checks if a bitmap by the name exists
 | bitmap_name | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_REST API_ various zcl utilities..isEnumWithCluster"></a>
+
+### REST API: various zcl utilities~isEnumWithCluster(db, enum_name, clusterId, packageIds) ⇒
+Local function that checks if an enum by the name exists in a specific cluster
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module_REST API_ various zcl utilities)  
+**Returns**: Promise of content.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| enum_name | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
+<a name="module_REST API_ various zcl utilities..isStructWithCluster"></a>
+
+### REST API: various zcl utilities~isStructWithCluster(db, struct_name, clusterId, packageIds) ⇒
+Local function that checks if a struct by the name exists in a specific cluster
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module_REST API_ various zcl utilities)  
+**Returns**: Promise of content.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| struct_name | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
+<a name="module_REST API_ various zcl utilities..isBitmapWithCluster"></a>
+
+### REST API: various zcl utilities~isBitmapWithCluster(db, bitmap_name, clusterId, packageIds) ⇒
+Local function that checks if a bitmap by the name exists in a specific cluster
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module_REST API_ various zcl utilities)  
+**Returns**: Promise of content.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| bitmap_name | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_REST API_ various zcl utilities..defaultMessageForTypeConversion"></a>
 
 ### REST API: various zcl utilities~defaultMessageForTypeConversion(fromType, toType, noWarning)
@@ -19824,7 +19910,7 @@ things were successful or not.
         * [~getTypeRange(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeRange) ⇒
         * [~unsignedToSignedInteger(value, typeSize)](#module_Validation API_ Validation APIs..unsignedToSignedInteger) ⇒
         * [~getIntegerFromAttribute(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getIntegerFromAttribute) ⇒
-        * [~getIntegerAttributeSize(db, zapSessionId, attribType)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
+        * [~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
         * [~checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsInteger) ⇒
         * [~checkBoundsInteger(defaultValue, min, max)](#module_Validation API_ Validation APIs..checkBoundsInteger) ⇒
         * [~checkAttributeBoundsFloat(attribute, endpointAttribute)](#module_Validation API_ Validation APIs..checkAttributeBoundsFloat) ⇒
@@ -20091,7 +20177,7 @@ Shifts signed hexadecimals to their correct value.
 
 <a name="module_Validation API_ Validation APIs..getIntegerAttributeSize"></a>
 
-### Validation API: Validation APIs~getIntegerAttributeSize(db, zapSessionId, attribType) ⇒ <code>\*</code>
+### Validation API: Validation APIs~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef) ⇒ <code>\*</code>
 Returns information about an integer type.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
@@ -20102,6 +20188,7 @@ Returns information about an integer type.
 | db | <code>\*</code> | 
 | zapSessionId | <code>\*</code> | 
 | attribType | <code>\*</code> | 
+| clusterRef | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..checkAttributeBoundsInteger"></a>
 
@@ -20635,7 +20722,7 @@ things were successful or not.
         * [~getTypeRange(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeRange) ⇒
         * [~unsignedToSignedInteger(value, typeSize)](#module_Validation API_ Validation APIs..unsignedToSignedInteger) ⇒
         * [~getIntegerFromAttribute(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getIntegerFromAttribute) ⇒
-        * [~getIntegerAttributeSize(db, zapSessionId, attribType)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
+        * [~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
         * [~checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsInteger) ⇒
         * [~checkBoundsInteger(defaultValue, min, max)](#module_Validation API_ Validation APIs..checkBoundsInteger) ⇒
         * [~checkAttributeBoundsFloat(attribute, endpointAttribute)](#module_Validation API_ Validation APIs..checkAttributeBoundsFloat) ⇒
@@ -20902,7 +20989,7 @@ Shifts signed hexadecimals to their correct value.
 
 <a name="module_Validation API_ Validation APIs..getIntegerAttributeSize"></a>
 
-### Validation API: Validation APIs~getIntegerAttributeSize(db, zapSessionId, attribType) ⇒ <code>\*</code>
+### Validation API: Validation APIs~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef) ⇒ <code>\*</code>
 Returns information about an integer type.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
@@ -20913,6 +21000,7 @@ Returns information about an integer type.
 | db | <code>\*</code> | 
 | zapSessionId | <code>\*</code> | 
 | attribType | <code>\*</code> | 
+| clusterRef | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..checkAttributeBoundsInteger"></a>
 

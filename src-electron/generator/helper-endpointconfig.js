@@ -1055,11 +1055,13 @@ async function collectAttributes(
         let mask = []
         if ((a.min != null || a.max != null) && a.isWritable) {
           mask.push('min_max')
-          let type_size_and_sign = await types.getSignAndSizeOfZclType(
-            db,
-            a.type,
-            zclPackageIds
-          )
+          let type_size_and_sign =
+            await types.getSignAndSizeOfZclTypeAndClusterId(
+              db,
+              a.type,
+              c.id,
+              zclPackageIds
+            )
           let min, max
           if (a.min != null) {
             min = a.min

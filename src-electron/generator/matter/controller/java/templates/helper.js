@@ -118,6 +118,12 @@ function asJniBasicType(type, useBoxedTypes) {
   }
   function fn(pkgId) {
     const options = { hash: {} };
+    // Add clusterId if available in context
+    if (this.clusterId) {
+      options.hash.clusterId = this.clusterId;
+    } else if (this.clusterRef) {
+      options.hash.clusterId = this.clusterRef;
+    }
     return zclHelper.asUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {
@@ -138,6 +144,12 @@ function asJniBasicType(type, useBoxedTypes) {
 function asJniSignatureBasic(type, useBoxedTypes) {
   function fn(pkgId) {
     const options = { hash: {} };
+    // Add clusterId if available in context
+    if (this.clusterId) {
+      options.hash.clusterId = this.clusterId;
+    } else if (this.clusterRef) {
+      options.hash.clusterId = this.clusterRef;
+    }
     return zclHelper.asUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {
@@ -304,6 +316,12 @@ async function as_underlying_java_zcl_type(type, clusterId, options) {
 
 async function asUnderlyingBasicType(type) {
   const options = { hash: {} };
+  // Add clusterId if available in context
+  if (this.clusterId) {
+    options.hash.clusterId = this.clusterId;
+  } else if (this.clusterRef) {
+    options.hash.clusterId = this.clusterRef;
+  }
   let zclType = await zclHelper.asUnderlyingZclType.call(this, type, options);
   return ChipTypesHelper.asBasicType(zclType);
 }
@@ -312,6 +330,12 @@ async function asJavaType(type, zclType, cluster, options) {
   let pkgIds = await templateUtil.ensureZclPackageIds(this);
   if (zclType == null) {
     const options = { hash: {} };
+    // Add clusterId if available in context
+    if (this.clusterId) {
+      options.hash.clusterId = this.clusterId;
+    } else if (this.clusterRef) {
+      options.hash.clusterId = this.clusterRef;
+    }
     zclType = await zclHelper.asUnderlyingZclType.call(this, type, options);
   }
   let isStruct = await zclHelper

@@ -26,9 +26,9 @@ const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 const queryEndpoint = require('../src-electron/db/query-endpoint')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type')
+const queryZcl = require('../src-electron/db/query-zcl')
 const queryPackage = require('../src-electron/db/query-package')
 const querySession = require('../src-electron/db/query-session')
-const types = require('../src-electron/util/types')
 const bin = require('../src-electron/util/bin')
 
 let db
@@ -171,7 +171,11 @@ test(
 test(
   'Some intermediate queries',
   async () => {
-    let size = await types.typeSize(db, zclContext.packageId, 'bitmap8')
+    let size = await queryZcl.selectSizeFromType(
+      db,
+      [zclContext.packageId],
+      'bitmap8'
+    )
     expect(size).toBe(1)
   },
   testUtil.timeout.medium()
