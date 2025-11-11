@@ -1094,7 +1094,7 @@ BEGIN
           ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
       ),
       "WARNING",
-      "⚠ Check Device Type Compliance on endpoint: "
+      "⚠️ Check Device Type Compliance on endpoint: "
       ||
       (
         SELECT
@@ -1196,7 +1196,7 @@ BEGIN
     AND
       NOTICE_MESSAGE LIKE
       (
-        "⚠ Check Device Type Compliance on endpoint: "
+        "⚠️ Check Device Type Compliance on endpoint: "
         ||
         (
           SELECT
@@ -1295,7 +1295,7 @@ BEGIN
     AND
       NOTICE_MESSAGE LIKE
       (
-        "⚠ Check Device Type Compliance on endpoint: "
+        "⚠️ Check Device Type Compliance on endpoint: "
         ||
         (
           SELECT
@@ -1583,7 +1583,7 @@ BEGIN
           ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
       ),
       "WARNING",
-      "⚠ Check Device Type Compliance on endpoint: "
+      "⚠️ Check Device Type Compliance on endpoint: "
       ||
       (
         SELECT
@@ -1843,7 +1843,7 @@ BEGIN
     AND
       NOTICE_MESSAGE LIKE
       (
-        "⚠ Check Device Type Compliance on endpoint: "
+        "⚠️ Check Device Type Compliance on endpoint: "
       ||
       (
         SELECT
@@ -2094,7 +2094,7 @@ BEGIN
     AND
       NOTICE_MESSAGE LIKE
       (
-        "⚠ Check Device Type Compliance on endpoint: "
+        "⚠️ Check Device Type Compliance on endpoint: "
       ||
       (
         SELECT
@@ -2355,7 +2355,7 @@ BEGIN
           ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
       ),
       "WARNING",
-      "⚠ Check Device Type Compliance on endpoint: "
+      "⚠️ Check Device Type Compliance on endpoint: "
       ||
       (
         SELECT
@@ -2615,7 +2615,7 @@ BEGIN
     AND
       NOTICE_MESSAGE LIKE
       (
-        "⚠ Check Device Type Compliance on endpoint: "
+        "⚠️ Check Device Type Compliance on endpoint: "
         ||
         (
           SELECT
@@ -2862,7 +2862,7 @@ BEGIN
     AND
       NOTICE_MESSAGE LIKE
       (
-        "⚠ Check Device Type Compliance on endpoint: "
+        "⚠️ Check Device Type Compliance on endpoint: "
         ||
         (
           SELECT
