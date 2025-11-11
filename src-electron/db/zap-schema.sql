@@ -1699,7 +1699,7 @@ BEGIN
           ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
       ),
       "WARNING",
-      "⚠ Check Cluster Compliance on endpoint: "
+      "⚠️ Check Cluster Compliance on endpoint: "
       ||
       (
         SELECT
@@ -1954,7 +1954,7 @@ DELETE FROM
     AND
       NOTICE_MESSAGE LIKE
       (
-        "⚠ Check Cluster Compliance on endpoint: "
+        "%Check Cluster Compliance on endpoint: "
       ||
       (
         SELECT
@@ -2207,7 +2207,7 @@ DELETE FROM
     AND
       NOTICE_MESSAGE LIKE
       (
-        "⚠ Check Cluster Compliance on endpoint: "
+        "%Check Cluster Compliance on endpoint: "
       ||
       (
         SELECT
@@ -2482,7 +2482,7 @@ BEGIN
           ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
       ),
       "WARNING",
-      "⚠ Check Cluster Compliance on endpoint: "
+      "⚠️ Check Cluster Compliance on endpoint: "
       ||
       (
         SELECT
@@ -2732,7 +2732,7 @@ BEGIN
     AND
       NOTICE_MESSAGE LIKE
       (
-        "⚠ Check Cluster Compliance on endpoint: "
+        "%Check Cluster Compliance on endpoint: "
         ||
         (
           SELECT
@@ -2981,7 +2981,7 @@ BEGIN
     AND
       NOTICE_MESSAGE LIKE
       (
-        "⚠ Check Cluster Compliance on endpoint: "
+        "%Check Cluster Compliance on endpoint: "
         ||
         (
           SELECT
