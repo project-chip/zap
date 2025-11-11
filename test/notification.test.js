@@ -320,14 +320,14 @@ test(
   'Notification: set notification on feature change result',
   async () => {
     let sessionId = await querySession.createBlankSession(db)
-    let warningPrefix = `⚠ Check Feature Compliance on endpoint: 1, cluster: Color Control, 
+    let warningPrefix = `⚠️ Check Feature Compliance on endpoint: 1, cluster: Color Control, 
       feature: Hue And Saturation (HS) (bit 0 in featureMap attribute)`
     let warningMessage = `${warningPrefix} has mandatory conformance to OO and needs to be enabled.`
     let disableMessage1 = `${warningPrefix} cannot be enabled because of reason 1.`
     let disableMessage2 = `${warningPrefix} cannot be disabled because of reason 2.`
     let descMessage = `${warningPrefix} cannot be enabled as its conformance is too complex for ZAP to parse, or it includes 'desc'.`
     let messageOfOtherPattern = `${warningPrefix} is still provisional.`
-    let messageOfOtherFeature = `⚠ Check Feature Compliance on endpoint: 1, cluster: Color Control, 
+    let messageOfOtherFeature = `⚠️ Check Feature Compliance on endpoint: 1, cluster: Color Control, 
       feature: Color Loop (CL) (bit 2 in featureMap attribute) cannot be enabled because of reason 1`
     let messageOfOtherType = `On endpoint 1, support for cluster: Scenes Management server is provisional.`
 
