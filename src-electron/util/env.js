@@ -462,7 +462,7 @@ function log(level, msg, err = null) {
   if (err != null) {
     objectToLog.err = err
     // @ts-ignore
-    objectToLog.err.alert = '⛔'
+    objectToLog.err.alert = emojiUtil.isEmojiDisabled() ? '' : '⛔'
   }
   pino_logger[level](objectToLog)
 }

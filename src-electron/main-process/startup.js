@@ -370,7 +370,7 @@ async function startConvert(argv, options) {
     options.logger(
       env.formatEmojiMessage('⚠️', 'no zap files found in: ' + zapFiles)
     )
-    throw env.formatEmojiMessage('error', 'no zap files found in: ' + zapFiles)
+    throw env.formatEmojiMessage('⛔', 'no zap files found in: ' + zapFiles)
   }
   if (argv.output == null) throw 'You need to specify output file.'
   let output = argv.output
@@ -507,7 +507,12 @@ async function startRegenerateSdk(argv, options) {
   options.logger(env.formatEmojiMessage('🔧', 'Regenerating whole SDK.'))
   let sdkPath = argv.sdk
   if (!sdkPath) {
-    options.logger(`⛔ regenerateSdk requires the --sdk <sdkFile> argument`)
+    options.logger(
+      env.formatEmojiMessage(
+        '⛔',
+        'regenerateSdk requires the --sdk <sdkFile> argument'
+      )
+    )
   } else {
     let dbFile = env.sqliteFile('regenerateSdk')
     let db = await dbApi.initDatabaseAndLoadSchema(
@@ -720,7 +725,10 @@ async function startSelfCheck(
     options.logger(env.formatEmojiMessage('⚠️', `  ${ctx.error}`))
   } else {
     options.logger(
-      `    👉 generation template packages loaded: ${ctx.packageIds.length}`
+      env.formatEmojiMessage(
+        '👉',
+        `generation template packages loaded: ${ctx.packageIds.length}`
+      )
     )
   }
 
@@ -963,13 +971,13 @@ async function startGeneration(argv, options) {
 
   let hrstart = process.hrtime.bigint()
   options.logger(
-    `🤖 ZAP generation started:
-    🔍 input files: ${zapFiles}
-    🔍 input Extension files: ${zapFileExtensions}
-    🔍 output pattern: ${output}
-    🔍 using templates: ${templateMetafile}
-    🔍 using zcl data: ${zclProperties}
-    🔍 zap version: ${env.zapVersionAsString()}`
+    `${env.formatEmojiMessage('🤖', 'ZAP generation started:')}
+    ${env.formatEmojiMessage('🔍', `input files: ${zapFiles}`)}
+    ${env.formatEmojiMessage('🔍', `input Extension files: ${zapFileExtensions}`)}
+    ${env.formatEmojiMessage('🔍', `output pattern: ${output}`)}
+    ${env.formatEmojiMessage('🔍', `using templates: ${templateMetafile}`)}
+    ${env.formatEmojiMessage('🔍', `using zcl data: ${zclProperties}`)}
+    ${env.formatEmojiMessage('🔍', `zap version: ${env.zapVersionAsString()}`)}`
   )
 
   let dbFile = env.sqliteFile('generate')
@@ -1114,7 +1122,12 @@ function startUpSecondaryInstance(argv, callbacks) {
   } else if (argv._.includes('stop')) {
     ipcClient.emit(ipcServer.eventType.stop)
   } else if (argv._.includes('regenerateSdk')) {
-    console.log('⛔ SDK regeneration from client process is not yet supported.')
+    console.log(
+      env.formatEmojiMessage(
+        '⛔',
+        'SDK regeneration from client process is not yet supported.'
+      )
+    )
     process.exit(0)
   } else if (argv._.includes('generate') && argv.zapFiles != null) {
     let data = {
@@ -1162,7 +1175,7 @@ async function startUpMainInstance(argv, callbacks) {
   }
 
   if (argv.disableDbCaching) {
-    console.log('⛔ Dabatase caching is disabled.')
+    console.log(env.formatEmojiMessage('⛔', 'Dabatase caching is disabled.'))
     dbCache.disable()
   }
 
@@ -1172,7 +1185,7 @@ async function startUpMainInstance(argv, callbacks) {
   }
 
   if (argv._.includes('status')) {
-    console.log('⛔ Server is not running.')
+    console.log(env.formatEmojiMessage('⛔', 'Server is not running.'))
     logRemoteData({ zapServerStatus: 'missing' })
     cleanExit(argv.cleanupDelay, 0)
   } else if (argv._.includes('selfCheck')) {

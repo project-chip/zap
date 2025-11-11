@@ -264,7 +264,10 @@ For more information, see ${commonUrl.projectUrl}`
   // Apply Jenkins logic.
   if (ret.jenkins) {
     console.log(
-      '🔧 Detected Jenkins environment. Making necessary adjustments.'
+      env.formatEmojiMessage(
+        '🔧',
+        'Detected Jenkins environment. Making necessary adjustments.'
+      )
     )
     if (process.env[env.environmentVariable.skipPostGen.name] == null) {
       ret.skipPostGen = true
@@ -304,11 +307,17 @@ For more information, see ${commonUrl.projectUrl}`
   if (ret.tempState) {
     let tempDir = fs.mkdtempSync(`${os.tmpdir()}${path.sep}zap.`)
     console.log(
-      `🔧 Using temporary state directory: ${env.setAppDirectory(tempDir)}`
+      env.formatEmojiMessage(
+        '🔧',
+        `Using temporary state directory: ${env.setAppDirectory(tempDir)}`
+      )
     )
   } else {
     console.log(
-      `🔧 Using state directory: ${env.setAppDirectory(ret.stateDirectory)}`
+      env.formatEmojiMessage(
+        '🔧',
+        `Using state directory: ${env.setAppDirectory(ret.stateDirectory)}`
+      )
     )
   }
 
