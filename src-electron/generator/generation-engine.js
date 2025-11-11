@@ -1071,7 +1071,7 @@ async function generateAndWriteFiles(
     generateGenerationContent(genResult, timing).then((generatedContent) => {
       if (options.genResultFile) {
         let resultPath = path.join(outputDirectory, 'genResult.json')
-        options.logger(`    ✍  Result: ${resultPath}`)
+        options.logger(env.formatEmojiMessage('✍', `Result: ${resultPath}`))
         return writeFileWithBackup(resultPath, generatedContent, options.backup)
       } else {
         return

@@ -200,7 +200,9 @@ async function rebuildSpaIfNeeded() {
       (ctx) =>
         new Promise((resolve, reject) => {
           if (ctx.needsRebuild) {
-            console.log('✍ Writing out new hash file.')
+            console.log(
+              env.formatEmojiMessage('✍', 'Writing out new hash file.')
+            )
             fs.writeFile(spaHashFileName, JSON.stringify(ctx.hash), (err) => {
               if (err) reject(err)
               else resolve(ctx)

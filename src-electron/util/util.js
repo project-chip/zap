@@ -702,39 +702,37 @@ function executeExternalProgram(
     routeErrToOut: false
   }
 ) {
-  console.log(`    ✍  ${cmd}`)
-  try {
-    const stdout = childProcess.execSync(cmd, {
-      cwd: workingDirectory,
-      windowsHide: true,
-      timeout: 20000,
-      encoding: 'utf-8'
-    })
-    if (stdout) console.log(stdout)
-    // execSync throws on non-zero exit code, so we don't need to check for error explicitly here.
-    // It returns stdout buffer, stderr is printed to parent process stderr by default.
-  } catch (error) {
-    // execSync throws an error that contains stdout and stderr.
-    if (error.stdout) console.log(error.stdout)
-    if (error.stderr) {
-      if (options.routeErrToOut) {
-        console.log(error.stderr)
-      } else {
-        console.error(error.stderr)
+  console.log(env.formatEmojiMessage('✍', `    ${cmd}`))
+  return new Promise((resolve, reject) => {
+    childProcess.exec(
+      cmd,
+      {
+        cwd: workingDirectory,
+        windowsHide: true,
+        timeout: 20000
+      },
+      (error, stdout, stderr) => {
+        // With exec, stdout and stderr are available in the callback even on error
+        if (stdout) console.log(stdout)
+        if (stderr) {
+          if (options.routeErrToOut) {
+            console.log(stderr)
+          } else {
+            console.error(stderr)
+          }
+        }
+        if (error) {
+          if (options.rejectOnFail) {
+            reject(toErrorObject(error))
+          } else {
+            resolve()
+          }
+        } else {
+          resolve()
+        }
       }
-    }
-
-    if (options.rejectOnFail) {
-      // We return a rejected promise to allow the caller to handle it.
-      return Promise.reject(toErrorObject(error))
-    } else {
-      // If we're not rejecting on fail, we just log the error and continue.
-      console.error(error.message)
-    }
-  }
-  // Since the original function returned a promise, we'll return a resolved promise
-  // to maintain compatibility with any callers that might be using .then()
-  return Promise.resolve()
+    )
+  })
 }
 
 /**

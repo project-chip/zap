@@ -1009,7 +1009,7 @@ async function startGeneration(argv, options) {
     options.logger(
       env.formatEmojiMessage('🔧', `🔧 no zap files found in: ${zapFiles}`)
     )
-    throw `👎 no zap files found in: ${zapFiles}`
+    throw env.formatEmojiMessage('👎', `no zap files found in: ${zapFiles}`)
   }
 
   options.zcl = zclProperties

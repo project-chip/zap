@@ -107,7 +107,12 @@ svr.then(() => {
     )
     process.exit(0)
   } else {
-    console.log('⛔ Error: Cypress tests failed, server shut down.')
+    console.log(
+      env.formatEmojiMessage(
+        '⛔',
+        'Error: Cypress tests failed, server shut down.'
+      )
+    )
     process.exit(returnCode)
   }
 })

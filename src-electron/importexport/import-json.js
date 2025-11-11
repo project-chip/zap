@@ -864,14 +864,16 @@ function clusterComplianceForAttributes(
     (ma) => !endpointTypeAttributeIds.includes(ma.id)
   )
   for (let i = 0; i < mandatoryAttributesNotEnabled.length; i++) {
-    let clusterSpecComplianceMessageForAttributes =
-      '⚠ Check Cluster Compliance on endpoint: ' +
-      endpointId +
-      ', cluster: ' +
-      mandatoryAttributesNotEnabled[i].clusterName +
-      ', mandatory attribute: ' +
-      mandatoryAttributesNotEnabled[i].name +
-      ' needs to be enabled'
+    let clusterSpecComplianceMessageForAttributes = env.formatEmojiMessage(
+      '⚠️',
+      'Check Cluster Compliance on endpoint: ' +
+        endpointId +
+        ', cluster: ' +
+        mandatoryAttributesNotEnabled[i].clusterName +
+        ', mandatory attribute: ' +
+        mandatoryAttributesNotEnabled[i].name +
+        ' needs to be enabled'
+    )
 
     clusterSpecCheckComplianceMessage =
       clusterSpecCheckComplianceMessage.concat(
@@ -928,15 +930,16 @@ function clusterComplianceForCommands(
       }
     }
     if (isIncoming && !isCommandEnabled) {
-      let clusterSpecComplianceMessageForCommands =
-        '⚠ Check Cluster Compliance on endpoint: ' +
-        endpointId +
-        ', cluster: ' +
-        allMandatoryCommands[i].clusterName +
-        ' ' +
-        allMandatoryCommands[i].clusterSide +
-        ', mandatory command: ' +
-        allMandatoryCommands[i].name +
+      let clusterSpecComplianceMessageForCommands = env.formatEmojiMessage(
+        '⚠️',
+        'Check Cluster Compliance on endpoint: ' +
+          endpointId +
+          ', cluster: ' +
+          allMandatoryCommands[i].clusterName +
+          ' ' +
+          allMandatoryCommands[i].clusterSide +
+          ', mandatory command: ' +
+          allMandatoryCommands[i].name +
         ' incoming needs to be enabled'
 
       clusterSpecCheckComplianceMessage =
@@ -955,15 +958,16 @@ function clusterComplianceForCommands(
       )
     }
     if (!isIncoming && !isCommandEnabled) {
-      let clusterSpecComplianceMessageForCommands =
-        '⚠ Check Cluster Compliance on endpoint: ' +
-        endpointId +
-        ', cluster: ' +
-        allMandatoryCommands[i].clusterName +
-        ' ' +
-        allMandatoryCommands[i].clusterSide +
-        ', mandatory command: ' +
-        allMandatoryCommands[i].name +
+      let clusterSpecComplianceMessageForCommands = env.formatEmojiMessage(
+        '⚠️',
+        'Check Cluster Compliance on endpoint: ' +
+          endpointId +
+          ', cluster: ' +
+          allMandatoryCommands[i].clusterName +
+          ' ' +
+          allMandatoryCommands[i].clusterSide +
+          ', mandatory command: ' +
+          allMandatoryCommands[i].name +
         ' outgoing needs to be enabled'
 
       clusterSpecCheckComplianceMessage =
@@ -1092,14 +1096,16 @@ async function deviceTypeComplianceForClusters(
       !isDeviceTypeClientClusterFound &&
       deviceTypeClustersOnEndpointType[dtc].lockClient
     ) {
-      clusterSpecComplianceMessage =
-        '⚠ Check Device Type Compliance on endpoint: ' +
-        endpointId +
-        ', device type: ' +
-        deviceType.name +
-        ', cluster: ' +
-        deviceTypeClustersOnEndpointType[dtc].clusterName +
-        ' client needs to be enabled'
+      clusterSpecComplianceMessage = env.formatEmojiMessage(
+        '⚠️',
+        'Check Device Type Compliance on endpoint: ' +
+          endpointId +
+          ', device type: ' +
+          deviceType.name +
+          ', cluster: ' +
+          deviceTypeClustersOnEndpointType[dtc].clusterName +
+          ' client needs to be enabled'
+      )
       deviceTypeSpecCheckComplianceMessage =
         deviceTypeSpecCheckComplianceMessage.concat(
           specMessageIndent,
@@ -1119,14 +1125,16 @@ async function deviceTypeComplianceForClusters(
       !isDeviceTypeServerClusterFound &&
       deviceTypeClustersOnEndpointType[dtc].lockServer
     ) {
-      clusterSpecComplianceMessage =
-        '⚠ Check Device Type Compliance on endpoint: ' +
-        endpointId +
-        ', device type: ' +
-        deviceType.name +
-        ', cluster: ' +
-        deviceTypeClustersOnEndpointType[dtc].clusterName +
-        ' server needs to be enabled'
+      clusterSpecComplianceMessage = env.formatEmojiMessage(
+        '⚠️',
+        'Check Device Type Compliance on endpoint: ' +
+          endpointId +
+          ', device type: ' +
+          deviceType.name +
+          ', cluster: ' +
+          deviceTypeClustersOnEndpointType[dtc].clusterName +
+          ' server needs to be enabled'
+      )
       deviceTypeSpecCheckComplianceMessage =
         deviceTypeSpecCheckComplianceMessage.concat(
           specMessageIndent,
@@ -1215,15 +1223,16 @@ async function deviceTypeComplianceForAttributes(
           }
 
           // Leaving out global attributes
-          let attributeSpecComplianceMessage =
-            '⚠ Check Device Type Compliance on endpoint: ' +
-            endpointId +
-            ', device type: ' +
-            deviceType.name +
-            ', cluster: ' +
-            cluster.name +
-            ', attribute: ' +
-            deviceTypeAttributesOnEndpointType[dta].name +
+          let attributeSpecComplianceMessage = env.formatEmojiMessage(
+            '⚠️',
+            'Check Device Type Compliance on endpoint: ' +
+              endpointId +
+              ', device type: ' +
+              deviceType.name +
+              ', cluster: ' +
+              cluster.name +
+              ', attribute: ' +
+              deviceTypeAttributesOnEndpointType[dta].name +
             ' needs to be enabled'
           deviceTypeSpecCheckComplianceMessage =
             deviceTypeSpecCheckComplianceMessage.concat(
@@ -1297,16 +1306,18 @@ async function deviceTypeComplianceForCommands(
         commandSource == 'client' &&
         !isCommandOutgoingFound
       ) {
-        commandSpecComplianceMessage =
-          '⚠ Check Device Type Compliance on endpoint: ' +
-          endpointId +
-          ', device type: ' +
-          deviceType.name +
-          ', cluster: ' +
-          cluster.name +
-          ' client, command: ' +
-          deviceTypeCommandsOnEndpointType[dtc].name +
-          ' outgoing needs to be enabled'
+        commandSpecComplianceMessage = env.formatEmojiMessage(
+          '⚠️',
+          'Check Device Type Compliance on endpoint: ' +
+            endpointId +
+            ', device type: ' +
+            deviceType.name +
+            ', cluster: ' +
+            cluster.name +
+            ' client, command: ' +
+            deviceTypeCommandsOnEndpointType[dtc].name +
+            ' outgoing needs to be enabled'
+        )
         deviceTypeSpecCheckComplianceMessage =
           deviceTypeSpecCheckComplianceMessage.concat(
             specMessageIndent,
@@ -1327,16 +1338,18 @@ async function deviceTypeComplianceForCommands(
         commandSource == 'server' &&
         !isCommandIncomingFound
       ) {
-        commandSpecComplianceMessage =
-          '⚠ Check Device Type Compliance on endpoint: ' +
-          endpointId +
-          ', device type: ' +
-          deviceType.name +
-          ', cluster: ' +
-          cluster.name +
-          ' client, command: ' +
-          deviceTypeCommandsOnEndpointType[dtc].name +
-          ' incoming needs to be enabled'
+        commandSpecComplianceMessage = env.formatEmojiMessage(
+          '⚠️',
+          'Check Device Type Compliance on endpoint: ' +
+            endpointId +
+            ', device type: ' +
+            deviceType.name +
+            ', cluster: ' +
+            cluster.name +
+            ' client, command: ' +
+            deviceTypeCommandsOnEndpointType[dtc].name +
+            ' incoming needs to be enabled'
+        )
         deviceTypeSpecCheckComplianceMessage =
           deviceTypeSpecCheckComplianceMessage.concat(
             specMessageIndent,
@@ -1357,16 +1370,18 @@ async function deviceTypeComplianceForCommands(
         commandSource == 'client' &&
         !isCommandIncomingFound
       ) {
-        commandSpecComplianceMessage =
-          '⚠ Check Device Type Compliance on endpoint: ' +
-          endpointId +
-          ', device type: ' +
-          deviceType.name +
-          ', cluster: ' +
-          cluster.name +
-          ' server, command: ' +
-          deviceTypeCommandsOnEndpointType[dtc].name +
-          ' incoming needs to be enabled'
+        commandSpecComplianceMessage = env.formatEmojiMessage(
+          '⚠️',
+          'Check Device Type Compliance on endpoint: ' +
+            endpointId +
+            ', device type: ' +
+            deviceType.name +
+            ', cluster: ' +
+            cluster.name +
+            ' server, command: ' +
+            deviceTypeCommandsOnEndpointType[dtc].name +
+            ' incoming needs to be enabled'
+        )
         deviceTypeSpecCheckComplianceMessage =
           deviceTypeSpecCheckComplianceMessage.concat(
             specMessageIndent,
@@ -1387,16 +1402,18 @@ async function deviceTypeComplianceForCommands(
         commandSource == 'server' &&
         !isCommandOutgoingFound
       ) {
-        commandSpecComplianceMessage =
-          '⚠ Check Device Type Compliance on endpoint: ' +
-          endpointId +
-          ', device type: ' +
-          deviceType.name +
-          ', cluster: ' +
-          cluster.name +
-          ' server, command: ' +
-          deviceTypeCommandsOnEndpointType[dtc].name +
-          ' outgoing needs to be enabled'
+        commandSpecComplianceMessage = env.formatEmojiMessage(
+          '⚠️',
+          'Check Device Type Compliance on endpoint: ' +
+            endpointId +
+            ', device type: ' +
+            deviceType.name +
+            ', cluster: ' +
+            cluster.name +
+            ' server, command: ' +
+            deviceTypeCommandsOnEndpointType[dtc].name +
+            ' outgoing needs to be enabled'
+        )
         deviceTypeSpecCheckComplianceMessage =
           deviceTypeSpecCheckComplianceMessage.concat(
             specMessageIndent,
