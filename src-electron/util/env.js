@@ -59,7 +59,7 @@ function builtinSilabsZclMetafile() {
  *
  * @returns path to gen-templates.json file
  */
-export function builtinSilabsTemplatesMetaFile() {
+function builtinSilabsTemplatesMetaFile() {
   return locateProjectResource('./test/gen-template/zigbee/gen-templates.json')
 }
 
@@ -110,7 +110,7 @@ function builtinNewMatterZclMetafile() {
  *
  * @returns path to templates.json file
  */
-export function builtinMatterTemplatesMetaFile() {
+function builtinMatterTemplatesMetaFile() {
   return locateProjectResource('./test/gen-template/matter2/templates.json')
 }
 
@@ -659,6 +659,8 @@ exports.builtinNewMatterZclMetafile = builtinNewMatterZclMetafile
 exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile
 exports.builtinMatterZclMetafile2 = builtinMatterZclMetafile2
 exports.builtinTemplateMetafile = builtinTemplateMetafile
+exports.builtinSilabsTemplatesMetaFile = builtinSilabsTemplatesMetaFile
+exports.builtinMatterTemplatesMetaFile = builtinMatterTemplatesMetaFile
 exports.setDevelopmentEnv = setDevelopmentEnv
 exports.setProductionEnv = setProductionEnv
 exports.logInitStdout = logInitStdout

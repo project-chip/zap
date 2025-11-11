@@ -907,7 +907,6 @@ This module provides cache for commonly used static database queries.
     * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
-    * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
     * [~selectAllDomains(db)](#module_DB API_ zcl database access..selectAllDomains) ⇒
     * [~selectDomainById(db, id)](#module_DB API_ zcl database access..selectDomainById) ⇒
     * [~selectAllStructsWithItemCount(db, packageIds)](#module_DB API_ zcl database access..selectAllStructsWithItemCount) ⇒
@@ -1344,19 +1343,6 @@ Get bitmap fields from the given bitmap ID.
 | --- | --- |
 | db | <code>\*</code> | 
 | id | <code>\*</code> | 
-
-<a name="module_DB API_ zcl database access..selectAllBitmapFields"></a>
-
-### DB API: zcl database access~selectAllBitmapFields(db, packageId) ⇒
-Get all bitmap fields from the given package ID.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
-**Returns**: Promise of bitmap fields  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectAllDomains"></a>
 
@@ -1778,7 +1764,6 @@ This module provides queries for atomic type queries.
     * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
-    * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
     * [~selectAllDomains(db)](#module_DB API_ zcl database access..selectAllDomains) ⇒
     * [~selectDomainById(db, id)](#module_DB API_ zcl database access..selectDomainById) ⇒
     * [~selectAllStructsWithItemCount(db, packageIds)](#module_DB API_ zcl database access..selectAllStructsWithItemCount) ⇒
@@ -2215,19 +2200,6 @@ Get bitmap fields from the given bitmap ID.
 | --- | --- |
 | db | <code>\*</code> | 
 | id | <code>\*</code> | 
-
-<a name="module_DB API_ zcl database access..selectAllBitmapFields"></a>
-
-### DB API: zcl database access~selectAllBitmapFields(db, packageId) ⇒
-Get all bitmap fields from the given package ID.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
-**Returns**: Promise of bitmap fields  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectAllDomains"></a>
 
@@ -2644,7 +2616,6 @@ This module provides queries for bitmaps.
     * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
-    * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
     * [~selectAllDomains(db)](#module_DB API_ zcl database access..selectAllDomains) ⇒
     * [~selectDomainById(db, id)](#module_DB API_ zcl database access..selectDomainById) ⇒
     * [~selectAllStructsWithItemCount(db, packageIds)](#module_DB API_ zcl database access..selectAllStructsWithItemCount) ⇒
@@ -3081,19 +3052,6 @@ Get bitmap fields from the given bitmap ID.
 | --- | --- |
 | db | <code>\*</code> | 
 | id | <code>\*</code> | 
-
-<a name="module_DB API_ zcl database access..selectAllBitmapFields"></a>
-
-### DB API: zcl database access~selectAllBitmapFields(db, packageId) ⇒
-Get all bitmap fields from the given package ID.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
-**Returns**: Promise of bitmap fields  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectAllDomains"></a>
 
@@ -4893,7 +4851,6 @@ inside a single session. Things like:
     * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
-    * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
     * [~selectAllDomains(db)](#module_DB API_ zcl database access..selectAllDomains) ⇒
     * [~selectDomainById(db, id)](#module_DB API_ zcl database access..selectDomainById) ⇒
     * [~selectAllStructsWithItemCount(db, packageIds)](#module_DB API_ zcl database access..selectAllStructsWithItemCount) ⇒
@@ -5330,19 +5287,6 @@ Get bitmap fields from the given bitmap ID.
 | --- | --- |
 | db | <code>\*</code> | 
 | id | <code>\*</code> | 
-
-<a name="module_DB API_ zcl database access..selectAllBitmapFields"></a>
-
-### DB API: zcl database access~selectAllBitmapFields(db, packageId) ⇒
-Get all bitmap fields from the given package ID.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
-**Returns**: Promise of bitmap fields  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectAllDomains"></a>
 
@@ -5810,7 +5754,6 @@ This module provides queries for enums.
     * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
-    * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
     * [~selectAllDomains(db)](#module_DB API_ zcl database access..selectAllDomains) ⇒
     * [~selectDomainById(db, id)](#module_DB API_ zcl database access..selectDomainById) ⇒
     * [~selectAllStructsWithItemCount(db, packageIds)](#module_DB API_ zcl database access..selectAllStructsWithItemCount) ⇒
@@ -6247,19 +6190,6 @@ Get bitmap fields from the given bitmap ID.
 | --- | --- |
 | db | <code>\*</code> | 
 | id | <code>\*</code> | 
-
-<a name="module_DB API_ zcl database access..selectAllBitmapFields"></a>
-
-### DB API: zcl database access~selectAllBitmapFields(db, packageId) ⇒
-Get all bitmap fields from the given package ID.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
-**Returns**: Promise of bitmap fields  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectAllDomains"></a>
 
@@ -6672,7 +6602,6 @@ across different query files.
     * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
-    * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
     * [~selectAllDomains(db)](#module_DB API_ zcl database access..selectAllDomains) ⇒
     * [~selectDomainById(db, id)](#module_DB API_ zcl database access..selectDomainById) ⇒
     * [~selectAllStructsWithItemCount(db, packageIds)](#module_DB API_ zcl database access..selectAllStructsWithItemCount) ⇒
@@ -7109,19 +7038,6 @@ Get bitmap fields from the given bitmap ID.
 | --- | --- |
 | db | <code>\*</code> | 
 | id | <code>\*</code> | 
-
-<a name="module_DB API_ zcl database access..selectAllBitmapFields"></a>
-
-### DB API: zcl database access~selectAllBitmapFields(db, packageId) ⇒
-Get all bitmap fields from the given package ID.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
-**Returns**: Promise of bitmap fields  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectAllDomains"></a>
 
@@ -7533,7 +7449,6 @@ This module provides queries for ZCL static queries.
     * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
-    * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
     * [~selectAllDomains(db)](#module_DB API_ zcl database access..selectAllDomains) ⇒
     * [~selectDomainById(db, id)](#module_DB API_ zcl database access..selectDomainById) ⇒
     * [~selectAllStructsWithItemCount(db, packageIds)](#module_DB API_ zcl database access..selectAllStructsWithItemCount) ⇒
@@ -7970,19 +7885,6 @@ Get bitmap fields from the given bitmap ID.
 | --- | --- |
 | db | <code>\*</code> | 
 | id | <code>\*</code> | 
-
-<a name="module_DB API_ zcl database access..selectAllBitmapFields"></a>
-
-### DB API: zcl database access~selectAllBitmapFields(db, packageId) ⇒
-Get all bitmap fields from the given package ID.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
-**Returns**: Promise of bitmap fields  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectAllDomains"></a>
 
@@ -18070,11 +17972,13 @@ Environment utilities for ZAP
     * [~setSaveFileFormat(n)](#module_JS API_ Environment utilities..setSaveFileFormat)
     * [~defaultFileFormat()](#module_JS API_ Environment utilities..defaultFileFormat) ⇒
     * [~builtinSilabsZclMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclMetafile) ⇒
+    * [~builtinSilabsTemplatesMetaFile()](#module_JS API_ Environment utilities..builtinSilabsTemplatesMetaFile) ⇒
     * [~builtinSilabsZclSpecialMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclSpecialMetafile) ⇒
     * [~builtinSilabsZclGeneralXmlFile()](#module_JS API_ Environment utilities..builtinSilabsZclGeneralXmlFile) ⇒
     * [~builtinSilabsSpecialZclGeneralSpecialXmlFile()](#module_JS API_ Environment utilities..builtinSilabsSpecialZclGeneralSpecialXmlFile) ⇒
     * [~builtinMatterZclMetafile()](#module_JS API_ Environment utilities..builtinMatterZclMetafile) ⇒
     * [~builtinNewMatterZclMetafile()](#module_JS API_ Environment utilities..builtinNewMatterZclMetafile) ⇒
+    * [~builtinMatterTemplatesMetaFile()](#module_JS API_ Environment utilities..builtinMatterTemplatesMetaFile) ⇒
     * [~builtinDotdotZclMetafile()](#module_JS API_ Environment utilities..builtinDotdotZclMetafile) ⇒
     * [~builtinMatterZclMetafile2()](#module_JS API_ Environment utilities..builtinMatterZclMetafile2) ⇒
     * [~builtinTemplateMetafile()](#module_JS API_ Environment utilities..builtinTemplateMetafile) ⇒
@@ -18130,6 +18034,11 @@ Get save file format.
 ### JS API: Environment utilities~builtinSilabsZclMetafile() ⇒
 **Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to zcl.json file  
+<a name="module_JS API_ Environment utilities..builtinSilabsTemplatesMetaFile"></a>
+
+### JS API: Environment utilities~builtinSilabsTemplatesMetaFile() ⇒
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Returns**: path to gen-templates.json file  
 <a name="module_JS API_ Environment utilities..builtinSilabsZclSpecialMetafile"></a>
 
 ### JS API: Environment utilities~builtinSilabsZclSpecialMetafile() ⇒
@@ -18163,6 +18072,11 @@ Get builtin matter ZCL json file
 
 **Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: matter ZCL json file  
+<a name="module_JS API_ Environment utilities..builtinMatterTemplatesMetaFile"></a>
+
+### JS API: Environment utilities~builtinMatterTemplatesMetaFile() ⇒
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Returns**: path to templates.json file  
 <a name="module_JS API_ Environment utilities..builtinDotdotZclMetafile"></a>
 
 ### JS API: Environment utilities~builtinDotdotZclMetafile() ⇒
