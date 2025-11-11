@@ -940,7 +940,8 @@ function clusterComplianceForCommands(
           allMandatoryCommands[i].clusterSide +
           ', mandatory command: ' +
           allMandatoryCommands[i].name +
-        ' incoming needs to be enabled'
+          ' incoming needs to be enabled'
+      )
 
       clusterSpecCheckComplianceMessage =
         clusterSpecCheckComplianceMessage.concat(
@@ -968,7 +969,8 @@ function clusterComplianceForCommands(
           allMandatoryCommands[i].clusterSide +
           ', mandatory command: ' +
           allMandatoryCommands[i].name +
-        ' outgoing needs to be enabled'
+          ' outgoing needs to be enabled'
+      )
 
       clusterSpecCheckComplianceMessage =
         clusterSpecCheckComplianceMessage.concat(
@@ -1233,7 +1235,8 @@ async function deviceTypeComplianceForAttributes(
               cluster.name +
               ', attribute: ' +
               deviceTypeAttributesOnEndpointType[dta].name +
-            ' needs to be enabled'
+              ' needs to be enabled'
+          )
           deviceTypeSpecCheckComplianceMessage =
             deviceTypeSpecCheckComplianceMessage.concat(
               specMessageIndent,
