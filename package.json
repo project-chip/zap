@@ -204,7 +204,7 @@
     "jest": "^29.2.2",
     "jest-junit": "^16.0.0",
     "jest-sonar-reporter": "^2.0.0",
-    "jsdoc": "^4.0.5",
+    "jsdoc": "4.0.5",
     "jsdoc-to-markdown": "^8.0.3",
     "license-checker": "^25.0.1",
     "node-7z": "^3.0.0",
