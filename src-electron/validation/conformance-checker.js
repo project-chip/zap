@@ -28,6 +28,7 @@ const querySessionNotice = require('../db/query-session-notification')
 const queryEndpointType = require('../db/query-endpoint-type')
 const queryZcl = require('../db/query-zcl')
 const dbEnum = require('../../src-shared/db-enum')
+const env = require('../util/env')
 
 /**
  * Generate warning messages based on conformance checks of the updated feature and related elements.
@@ -62,8 +63,11 @@ function generateWarningMessage(
 
   // build warning prefix string for the given feature
   let buildWarningPrefix = (featureData) =>
-    `⚠ Check Feature Compliance on endpoint: ${endpointId}, cluster: ${featureData.cluster}, ` +
-    `feature: ${featureData.name} (${featureData.code}) (bit ${featureData.bit} in featureMap attribute)`
+    env.formatEmojiMessage(
+      '⚠️',
+      `Check Feature Compliance on endpoint: ${endpointId}, cluster: ${featureData.cluster}, ` +
+        `feature: ${featureData.name} (${featureData.code}) (bit ${featureData.bit} in featureMap attribute)`
+    )
   let warningPrefix = buildWarningPrefix(featureData)
 
   let updateDisabledString = `cannot be ${added ? 'enabled' : 'disabled'} as`
@@ -569,7 +573,10 @@ async function setConformanceWarnings(
       }
     }
 
-    let contextMessage = `⚠ Check Feature Compliance on endpoint: ${endpointId}, cluster: ${cluster.name}, `
+    let contextMessage = env.formatEmojiMessage(
+      '⚠️',
+      `Check Feature Compliance on endpoint: ${endpointId}, cluster: ${cluster.name}, `
+    )
 
     /* If unsupported elements are enabled or required elements are disabled, 
       they are considered non-conforming. A corresponding warning message will be 

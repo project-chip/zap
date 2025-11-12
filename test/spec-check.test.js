@@ -103,47 +103,47 @@ test(
     )
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor server needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor server needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor server needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor server needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor, attribute: ClientList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor, attribute: ClientList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: PartsList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: PartsList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
       )
     ).toBeTruthy()
 
@@ -206,33 +206,33 @@ test(
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor server needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor server needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor server needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor server needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
       )
     ).toBeTruthy()
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Cluster Compliance on endpoint: 1, cluster: Identify, mandatory attribute: IdentifyTime needs to be enabled'
+        '⚠️ Check Cluster Compliance on endpoint: 1, cluster: Identify, mandatory attribute: IdentifyTime needs to be enabled'
       )
     ).toBeTruthy()
 
@@ -321,23 +321,23 @@ test(
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
       )
     ).toBeFalsy()
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Cluster Compliance on endpoint: 1, cluster: Identify, mandatory attribute: IdentifyTime needs to be enabled'
+        '⚠️ Check Cluster Compliance on endpoint: 1, cluster: Identify, mandatory attribute: IdentifyTime needs to be enabled'
       )
     ).toBeFalsy()
 
@@ -387,29 +387,29 @@ test(
     sessionNotificationMessages = sessionNotifications.map((sn) => sn.message)
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Descriptor, attribute: ClientList needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, cluster: Descriptor, attribute: ClientList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Descriptor server needs to be enabled'
-      )
-    ).toBeTruthy()
-
-    expect(
-      sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, cluster: Identify, attribute: IdentifyTime needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, cluster: Descriptor server needs to be enabled'
       )
     ).toBeTruthy()
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Cluster Compliance on endpoint: 1, cluster: Identify, mandatory attribute: IdentifyTime needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 1, cluster: Identify, attribute: IdentifyTime needs to be enabled'
+      )
+    ).toBeTruthy()
+
+    expect(
+      sessionNotificationMessages.includes(
+        '⚠️ Check Cluster Compliance on endpoint: 1, cluster: Identify, mandatory attribute: IdentifyTime needs to be enabled'
       )
     ).toBeTruthy()
 
@@ -448,7 +448,7 @@ test(
     sessionNotificationMessages = sessionNotifications.map((sn) => sn.message)
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration, attribute: ActiveLocale needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration, attribute: ActiveLocale needs to be enabled'
       )
     ).toBeTruthy()
 
@@ -474,7 +474,7 @@ test(
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration, attribute: ActiveLocale needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration, attribute: ActiveLocale needs to be enabled'
       )
     ).toBeFalsy()
 
@@ -488,12 +488,12 @@ test(
     )
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration server needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration server needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration, attribute: ActiveLocale needs to be enabled'
+        '⚠️ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration, attribute: ActiveLocale needs to be enabled'
       )
     ).toBeFalsy()
 

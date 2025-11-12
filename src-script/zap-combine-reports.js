@@ -18,6 +18,7 @@
 
 const scriptUtil = require('./script-util.js')
 const fsExtra = require('fs-extra')
+const env = require('../src-electron/util/env')
 
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
@@ -59,7 +60,10 @@ async function executeScript() {
     )
 
     console.log(
-      `✅ Please find the combined report (Jest & Cypress) at ./coverage/lcov-report/index.html`
+      env.formatEmojiMessage(
+        '✅',
+        'Please find the combined report (Jest & Cypress) at ./coverage/lcov-report/index.html'
+      )
     )
   } catch (err) {
     console.log(

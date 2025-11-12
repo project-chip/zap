@@ -24,6 +24,7 @@ const fs = require('fs')
 const path = require('path')
 const readline = require('readline')
 const scriptUtil = require('./script-util')
+const env = require('../src-electron/util/env')
 
 if (
   process.argv[2] == '-?' ||
@@ -57,6 +58,6 @@ scriptUtil
     process.exit(result.wasChanged ? 1 : 0)
   })
   .catch((err) => {
-    console.log(`⛔ Error: ${err}`)
+    console.log(env.formatEmojiMessage('⛔', `Error: ${err}`))
     process.exit(1)
   })

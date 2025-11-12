@@ -21,6 +21,7 @@ const fsp = fs.promises
 const path = require('path')
 const scriptUtil = require('./script-util.js')
 const readline = require('readline')
+const env = require('../src-electron/util/env')
 
 const spaDir = path.join(__dirname, '../spa')
 const backendDir = path.join(__dirname, '../dist')
@@ -41,17 +42,27 @@ const hashOptions = {}
  */
 async function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
-    console.log(`🚀 Executing: ${cmd} ${args.join(' ')}`)
+    console.log(
+      env.formatEmojiMessage('🚀', `Executing: ${cmd} ${args.join(' ')}`)
+    )
     let c = spawn(cmd, args)
     c.on('exit', (code) => {
       if (code == 0) resolve(ctx)
       else {
         if (code) {
-          console.log(`👎 Program ${cmd} exited with error code: ${code}`)
+          console.log(
+            env.formatEmojiMessage(
+              '👎',
+              `Program ${cmd} exited with error code: ${code}`
+            )
+          )
           reject(code)
         } else {
           console.log(
-            `👎 Program ${cmd} exited with signal code: ${c.signalCode}`
+            env.formatEmojiMessage(
+              '👎',
+              `Program ${cmd} exited with signal code: ${c.signalCode}`
+            )
           )
           reject(c.signalCode)
         }
@@ -78,13 +89,20 @@ async function executeCmd(ctx, cmd, args) {
  */
 async function getStdout(onError, cmd, args) {
   return new Promise((resolve, reject) => {
-    console.log(`🚀 Executing: ${cmd} ${args.join(' ')}`)
+    console.log(
+      env.formatEmojiMessage('🚀', `Executing: ${cmd} ${args.join(' ')}`)
+    )
     let c = spawn(cmd, args)
     let str = ''
     c.on('exit', (code) => {
       if (code == 0) resolve(str)
       else {
-        console.log(`👎 Program ${cmd} exited with error code: ${code}`)
+        console.log(
+          env.formatEmojiMessage(
+            '👎',
+            `Program ${cmd} exited with error code: ${code}`
+          )
+        )
         reject(code)
       }
     })
@@ -108,12 +126,17 @@ async function rebuildSpaIfNeeded() {
     path.join(__dirname, '../src'),
     hashOptions
   )
-  console.log(`🔍 Current src hash: ${srcHash.hash}`)
+  console.log(env.formatEmojiMessage('🔍', `Current src hash: ${srcHash.hash}`))
   let srcSharedHash = await folderHash.hashElement(
     path.join(__dirname, '../src-shared'),
     hashOptions
   )
-  console.log(`🔍 Current src-shared hash: ${srcSharedHash.hash}`)
+  console.log(
+    env.formatEmojiMessage(
+      '🔍',
+      `Current src-shared hash: ${srcSharedHash.hash}`
+    )
+  )
   let ctx = {
     hash: {
       srcHash: srcHash.hash,
@@ -127,13 +150,26 @@ async function rebuildSpaIfNeeded() {
           fs.readFile(spaHashFileName, (err, data) => {
             let oldHash = null
             if (err) {
-              console.log(`👎 Error reading old hash file: ${spaHashFileName}`)
+              console.log(
+                env.formatEmojiMessage(
+                  '👎',
+                  `Error reading old hash file: ${spaHashFileName}`
+                )
+              )
               ctx.needsRebuild = true
             } else {
               oldHash = JSON.parse(data)
-              console.log(`🔍 Previous src hash: ${oldHash.srcHash}`)
               console.log(
-                `🔍 Previous src-shared hash: ${oldHash.srcSharedHash}`
+                env.formatEmojiMessage(
+                  '🔍',
+                  `Previous src hash: ${oldHash.srcHash}`
+                )
+              )
+              console.log(
+                env.formatEmojiMessage(
+                  '🔍',
+                  `Previous src-shared hash: ${oldHash.srcSharedHash}`
+                )
               )
               ctx.needsRebuild =
                 oldHash.srcSharedHash != ctx.hash.srcSharedHash ||
@@ -145,7 +181,10 @@ async function rebuildSpaIfNeeded() {
               )
             } else {
               console.log(
-                `👍 There were no changes to front-end code, so we don't have to rebuild the SPA.`
+                env.formatEmojiMessage(
+                  '👍',
+                  "There were no changes to front-end code, so we don't have to rebuild the SPA."
+                )
               )
             }
             resolve(ctx)
@@ -161,7 +200,9 @@ async function rebuildSpaIfNeeded() {
       (ctx) =>
         new Promise((resolve, reject) => {
           if (ctx.needsRebuild) {
-            console.log('✍ Writing out new hash file.')
+            console.log(
+              env.formatEmojiMessage('✍', 'Writing out new hash file.')
+            )
             fs.writeFile(spaHashFileName, JSON.stringify(ctx.hash), (err) => {
               if (err) reject(err)
               else resolve(ctx)
@@ -208,7 +249,12 @@ async function stampVersion() {
     version.date = d
     version.zapVersion = result.version
     let versionFile = path.join(__dirname, '../.version.json')
-    console.log(`🔍 Git commit: ${version.hash} from ${version.date}`)
+    console.log(
+      env.formatEmojiMessage(
+        '🔍',
+        `Git commit: ${version.hash} from ${version.date}`
+      )
+    )
     await fsp.writeFile(versionFile, JSON.stringify(version))
   } catch (err) {
     console.log(`Error retrieving version: ${err}`)
@@ -304,7 +350,9 @@ function duration(nsDifference) {
  */
 async function doneStamp(startTime) {
   let nsDuration = process.hrtime.bigint() - startTime
-  console.log(`😎 All done: ${duration(nsDuration)}.`)
+  console.log(
+    env.formatEmojiMessage('😎', `All done: ${duration(nsDuration)}.`)
+  )
   return setPackageJsonVersion(null, 'fake')
 }
 

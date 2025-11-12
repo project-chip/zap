@@ -16,6 +16,7 @@
  */
 
 const scriptUtil = require('./script-util.js')
+const env = require('../src-electron/util/env')
 
 let startTime = process.hrtime()
 
@@ -27,7 +28,10 @@ scriptUtil
   .then(() => {
     let endTime = process.hrtime(startTime)
     console.log(
-      `😎 All done: ${endTime[0]}s, ${Math.round(endTime[1] / 1000000)}ms.`
+      env.formatEmojiMessage(
+        '😎',
+        `All done: ${endTime[0]}s, ${Math.round(endTime[1] / 1000000)}ms.`
+      )
     )
   })
   .catch((err) => {

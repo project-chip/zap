@@ -1030,30 +1030,39 @@ async function generateAndWriteFiles(
   }
 
   if (!fs.existsSync(outputDirectory)) {
-    options.logger(`✅ Creating directory: ${outputDirectory}`)
+    options.logger(
+      env.formatEmojiMessage('✅', `Creating directory: ${outputDirectory}`)
+    )
     fs.mkdirSync(outputDirectory, { recursive: true })
   }
 
-  options.logger('🤖 Generating files:')
+  options.logger(env.formatEmojiMessage('🤖', 'Generating files:'))
   let promises = []
   for (const f of Object.keys(genResult.content)) {
     let content = genResult.content[f]
     let fileName = path.join(outputDirectory, f)
-    options.logger(`    ✍  ${fileName}`)
+    options.logger(env.formatEmojiMessage('✍', fileName))
     env.logDebug(`Preparing to write file: ${fileName}`)
     promises.push(writeFileWithBackup(fileName, content, options.backup))
   }
   if (genResult.hasErrors) {
-    options.logger('⚠️  Errors:')
+    options.logger(env.formatEmojiMessage('⚠️', 'Errors:'))
     for (const f of Object.keys(genResult.errors)) {
       let err = genResult.errors[f]
       let fileName = path.join(outputDirectory, f)
-      options.logger(`    👎  ${fileName}: ⛔ ${err}\nStack trace:\n`)
+      options.logger(
+        `${env.formatEmojiMessage('👎', `${fileName}:`)} ${env.formatEmojiMessage('⛔', err)}\nStack trace:\n`
+      )
       options.logger(err)
     }
   }
   let nsDuration = process.hrtime.bigint() - hrstart
-  options.logger(`🕐 Generation time: ${util.duration(nsDuration)} `)
+  options.logger(
+    env.formatEmojiMessage(
+      '🕐',
+      `Generation time: ${util.duration(nsDuration)} `
+    )
+  )
   timing.generation = {
     nsDuration: Number(nsDuration),
     readableDuration: util.duration(nsDuration)
@@ -1062,7 +1071,7 @@ async function generateAndWriteFiles(
     generateGenerationContent(genResult, timing).then((generatedContent) => {
       if (options.genResultFile) {
         let resultPath = path.join(outputDirectory, 'genResult.json')
-        options.logger(`    ✍  Result: ${resultPath}`)
+        options.logger(env.formatEmojiMessage('✍', `Result: ${resultPath}`))
         return writeFileWithBackup(resultPath, generatedContent, options.backup)
       } else {
         return
@@ -1193,7 +1202,7 @@ async function postProcessGeneratedFiles(
     }
   }
   if (postProcessPromises.length > 0)
-    logger('🤖 Executing post-processing actions:')
+    logger(env.formatEmojiMessage('🤖', 'Executing post-processing actions:'))
   return Promise.all(postProcessPromises).then(() => genResult)
 }
 

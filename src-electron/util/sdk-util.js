@@ -24,6 +24,7 @@ const fsp = fs.promises
 const path = require('path')
 const util = require('./util')
 const fastGlob = require('fast-glob')
+const env = require('./env')
 
 /**
  * This function reads in the sdk.json that is passed as sdkPath,
@@ -39,43 +40,47 @@ async function readSdkJson(
     logger: (msg) => {}
   }
 ) {
-  options.logger(`    👈 read in: ${sdkPath}`)
+  options.logger(env.formatEmojiMessage('👈', `read in: ${sdkPath}`))
   let data = await fsp.readFile(sdkPath)
   let sdk = JSON.parse(data)
 
   // Runtime derived data goes here
   sdk.rt = {}
 
-  options.logger(`    👉 sdk information: ${sdk.meta.description}`)
+  options.logger(
+    env.formatEmojiMessage('👉', `sdk information: ${sdk.meta.description}`)
+  )
 
   let sdkRoot = path.join(path.dirname(sdkPath), sdk.meta.sdkRoot)
-  options.logger(`    👉 sdk location: ${sdkRoot}`)
+  options.logger(env.formatEmojiMessage('👉', `sdk location: ${sdkRoot}`))
   let featureLevelMatch = util.matchFeatureLevel(
     sdk.meta.requiredFeatureLevel,
     sdk.meta.description
   )
   if (!featureLevelMatch.match) {
-    options.logger(`⛔ ${featureLevelMatch.message}`)
+    options.logger(env.formatEmojiMessage('⛔', featureLevelMatch.message))
     throw featureLevelMatch.message
   }
 
-  options.logger('🐝 Resolving ZCL metafiles')
+  options.logger(env.formatEmojiMessage('🐝', 'Resolving ZCL metafiles'))
   sdk.rt.zclMetafiles = {}
   for (let key of Object.keys(sdk.zcl)) {
     let p = path.join(sdkRoot, sdk.zcl[key])
-    options.logger(`    👈 ${p}`)
+    options.logger(env.formatEmojiMessage('👈', p))
     sdk.rt.zclMetafiles[key] = p
   }
 
-  options.logger('🐝 Resolving generation template metafiles')
+  options.logger(
+    env.formatEmojiMessage('🐝', 'Resolving generation template metafiles')
+  )
   sdk.rt.genTemplates = {}
   for (let key of Object.keys(sdk.templates)) {
     let p = path.join(sdkRoot, sdk.templates[key])
-    options.logger(`    👈 ${p}`)
+    options.logger(env.formatEmojiMessage('👈', p))
     sdk.rt.genTemplates[key] = p
   }
 
-  options.logger('🐝 Resolving generation patterns')
+  options.logger(env.formatEmojiMessage('🐝', 'Resolving generation patterns'))
   sdk.rt.generateCommands = []
   for (let gen of sdk.generation) {
     let globPattern = sdk.zapFiles[gen.zapFile]

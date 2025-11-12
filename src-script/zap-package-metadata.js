@@ -24,6 +24,7 @@
 // apack_zap.package
 const fs = require('fs')
 const path = require('path')
+const env = require('../src-electron/util/env')
 
 const packageJson = path.join(__dirname, '../package.json')
 const zapPackage = path.join(__dirname, '../apack_zap.package')
@@ -46,6 +47,11 @@ fs.readFile(packageJson, 'utf8', (err, data) => {
   version="${version}"/>
 `
 
-  console.log(`🐝 Generating ${zapPackage} with version number ${version}`)
+  console.log(
+    env.formatEmojiMessage(
+      '🐝',
+      `Package metadata: ${JSON.stringify(metadata)}`
+    )
+  )
   fs.writeFileSync(zapPackage, template)
 })

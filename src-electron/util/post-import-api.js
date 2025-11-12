@@ -27,6 +27,7 @@ const queryConfig = require('../db/query-config.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const querySessionZcl = require('../db/query-session-zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
+const env = require('./env')
 
 /**
  * Prints a text to console.
@@ -43,7 +44,7 @@ function print(text) {
  * @param {*} text
  */
 function printError(text) {
-  console.log(`⛔ SCRIPT API ERROR: ${text}`)
+  console.log(env.formatEmojiMessage('⛔', `SCRIPT API ERROR: ${text}`))
 }
 
 /**
