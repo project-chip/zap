@@ -14,7 +14,7 @@
     "cli": "cli.json",
     "generator": {
       "disableUcComponentOnZclClusterUpdate": "true",
-      "generateStaticTemplates": "true"
+      "generateStaticTemplates": "false"
     }
   },
   "zcl": {

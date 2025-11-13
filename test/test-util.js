@@ -84,6 +84,7 @@ exports.testTemplate = {
   zigbee2: './test/gen-template/zigbee2/gen-templates.json',
   zigbee2Count: 13,
   matter: './test/gen-template/matter/gen-test.json',
+  matterNoStatic: './test/gen-template/matter/gen-test-no-static.json',
   matterCount: 8,
   matter2: './test/gen-template/matter2/templates.json',
   matter2Count: 1,
@@ -123,12 +124,25 @@ exports.zigbeeTestFile = {
   ),
   customXml: path.join(__dirname, 'resource/zap-file-with-custom-xml.zap'),
   fullTh: path.join(__dirname, 'resource/full-th.zap'),
-  multiProtocol: path.join(__dirname, 'resource/multi-protocol.zap')
+  multiProtocol: path.join(__dirname, 'resource/multi-protocol.zap'),
+  multiProtocolNoStatic: path.join(
+    __dirname,
+    'resource/multi-protocol-no-static.zap'
+  )
 }
 
 exports.matterTestFile = {
   matterTest: path.join(__dirname, 'resource/matter-test.zap'),
   switch: path.join(__dirname, 'resource/matter-switch.zap'),
+  matterTestNoStatic: path.join(
+    __dirname,
+    'resource/matter-test-no-static.zap'
+  ),
+  matterTestWithStatic: path.join(
+    __dirname,
+    'resource/matter-test-with-static.zap'
+  ),
+  basicLighting: path.join(__dirname, 'resource/matter-basic-lighting.zap'),
   allClusters: path.join(__dirname, 'resource/matter-all-clusters.zap'),
   allClustersFileFormat2: path.join(
     __dirname,

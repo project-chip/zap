@@ -105,7 +105,8 @@ exports.sessionKey = {
   filePath: 'filePath',
   ideProjectPath: 'ideProjectPath',
   informationText: 'informationText',
-  disableComponentToggling: 'disableComponentToggling'
+  disableComponentToggling: 'disableComponentToggling',
+  generateStaticTemplates: 'generateStaticTemplates'
 }
 
 exports.pathRelativity = {
@@ -145,7 +146,8 @@ exports.generatorOptions = {
   postProcessConditionalFile: 'postProcessConditionalFile',
   enabled: 'enabled',
   shareClusterStatesAcrossEndpoints: 'shareClusterStatesAcrossEndpoints',
-  disableUcComponentOnZclClusterUpdate: 'disableUcComponentOnZclClusterUpdate'
+  disableUcComponentOnZclClusterUpdate: 'disableUcComponentOnZclClusterUpdate',
+  generateStaticTemplates: 'generateStaticTemplates'
 }
 
 exports.sessionOption = {
