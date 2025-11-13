@@ -127,6 +127,29 @@ async function user_device_types(options) {
 }
 
 /**
+ * Creates iterator over endpoint composition requirements for a device type.
+ * This works inside user_device_types context where device type ref is available.
+ * Returns required device types that must be on separate endpoints.
+ * @param {*} options
+ */
+async function user_endpoint_composition_requirements(options) {
+  if (!this.deviceTypeRef) {
+    throw new Error(
+      'user_endpoint_composition_requirements must be called within user_device_types context'
+    )
+  }
+  let promise = queryDeviceType
+    .selectEndpointCompositionRequirementsByDeviceTypeRef(
+      this.global.db,
+      this.deviceTypeRef
+    )
+    .then((requirements) =>
+      templateUtil.collectBlocks(requirements, options, this)
+    )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Creates block iterator helper over the endpoint types.
  *
  * @tutorial template-tutorial
@@ -1769,6 +1792,8 @@ exports.is_command_default_response_disabled =
   is_command_default_response_disabled
 exports.if_enabled_clusters = if_enabled_clusters
 exports.user_device_types = user_device_types
+exports.user_endpoint_composition_requirements =
+  user_endpoint_composition_requirements
 exports.if_multi_protocol_attributes_enabled =
   if_multi_protocol_attributes_enabled
 exports.all_multi_protocol_attributes = all_multi_protocol_attributes
