@@ -683,10 +683,10 @@ async function selectEndpointCompositionRequirementsByDeviceTypeRef(
     SELECT
       DC.CONFORMANCE,
       DC.DEVICE_CONSTRAINT,
-      DC.DEVICE_TYPE_REF as required_device_type_ref,
-      DT_REQ.NAME as required_device_name,
-      DT_REQ.CODE as required_device_code,
-      EC.TYPE as composition_type,
+      DC.DEVICE_TYPE_REF AS REQUIRED_DEVICE_TYPE_REF,
+      DT_REQ.NAME AS REQUIRED_DEVICE_NAME,
+      DT_REQ.CODE AS REQUIRED_DEVICE_CODE,
+      EC.TYPE AS COMPOSITION_TYPE,
       EC.ENDPOINT_COMPOSITION_ID
     FROM
       ENDPOINT_COMPOSITION EC
@@ -701,12 +701,12 @@ async function selectEndpointCompositionRequirementsByDeviceTypeRef(
   `
   const rows = await dbApi.dbAll(db, query, [deviceTypeRef])
   return rows.map((row) => ({
-    requiredDeviceCode: row.required_device_code,
-    requiredDeviceName: row.required_device_name,
-    requiredDeviceTypeRef: row.required_device_type_ref,
+    requiredDeviceCode: row.REQUIRED_DEVICE_CODE,
+    requiredDeviceName: row.REQUIRED_DEVICE_NAME,
+    requiredDeviceTypeRef: row.REQUIRED_DEVICE_TYPE_REF,
     conformance: row.CONFORMANCE,
     deviceConstraint: row.DEVICE_CONSTRAINT,
-    compositionType: row.composition_type,
+    compositionType: row.COMPOSITION_TYPE,
     endpointCompositionId: row.ENDPOINT_COMPOSITION_ID
   }))
 }
