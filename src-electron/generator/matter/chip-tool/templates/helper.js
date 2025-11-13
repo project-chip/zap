@@ -31,6 +31,12 @@ function asDelimitedCommand(name) {
 function asTypeMinValue(type) {
   function fn(pkgId) {
     const options = { hash: {} };
+    // Add clusterId if available in context
+    if (this.clusterId) {
+      options.hash.clusterId = this.clusterId;
+    } else if (this.clusterRef) {
+      options.hash.clusterId = this.clusterRef;
+    }
     this.isArray = false;
     return zclHelper.asUnderlyingZclType
       .call(this, type, options)
@@ -76,6 +82,12 @@ function asTypeMinValue(type) {
 function asTypeMaxValue(type) {
   function fn(pkgId) {
     const options = { hash: {} };
+    // Add clusterId if available in context
+    if (this.clusterId) {
+      options.hash.clusterId = this.clusterId;
+    } else if (this.clusterRef) {
+      options.hash.clusterId = this.clusterRef;
+    }
     return zclHelper.asUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {

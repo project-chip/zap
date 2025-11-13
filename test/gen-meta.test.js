@@ -246,6 +246,18 @@ test(
     expect(epc).toContain('Bitmap: ClusterBitmap')
     expect(epc).toContain('* First unused enum value for SparseEnum: 2')
     expect(epc).toContain('* First next larger enum value for SparseEnum: 4')
+    // Underlying types by cluster
+    expect(epc).toContain('* asUnderlyingType of struct: ProvisionalStruct')
+    expect(epc).toContain('* asUnderlyingType of struct: StableStruct')
+    expect(epc).toContain('* asUnderlyingType of enum StableEnum: uint8_t')
+    expect(epc).toContain('* asUnderlyingType of enum StableEnum2: uint8_t')
+    expect(epc).toContain('* asUnderlyingType of bitmap StableBitmap: uint8_t')
+    expect(epc).toContain('* asUnderlyingType of struct: SimpleStruct')
+    expect(epc).toContain('* asUnderlyingType of struct item a: uint8_t')
+    expect(epc).toContain('* asUnderlyingType of struct item b: uint8_t')
+    expect(epc).toContain(
+      '* asUnderlyingType of struct item c: /* TYPE WARNING: array array defaults to */ uint8_t *'
+    )
 
     epc = genResult.content['struct.h']
     expect(epc).toContain('Nest complex;// <- has nested array')

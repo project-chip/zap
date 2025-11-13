@@ -1205,12 +1205,22 @@ async function zcl_command_arguments(options) {
   }
   // Adding command argument type size and sign
   for (let i = 0; i < commandArgs.length; i++) {
-    let sizeAndSign = await types.getSignAndSizeOfZclType(
-      this.global.db,
-      commandArgs[i].type,
-      packageIds,
-      options
-    )
+    let sizeAndSign
+    if (this.clusterRef) {
+      sizeAndSign = await types.getSignAndSizeOfZclTypeAndClusterId(
+        this.global.db,
+        commandArgs[i].type,
+        this.clusterRef,
+        packageIds
+      )
+    } else {
+      sizeAndSign = await types.getSignAndSizeOfZclType(
+        this.global.db,
+        commandArgs[i].type,
+        packageIds,
+        options
+      )
+    }
     commandArgs[i].typeSize = sizeAndSign.dataTypesize
     commandArgs[i].typeIsSigned = sizeAndSign.isTypeSigned
   }
@@ -2677,18 +2687,24 @@ async function format_zcl_string_as_characters_for_generated_defaults(
  * - language: determines the output of the helper based on language
  * for eg: (as_type_min_value language='c++') will give the output specific to
  * the c++ language.
+ * - clusterId: The ID of the cluster the type belongs to
  * Note: If language is not specified then helper throws an error.
  */
 async function as_type_min_value(type, options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this)
-  let signAndSize = await types.getSignAndSizeOfZclType(
-    this.global.db,
-    type,
-    packageIds,
-    {
-      size: 'bits'
-    }
-  )
+  let signAndSize = options.hash.clusterId
+    ? await types.getSignAndSizeOfZclTypeAndClusterId(
+        this.global.db,
+        type,
+        options.hash.clusterId,
+        packageIds,
+        {
+          size: 'bits'
+        }
+      )
+    : await types.getSignAndSizeOfZclType(this.global.db, type, packageIds, {
+        size: 'bits'
+      })
   let isTypeSigned = signAndSize.isTypeSigned
   let dataTypesize = signAndSize.dataTypesize
   let dataType = signAndSize.dataType
@@ -2725,19 +2741,25 @@ due to no language option specified in the template'
  * - language: determines the output of the helper based on language
  * for eg: (as_type_max_value language='c++') will give the output specific to
  * the c++ language.
+ * - clusterId: The ID of the cluster the type belongs to
  * Note: If language is not specified then the helper returns size of type in
  * bits.
  */
 async function as_type_max_value(type, options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this)
-  let signAndSize = await types.getSignAndSizeOfZclType(
-    this.global.db,
-    type,
-    packageIds,
-    {
-      size: 'bits'
-    }
-  )
+  let signAndSize = options.hash.clusterId
+    ? await types.getSignAndSizeOfZclTypeAndClusterId(
+        this.global.db,
+        type,
+        options.hash.clusterId,
+        packageIds,
+        {
+          size: 'bits'
+        }
+      )
+    : await types.getSignAndSizeOfZclType(this.global.db, type, packageIds, {
+        size: 'bits'
+      })
   let isTypeSigned = signAndSize.isTypeSigned
   let dataTypesize = signAndSize.dataTypesize
   let dataType = signAndSize.dataType
@@ -2793,15 +2815,20 @@ async function structs_with_clusters(options) {
  * Returns the size of the zcl type if possible else returns -1
  * @param {*} type
  * @param {*} options
+ * Available Options:
+ * - clusterId: The ID of the cluster the type belongs to
  * @returns size of zcl type
  */
 async function as_zcl_type_size(type, options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this)
-  let signAndSize = await types.getSignAndSizeOfZclType(
-    this.global.db,
-    type,
-    packageIds
-  )
+  let signAndSize = options.hash.clusterId
+    ? await types.getSignAndSizeOfZclTypeAndClusterId(
+        this.global.db,
+        type,
+        options.hash.clusterId,
+        packageIds
+      )
+    : await types.getSignAndSizeOfZclType(this.global.db, type, packageIds)
   let dataTypesize = signAndSize.dataTypesize
   if (dataTypesize != 0) {
     return dataTypesize

@@ -459,6 +459,9 @@ async function dataTypeCharacterFormatter(
   options,
   resType
 ) {
+  // Check if clusterId is provided in options
+  let clusterId = options && options.hash ? options.hash.clusterId : null
+
   switch (resType) {
     case dbEnum.zclType.array:
       if (dbEnum.zclType.array in options.hash) {
@@ -466,20 +469,35 @@ async function dataTypeCharacterFormatter(
       } else {
         return 'b'
       }
-    case dbEnum.zclType.bitmap:
-      return queryZcl
-        .selectBitmapByName(db, packageIds, type)
+    case dbEnum.zclType.bitmap: {
+      // Use cluster-aware query if clusterId is provided
+      const bitmapPromise = clusterId
+        ? queryZcl.selectBitmapByNameAndClusterId(
+            db,
+            type,
+            clusterId,
+            packageIds
+          )
+        : queryZcl.selectBitmapByName(db, packageIds, type)
+
+      return bitmapPromise
         .then((bitmapRec) => bitmapRec.size)
         .then((size) => {
           return returnOptionsForTypes(size, null, options)
         })
-    case dbEnum.zclType.enum:
-      return queryZcl
-        .selectEnumByName(db, type, packageIds)
+    }
+    case dbEnum.zclType.enum: {
+      // Use cluster-aware query if clusterId is provided
+      const enumPromise = clusterId
+        ? queryZcl.selectEnumByNameAndClusterId(db, type, clusterId, packageIds)
+        : queryZcl.selectEnumByName(db, type, packageIds)
+
+      return enumPromise
         .then((enumRec) => enumRec.size)
         .then((size) => {
           return returnOptionsForTypes(size, null, options)
         })
+    }
     case dbEnum.zclType.struct:
       if (dbEnum.zclType.struct in options.hash) {
         return options.hash.struct
@@ -565,6 +583,89 @@ function isBitmap(db, bitmap_name, packageIds) {
 }
 
 /**
+ * Local function that checks if an enum by the name exists in a specific cluster
+ *
+ * @param {*} db
+ * @param {*} enum_name
+ * @param {*} clusterId
+ * @param {*} packageIds
+ * @returns Promise of content.
+ */
+async function isEnumWithCluster(db, enum_name, clusterId, packageIds) {
+  try {
+    let enumData = await queryZcl.selectEnumByNameAndClusterId(
+      db,
+      enum_name,
+      clusterId,
+      packageIds
+    )
+    return enumData ? dbEnum.zclType.enum : dbEnum.zclType.unknown
+  } catch (err) {
+    // Fallback to global lookup if cluster-specific fails
+    let enumData = await queryZcl.selectEnumByName(db, enum_name, packageIds)
+    return enumData ? dbEnum.zclType.enum : dbEnum.zclType.unknown
+  }
+}
+
+/**
+ * Local function that checks if a struct by the name exists in a specific cluster
+ *
+ * @param {*} db
+ * @param {*} struct_name
+ * @param {*} clusterId
+ * @param {*} packageIds
+ * @returns Promise of content.
+ */
+async function isStructWithCluster(db, struct_name, clusterId, packageIds) {
+  try {
+    let structData = await queryZcl.selectStructByNameAndClusterId(
+      db,
+      struct_name,
+      clusterId,
+      packageIds
+    )
+    return structData ? dbEnum.zclType.struct : dbEnum.zclType.unknown
+  } catch (err) {
+    // Fallback to global lookup if cluster-specific fails
+    let structData = await queryZcl.selectStructByName(
+      db,
+      struct_name,
+      packageIds
+    )
+    return structData ? dbEnum.zclType.struct : dbEnum.zclType.unknown
+  }
+}
+
+/**
+ * Local function that checks if a bitmap by the name exists in a specific cluster
+ *
+ * @param {*} db
+ * @param {*} bitmap_name
+ * @param {*} clusterId
+ * @param {*} packageIds
+ * @returns Promise of content.
+ */
+async function isBitmapWithCluster(db, bitmap_name, clusterId, packageIds) {
+  try {
+    let bitmapData = await queryZcl.selectBitmapByNameAndClusterId(
+      db,
+      bitmap_name,
+      clusterId,
+      packageIds
+    )
+    return bitmapData ? dbEnum.zclType.bitmap : dbEnum.zclType.unknown
+  } catch (err) {
+    // Fallback to global lookup if cluster-specific fails
+    let bitmapData = await queryZcl.selectBitmapByName(
+      db,
+      packageIds,
+      bitmap_name
+    )
+    return bitmapData ? dbEnum.zclType.bitmap : dbEnum.zclType.unknown
+  }
+}
+
+/**
  *
  * @param {*} fromType
  * @param {*} toType
@@ -604,6 +705,10 @@ function dataTypeHelper(
   if ('no_warning' in options.hash) {
     no_warning = { no_warning: options.hash.no_warning }
   }
+
+  // Check if clusterId is provided in options
+  let clusterId = options && options.hash ? options.hash.clusterId : null
+
   switch (resolvedType) {
     case dbEnum.zclType.array:
       if ('array' in options.hash) {
@@ -617,7 +722,7 @@ function dataTypeHelper(
           .selectAtomicType(db, packageIds, dbEnum.zclType.array)
           .then((atomic) => overridable.atomicType(atomic))
       }
-    case dbEnum.zclType.bitmap:
+    case dbEnum.zclType.bitmap: {
       if ('bitmap' in options.hash) {
         return defaultMessageForTypeConversion(
           `${type}`,
@@ -625,11 +730,22 @@ function dataTypeHelper(
           options.hash.no_warning
         )
       } else {
-        return queryZcl
-          .selectBitmapByName(db, packageIds, type)
-          .then((bitmapRec) => overridable.bitmapType(bitmapRec.size))
+        // Use cluster-aware query if clusterId is provided
+        const bitmapPromise = clusterId
+          ? queryZcl.selectBitmapByNameAndClusterId(
+              db,
+              type,
+              clusterId,
+              packageIds
+            )
+          : queryZcl.selectBitmapByName(db, packageIds, type)
+
+        return bitmapPromise.then((bitmapRec) =>
+          overridable.bitmapType(bitmapRec.size)
+        )
       }
-    case dbEnum.zclType.enum:
+    }
+    case dbEnum.zclType.enum: {
       if ('enum' in options.hash) {
         return defaultMessageForTypeConversion(
           `${type}`,
@@ -637,10 +753,18 @@ function dataTypeHelper(
           options.hash.no_warning
         )
       } else {
-        return queryZcl
-          .selectEnumByName(db, type, packageIds)
-          .then((enumRec) => overridable.enumType(enumRec.size))
+        // Use cluster-aware query if clusterId is provided
+        const enumPromise = clusterId
+          ? queryZcl.selectEnumByNameAndClusterId(
+              db,
+              type,
+              clusterId,
+              packageIds
+            )
+          : queryZcl.selectEnumByName(db, type, packageIds)
+        return enumPromise.then((enumRec) => overridable.enumType(enumRec.size))
       }
+    }
     case dbEnum.zclType.struct:
       if ('struct' in options.hash) {
         return defaultMessageForTypeConversion(
@@ -689,15 +813,46 @@ async function asUnderlyingZclTypeWithPackageId(
     actualType = numberType.name
   }
 
+  // Check if clusterId is provided in options
+  let clusterId = options && options.hash ? options.hash.clusterId : null
+
+  // Use cluster-aware queries if clusterId is provided
+  const enumPromise = clusterId
+    ? isEnumWithCluster(
+        currentInstance.global.db,
+        actualType,
+        clusterId,
+        packageIds
+      )
+    : isEnum(currentInstance.global.db, actualType, packageIds)
+
+  const structPromise = clusterId
+    ? isStructWithCluster(
+        currentInstance.global.db,
+        actualType,
+        clusterId,
+        packageIds
+      )
+    : isStruct(currentInstance.global.db, actualType, packageIds)
+
+  const bitmapPromise = clusterId
+    ? isBitmapWithCluster(
+        currentInstance.global.db,
+        actualType,
+        clusterId,
+        packageIds
+      )
+    : isBitmap(currentInstance.global.db, actualType, packageIds)
+
   return Promise.all([
-    new Promise((resolve, reject) => {
+    new Promise((resolve) => {
       if ('isArray' in currentInstance && currentInstance.isArray)
         resolve(dbEnum.zclType.array)
       else resolve(dbEnum.zclType.unknown)
     }),
-    isEnum(currentInstance.global.db, actualType, packageIds),
-    isStruct(currentInstance.global.db, actualType, packageIds),
-    isBitmap(currentInstance.global.db, actualType, packageIds)
+    enumPromise,
+    structPromise,
+    bitmapPromise
   ])
     .then(
       (res) =>
@@ -732,7 +887,7 @@ async function asUnderlyingZclTypeWithPackageId(
       }
     })
     .catch((err) => {
-      env.logError(err)
+      env.logError(`Error determining type of ${type}: ` + err)
       throw err
     })
 }
@@ -923,6 +1078,9 @@ exports.isEnum = isEnum
 exports.isBitmap = isBitmap
 exports.isStruct = isStruct
 exports.isEvent = isEvent
+exports.isEnumWithCluster = isEnumWithCluster
+exports.isStructWithCluster = isStructWithCluster
+exports.isBitmapWithCluster = isBitmapWithCluster
 exports.asUnderlyingZclTypeWithPackageId = asUnderlyingZclTypeWithPackageId
 exports.determineType = determineType
 exports.dataTypeCharacterFormatter = dataTypeCharacterFormatter

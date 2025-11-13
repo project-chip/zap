@@ -388,13 +388,20 @@ async function getIntegerFromAttribute(attribute, typeSize, isSigned) {
  * @param {*} db
  * @param {*} zapSessionId
  * @param {*} attribType
+ * @param {*} clusterRef
  * @returns {*} { size: bit representation , isSigned: is signed type }
  */
-async function getIntegerAttributeSize(db, zapSessionId, attribType) {
+async function getIntegerAttributeSize(
+  db,
+  zapSessionId,
+  attribType,
+  clusterRef
+) {
   let packageIds = await queryPackage.getSessionZclPackageIds(db, zapSessionId)
-  const attribData = await types.getSignAndSizeOfZclType(
+  const attribData = await types.getSignAndSizeOfZclTypeAndClusterId(
     db,
     attribType,
+    clusterRef,
     packageIds
   )
   if (attribData) {
@@ -424,7 +431,8 @@ async function checkAttributeBoundsInteger(
   const { size, isSigned } = await getIntegerAttributeSize(
     db,
     zapSessionId,
-    attribute.type
+    attribute.type,
+    attribute.clusterRef
   )
   if (size === undefined || isSigned === undefined) {
     return false

@@ -45,6 +45,12 @@ function ensureState(condition, error) {
 function loadAtomics(packageIds) {
   const { db, sessionId } = this.global;
   const options = { hash: {} };
+  // Add clusterId if available in context
+  if (this.clusterId) {
+    options.hash.clusterId = this.clusterId;
+  } else if (this.clusterRef) {
+    options.hash.clusterId = this.clusterRef;
+  }
 
   const resolveZclTypes = (atomics) =>
     Promise.all(
@@ -325,7 +331,6 @@ function loadAttributes() {
       attributes.filter((attribute) => attribute.isIncluded)
     )
     .then((attributes) => attributes.sort((a, b) => a.code - b.code));
-  //.then(attributes => Promise.all(attributes.map(attribute => types.typeSizeAttribute(db, packageId, attribute))
 }
 
 async function loadAllEvents(packageIds) {

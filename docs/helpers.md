@@ -4560,6 +4560,7 @@ Available Options:
 - language: determines the output of the helper based on language
 for eg: (as_type_min_value language='c++') will give the output specific to
 the c++ language.
+- clusterId: The ID of the cluster the type belongs to
 Note: If language is not specified then helper throws an error.  
 
 | Param | Type |
@@ -4579,6 +4580,7 @@ Available Options:
 - language: determines the output of the helper based on language
 for eg: (as_type_max_value language='c++') will give the output specific to
 the c++ language.
+- clusterId: The ID of the cluster the type belongs to
 Note: If language is not specified then the helper returns size of type in
 bits.  
 
@@ -4606,10 +4608,10 @@ Returns the size of the zcl type if possible else returns -1
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: size of zcl type  
 
-| Param | Type |
-| --- | --- |
-| type | <code>\*</code> | 
-| options | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> |  |
+| options | <code>\*</code> | Available Options: - clusterId: The ID of the cluster the type belongs to |
 
 <a name="module_Templating API_ static zcl helpers..if_compare"></a>
 

@@ -83,6 +83,12 @@ async function asTypedExpressionFromObjectiveC(value, type) {
 function asObjectiveCNumberType(label, type, asLowerCased) {
   function fn(pkgId) {
     const options = { hash: {} };
+    // Add clusterId if available in context
+    if (this.clusterId) {
+      options.hash.clusterId = this.clusterId;
+    } else if (this.clusterRef) {
+      options.hash.clusterId = this.clusterRef;
+    }
     return zclHelper.asUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {

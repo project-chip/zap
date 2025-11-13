@@ -439,6 +439,12 @@ function chip_endpoint_data_version_count() {
 async function asNativeType(type) {
   function fn(pkgId) {
     const options = { hash: {} };
+    // Add clusterId if available in context
+    if (this.clusterId) {
+      options.hash.clusterId = this.clusterId;
+    } else if (this.clusterRef) {
+      options.hash.clusterId = this.clusterRef;
+    }
     return zclHelper.asUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {
@@ -666,6 +672,12 @@ async function getClusterCountForType(db, pkgId, type, dataType, options) {
  *
  */
 async function zapTypeToClusterObjectType(type, isDecodable, options) {
+  // Add clusterId if available in context
+  if (this.clusterId) {
+    options.hash.clusterId = this.clusterId;
+  } else if (this.clusterRef) {
+    options.hash.clusterId = this.clusterRef;
+  }
   // Use the entryType as a type
   if (type == 'array' && this.entryType) {
     type = this.entryType;
@@ -887,7 +899,12 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
     if (type.toLowerCase().match(/^int\d+u$/)) {
       return 'uint';
     }
-
+    // Add clusterId if available in context
+    if (this.clusterId) {
+      options.hash.clusterId = this.clusterId;
+    } else if (this.clusterRef) {
+      options.hash.clusterId = this.clusterRef;
+    }
     let resolvedType = await zclHelper.asUnderlyingZclType.call(
       { global: this.global },
       type,
@@ -981,7 +998,12 @@ async function _getPythonFieldDefault(type, options) {
     if (type.toLowerCase().match(/^int\d+u$/)) {
       return '0';
     }
-
+    // Add clusterId if available in context
+    if (this.clusterId) {
+      options.hash.clusterId = this.clusterId;
+    } else if (this.clusterRef) {
+      options.hash.clusterId = this.clusterRef;
+    }
     let resolvedType = await zclHelper.asUnderlyingZclType.call(
       { global: this.global },
       type,

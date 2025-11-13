@@ -151,19 +151,32 @@ async function asUnderlyingTypeHelper(dataType, context, packageIds) {
  * @param {*} value
  * @returns The appropriate C Type
  */
-async function asUnderlyingType(value) {
+async function asUnderlyingType(value, options) {
   let dataType = null
   let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let clusterId = options && options.hash ? options.hash.clusterId : null
 
-  // Step 1: Extracting the data type based on id or name
-  if (typeof value === 'number') {
-    dataType = await queryZcl.selectDataTypeById(this.global.db, value)
-  } else if (typeof value === 'string') {
-    dataType = await queryZcl.selectDataTypeByName(
+  // Step 1: Try cluster-specific lookup first if clusterId is provided
+  if (typeof value === 'string' && clusterId) {
+    dataType = await queryZcl.selectDataTypeByNameAndClusterId(
       this.global.db,
       value,
+      clusterId,
       packageIds
     )
+  }
+
+  // Step 2: Fallback to global lookup if no cluster-specific type found
+  if (!dataType) {
+    if (typeof value === 'number') {
+      dataType = await queryZcl.selectDataTypeById(this.global.db, value)
+    } else if (typeof value === 'string') {
+      dataType = await queryZcl.selectDataTypeByName(
+        this.global.db,
+        value,
+        packageIds
+      )
+    }
   }
 
   // Step 2: Check if a type override for the data type exists in the meta-data
@@ -445,6 +458,10 @@ exports.as_symbol = asSymbol
 exports.asSymbol = dep(asSymbol, { to: 'as_symbol' })
 exports.as_bytes = asBytes
 exports.asBytes = dep(asBytes, { to: 'as_bytes' })
+exports.as_bytes = dep(
+  asBytes,
+  'as_bytes has been deprecated because it does not handle data types based on cluster. There can be multiple data types with the same name across different clusters in matter.'
+)
 exports.as_delimited_macro = asDelimitedMacro
 exports.asDelimitedMacro = dep(asDelimitedMacro, { to: 'as_delimited_macro' })
 exports.as_offset = asOffset
@@ -479,6 +496,10 @@ exports.dataTypeForBitmap = dep(dataTypeForBitmap, {
 })
 exports.data_type_for_enum = dataTypeForEnum
 exports.dataTypeForEnum = dep(dataTypeForEnum, { to: 'data_type_for_enum' })
+exports.data_type_for_enum = dep(
+  dataTypeForEnum,
+  'data_type_for_enum has been deprecated because it does not handle enum types based on cluster. There can be multiple enum types with the same name across different clusters in matter.'
+)
 exports.add_one = addOne
 exports.addOne = dep(addOne, { to: 'add_one' })
 exports.cleanse_label_as_kebab_case = cleanseLabelAsKebabCase

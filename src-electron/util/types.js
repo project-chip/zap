@@ -22,21 +22,10 @@
 const queryZcl = require('../db/query-zcl.js')
 const queryAtomic = require('../db/query-atomic.js')
 const queryPackages = require('../db/query-package.js')
+const queryDataType = require('../db/query-data-type.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const bin = require('./bin')
 const env = require('./env')
-
-/**
- * This function resolves with the size of a given type.
- * -1 means that this size is variable.
- *
- * @param {*} db
- * @param {*} zclPackageId
- * @param {*} type
- */
-async function typeSize(db, zclPackageId, type) {
-  return queryZcl.selectSizeFromType(db, [zclPackageId], type)
-}
 
 /**
  * Returns the size of a real attribute, taking type size and defaults
@@ -61,7 +50,14 @@ async function typeSizeAttribute(db, zclPackageIds, at, defaultValue = null) {
     }
   }
   sizeType = at.type
-  let size = await queryZcl.selectSizeFromType(db, zclPackageIds, sizeType)
+  let type_size_and_sign = await getSignAndSizeOfZclTypeAndClusterId(
+    db,
+    sizeType,
+    at.clusterId,
+    zclPackageIds,
+    { noCeiling: true }
+  )
+  let size = type_size_and_sign.dataTypesize
 
   if (size) {
     return size
@@ -336,6 +332,143 @@ function nullStringDefaultValue(type) {
 }
 
 /**
+ * Common helper function to process ZCL type sign and size from a dataType object.
+ * This function handles the common logic for determining type signature and size
+ * regardless of whether the dataType was obtained globally or cluster-specifically.
+ *
+ * @param {*} db Database connection
+ * @param {*} dataType The dataType object from the database
+ * @param {*} type The type name (for error logging)
+ * @param {*} packageIds Package IDs
+ * @param {*} options Processing options
+ * @param {*} clusterId Optional cluster ID for cluster-specific queries
+ * @param {*} clusterName Optional cluster name for error logging
+ * @returns returns sign, size and info of zcl device type
+ */
+async function processZclTypeSignAndSize(
+  db,
+  dataType,
+  type,
+  packageIds,
+  options,
+  clusterId = null,
+  clusterName = null
+) {
+  let isTypeSigned = false
+  let dataTypesize = 0
+  let sizeMultiple = 1
+  let isKnown = true
+
+  if (options && options.size == 'bits') {
+    sizeMultiple = 8
+  }
+
+  if (!dataType) {
+    env.logError(
+      `In processZclTypeSignAndSize, could not determine the data type for type: '${type}'${clusterName ? ` in cluster '${clusterName}'` : ''}`
+    )
+    return {
+      isTypeSigned: false,
+      dataTypesize: 0,
+      dataType: null,
+      isNotDefined: true
+    }
+  }
+
+  // Checking if the type is signed or unsigned
+  if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number) {
+    let number
+    if (clusterId) {
+      number = await queryZcl.selectNumberByNameAndClusterId(
+        db,
+        dataType.name,
+        clusterId,
+        packageIds
+      )
+    } else {
+      number = await queryZcl.selectNumberByName(db, packageIds, dataType.name)
+    }
+    if (number && number.isSigned) {
+      isTypeSigned = true
+    }
+  }
+
+  // Extracting the size of the data type
+  if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap) {
+    let bitmap
+    if (clusterId) {
+      bitmap = await queryZcl.selectBitmapByNameAndClusterId(
+        db,
+        dataType.name,
+        clusterId,
+        packageIds
+      )
+    } else {
+      bitmap = await queryZcl.selectBitmapByName(db, packageIds, dataType.name)
+    }
+    if (bitmap) {
+      dataTypesize =
+        options && options.noCeiling
+          ? bitmap.size
+          : Math.pow(2, Math.ceil(Math.log2(bitmap.size)))
+    }
+  } else if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum) {
+    let en
+    if (clusterId) {
+      en = await queryZcl.selectEnumByNameAndClusterId(
+        db,
+        dataType.name,
+        clusterId,
+        packageIds
+      )
+    } else {
+      en = await queryZcl.selectEnumByName(db, dataType.name, packageIds)
+    }
+    if (en) {
+      dataTypesize =
+        options && options.noCeiling
+          ? en.size
+          : Math.pow(2, Math.ceil(Math.log2(en.size)))
+    }
+  } else if (
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+  ) {
+    let number
+    if (clusterId) {
+      number = await queryZcl.selectNumberByNameAndClusterId(
+        db,
+        dataType.name,
+        clusterId,
+        packageIds
+      )
+    } else {
+      number = await queryZcl.selectNumberByName(db, packageIds, dataType.name)
+    }
+    if (number) {
+      dataTypesize =
+        options && options.noCeiling
+          ? number.size
+          : Math.pow(2, Math.ceil(Math.log2(number.size)))
+    }
+  } else {
+    env.logError(
+      `In processZclTypeSignAndSize, unhandled discriminatorName '${dataType.discriminatorName}' for type '${type}'${clusterName ? ` in cluster '${clusterName}'` : ''}: ${JSON.stringify(dataType)}`
+    )
+    isKnown = false
+  }
+
+  let ret = {
+    isTypeSigned: isTypeSigned,
+    dataTypesize: dataTypesize * sizeMultiple,
+    dataType: dataType
+  }
+  // If this type was not defined, we tag it as `isNotDefined=true`.
+  // One day we will do something better...
+  if (!isKnown) ret.isNotDefined = true
+  return ret
+}
+
+/**
  * Given a zcl device type returns its sign, size and zcl data type info stored
  * in the database table.
  * Note: Enums and Bitmaps are considered to be unsigned.
@@ -349,79 +482,78 @@ function nullStringDefaultValue(type) {
  * for eg: getSignAndSizeOfZclType('int8u' this size='bits') will return
  * the size in bits which will be 8. If not mentioned then it will return the size
  * in bytes i.e. 1 in this case.
+ * - noCeiling: If true, returns the exact size without rounding up to the nearest
+ * power of 2. If false or not provided, rounds up to the nearest power of 2.
  */
 async function getSignAndSizeOfZclType(db, type, packageIds, options) {
-  let isTypeSigned = false
-  let dataTypesize = 0
-  let sizeMultiple = 1
-  let isKnown = true
-
-  if (options && options.size == 'bits') {
-    sizeMultiple = 8
-  }
-
   // Extracting the type in the data type table
   let dataType = await queryZcl.selectDataTypeByName(db, type, packageIds)
 
-  // Checking if the type is signed or unsigned
-  if (
-    dataType &&
-    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
-  ) {
-    let number = await queryZcl.selectNumberByName(
-      db,
-      packageIds,
-      dataType.name
-    )
-    if (number.isSigned) {
-      isTypeSigned = true
-    }
+  // Use the common processing helper
+  return await processZclTypeSignAndSize(
+    db,
+    dataType,
+    type,
+    packageIds,
+    options
+  )
+}
+
+/**
+ * Given a zcl device type and cluster name returns its sign, size and zcl data type info stored
+ * in the database table. This function considers cluster-specific type definitions first, then
+ * falls back to the global getSignAndSizeOfZclType function.
+ * Note: Enums and Bitmaps are considered to be unsigned.
+ * @param {*} db
+ * @param {*} type
+ * @param {*} clusterId
+ * @param {*} packageIds
+ * @param {*} options
+ * @returns returns sign, size and info of zcl device type
+ * Available Options:
+ * - size: Determine whether to calculate the size of zcl device type in bits
+ * or bytes
+ * for eg: getSignAndSizeOfZclTypeAndClusterId('int8u', '1', packageIds, {size:'bits'}) will return
+ * the size in bits which will be 8. If not mentioned then it will return the size
+ * in bytes i.e. 1 in this case.
+ * - noCeiling: If true, returns the exact size without rounding up to the nearest
+ * power of 2. If false or not provided, rounds up to the nearest power of 2.
+ */
+async function getSignAndSizeOfZclTypeAndClusterId(
+  db,
+  type,
+  clusterId,
+  packageIds,
+  options
+) {
+  // First try to get cluster-specific data type
+  let dataType = await queryDataType.selectDataTypeByNameAndClusterId(
+    db,
+    type,
+    clusterId,
+    packageIds
+  )
+  let clusterInfo = await queryZcl.selectClusterById(db, clusterId)
+
+  // If data type not found, fallback to global data type using the original function
+  // If cluster is not found, fallback to global data type using the original function
+  if (!dataType || !clusterInfo) {
+    return await getSignAndSizeOfZclType(db, type, packageIds, options)
   }
 
-  // Extracting the size of the data type
-  if (dataType) {
-    if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap) {
-      let bitmap = await queryZcl.selectBitmapByName(
-        db,
-        packageIds,
-        dataType.name
-      )
-      dataTypesize = Math.pow(2, Math.ceil(Math.log2(bitmap.size)))
-    } else if (
-      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
-    ) {
-      let en = await queryZcl.selectEnumByName(db, dataType.name, packageIds)
-      dataTypesize = Math.pow(2, Math.ceil(Math.log2(en.size)))
-    } else if (
-      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
-    ) {
-      let number = await queryZcl.selectNumberByName(
-        db,
-        packageIds,
-        dataType.name
-      )
-      dataTypesize = Math.pow(2, Math.ceil(Math.log2(number.size)))
-    } else {
-      env.logError(
-        `In getSignAndSizeOfZclType, unhandled discriminatorName '${dataType.discriminatorName}' for type '${type}': ${JSON.stringify(dataType)}`
-      )
-      isKnown = false
-    }
-  } else {
-    env.logError(
-      `In getSignAndSizeOfZclType, could not determine the data type for type: '${type}'`
-    )
-    isKnown = false
-  }
-  let ret = {
-    isTypeSigned: isTypeSigned,
-    dataTypesize: dataTypesize * sizeMultiple,
-    dataType: dataType
-  }
-  // If this type was not defined, we tag it as `isNotDefined=true`.
-  // One day we will do something better...
-  if (!isKnown) ret.isNotDefined = true
-  return ret
+  let clusterName = clusterInfo.name
+
+  // If we have a cluster-specific data type, use the common processing helper
+  // with cluster-specific parameters
+  return await processZclTypeSignAndSize(
+    db,
+    dataType,
+    type,
+    packageIds,
+    options,
+    clusterId,
+    clusterName
+  )
 }
 
 /**
@@ -449,7 +581,6 @@ function hexStringToInt(s) {
   return parseInt(c, 16)
 }
 
-exports.typeSize = typeSize
 exports.typeSizeAttribute = typeSizeAttribute
 exports.longTypeDefaultValue = longTypeDefaultValue
 exports.isOneBytePrefixedString = isOneBytePrefixedString
@@ -461,6 +592,8 @@ exports.isSignedInteger = isSignedInteger
 exports.convertIntToBigEndian = convertIntToBigEndian
 exports.convertFloatToBigEndian = convertFloatToBigEndian
 exports.getSignAndSizeOfZclType = getSignAndSizeOfZclType
+exports.getSignAndSizeOfZclTypeAndClusterId =
+  getSignAndSizeOfZclTypeAndClusterId
 exports.intToHexString = intToHexString
 exports.hexStringToInt = hexStringToInt
 exports.nullStringDefaultValue = nullStringDefaultValue
