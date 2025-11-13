@@ -700,15 +700,7 @@ async function selectEndpointCompositionRequirementsByDeviceTypeRef(
       DC.DEVICE_TYPE_REF
   `
   const rows = await dbApi.dbAll(db, query, [deviceTypeRef])
-  return rows.map((row) => ({
-    requiredDeviceCode: row.REQUIRED_DEVICE_CODE,
-    requiredDeviceName: row.REQUIRED_DEVICE_NAME,
-    requiredDeviceTypeRef: row.REQUIRED_DEVICE_TYPE_REF,
-    conformance: row.CONFORMANCE,
-    deviceConstraint: row.DEVICE_CONSTRAINT,
-    compositionType: row.COMPOSITION_TYPE,
-    endpointCompositionId: row.ENDPOINT_COMPOSITION_ID
-  }))
+  return rows.map(dbMapping.map.endpointCompositionRequirement)
 }
 
 exports.selectAllDeviceTypes = selectAllDeviceTypes

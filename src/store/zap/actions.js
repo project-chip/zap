@@ -532,8 +532,6 @@ export async function loadComposition(context) {
     return rootEndpoint
   }
 
-  // Handle non-root node compositions
-  // TODO: Implement if needed for other composition types
   return null
 }
 
