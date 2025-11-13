@@ -204,19 +204,40 @@ async function recordTemplatesPackage(context, isTopLevelPackageInSync) {
           template.name
         ).then((id) => {
           // We loaded the individual file, now we add options
+          let optionPromises = []
+          // Check if iterator template
           if (template.iterator) {
-            return queryPackage.insertOptionsKeyValues(
-              context.db,
-              id,
-              dbEnum.packageOptionCategory.outputOptions,
-              [
-                {
-                  code: 'iterator',
-                  label: template.iterator
-                }
-              ]
+            optionPromises.push(
+              queryPackage.insertOptionsKeyValues(
+                context.db,
+                id,
+                dbEnum.packageOptionCategory.outputOptions,
+                [
+                  {
+                    code: 'iterator',
+                    label: template.iterator
+                  }
+                ]
+              )
             )
           }
+          // Check for static option
+          if (template.static) {
+            optionPromises.push(
+              queryPackage.insertOptionsKeyValues(
+                context.db,
+                id,
+                dbEnum.packageOptionCategory.generator,
+                [
+                  {
+                    code: 'static',
+                    label: template.static
+                  }
+                ]
+              )
+            )
+          }
+          return Promise.all(optionPromises)
         })
       )
     }
@@ -718,6 +739,16 @@ async function generateAllTemplates(
   let generationTemplates = []
   let overridePath = null
 
+  // generateStaticTemplates can be session-key, if exists use from session key otherwise from generatorOptions
+  let generateStaticTemplates = await querySession.getSessionKeyValue(
+    genResult.db,
+    genResult.sessionId,
+    dbEnum.sessionKey.generateStaticTemplates
+  )
+  if (!generateStaticTemplates) {
+    generateStaticTemplates = genResult.generatorOptions.generateStaticTemplates
+  }
+
   let hb = templateEngine.hbInstance()
   let context = {
     db: genResult.db,
@@ -736,8 +767,17 @@ async function generateAllTemplates(
         pkg.iterator = opt.optionLabel
       }
     })
+    let generatorOptions = await queryPackage.selectAllOptionsValues(
+      genResult.db,
+      pkg.id,
+      dbEnum.packageOptionCategory.generator
+    )
+    generatorOptions.forEach((opt) => {
+      if (opt.optionCode == 'static') {
+        pkg.static = opt.optionLabel
+      }
+    })
   }
-
   // First extract overridePath if one exists, as we need to
   // pass it to the generation.
   packages.forEach((singlePkg) => {
@@ -778,6 +818,11 @@ async function generateAllTemplates(
   // Next prepare the templates
   packages.forEach((singlePkg) => {
     if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
+      // Skip static templates if generateStaticTemplates is false
+      if (generateStaticTemplates === 'false' && singlePkg.static === 'true') {
+        // env.logInfo('Skipping static template: ', singlePkg.category)
+        return
+      }
       if (options.generateOnly == null) {
         generationTemplates.push(singlePkg)
       } else if (

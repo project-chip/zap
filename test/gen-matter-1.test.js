@@ -38,6 +38,7 @@ let zclPackageId
 
 const testFile = testUtil.matterTestFile.matterTest
 const testMatterSwitch = testUtil.matterTestFile.switch
+const testMatterNostatic = testUtil.matterTestFile.matterTestNostatic
 const templateCount = testUtil.testTemplate.matterCount
 
 beforeAll(async () => {
@@ -184,7 +185,7 @@ test(
         queryPackage
           .selectAllOptionsValues(db, pkgId, 'generator')
           .then((generatorConfigurations) => {
-            expect(generatorConfigurations.length).toBe(1)
+            expect(generatorConfigurations.length).toBe(2)
             expect(generatorConfigurations[0].optionCode).toBe(
               'disableUcComponentOnZclClusterUpdate'
             )
@@ -352,6 +353,48 @@ test(
     expect(endpoints).toContain('- InitialPress: 1')
     expect(endpoints).toContain('- ShortRelease: 1')
     expect(endpoints).toContain('- MultiPressOngoing: 1')
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Zap file generation when generateStaticTemplates is false',
+  async () => {
+    let sessionId = await querySession.createBlankSession(db)
+
+    await importJs.importDataFromFile(
+      db,
+      testUtil.matterTestFile.matterTestNostatic,
+      {
+        sessionId: sessionId
+      }
+    )
+
+    // Verify that the generateStaticTemplates session-key is actually false
+    let generateStaticTemplates = await querySession.getSessionKeyValue(
+      db,
+      sessionId,
+      'generateStaticTemplates'
+    )
+    expect(generateStaticTemplates).toBe('false')
+
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      { disableDeprecationWarnings: true }
+    )
+
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
+
+    // Verify that only non-static templates are generated
+    let contentKeys = Object.keys(genResult.content)
+    expect(contentKeys).toHaveLength(2)
+    expect(contentKeys).toContain('endpoints.out')
+    expect(contentKeys).toContain('endpoint-config.c')
   },
   testUtil.timeout.long()
 )

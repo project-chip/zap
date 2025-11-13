@@ -13,7 +13,8 @@
     "externalOption": "externalOptions.json",
     "cli": "cli.json",
     "generator": {
-      "disableUcComponentOnZclClusterUpdate": "true"
+      "disableUcComponentOnZclClusterUpdate": "true",
+      "generateStaticTemplates": "true"
     }
   },
   "zcl": {
@@ -38,22 +39,26 @@
     {
       "path": "simple-test.zapt",
       "name": "Simple test template",
-      "output": "simple-test.h"
+      "output": "simple-test.h",
+      "static": "true"
     },
     {
       "path": "sdk-ext.zapt",
       "name": "SDK extension test",
-      "output": "sdk-ext.txt"
+      "output": "sdk-ext.txt",
+      "static": "true"
     },
     {
       "path": "feature-map.zapt",
       "name": "Feature map test template",
-      "output": "feature-map.h"
+      "output": "feature-map.h",
+      "static": "true"
     },
     {
       "path": "device-types.zapt",
       "name": "Device types",
-      "output": "device-types.txt"
+      "output": "device-types.txt",
+      "static": "true"
     },
     {
       "path": "endpoint-config.zapt",
@@ -63,7 +68,8 @@
     {
       "path": "events.zapt",
       "name": "Events",
-      "output": "events.out"
+      "output": "events.out",
+      "static": "true"
     },
     {
       "path": "endpoints.zapt",
@@ -73,7 +79,8 @@
     {
       "path": "chip-tool-helpers.zapt",
       "name": "Helpers in chip-tool",
-      "output": "chip-tool-helpers.txt"
+      "output": "chip-tool-helpers.txt",
+      "static": "true"
     }
   ]
 }
