@@ -771,6 +771,50 @@ test(`Zap file generation: ${path.relative(
   expect(ept).toContain(
     'Endpoint 1, DeviceId: 112, DeviceVersion: 1, Composition: tree'
   )
+
+  // Test user_endpoint_composition_requirements helper output
+  // First, get device types from endpoints to verify composition requirements
+  let endpointTypes = await queryEndpointType.selectAllEndpointTypes(
+    db,
+    sessionId
+  )
+  expect(endpointTypes.length).toBeGreaterThan(0)
+
+  // For each endpoint type, check if it has device types with composition requirements
+  for (const endpointType of endpointTypes) {
+    if (endpointType.deviceTypeRef && endpointType.deviceTypeRef.length > 0) {
+      for (const deviceTypeRef of endpointType.deviceTypeRef) {
+        let requirements =
+          await queryDeviceType.selectEndpointCompositionRequirementsByDeviceTypeRef(
+            db,
+            deviceTypeRef
+          )
+
+        if (requirements && requirements.length > 0) {
+          // Verify that the database query returns all required fields
+          for (const req of requirements) {
+            expect(req.requiredDeviceCode).toBeDefined()
+            expect(req.requiredDeviceName).toBeDefined()
+            expect(req.conformance).toBeDefined()
+            expect(req.deviceConstraint).toBeDefined()
+            expect(req.requiredDeviceTypeRef).toBeDefined()
+
+            // Verify the template output contains the expected format
+            // Format: "Requires: DeviceCode {{requiredDeviceCode}}, Name: {{requiredDeviceName}}, Conformance: {{conformance}}, Constraint: {{deviceConstraint}}"
+            const expectedPattern = new RegExp(
+              `Requires: DeviceCode ${req.requiredDeviceCode}, Name: ${req.requiredDeviceName.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                '\\$&'
+              )}, Conformance: ${req.conformance || '[^,]*'}, Constraint: ${String(
+                req.deviceConstraint || ''
+              ).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`
+            )
+            expect(ept).toMatch(expectedPattern)
+          }
+        }
+      }
+    }
+  }
 })
 
 test(
