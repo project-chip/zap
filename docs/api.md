@@ -19896,6 +19896,7 @@ things were successful or not.
         * [~validateAttribute(db, endpointTypeId, attributeRef, clusterRef, zapSessionId)](#module_Validation API_ Validation APIs..validateAttribute) ⇒
         * [~validateEndpoint(db, endpointId)](#module_Validation API_ Validation APIs..validateEndpoint) ⇒
         * [~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef)](#module_Validation API_ Validation APIs..validateNoDuplicateEndpoints) ⇒
+        * [~validateXmlAttributeDefault(db, attribute, packageId)](#module_Validation API_ Validation APIs..validateXmlAttributeDefault) ⇒ <code>Promise.&lt;void&gt;</code>
         * [~validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)](#module_Validation API_ Validation APIs..validateSpecificAttribute) ⇒
         * [~validateSpecificEndpoint(endpoint)](#module_Validation API_ Validation APIs..validateSpecificEndpoint) ⇒
         * [~isValidNumberString(value)](#module_Validation API_ Validation APIs..isValidNumberString) ⇒
@@ -19990,6 +19991,20 @@ Check if there are no duplicate endpoints.
 | db | <code>\*</code> | 
 | endpointIdentifier | <code>\*</code> | 
 | sessionRef | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..validateXmlAttributeDefault"></a>
+
+### Validation API: Validation APIs~validateXmlAttributeDefault(db, attribute, packageId) ⇒ <code>Promise.&lt;void&gt;</code>
+Validates attribute default value from XML metadata (without endpoint context).
+Only validates type constraints, ranges, and string lengths available in the XML.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> | Database connection |
+| attribute | <code>\*</code> | Attribute object with defaultValue, type, min, max, minLength, maxLength |
+| packageId | <code>\*</code> | Package ID for logging |
 
 <a name="module_Validation API_ Validation APIs..validateSpecificAttribute"></a>
 
@@ -20708,6 +20723,7 @@ things were successful or not.
         * [~validateAttribute(db, endpointTypeId, attributeRef, clusterRef, zapSessionId)](#module_Validation API_ Validation APIs..validateAttribute) ⇒
         * [~validateEndpoint(db, endpointId)](#module_Validation API_ Validation APIs..validateEndpoint) ⇒
         * [~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef)](#module_Validation API_ Validation APIs..validateNoDuplicateEndpoints) ⇒
+        * [~validateXmlAttributeDefault(db, attribute, packageId)](#module_Validation API_ Validation APIs..validateXmlAttributeDefault) ⇒ <code>Promise.&lt;void&gt;</code>
         * [~validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)](#module_Validation API_ Validation APIs..validateSpecificAttribute) ⇒
         * [~validateSpecificEndpoint(endpoint)](#module_Validation API_ Validation APIs..validateSpecificEndpoint) ⇒
         * [~isValidNumberString(value)](#module_Validation API_ Validation APIs..isValidNumberString) ⇒
@@ -20802,6 +20818,20 @@ Check if there are no duplicate endpoints.
 | db | <code>\*</code> | 
 | endpointIdentifier | <code>\*</code> | 
 | sessionRef | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..validateXmlAttributeDefault"></a>
+
+### Validation API: Validation APIs~validateXmlAttributeDefault(db, attribute, packageId) ⇒ <code>Promise.&lt;void&gt;</code>
+Validates attribute default value from XML metadata (without endpoint context).
+Only validates type constraints, ranges, and string lengths available in the XML.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> | Database connection |
+| attribute | <code>\*</code> | Attribute object with defaultValue, type, min, max, minLength, maxLength |
+| packageId | <code>\*</code> | Package ID for logging |
 
 <a name="module_Validation API_ Validation APIs..validateSpecificAttribute"></a>
 

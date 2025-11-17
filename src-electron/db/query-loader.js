@@ -25,6 +25,7 @@ const env = require('../util/env')
 const dbApi = require('./db-api.js')
 const queryNotification = require('../db/query-package-notification')
 const dbEnum = require('../../src-shared/db-enum.js')
+const validation = require('../validation/validation.js')
 
 // Some loading queries that are reused few times.
 
@@ -872,6 +873,7 @@ async function insertClusters(db, packageId, data) {
       let pTags = null
       let pFeatures = null
 
+      let allAttributesToValidate = []
       let i
       for (i = 0; i < lastIdsArray.length; i++) {
         let lastId = lastIdsArray[i]
@@ -898,6 +900,12 @@ async function insertClusters(db, packageId, data) {
             ['code', 'manufacturerCode', 'side'],
             'attribute'
           ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
+
+          // Collect attributes for validation
+          allAttributesToValidate.push(
+            ...atts.filter((att) => att.defaultValue != null && !att.isNullable)
+          )
+
           attributes.data.push(...attributeMap(lastId, packageId, atts))
           attributes.access.push(...atts.map((at) => at.access))
         }
@@ -925,7 +933,15 @@ async function insertClusters(db, packageId, data) {
       let pCommand = insertCommands(db, packageId, commands)
       let pAttribute = insertAttributes(db, packageId, attributes)
       let pEvent = insertEvents(db, packageId, events)
-      let pArray = [pCommand, pAttribute, pEvent]
+
+      // Validate all attributes in parallel
+      let pValidation = Promise.all(
+        allAttributesToValidate.map((att) =>
+          validation.validateXmlAttributeDefault(db, att, packageId)
+        )
+      )
+
+      let pArray = [pCommand, pAttribute, pEvent, pValidation]
       if (pTags != null) pArray.push(pTags)
       if (pFeatures != null) pArray.push(pFeatures)
       return Promise.all(pArray)

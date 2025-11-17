@@ -32,6 +32,7 @@ const testQuery = require('./test-query')
 const env = require('../src-electron/util/env')
 const types = require('../src-electron/util/types')
 const { timeout } = require('./test-util')
+const queryPackageNotification = require('../src-electron/db/query-package-notification')
 
 let db
 let sid
@@ -547,6 +548,23 @@ test(
     expect(
       validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
     ).toBeFalsy()
+  },
+  timeout.medium()
+)
+
+test(
+  'validateXmlAttributeDefault - integer out of range',
+  async () => {
+    // Check that notification was created
+    let notifications =
+      await queryPackageNotification.getNotificationByPackageId(db, pkgId)
+    let xmlValidationNotifs = notifications.filter((n) =>
+      n.message.includes(
+        'XML validation issues for attribute "active power max phase b" (type: int16s, defaultvalue: 0xffff): Out of range (min: -32768, max: 32767)'
+      )
+    )
+    expect(xmlValidationNotifs.length).toBeGreaterThan(0)
+    expect(xmlValidationNotifs[0].type).toBe('WARNING')
   },
   timeout.medium()
 )
