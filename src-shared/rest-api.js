@@ -86,9 +86,7 @@ const uri = {
   reloadSession: '/zcl/reloadSession',
   init: '/init',
   forcedExternal: '/zcl/forcedExternal',
-  loadComposition: '/zcl/loadComposition',
-  endpointCompositionRequirements: '/zcl/endpointCompositionRequirements',
-  deviceTypesByEndpointTypeId: '/zcl/deviceTypesByEndpointTypeId'
+  loadComposition: '/zcl/loadComposition'
 }
 
 const uiMode = {

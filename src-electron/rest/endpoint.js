@@ -23,7 +23,6 @@
 
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
-const queryDeviceType = require('../db/query-device-type.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
@@ -223,53 +222,6 @@ function httpGetInitialComposition(db) {
 }
 
 /**
- * HTTP GET: endpoint composition requirements for a device type
- *
- * @param {*} db
- * @returns callback for the express uri registration
- */
-function httpGetEndpointCompositionRequirements(db) {
-  return async (request, response) => {
-    let deviceTypeRef = parseInt(request.query.deviceTypeRef, 10)
-    if (isNaN(deviceTypeRef)) {
-      response
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ error: 'Invalid deviceTypeRef parameter' })
-      return
-    }
-    let requirements =
-      await queryDeviceType.selectEndpointCompositionRequirementsByDeviceTypeRef(
-        db,
-        deviceTypeRef
-      )
-    response.status(StatusCodes.OK).json(requirements)
-  }
-}
-
-/**
- * HTTP GET: device types by endpoint type ID
- *
- * @param {*} db
- * @returns callback for the express uri registration
- */
-function httpGetDeviceTypesByEndpointTypeId(db) {
-  return async (request, response) => {
-    let endpointTypeId = parseInt(request.query.endpointTypeId, 10)
-    if (isNaN(endpointTypeId)) {
-      response
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ error: 'Invalid endpointTypeId parameter' })
-      return
-    }
-    let deviceTypes = await queryDeviceType.selectDeviceTypesByEndpointTypeId(
-      db,
-      endpointTypeId
-    )
-    response.status(StatusCodes.OK).json(deviceTypes)
-  }
-}
-
-/**
  * HTTP POST: endpoint type update
  *
  * @param {*} db
@@ -306,14 +258,6 @@ exports.get = [
   {
     uri: restApi.uri.loadComposition,
     callback: httpGetInitialComposition
-  },
-  {
-    uri: '/zcl/endpointCompositionRequirements',
-    callback: httpGetEndpointCompositionRequirements
-  },
-  {
-    uri: '/zcl/deviceTypesByEndpointTypeId',
-    callback: httpGetDeviceTypesByEndpointTypeId
   }
 ]
 exports.post = [

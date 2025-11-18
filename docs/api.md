@@ -15854,8 +15854,6 @@ This module provides the REST API to the user specific data.
     * [~httpPatchEndpoint(db)](#module_REST API_ endpoint..httpPatchEndpoint) ⇒
     * [~httpPostEndpointType(db)](#module_REST API_ endpoint..httpPostEndpointType) ⇒
     * [~httpGetInitialComposition(db)](#module_REST API_ endpoint..httpGetInitialComposition) ⇒ <code>function</code>
-    * [~httpGetEndpointCompositionRequirements(db)](#module_REST API_ endpoint..httpGetEndpointCompositionRequirements) ⇒
-    * [~httpGetDeviceTypesByEndpointTypeId(db)](#module_REST API_ endpoint..httpGetDeviceTypesByEndpointTypeId) ⇒
     * [~httpPatchEndpointType(db)](#module_REST API_ endpoint..httpPatchEndpointType) ⇒
 
 <a name="module_REST API_ endpoint..httpDeleteEndpoint"></a>
@@ -15929,30 +15927,6 @@ Handles the HTTP GET request to retrieve the root node.
 | Param | Type | Description |
 | --- | --- | --- |
 | db | <code>Object</code> | The database connection object. |
-
-<a name="module_REST API_ endpoint..httpGetEndpointCompositionRequirements"></a>
-
-### REST API: endpoint~httpGetEndpointCompositionRequirements(db) ⇒
-HTTP GET: endpoint composition requirements for a device type
-
-**Kind**: inner method of [<code>REST API: endpoint</code>](#module_REST API_ endpoint)  
-**Returns**: callback for the express uri registration  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-
-<a name="module_REST API_ endpoint..httpGetDeviceTypesByEndpointTypeId"></a>
-
-### REST API: endpoint~httpGetDeviceTypesByEndpointTypeId(db) ⇒
-HTTP GET: device types by endpoint type ID
-
-**Kind**: inner method of [<code>REST API: endpoint</code>](#module_REST API_ endpoint)  
-**Returns**: callback for the express uri registration  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
 
 <a name="module_REST API_ endpoint..httpPatchEndpointType"></a>
 
