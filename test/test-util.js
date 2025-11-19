@@ -129,6 +129,8 @@ exports.zigbeeTestFile = {
 exports.matterTestFile = {
   matterTest: path.join(__dirname, 'resource/matter-test.zap'),
   switch: path.join(__dirname, 'resource/matter-switch.zap'),
+  matterTestNostatic: path.join(__dirname, 'resource/matter-test-nostatic.zap'),
+  basicLighting: path.join(__dirname, 'resource/matter-basic-lighting.zap'),
   allClusters: path.join(__dirname, 'resource/matter-all-clusters.zap'),
   allClustersFileFormat2: path.join(
     __dirname,
