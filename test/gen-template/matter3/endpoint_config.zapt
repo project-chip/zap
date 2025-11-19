@@ -128,5 +128,8 @@ static_assert(ATTRIBUTE_LARGEST <= CHIP_CONFIG_MAX_ATTRIBUTE_STORE_ELEMENT_SIZE,
 {{#user_endpoints}}
   {{#user_device_types}}
     Endpoint {{../endpointId}}, DeviceId: {{deviceIdentifier}}, DeviceVersion: {{deviceVersion}}, Composition: {{composition}}
+    {{#user_endpoint_composition_requirements}}
+      Requires: DeviceCode {{requiredDeviceCode}}, Name: {{requiredDeviceName}}, Conformance: {{conformance}}, Constraint: {{deviceConstraint}}
+    {{/user_endpoint_composition_requirements}}
   {{/user_device_types}}
 {{/user_endpoints}}
