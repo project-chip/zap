@@ -60,10 +60,15 @@ export default {
   mixins: [CommonMixin],
   mounted() {
     // initialize ZclClusterManager with first endpoint info.
-    if (this.endpointIdListSorted.size && !this.selectedEndpointId) {
-      this.setSelectedEndpointType(
-        this.endpointIdListSorted.keys().next().value
-      )
+    this.ensureEndpointSelected()
+  },
+  watch: {
+    endpoints: {
+      handler() {
+        // Auto-select first endpoint when endpoints are loaded
+        this.ensureEndpointSelected()
+      },
+      immediate: true
     }
   },
   computed: {
@@ -106,6 +111,17 @@ export default {
     // This function changing the modal state
     toggleCreateEndpointModal() {
       this.$store.commit('zap/toggleEndpointModal', true)
+    },
+    // Auto-select the first endpoint if no endpoint is currently selected
+    ensureEndpointSelected() {
+      if (
+        this.endpointIdListSorted.size > 0 &&
+        (this.selectedEndpointId == null ||
+          this.selectedEndpointId === undefined)
+      ) {
+        const firstEndpointId = this.endpointIdListSorted.keys().next().value
+        this.setSelectedEndpointType(firstEndpointId)
+      }
     }
   }
 }

@@ -604,7 +604,6 @@ export default {
       this.selectedAttributes = []
       this.selectedReporting = []
       this.getEndpointCardData()
-      //only show Matter features if Matter is selected
     }
   }
 }
