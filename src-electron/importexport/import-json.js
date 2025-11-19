@@ -1202,7 +1202,7 @@ async function deviceTypeComplianceForAttributes(
             deviceTypeAttributesOnEndpointType[dta].deviceTypeRef
           )
           // Not throwing attribute warnings for an optional cluster's attributes when it is not enabled
-          if (endpointId) {
+          if (typeof endpointId === 'number') {
             // This check is kept for a backwards compatibility reason where endpoint types and endpoints are not in sync
             let endpointTypeCluster =
               await queryEndpointType.selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef(
