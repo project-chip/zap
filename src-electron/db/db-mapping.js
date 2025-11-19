@@ -639,6 +639,18 @@ exports.map = {
       conformance: x.DEVICE_TYPE_CLUSTER_CONFORMANCE
     }
   },
+  endpointCompositionRequirement: (x) => {
+    if (x == null) return undefined
+    return {
+      requiredDeviceCode: x.REQUIRED_DEVICE_CODE,
+      requiredDeviceName: x.REQUIRED_DEVICE_NAME,
+      requiredDeviceTypeRef: x.REQUIRED_DEVICE_TYPE_REF,
+      conformance: x.CONFORMANCE,
+      deviceConstraint: x.DEVICE_CONSTRAINT,
+      compositionType: x.COMPOSITION_TYPE,
+      endpointCompositionId: x.ENDPOINT_COMPOSITION_ID
+    }
+  },
   endpointTypeCluster: (x) => {
     if (x == null) return undefined
     return {
