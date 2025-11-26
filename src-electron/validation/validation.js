@@ -28,6 +28,7 @@ const queryEndpoint = require('../db/query-endpoint.js')
 const types = require('../util/types.js')
 const queryPackage = require('../db/query-package.js')
 const env = require('../util/env')
+const queryNotification = require('../db/query-package-notification.js')
 
 /**
  * Main attribute validation function.
@@ -122,6 +123,99 @@ async function validateNoDuplicateEndpoints(
       sessionRef
     )
   return count.length <= 1
+}
+
+/**
+ * Validates attribute default value from XML metadata (without endpoint context).
+ * Only validates type constraints, ranges, and string lengths available in the XML.
+ *
+ * @param {*} db - Database connection
+ * @param {*} attribute - Attribute object with defaultValue, type, min, max, minLength, maxLength
+ * @param {*} packageId - Package ID for logging
+ * @returns {Promise<void>}
+ */
+async function validateXmlAttributeDefault(db, attribute, packageId) {
+  if (!attribute || attribute.defaultValue == null) {
+    return
+  }
+
+  let issues = []
+
+  // Validate boolean type
+  if (attribute.type && attribute.type.toLowerCase() === 'boolean') {
+    const boolValue = String(attribute.defaultValue).toLowerCase()
+    if (
+      boolValue !== 'true' &&
+      boolValue !== 'false' &&
+      boolValue !== '0' &&
+      boolValue !== '1'
+    ) {
+      issues.push(`Invalid boolean value. Must be true, false, 0, or 1`)
+    }
+  }
+  // Validate numeric types
+  else if (!types.isString(attribute.type)) {
+    if (types.isFloat(attribute.type)) {
+      // Validate float
+      if (!isValidFloat(attribute.defaultValue)) {
+        issues.push('Invalid Float')
+      } else if (attribute.min != null || attribute.max != null) {
+        let bounds = getBoundsFloat(attribute)
+        if (!checkBoundsFloat(attribute.defaultValue, bounds.min, bounds.max)) {
+          issues.push(`Out of range (min: ${bounds.min}, max: ${bounds.max})`)
+        }
+      }
+    } else {
+      // Validate integer
+      if (!isValidNumberString(attribute.defaultValue)) {
+        issues.push('Invalid Integer')
+      } else if (attribute.min != null || attribute.max != null) {
+        // For XML validation, we can check basic range without session context
+        // by using the min/max values directly from the attribute
+        try {
+          let min =
+            attribute.min != null ? extractBigIntegerValue(attribute.min) : null
+          let max =
+            attribute.max != null ? extractBigIntegerValue(attribute.max) : null
+          let value = extractBigIntegerValue(attribute.defaultValue)
+
+          if ((min != null && value < min) || (max != null && value > max)) {
+            issues.push(`Out of range (min: ${min}, max: ${max})`)
+          }
+        } catch (e) {
+          // If BigInt conversion fails, skip range validation
+          env.logWarning(
+            `Could not validate range for attribute ${attribute.name}: ${e.message}`
+          )
+        }
+      }
+    }
+  }
+  // Validate string types
+  else if (types.isString(attribute.type)) {
+    let maxLengthForString =
+      attribute.type === 'char_string' || attribute.type === 'octet_string'
+        ? 254
+        : 65534
+    let maxAllowedLength =
+      attribute.maxLength != null ? attribute.maxLength : maxLengthForString
+
+    if (
+      typeof attribute.defaultValue === 'string' &&
+      attribute.defaultValue.length > maxAllowedLength
+    ) {
+      issues.push(
+        `String length ${attribute.defaultValue.length} exceeds maximum ${maxAllowedLength}`
+      )
+    }
+  }
+
+  // Log warnings if there are validation issues
+  if (issues.length > 0) {
+    let message = `XML validation issues for attribute "${attribute.name}" (type: ${attribute.type}, defaultvalue: ${attribute.defaultValue}): ${issues.join(', ')}`
+    env.logWarning(message)
+    queryNotification.setNotification(db, 'WARNING', message, packageId, 2)
+  }
 }
 
 /**
@@ -517,3 +611,4 @@ exports.checkBoundsFloat = checkBoundsFloat
 exports.unsignedToSignedInteger = unsignedToSignedInteger
 exports.extractBigIntegerValue = extractBigIntegerValue
 exports.getIntegerAttributeSize = getIntegerAttributeSize
+exports.validateXmlAttributeDefault = validateXmlAttributeDefault
