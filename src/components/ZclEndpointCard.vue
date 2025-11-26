@@ -604,7 +604,19 @@ export default {
       this.selectedAttributes = []
       this.selectedReporting = []
       this.getEndpointCardData()
-      //only show Matter features if Matter is selected
+    }
+  },
+
+  mounted() {
+    // If this endpoint is selected when mounted, expand it with a delay to trigger animation
+    if (this.isSelectedEndpoint) {
+      // Use setTimeout to ensure the transition can detect the change
+      setTimeout(() => {
+        this.$store.commit('zap/toggleShowEndpoint', {
+          id: this.endpointReference,
+          value: true
+        })
+      }, 50)
     }
   }
 }
