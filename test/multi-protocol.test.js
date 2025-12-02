@@ -334,3 +334,70 @@ test(
   },
   testUtil.timeout.long()
 )
+
+test(
+  `Load and generate multi-protocol no static zap file: ${testUtil.zigbeeTestFile.multiProtocolNoStatic}`,
+  async () => {
+    // Create a blank session
+    const querySession = require('../src-electron/db/query-session')
+    let sessionId = await querySession.createBlankSession(db)
+
+    let importRes = await importJs.importDataFromFile(
+      db,
+      testUtil.zigbeeTestFile.multiProtocolNoStatic,
+      { sessionId: sessionId }
+    )
+    expect(importRes.errors.length).toBe(0)
+    expect(importRes.warnings.length).toBe(0)
+
+    // Get generator options for matter template
+    const queryPackage = require('../src-electron/db/query-package')
+    const dbEnum = require('../src-shared/db-enum')
+
+    let genOptions = await queryPackage.selectAllOptionsValues(
+      db,
+      importRes.templateIds[0],
+      dbEnum.packageOptionCategory.generator
+    )
+
+    // Reduce the long array from query into a single object
+    let matterGeneratorOptions = genOptions.reduce((acc, current) => {
+      acc[current.optionCode] = current.optionLabel
+      return acc
+    }, {})
+
+    let genResultMatter = await genEngine.generate(
+      db,
+      importRes.sessionId,
+      importRes.templateIds[0],
+      matterGeneratorOptions,
+      {
+        disableDeprecationWarnings: true
+      }
+    )
+
+    let genResultZigbee = await genEngine.generate(
+      db,
+      importRes.sessionId,
+      importRes.templateIds[1],
+      {},
+      {
+        disableDeprecationWarnings: true
+      }
+    )
+
+    expect(genResultMatter.hasErrors).toBeFalsy()
+    expect(genResultZigbee.hasErrors).toBeFalsy()
+
+    // Verify that only non-static templates are generated for Matter
+    let contentKeys = Object.keys(genResultMatter.content)
+    expect(contentKeys).toHaveLength(2)
+    expect(contentKeys).toContain('endpoints.out')
+    expect(contentKeys).toContain('endpoint-config.c')
+
+    // Verify all templates are generated for Zigbee
+    contentKeys = Object.keys(genResultZigbee.content)
+    expect(contentKeys).toHaveLength(28)
+  },
+  testUtil.timeout.long()
+)

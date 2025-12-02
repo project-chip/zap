@@ -184,7 +184,7 @@ test(
         queryPackage
           .selectAllOptionsValues(db, pkgId, 'generator')
           .then((generatorConfigurations) => {
-            expect(generatorConfigurations.length).toBe(1)
+            expect(generatorConfigurations.length).toBe(2)
             expect(generatorConfigurations[0].optionCode).toBe(
               'disableUcComponentOnZclClusterUpdate'
             )
@@ -352,6 +352,139 @@ test(
     expect(endpoints).toContain('- InitialPress: 1')
     expect(endpoints).toContain('- ShortRelease: 1')
     expect(endpoints).toContain('- MultiPressOngoing: 1')
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Zap file generation when generateStaticTemplates is false in zap file',
+  async () => {
+    let sessionId = await querySession.createBlankSession(db)
+
+    await importJs.importDataFromFile(
+      db,
+      testUtil.matterTestFile.matterTestNoStatic,
+      {
+        sessionId: sessionId
+      }
+    )
+
+    // Verify that the generateStaticTemplates session-key is actually false
+    let generateStaticTemplates = await querySession.getSessionKeyValue(
+      db,
+      sessionId,
+      'generateStaticTemplates'
+    )
+    expect(generateStaticTemplates).toBe('false')
+
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      { disableDeprecationWarnings: true }
+    )
+
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
+
+    // Verify that only non-static templates are generated
+    let contentKeys = Object.keys(genResult.content)
+    expect(contentKeys).toHaveLength(2)
+    expect(contentKeys).toContain('endpoints.out')
+    expect(contentKeys).toContain('endpoint-config.c')
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Zap file generation when generateStaticTemplates is true in zap file but false in generator options',
+  async () => {
+    let sessionId = await querySession.createBlankSession(db)
+
+    await importJs.importDataFromFile(
+      db,
+      testUtil.matterTestFile.matterTestWithStatic,
+      {
+        sessionId: sessionId
+      }
+    )
+
+    // Verify that the generateStaticTemplates session-key is true
+    let generateStaticTemplates = await querySession.getSessionKeyValue(
+      db,
+      sessionId,
+      'generateStaticTemplates'
+    )
+    expect(generateStaticTemplates).toBe('true')
+
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      { disableDeprecationWarnings: true }
+    )
+
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
+
+    // Verify that all templates are generated
+    let contentKeys = Object.keys(genResult.content)
+    expect(contentKeys).toHaveLength(8)
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Zap file generation with blank session with gen-template having generateStaticTemplates as false',
+  async () => {
+    // Load the matterNoStatic template context
+    let noStaticTemplateContext = await genEngine.loadTemplates(
+      db,
+      testUtil.testTemplate.matterNoStatic
+    )
+
+    expect(noStaticTemplateContext.crc).not.toBeNull()
+    expect(noStaticTemplateContext.templateData).not.toBeNull()
+    expect(noStaticTemplateContext.packageId).not.toBeNull()
+
+    // Create a blank session
+    let sessionId = await querySession.createBlankSession(db)
+
+    // Query generator options from the noStatic template
+    let genOptions = await queryPackage.selectAllOptionsValues(
+      db,
+      noStaticTemplateContext.packageId,
+      dbEnum.packageOptionCategory.generator
+    )
+
+    // Reduce the long array from query into a single object
+    let templateGeneratorOptions = genOptions.reduce((acc, current) => {
+      acc[current.optionCode] = current.optionLabel
+      return acc
+    }, {})
+
+    // Generate using the matterNoStatic template context
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      noStaticTemplateContext.packageId,
+      templateGeneratorOptions,
+      { disableDeprecationWarnings: true }
+    )
+
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
+
+    // Verify that only non-static templates are generated
+    let contentKeys = Object.keys(genResult.content)
+    expect(contentKeys).toHaveLength(2)
+    expect(contentKeys).toContain('endpoints.out')
+    expect(contentKeys).toContain('endpoint-config.c')
   },
   testUtil.timeout.long()
 )

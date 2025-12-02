@@ -79,6 +79,7 @@ The `templates` key contained in the `gen-templates.json` file above, is an arra
 | name     | string     | Human readable name of the template. Mostly used in logging and menu items.                                                                                                                                           |
 | output   | string     | Name of the output file generated. May contain replacement patterns (see below).                                                                                                                                      |
 | iterator | string     | If this template produces multiple files, iterating over certain object, then this field will be present. Possible values are `availableCluster`, `selectedCluster`,`selectedClientCluster`, `selectedServerCluster`. |
+| static   | string     | If set to the string 'true', marks this template as a static template. Static templates will not generate if `generateStaticTemplates` is false for the session.                                                                   |
 
 The _replacement pattern_ inside the output key, comes handy when iterator key is used and defines how each generated file will be named. Replacement patterns are in a format of `{key}` or `{key:modifier}`. The `key` can be any usual key that the iterated object provides. For example, if you iterate over cluster, these can be `code`, `name`, `description`, `define` and all the usual keys that a cluster supports. So if your output contains `{code}` then this pattern will be replaced by the actual cluster code.
 
@@ -105,6 +106,7 @@ Following table lists generator options supported by the template generator cate
 | postProcessSingle          | a string, representing a command to execute for each individual file appended in a single command line. This would be typically used by commands or scripts that clean up the generated files, and can only take one file name at a time as an argument.               |
 | postProcessConditionalFile | a path, representing a file. If this file does not exist, then a specified post-process action will not get executed.                                                                                                                                                  |
 | routeErrToOut              | a boolean flag. If it's set to true, then any stderr from the post-process will be routed to stdout. This is due that a driving process sometimes has trouble dealing with both stdout and stderr, so this flag might help you preserve the logs.                      |
+| generateStaticTemplates    | string     | A string flag ('true'/'false'). The default for whether static templates are generated. If 'false', they are not. A session-key in the .zap file can override this default.                                                                                        |
 
 ## Template key: override
 

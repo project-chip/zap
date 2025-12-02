@@ -19,7 +19,7 @@
     },
     {
       "pathRelativity": "relativeToZap",
-      "path": "../gen-template/matter/gen-test.json",
+      "path": "../gen-template/matter/gen-test-no-static.json",
       "type": "gen-templates-json",
       "category": "matter",
       "version": "test-matter"
