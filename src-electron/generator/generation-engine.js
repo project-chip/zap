@@ -205,7 +205,7 @@ async function recordTemplatesPackage(context, isTopLevelPackageInSync) {
         ).then((id) => {
           // We loaded the individual file, now we add options
           let optionPromises = []
-          // Check if iterator template
+          // Handle iterator option
           if (template.iterator) {
             optionPromises.push(
               queryPackage.insertOptionsKeyValues(
@@ -221,7 +221,7 @@ async function recordTemplatesPackage(context, isTopLevelPackageInSync) {
               )
             )
           }
-          // Check for static option
+          // Handle static option
           // If static is defined and true, then this template is only generated when generateStaticTemplates is true
           // If static doesn't exist, we treat it as false
           if (template.static) {
@@ -747,7 +747,7 @@ async function generateAllTemplates(
     genResult.sessionId,
     dbEnum.sessionKey.generateStaticTemplates
   )
-  if (!generateStaticTemplates) {
+  if (generateStaticTemplates == null) {
     generateStaticTemplates = genResult.generatorOptions.generateStaticTemplates
   }
   // Convert string values to proper boolean - generateStaticTemplates defaults to true unless explicitly set to false
