@@ -12,7 +12,15 @@
       "exe": "zap.exe",
       "optional": true
     },
+    "zap:win32.aarch64": {
+      "exe": "zap.exe",
+      "optional": true
+    },
     "zap:linux.x86_64": {
+      "exe": "zap",
+      "optional": true
+    },
+    "zap:linux.aarch64": {
       "exe": "zap",
       "optional": true
     },
@@ -33,7 +41,15 @@
       "exe": "zap-cli.exe",
       "optional": true
     },
+    "zap-cli:win32.aarch64": {
+      "exe": "zap-cli.exe",
+      "optional": true
+    },
     "zap-cli:linux.x86_64": {
+      "exe": "zap-cli",
+      "optional": true
+    },
+    "zap-cli:linux.aarch64": {
       "exe": "zap-cli",
       "optional": true
     },
