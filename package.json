@@ -36,7 +36,10 @@
     "test:unit:watch": "jest --watch",
     "test:unit:watchAll": "jest --watchAll",
     "test:e2e": "node src-script/zap-uitest.js open zigbee",
-    "test:e2e-ci": "node src-script/zap-uitest.js run zigbee",
+    "test:e2e-ci": "cross-env NODE_ENV=test CYPRESS_COVERAGE=true node src-script/zap-uitest.js run zigbee",
+    "test:e2e-coverage": "npm run test:e2e-ci && npm run coverage:combine",
+    "coverage:combine": "node src-script/zap-combine-reports.js",
+    "test:coverage": "npm run test:unit:coverage && npm run test:e2e-ci && npm run coverage:combine",
     "test:e2e-matter": "node src-script/zap-uitest.js open matter",
     "test:e2e-matter-ci": "node src-script/zap-uitest.js run matter",
     "report": "node src-script/zap-combine-reports.js",
@@ -174,6 +177,7 @@
     "@yao-pkg/pkg": "^6.10.1",
     "7zip-bin": "^5.2.0",
     "autoprefixer": "^10.4.20",
+    "babel-plugin-istanbul": "^7.0.1",
     "cross-env": "^7.0.3",
     "cross-spawn": "^7.0.3",
     "cypress": "^13.6.6",
@@ -314,13 +318,30 @@
   },
   "nyc": {
     "report-dir": "cypress-coverage",
+    "reporter": [
+      "json",
+      "lcov",
+      "text"
+    ],
     "include": [
       "src/**/*.js",
-      "src/**/*.ts",
       "src-electron/**/*.js",
-      "src-electron/**/*.ts",
-      "src-shared/**/*.js",
-      "src-shared/**/*.ts"
+      "src-shared/**/*.js"
+    ],
+    "exclude": [
+      "**/*.test.js",
+      "**/*.spec.js",
+      "**/node_modules/**",
+      "cypress/**/*",
+      "dist/**/*"
+    ],
+    "all": true,
+    "cache": false,
+    "instrument": true,
+    "sourceMap": false,
+    "extension": [
+      ".js",
+      ".vue"
     ]
   },
   "pkg": {

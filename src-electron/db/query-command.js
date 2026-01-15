@@ -1936,7 +1936,11 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
   }
 
   // Ordering of the results:
-  query = query + ' ORDER BY MANUFACTURER_CODE, CODE, NAME'
+  query =
+    query +
+    (doGroupBy
+      ? ' ORDER BY MANUFACTURER_CODE, CODE, NAME'
+      : ' ORDER BY C.MANUFACTURER_CODE, C.CODE, C.NAME')
 
   return dbApi.dbAll(db, query).then((rows) => rows.map(commandMapFunction))
 }
