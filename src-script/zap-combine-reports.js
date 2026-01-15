@@ -24,52 +24,176 @@ const env = require('../src-electron/util/env')
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 
 /**
+ * Normalize coverage data structure
+ * @param {*} coverageData
+ * @returns normalized coverage data
+ */
+function normalizeCoverageData(coverageData) {
+  // If it has a 'data' wrapper (Jest format), extract it
+  if (coverageData.data && typeof coverageData.data === 'object') {
+    return coverageData.data
+  }
+  // Otherwise return as-is (Cypress format)
+  return coverageData
+}
+
+/**
+ * Check if coverage data is valid (has actual coverage info)
+ * @param {*} coverageData
+ * @returns boolean
+ */
+function isValidCoverageData(coverageData) {
+  if (!coverageData || typeof coverageData !== 'object') {
+    return false
+  }
+
+  // Check if it has at least one file with coverage data
+  const keys = Object.keys(coverageData)
+  return (
+    keys.length > 0 &&
+    keys.some(
+      (key) =>
+        coverageData[key] &&
+        typeof coverageData[key] === 'object' &&
+        'path' in coverageData[key]
+    )
+  )
+}
+
+/**
+ * Check coverage thresholds and fail if below 80%
+ * @param {string} coverageSummaryPath
+ */
+function checkCoverageThresholds(coverageSummaryPath) {
+  if (!fsExtra.existsSync(coverageSummaryPath)) {
+    console.error('❌ Coverage summary not found')
+    process.exit(1)
+  }
+
+  const coverageSummary = fsExtra.readJsonSync(coverageSummaryPath)
+  const total = coverageSummary.total
+
+  const thresholds = {
+    lines: 80
+  }
+
+  let failed = false
+  console.log('\n📊 Coverage Summary:')
+
+  Object.keys(thresholds).forEach((key) => {
+    const actual = total[key].pct
+    const threshold = thresholds[key]
+    const status = actual >= threshold ? '✅' : '❌'
+
+    console.log(`${status} ${key}: ${actual}% (threshold: ${threshold}%)`)
+
+    if (actual < threshold) {
+      failed = true
+    }
+  })
+
+  if (failed) {
+    console.error('\n❌ Coverage below 80% threshold. Please add more tests.')
+    process.exit(1)
+  } else {
+    console.log('\n✅ All coverage thresholds passed!')
+  }
+}
+
+/**
  * Execute the coverage report script.
  */
 async function executeScript() {
   try {
     // Create directory if it does not exist
-    await fsExtra.ensureDir('reports')
+    await fsExtra.ensureDir('.nyc_output')
+
+    let hasCoverage = false
+    let combinedCoverage = {}
 
     if (fsExtra.existsSync('cypress-coverage/coverage-final.json')) {
-      await fsExtra.copy(
-        'cypress-coverage/coverage-final.json',
-        'reports/from-cypress.json'
+      const cypressData = await fsExtra.readJson(
+        'cypress-coverage/coverage-final.json'
+      )
+      const normalizedCypress = normalizeCoverageData(cypressData)
+
+      if (isValidCoverageData(normalizedCypress)) {
+        // Merge into combined coverage
+        Object.assign(combinedCoverage, normalizedCypress)
+        console.log('✅ Cypress coverage found and processed')
+        hasCoverage = true
+      } else {
+        console.log(
+          '⚠️ Cypress coverage file found but contains no valid coverage data'
+        )
+      }
+    } else {
+      console.log(
+        '⚠️ No Cypress coverage file found at cypress-coverage/coverage-final.json'
       )
     }
 
     if (fsExtra.existsSync('jest-coverage/coverage-final.json')) {
-      await fsExtra.copy(
-        'jest-coverage/coverage-final.json',
-        'reports/from-jest.json'
+      const jestData = await fsExtra.readJson(
+        'jest-coverage/coverage-final.json'
+      )
+      const normalizedJest = normalizeCoverageData(jestData)
+
+      if (isValidCoverageData(normalizedJest)) {
+        // Merge into combined coverage (Jest data will override Cypress if same files)
+        Object.assign(combinedCoverage, normalizedJest)
+        console.log('✅ Jest coverage found and processed')
+        hasCoverage = true
+      } else {
+        console.log(
+          '⚠️ Jest coverage file found but contains no valid coverage data'
+        )
+      }
+    } else {
+      console.log(
+        '⚠️ No Jest coverage file found at jest-coverage/coverage-final.json'
       )
     }
 
-    scriptUtil.executeCmd({}, 'npx', ['nyc', 'merge', 'reports'])
+    if (!hasCoverage) {
+      console.log(
+        '❌ No valid coverage data found to combine. Run tests first.'
+      )
+      return
+    }
 
-    await fsExtra.move('coverage.json', '.nyc_output/out.json', {
-      overwrite: true
+    // Validate that we have coverage data after combining
+    if (Object.keys(combinedCoverage).length === 0) {
+      console.log(
+        '❌ No coverage data found after normalization and combination'
+      )
+      return
+    }
+
+    // Write the combined coverage directly to .nyc_output
+    await fsExtra.writeJson('.nyc_output/out.json', combinedCoverage, {
+      spaces: 2
     })
+    console.log('✅ Coverage files merged successfully')
 
-    scriptUtil.executeCmd(
+    // Generate final report with JSON summary for threshold checking
+    await scriptUtil.executeCmd(
       {},
       'npx',
-      'nyc report --reporter lcov --reporter text --report-dir coverage'.split(
+      'nyc report --reporter lcov --reporter text --reporter json-summary --report-dir coverage'.split(
         ' '
       )
     )
 
     console.log(
-      env.formatEmojiMessage(
-        '✅',
-        'Please find the combined report (Jest & Cypress) at ./coverage/lcov-report/index.html'
-      )
+      `✅ Combined coverage report generated at ./coverage/lcov-report/index.html`
     )
+
+    // Check coverage thresholds - this will exit with code 1 if below 80%
+    checkCoverageThresholds('coverage/coverage-summary.json')
   } catch (err) {
-    console.log(
-      'Error in generating reports at zap-combine-reports.js file and executeScript function: ' +
-        err
-    )
+    console.log('Error in generating reports:', err)
+    process.exit(1)
   }
 }
 
