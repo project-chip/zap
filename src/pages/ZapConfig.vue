@@ -30,6 +30,7 @@
                 unchecked-icon="panorama_fish_eye"
                 val="select"
                 label="Generate New Session"
+                data-cy="generate-new-session-radio"
               />
               <q-radio
                 v-if="loadPreSessionData.length"
@@ -39,6 +40,7 @@
                 unchecked-icon="panorama_fish_eye"
                 val="load"
                 label="Restore Unsaved Session"
+                data-cy="restore-session-radio"
               />
             </div>
             <p class="text-center" v-if="isPackageSelected" style="color: red">
@@ -107,6 +109,7 @@
                       <q-checkbox
                         v-model="selectedZclPropertiesDataIds"
                         :val="props.row.id"
+                        data-cy="zcl-package-checkbox"
                       />
                     </q-td>
                     <q-td key="category" :props="props">
@@ -132,6 +135,7 @@
                           :color="props.row.hasError ? 'red' : 'orange'"
                           size="2.5em"
                           @click="propertyDataDialog[props.row.id] = true"
+                          data-cy="package-error-warning-icon"
                         />
                         <q-dialog v-model="propertyDataDialog[props.row.id]">
                           <q-card>
@@ -265,6 +269,7 @@
                           :color="props.row.hasError ? 'red' : 'orange'"
                           size="2.5em"
                           @click="genDataDialog[props.row.id] = true"
+                          data-cy="template-error-warning-icon"
                         ></q-icon>
                         <q-dialog v-model="genDataDialog[props.row.id]">
                           <q-card>

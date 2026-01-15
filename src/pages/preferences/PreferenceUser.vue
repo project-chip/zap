@@ -24,6 +24,7 @@ limitations under the License.
       left-label
       v-model="localtheme"
       id="darkTheme"
+      data-cy="dark-theme-toggle"
     >
       <q-tooltip> Enable Dark theme </q-tooltip>
     </q-toggle>
@@ -34,11 +35,13 @@ limitations under the License.
       dense
       left-label
       v-model="devtab"
+      data-cy="dev-tools-toggle"
+      aria-label="Enable development tools"
     >
       <q-tooltip> Enable Dev Tools tab </q-tooltip>
     </q-toggle>
     <br />
-    <div class="row w-full">
+    <div class="row w-full" data-cy="file-location-row">
       <div class="q-my-auto q-pr-sm">Last file location</div>
       <q-input dense @input="setPath" v-model="localPath" label="Browse" />
     </div>

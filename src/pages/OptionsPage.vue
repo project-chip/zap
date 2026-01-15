@@ -67,6 +67,7 @@ limitations under the License.
             label="Enable Command Discovery"
             dense
             left-label
+            data-cy="toggle-command-discovery"
             @update:model-value="handleOptionChange('commandDiscovery', $event)"
           >
             <q-tooltip> Enable Command Discovery for your project</q-tooltip>
@@ -78,6 +79,7 @@ limitations under the License.
             label="Enable Component Toggling in IDE"
             dense
             left-label
+            data-cy="toggle-component-toggling"
             @update:model-value="
               handleOptionChange('disableComponentToggling', !$event)
             "
