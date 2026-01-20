@@ -37,7 +37,7 @@
           label="Back"
           id="Back"
           color="grey"
-          data-test="go-back-button"
+          data-cy="btn-go-back"
         />
       </Transition>
     </q-toolbar-title>

@@ -18,16 +18,16 @@ describe('ZCL Toolbar functionality', () => {
   })
 
   it('Should display Back button when not on home page', () => {
-    cy.visit('/options')
+    cy.dataCy('btn-options').click({ force: true })
     cy.wait(1000)
-    cy.get('#Back').should('be.visible')
-    cy.dataCy('go-back-button').should('exist')
+    cy.dataCy('btn-go-back').should('be.visible')
+    cy.dataCy('btn-go-back').should('exist')
   })
 
   it('Should navigate back to home when clicking Back button', () => {
-    cy.visit('/options')
+    cy.dataCy('btn-options').click({ force: true })
     cy.wait(1000)
-    cy.get('#Back').click()
+    cy.dataCy('btn-go-back').click({ force: true })
     cy.wait(1000)
     cy.url().should('not.include', '/options')
   })
