@@ -44,7 +44,7 @@ if (process.argv.length > 4) {
  * Print ZAP usage information.
  */
 function printUsage() {
-  console.log(`Usage: zap-uitest.js [ MODE | -? ] [matter|zigbee] [browser]
+  console.log(`Usage: zap-uitest.js [ MODE | -? ] [matter|zigbee|multiprotocol] [browser]
 
 This program executes the Cypress unit tests.
 Valid modes:
@@ -65,6 +65,9 @@ if (testsType == 'zigbee') {
 } else if (testsType == 'matter') {
   svrCmd = 'matterzap-devserver'
   fixturesConfig = '--config fixturesFolder=cypress/matterFixtures'
+} else if (testsType == 'multiprotocol') {
+  svrCmd = 'zapall-devserver'
+  fixturesConfig = '--config fixturesFolder=cypress/multiprotocolFixtures'
 } else {
   printUsage()
 }

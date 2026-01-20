@@ -19,6 +19,55 @@ export default defineConfig({
         }
       })
 
+      // Dynamically set specPattern based on mode environment variable
+      const mode = config.env.mode || 'zigbee'
+
+      // Define test patterns for each mode
+      // Includes both organized folders and root e2e for backward compatibility
+      const specPatterns = {
+        zigbee: [
+          'cypress/e2e/common/**/*.cy.js',
+          'cypress/e2e/zigbee/**/*.cy.js',
+          // Include root tests but exclude organized folders to avoid duplicates
+          'cypress/e2e/**/*.cy.js'
+        ],
+        matter: [
+          'cypress/e2e/common/**/*.cy.js',
+          'cypress/e2e/matter/**/*.cy.js',
+          // Include root tests but exclude organized folders to avoid duplicates
+          'cypress/e2e/**/*.cy.js'
+        ],
+        multiprotocol: [
+          'cypress/e2e/common/**/*.cy.js',
+          'cypress/e2e/multiprotocol/**/*.cy.js',
+          // Include root tests but exclude organized folders to avoid duplicates
+          'cypress/e2e/**/*.cy.js'
+        ]
+      }
+
+      // Set specPattern based on mode
+      if (specPatterns[mode]) {
+        config.specPattern = specPatterns[mode]
+
+        // Exclude other mode-specific folders to avoid running tests multiple times
+        const excludeFolders = {
+          zigbee: ['**/matter/**', '**/multiprotocol/**'],
+          matter: ['**/zigbee/**', '**/multiprotocol/**'],
+          multiprotocol: ['**/zigbee/**', '**/matter/**']
+        }
+
+        if (excludeFolders[mode]) {
+          // Add mode-specific exclusions to existing excludeSpecPattern
+          config.excludeSpecPattern = [
+            ...(config.excludeSpecPattern || []),
+            ...excludeFolders[mode]
+          ]
+        }
+      } else {
+        // Fallback: if mode is not recognized, run all tests (backward compatibility)
+        config.specPattern = ['cypress/e2e/**/*.cy.js']
+      }
+
       return config
     },
     testIsolation: false,
