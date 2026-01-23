@@ -20,6 +20,7 @@ limitations under the License.
       :class="{ 'active v-step-5': isSelectedEndpoint }"
       @click="handleEndpointCardClick(endpointReference)"
       flat
+      data-test="endpoint-card"
     >
       <div
         class="q-mx-sm"
@@ -57,6 +58,7 @@ limitations under the License.
             size="sm"
             icon="o_content_copy"
             @click.stop="duplicateEndpoint()"
+            data-test="duplicate-endpoint"
           >
             <q-tooltip> Copy </q-tooltip>
           </q-btn>

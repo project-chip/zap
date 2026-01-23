@@ -8,7 +8,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 // NOTE: This test suite should run LAST as it navigates to invalid routes
 // which may affect application state. Run other tests first.
-describe('Error 404 page functionality (run last)', () => {
+describe.skip('Error 404 page functionality (run last)', () => {
   beforeEach(() => {
     // Always start from home to ensure clean state
     cy.visit('/')

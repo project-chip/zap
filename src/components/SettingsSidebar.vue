@@ -6,6 +6,7 @@
         clickable
         :active="menuItem.link === $route.fullPath"
         v-ripple
+        :data-cy="menuItem.dataCy"
       >
         <q-item-section avatar>
           <q-icon :name="menuItem.icon" />
@@ -46,25 +47,29 @@ export default {
           icon: 'o_manage_accounts',
           label: 'User Settings',
           link: '/preferences/user',
-          separator: false
+          separator: false,
+          dataCy: 'settings-menu-user'
         },
         {
           icon: 'mdi-lan',
           label: 'ZCL Packages',
           link: '/preferences/package',
-          separator: false
+          separator: false,
+          dataCy: 'settings-menu-package'
         },
         {
           icon: 'mdi-file-document-edit-outline',
           label: 'Generation',
           link: '/preferences/generation',
-          separator: false
+          separator: false,
+          dataCy: 'settings-menu-generation'
         },
         {
           icon: 'o_info',
           label: 'About',
           link: '/preferences/about',
-          separator: false
+          separator: false,
+          dataCy: 'settings-menu-about'
         }
       ],
       devToolList: [

@@ -151,6 +151,10 @@ Cypress.Commands.add(
   }
 )
 
+Cypress.Commands.add('goBackButton', () => {
+  cy.dataCy('btn-go-back').click({ force: true })
+  cy.wait(1000)
+})
 // Check the enabled state of given attributes, commands, and events in the cluster view
 Cypress.Commands.add(
   'checkEnabledStateOfElements',

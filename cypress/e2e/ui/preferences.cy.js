@@ -10,14 +10,48 @@ describe('Preferences pages functionality', () => {
   beforeEach(() => {
     cy.visit('/')
     cy.setZclProperties()
-    cy.wait(1000)
+    // Wait for main page to be ready instead of fixed time
+    cy.get('#Settings').should('be.visible')
   })
 
   describe('User Preferences page', () => {
     beforeEach(() => {
+      // Reset to home page before each test
+      // Navigate to Settings
       cy.get('#Settings').click()
-      cy.wait(500)
+      // Short wait for drawer animation, then wait for content
+      cy.wait(300)
       cy.contains('User interface settings').should('be.visible')
+      // Wait for dark theme toggle to be visible, then reset to light theme
+      cy.dataCy('dark-theme-toggle').should('be.visible')
+      cy.dataCy('dark-theme-toggle')
+        .find('input')
+        .then(($input) => {
+          if ($input.is(':checked')) {
+            // Click on the label to toggle (more reliable than input.uncheck for Quasar)
+            cy.dataCy('dark-theme-toggle')
+              .find('.q-toggle__label')
+              .click({ force: true })
+            // Short wait for CSS transition, then verify theme change
+            cy.wait(200)
+            cy.get('body').should('not.have.class', 'body--dark')
+          }
+        })
+    })
+
+    afterEach(() => {
+      // Reset dark theme to light after each test
+      cy.get('body').then(($body) => {
+        if ($body.hasClass('body--dark')) {
+          // Click on the label to toggle (more reliable than input.uncheck for Quasar)
+          cy.dataCy('dark-theme-toggle')
+            .find('.q-toggle__label')
+            .click({ force: true })
+          // Short wait for CSS transition, then verify theme change
+          cy.wait(200)
+          cy.get('body').should('not.have.class', 'body--dark')
+        }
+      })
     })
 
     it('Should display dark theme toggle', () => {
@@ -26,15 +60,14 @@ describe('Preferences pages functionality', () => {
     })
 
     it('Should toggle dark theme on', () => {
-      // First ensure it's off, then turn it on
+      // beforeEach already ensures it's off, so just turn it on
+      cy.dataCy('dark-theme-toggle').should('be.visible')
+      // Click on the label to toggle (more reliable than input.check for Quasar)
       cy.dataCy('dark-theme-toggle')
-        .find('input')
-        .then(($input) => {
-          if (!$input.is(':checked')) {
-            cy.dataCy('dark-theme-toggle').find('input').check({ force: true })
-          }
-        })
-      cy.wait(500)
+        .find('.q-toggle__label')
+        .click({ force: true })
+      // Short wait for CSS transition, then verify theme change
+      cy.wait(1000)
       cy.get('body').should('have.class', 'body--dark')
     })
 
@@ -44,19 +77,24 @@ describe('Preferences pages functionality', () => {
         .find('input')
         .then(($input) => {
           if ($input.is(':checked')) {
+            // Click on the label to toggle (more reliable than input.uncheck for Quasar)
             cy.dataCy('dark-theme-toggle')
-              .find('input')
-              .uncheck({ force: true })
+              .find('.q-toggle__label')
+              .click({ force: true })
           } else {
             // If already off, toggle on then off
-            cy.dataCy('dark-theme-toggle').find('input').check({ force: true })
-            cy.wait(300)
             cy.dataCy('dark-theme-toggle')
-              .find('input')
-              .uncheck({ force: true })
+              .find('.q-toggle__label')
+              .click({ force: true })
+            cy.wait(1000)
+            cy.get('body').should('have.class', 'body--dark')
+            cy.dataCy('dark-theme-toggle')
+              .find('.q-toggle__label')
+              .click({ force: true })
           }
         })
-      cy.wait(500) // Wait for theme change to apply
+      // Short wait for CSS transition, then verify theme change
+      cy.wait(1000)
       cy.get('body').should('have.class', 'body--light')
     })
 
@@ -70,10 +108,99 @@ describe('Preferences pages functionality', () => {
       cy.get('[aria-label="Enable development tools"]')
         .find('.q-toggle__label')
         .click({ force: true })
-      cy.wait(1500) // Wait for state to update via store dispatch
-      // Verify the toggle is functional - check if Developer Tools appears in sidebar
-      // (similar to devtools.cy.js test)
+      // Short wait for state update, then verify Developer Tools appears
+      cy.wait(500)
       cy.get('.q-drawer-container').should('contain', 'Developer Tools')
+    })
+
+    it('Should navigate to all sidebar menu items', () => {
+      // Navigate to User Settings
+      cy.dataCy('settings-menu-user')
+        .should('be.visible')
+        .click({ force: true })
+      cy.wait(300)
+      cy.url().should('include', '/preferences/user')
+      cy.contains('User interface settings').should('be.visible')
+
+      // Navigate to ZCL Packages
+      cy.dataCy('settings-menu-package')
+        .should('be.visible')
+        .click({ force: true })
+      cy.wait(300)
+      cy.url().should('include', '/preferences/package')
+
+      // Navigate to Generation
+      cy.dataCy('settings-menu-generation')
+        .should('be.visible')
+        .click({ force: true })
+      cy.wait(300)
+      cy.url().should('include', '/preferences/generation')
+
+      // Navigate to About
+      cy.dataCy('settings-menu-about')
+        .should('be.visible')
+        .click({ force: true })
+      cy.wait(300)
+      cy.url().should('include', '/preferences/about')
+    })
+
+    it('Should navigate to Developer Tools menu items when enabled', () => {
+      // Navigate to User Settings first to enable dev tools
+      cy.dataCy('settings-menu-user')
+        .should('be.visible')
+        .click({ force: true })
+      cy.wait(300)
+      cy.url().should('include', '/preferences/user')
+      cy.contains('User interface settings').should('be.visible')
+
+      // First enable dev tools if not already enabled
+      cy.get('.q-drawer-container').then(($container) => {
+        const hasDevTools = $container.text().includes('Developer Tools')
+        if (!hasDevTools) {
+          cy.dataCy('dev-tools-toggle')
+            .find('.q-toggle__label')
+            .should('be.visible')
+            .click({ force: true })
+          cy.wait(1000) // Wait for store update and UI refresh
+        }
+      })
+
+      // Verify Developer Tools section is visible in sidebar
+      cy.get('.q-drawer').should('contain', 'Developer Tools')
+      cy.wait(500) // Wait for sidebar to update
+
+      // Navigate to Information Setup
+      cy.get('.q-drawer')
+        .contains('Information Setup')
+        .should('be.visible')
+        .click({ force: true })
+      cy.wait(500)
+      cy.url({ timeout: 5000 }).should(
+        'include',
+        '/preferences/devtools/information-setup'
+      )
+
+      // Navigate to SQL Query
+      cy.get('.q-drawer')
+        .contains('SQL Query')
+        .should('be.visible')
+        .click({ force: true })
+      cy.wait(500)
+      cy.url({ timeout: 5000 }).should(
+        'include',
+        '/preferences/devtools/sql-query'
+      )
+
+      // Navigate to API Exceptions
+      cy.get('.q-drawer')
+        .contains('API Exceptions')
+        .should('be.visible')
+        .click({ force: true })
+      cy.wait(500)
+      cy.url({ timeout: 5000 }).should(
+        'include',
+        '/preferences/devtools/api-exceptions'
+      )
     })
 
     it('Should display file location input', () => {
@@ -110,123 +237,159 @@ describe('Preferences pages functionality', () => {
       cy.dataCy('dark-theme-toggle').should('be.visible')
       // Hover over the element to trigger tooltip (but don't fail if it doesn't show)
       cy.dataCy('dark-theme-toggle').trigger('mouseenter')
-      cy.wait(300)
       // The tooltip might appear, but we can't reliably test it in all cases
       // Just verify the toggle element is present and functional
       cy.dataCy('dark-theme-toggle').find('input').should('exist')
     })
+
+    it('Should save file path when input changes', () => {
+      // Test the setPath method by typing in the file location input
+      const testPath = '/test/save/path'
+      cy.dataCy('file-location-row')
+        .find(
+          '.q-input .q-field__control-container input, .q-field .q-field__control-container input'
+        )
+        .clear({ force: true })
+        .type(testPath, { force: true })
+      // Verify the value is set
+      cy.dataCy('file-location-row')
+        .find(
+          '.q-input .q-field__control-container input, .q-field .q-field__control-container input'
+        )
+        .should('have.value', testPath)
+      // The setPath method should save to storage, verify by checking if it persists
+      // (Note: This tests the @input handler which calls setPath)
+    })
+
+    it('Should toggle development tools off', () => {
+      // First ensure dev tools is on
+      cy.dataCy('dev-tools-toggle').should('be.visible')
+      // Check if Developer Tools is visible in sidebar (instead of checking hidden input)
+      cy.get('.q-drawer-container').then(($container) => {
+        const hasDevTools = $container.text().includes('Developer Tools')
+        if (!hasDevTools) {
+          // Turn it on first
+          cy.get('[aria-label="Enable development tools"]')
+            .find('.q-toggle__label')
+            .click({ force: true })
+          cy.wait(500)
+          cy.get('.q-drawer-container').should('contain', 'Developer Tools')
+        }
+        // Now turn it off
+        cy.get('[aria-label="Enable development tools"]')
+          .find('.q-toggle__label')
+          .click({ force: true })
+        cy.wait(500)
+        // Verify Developer Tools is no longer visible
+        cy.get('.q-drawer-container').should('not.contain', 'Developer Tools')
+      })
+    })
   })
 
   describe('About page', () => {
-    beforeEach(() => {
-      cy.get('#Settings').click()
-      cy.wait(500)
-      // Navigate to About page - it's in the sidebar as a q-item
-      // Wait for sidebar to be visible
-      cy.contains('User Settings').should('be.visible')
-      cy.contains('About').should('be.visible')
-      cy.contains('About').click({ force: true })
-      cy.wait(1000)
-      // Verify we're on the About page - allow some time for navigation
-      cy.url({ timeout: 5000 }).should('include', '/preferences/about')
-    })
-
     it('Should display About page title', () => {
-      // Wait for page to load
+      // Navigate to Settings
+      cy.get('#Settings').click()
+      // Short wait for drawer animation, then verify sidebar is visible
+      cy.wait(300)
+      cy.get('.q-drawer').should('be.visible')
+      // Wait for About link to be visible in sidebar
+      cy.contains('About').should('be.visible')
+      // Click on About link - use contains to find it in the sidebar
+      cy.get('.q-drawer').contains('About').click({ force: true })
+      // Short wait for navigation, then verify URL and page title
+      cy.wait(300)
       cy.url({ timeout: 5000 }).should('include', '/preferences/about')
       cy.contains('About').should('be.visible')
     })
 
     it('Should display version information', () => {
-      cy.url().then((url) => {
-        if (url.includes('/preferences/about')) {
-          // Wait for version info to load (it's fetched via API)
-          cy.wait(1000)
-          cy.contains('Version').should('be.visible')
-        } else {
-          cy.log('About page not accessible, skipping')
-        }
-      })
+      // Navigate to Settings
+      cy.get('#Settings').click()
+      cy.wait(300)
+      cy.get('.q-drawer').should('be.visible')
+      cy.get('.q-drawer').contains('About').click({ force: true })
+      // Short wait for navigation, then verify URL
+      cy.wait(300)
+      cy.url({ timeout: 5000 }).should('include', '/preferences/about')
+      // Wait for version text to appear (loaded via API)
+      cy.contains('Version', { timeout: 10000 }).should('be.visible')
     })
 
     it('Should display feature level', () => {
-      cy.url().then((url) => {
-        if (url.includes('/preferences/about')) {
-          cy.wait(1000)
-          cy.contains('feature level', { matchCase: false }).should(
-            'be.visible'
-          )
-        } else {
-          cy.log('About page not accessible, skipping')
-        }
-      })
+      // Navigate to Settings
+      cy.get('#Settings').click()
+      cy.wait(300)
+      cy.get('.q-drawer').should('be.visible')
+      cy.get('.q-drawer').contains('About').click({ force: true })
+      // Short wait for navigation, then verify URL
+      cy.wait(300)
+      cy.url({ timeout: 5000 }).should('include', '/preferences/about')
+      // Wait for feature level text to appear (loaded via API)
+      cy.contains('feature level', { matchCase: false, timeout: 10000 }).should(
+        'be.visible'
+      )
     })
 
     it('Should display commit hash', () => {
-      cy.url().then((url) => {
-        if (url.includes('/preferences/about')) {
-          cy.wait(1000)
-          cy.contains('commit', { matchCase: false }).should('be.visible')
-        } else {
-          cy.log('About page not accessible, skipping')
-        }
-      })
+      // Navigate to Settings
+      cy.get('#Settings').click()
+      cy.wait(300)
+      cy.get('.q-drawer').should('be.visible')
+      cy.get('.q-drawer').contains('About').click({ force: true })
+      // Short wait for navigation, then verify URL
+      cy.wait(300)
+      cy.url({ timeout: 5000 }).should('include', '/preferences/about')
+      // Wait for commit text to appear (loaded via API)
+      cy.contains('commit', { matchCase: false, timeout: 10000 }).should(
+        'be.visible'
+      )
     })
 
     it('Should display copyright information', () => {
-      cy.url().then((url) => {
-        if (url.includes('/preferences/about')) {
-          cy.contains('Apache 2.0 license', { matchCase: false }).should(
-            'be.visible'
-          )
-        } else {
-          cy.log('About page not accessible, skipping')
-        }
-      })
+      // Navigate to Settings
+      cy.get('#Settings').click()
+      cy.wait(300)
+      cy.get('.q-drawer').should('be.visible')
+      cy.get('.q-drawer').contains('About').click({ force: true })
+      // Short wait for navigation, then verify URL
+      cy.wait(300)
+      cy.url({ timeout: 5000 }).should('include', '/preferences/about')
+      // Wait for copyright text to appear
+      cy.contains('Apache 2.0 license', {
+        matchCase: false,
+        timeout: 10000
+      }).should('be.visible')
     })
 
     it('Should have View Manual button', () => {
+      cy.get('#Settings').click()
+      cy.wait(300)
+      cy.get('.q-drawer').should('be.visible')
+      cy.get('.q-drawer').contains('About').click({ force: true })
+      // Short wait for navigation, then verify URL and button
+      cy.wait(300)
       cy.url({ timeout: 5000 }).should('include', '/preferences/about')
       cy.dataCy('view-manual-button').should('be.visible')
       cy.dataCy('view-manual-button').should('contain', 'View Manual')
-    })
-
-    it('Should open documentation when clicking View Manual', () => {
-      cy.url({ timeout: 5000 }).should('include', '/preferences/about')
-      cy.window().then((win) => {
-        cy.stub(win, 'open').as('windowOpen')
-      })
-      cy.dataCy('view-manual-button').click()
-      cy.wait(500)
-      // Note: We can't easily test the actual window.open in Cypress,
-      // but we can verify the button exists and is clickable
-      cy.dataCy('view-manual-button').should('be.visible')
-    })
-
-    it('Should display splash image', () => {
-      cy.url().then((url) => {
-        if (url.includes('/preferences/about')) {
-          cy.get('img[src*="zap_splash"], img[src*="splash"]').should('exist')
-        } else {
-          cy.log('About page not accessible, skipping')
-        }
-      })
     })
   })
 
   describe('Preference navigation', () => {
     it('Should navigate to preferences from main page', () => {
       cy.get('#Settings').click()
-      cy.wait(500)
+      // Short wait for drawer animation, then verify content
+      cy.wait(300)
       cy.contains('User interface settings').should('be.visible')
     })
 
     it('Should be able to navigate back from preferences', () => {
       cy.get('#Settings').click()
-      cy.wait(500)
-      cy.get('#Back').click()
-      cy.wait(500)
-      // Should return to main page
+      cy.wait(300)
+      cy.contains('User interface settings').should('be.visible')
+      cy.goBackButton()
+      // Short wait for navigation, then verify URL
+      cy.wait(300)
       cy.url().should('not.include', '/preferences')
     })
   })

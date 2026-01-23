@@ -16,8 +16,8 @@ describe('Preference Package page functionality', () => {
   it('Should navigate to preference package page', () => {
     cy.get('#Settings').click()
     cy.wait(500)
-    // Navigate to Package preferences - it's in the sidebar as "ZCL Packages"
-    cy.get('.q-item').contains('ZCL Packages').click({ force: true })
+    // Navigate to Package preferences using data-cy
+    cy.dataCy('settings-menu-package').click({ force: true })
     cy.wait(1000)
     cy.url().should('include', '/preferences/package')
   })
@@ -25,7 +25,7 @@ describe('Preference Package page functionality', () => {
   it('Should display package preferences page', () => {
     cy.get('#Settings').click()
     cy.wait(500)
-    cy.get('.q-item').contains('ZCL Packages').click({ force: true })
+    cy.dataCy('settings-menu-package').click({ force: true })
     cy.wait(1000)
     cy.url().should('include', '/preferences/package')
     cy.contains('Zcl packages', { matchCase: false }).should('be.visible')
@@ -34,7 +34,7 @@ describe('Preference Package page functionality', () => {
   it('Should display package settings', () => {
     cy.get('#Settings').click()
     cy.wait(500)
-    cy.get('.q-item').contains('ZCL Packages').click({ force: true })
+    cy.dataCy('settings-menu-package').click({ force: true })
     cy.wait(1000)
     // Check if page content is visible
     cy.get('.q-card-section, .q-page').should('exist')
@@ -43,7 +43,7 @@ describe('Preference Package page functionality', () => {
   it('Should display ZCL packages table', () => {
     cy.get('#Settings').click()
     cy.wait(500)
-    cy.get('.q-item').contains('ZCL Packages').click({ force: true })
+    cy.dataCy('settings-menu-package').click({ force: true })
     cy.wait(1000)
     cy.dataCy('Attributes').should('exist')
     cy.get('.q-table').should('exist')
@@ -52,7 +52,7 @@ describe('Preference Package page functionality', () => {
   it('Should display table columns', () => {
     cy.get('#Settings').click()
     cy.wait(500)
-    cy.get('.q-item').contains('ZCL Packages').click({ force: true })
+    cy.dataCy('settings-menu-package').click({ force: true })
     cy.wait(1000)
     // Check table exists
     cy.dataCy('Attributes').should('exist')
@@ -73,7 +73,7 @@ describe('Preference Package page functionality', () => {
   it('Should display package rows', () => {
     cy.get('#Settings').click()
     cy.wait(500)
-    cy.get('.q-item').contains('ZCL Packages').click({ force: true })
+    cy.dataCy('settings-menu-package').click({ force: true })
     cy.wait(1000)
     cy.get('tbody').should('exist')
   })
