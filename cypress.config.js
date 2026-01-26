@@ -6,66 +6,36 @@ export default defineConfig({
   video: false,
   e2e: {
     baseUrl: 'http://localhost:9070',
-    // We've imported your old cypress plugins here.
-    // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
-      require('@cypress/code-coverage/task')(on, config)
-
-      // Optional: Add coverage configuration
-      on('task', {
-        coverage(coverage) {
-          // Custom coverage processing if needed
-          return null
-        }
-      })
-
-      // Dynamically set specPattern based on mode environment variable
-      const mode = config.env.mode || 'zigbee'
-
-      // Define test patterns for each mode
-      // Includes both organized folders and root e2e for backward compatibility
-      const specPatterns = {
-        zigbee: [
-          'cypress/e2e/common/**/*.cy.js',
-          'cypress/e2e/zigbee/**/*.cy.js',
-          // Include root tests but exclude organized folders to avoid duplicates
-          'cypress/e2e/**/*.cy.js'
-        ],
-        matter: [
-          'cypress/e2e/common/**/*.cy.js',
-          'cypress/e2e/matter/**/*.cy.js',
-          // Include root tests but exclude organized folders to avoid duplicates
-          'cypress/e2e/**/*.cy.js'
-        ],
-        multiprotocol: [
-          'cypress/e2e/common/**/*.cy.js',
-          'cypress/e2e/multiprotocol/**/*.cy.js',
-          // Include root tests but exclude organized folders to avoid duplicates
-          'cypress/e2e/**/*.cy.js'
-        ]
+      // Only load coverage plugin when CYPRESS_COVERAGE is set
+      if (process.env.CYPRESS_COVERAGE) {
+        require('@cypress/code-coverage/task')(on, config)
       }
 
-      // Set specPattern based on mode
-      if (specPatterns[mode]) {
-        config.specPattern = specPatterns[mode]
+      const mode = config.env.mode || 'zigbee'
 
-        // Exclude other mode-specific folders to avoid running tests multiple times
-        const excludeFolders = {
-          zigbee: ['**/matter/**', '**/multiprotocol/**'],
-          matter: ['**/zigbee/**', '**/multiprotocol/**'],
-          multiprotocol: ['**/zigbee/**', '**/matter/**']
-        }
-
-        if (excludeFolders[mode]) {
-          // Add mode-specific exclusions to existing excludeSpecPattern
-          config.excludeSpecPattern = [
-            ...(config.excludeSpecPattern || []),
-            ...excludeFolders[mode]
-          ]
-        }
-      } else {
-        // Fallback: if mode is not recognized, run all tests (backward compatibility)
-        config.specPattern = ['cypress/e2e/**/*.cy.js']
+      // Use glob patterns for each mode - Cypress handles file discovery
+      if (mode === 'zigbee') {
+        config.specPattern = 'cypress/e2e/**/*.cy.js'
+        config.excludeSpecPattern = [
+          ...(config.excludeSpecPattern || []),
+          '**/matter/**',
+          '**/multiprotocol/**'
+        ]
+      } else if (mode === 'matter') {
+        config.specPattern = 'cypress/e2e/**/*.cy.js'
+        config.excludeSpecPattern = [
+          ...(config.excludeSpecPattern || []),
+          '**/zigbee/**',
+          '**/multiprotocol/**'
+        ]
+      } else if (mode === 'multiprotocol') {
+        config.specPattern = 'cypress/e2e/**/*.cy.js'
+        config.excludeSpecPattern = [
+          ...(config.excludeSpecPattern || []),
+          '**/zigbee/**',
+          '**/matter/**'
+        ]
       }
 
       return config
