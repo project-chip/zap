@@ -10,7 +10,7 @@ cypress/
 │   ├── common/          # Tests that work across all modes
 │   ├── zigbee/          # Zigbee-specific tests
 │   ├── matter/          # Matter-specific tests
-│   ├── multiprotocol/             #Multiprotocol specific tests
+├── multiprotocolFixtures/         # Test fixtures for Muliprotocol mode
 │   └── [other folders]  # Legacy tests (still supported for backward compatibility)
 ├── fixtures/            # Test fixtures for Zigbee mode
 ├── matterFixtures/      # Test fixtures for Matter mode
