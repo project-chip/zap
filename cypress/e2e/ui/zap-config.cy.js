@@ -171,8 +171,7 @@ describe('ZapConfig page functionality', () => {
           }
         })
         cy.contains(
-          'Warning: Please select atleast one package each from ZCL metadata'
-        ).should('be.visible')
+          'Warning: Please select at least one package each from ZCL metadata'
       } else {
         cy.log('Skipping - config page auto-submitted')
       }
