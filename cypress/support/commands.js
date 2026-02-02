@@ -93,6 +93,14 @@ Cypress.Commands.add('setZclProperties', () => {
   })
 })
 
+Cypress.Commands.add('setMultiprotocolZclProperties', () => {
+  cy.dataCy('zcl-package-checkbox').first().click({ force: true })
+  cy.dataCy('zcl-package-checkbox').eq(1).click({ force: true })
+  cy.get('[data-test="gen-template"]').first().click({ force: true })
+  cy.get('[data-test="gen-template"]').eq(1).click({ force: true })
+  cy.get('[data-test="login-submit"]').click()
+})
+
 Cypress.Commands.add('dataCy', (selector) => {
   return cy.get(`[data-cy="${selector}"]`)
 })
