@@ -7,7 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('App.vue Functionality Tests', () => {
   beforeEach(() => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -43,7 +43,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle exception icon display and click', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     // Check if exception icon is visible (it may or may not be visible depending on state)
@@ -66,7 +66,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle query string parameters', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     // Test with query parameters
@@ -78,7 +78,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle standalone query parameter', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/?standalone=true')
@@ -89,7 +89,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle newConfig query parameter', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/?newConfig=true')
@@ -100,19 +100,19 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should apply theme category class to body', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     // Verify body has theme class
-    cy.get('body').should('have.class', 'zigbee')
+    cy.get('body').should('have.class', Cypress.Mode.zigbee)
 
     // Verify other theme classes are not present
-    cy.get('body').should('not.have.class', 'matter')
-    cy.get('body').should('not.have.class', 'multiprotocol')
+    cy.get('body').should('not.have.class', Cypress.Mode.matter)
+    cy.get('body').should('not.have.class', Cypress.Mode.multiprotocol)
   })
 
   it('Should handle routePage logic for config page', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     // Visit root - should redirect to /config if no config selected
@@ -130,7 +130,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle routePage logic for about page', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     // Visit about page directly
@@ -142,7 +142,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle window postMessage for mounted event', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     // Visit app and verify it mounts
@@ -154,7 +154,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle theme changes via window messages', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -174,7 +174,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle save message via window messages', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -194,7 +194,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle open-file message via window messages', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -214,7 +214,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle config selection and routing', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -235,18 +235,18 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle uiThemeCategory computed property', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
     cy.wait(2000)
 
     // Verify body class reflects theme category
-    cy.get('body').should('have.class', 'zigbee')
+    cy.get('body').should('have.class', Cypress.Mode.zigbee)
   })
 
   it('Should handle showExceptionIcon computed property', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -261,7 +261,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle query computed property', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     // Visit with query parameters
@@ -273,7 +273,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle endpointType computed property', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -286,7 +286,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle endpointDeviceTypeRef computed property', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -299,7 +299,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle watch isZapConfigSelected', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     // Start without config
@@ -321,18 +321,18 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle watch uiThemeCategory', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
     cy.wait(2000)
 
     // Verify body class is set based on theme category
-    cy.get('body').should('have.class', 'zigbee')
+    cy.get('body').should('have.class', Cypress.Mode.zigbee)
   })
 
   it('Should handle parseQueryString method', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     // Visit with query string
@@ -344,7 +344,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle setTheme method', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -355,7 +355,7 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle getAppData method execution', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -371,18 +371,18 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle addClassToBody method', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
     cy.wait(2000)
 
     // Verify body has correct theme class
-    cy.get('body').should('have.class', 'zigbee')
+    cy.get('body').should('have.class', Cypress.Mode.zigbee)
   })
 
   it('Should handle created lifecycle hook', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -393,13 +393,13 @@ describe('App.vue Functionality Tests', () => {
   })
 
   it('Should handle mounted lifecycle hook', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
     cy.wait(2000)
 
     // Mounted hook should execute addClassToBody and postMessage
-    cy.get('body').should('have.class', 'zigbee')
+    cy.get('body').should('have.class', Cypress.Mode.zigbee)
   })
 })

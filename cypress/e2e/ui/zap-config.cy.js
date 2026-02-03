@@ -171,7 +171,8 @@ describe('ZapConfig page functionality', () => {
           }
         })
         cy.contains(
-          'Warning: Please select at least one package each from ZCL metadata'
+          /Warning: Please select at\s?least one package each from ZCL metadata/i
+        ).should('exist')
       } else {
         cy.log('Skipping - config page auto-submitted')
       }
@@ -292,8 +293,8 @@ describe('ZapConfig page functionality', () => {
         cy.wait(500)
         // Should show warning or prevent submission
         cy.contains(
-          'Warning: Please select atleast one package each from ZCL metadata',
-          'Warning: Please select at least one package each from ZCL metadata',
+          /Warning: Please select at\s?least one package each from ZCL metadata/i
+        ).should('exist')
       } else {
         cy.log('Skipping - config page auto-submitted')
       }

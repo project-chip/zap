@@ -7,7 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Zigbee Commands and Events Comprehensive Tests', () => {
   beforeEach(() => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -43,7 +43,7 @@ describe('Zigbee Commands and Events Comprehensive Tests', () => {
   })
 
   it('Should display commands in cluster view', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -62,7 +62,7 @@ describe('Zigbee Commands and Events Comprehensive Tests', () => {
   })
 
   it('Should toggle incoming commands', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -91,7 +91,7 @@ describe('Zigbee Commands and Events Comprehensive Tests', () => {
   })
 
   it('Should toggle outgoing commands', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -124,7 +124,7 @@ describe('Zigbee Commands and Events Comprehensive Tests', () => {
   })
 
   it('Should search for commands', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -148,7 +148,7 @@ describe('Zigbee Commands and Events Comprehensive Tests', () => {
   })
 
   it('Should verify command state persistence', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {

@@ -7,7 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Zigbee Cluster Comprehensive Tests', () => {
   beforeEach(() => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -43,7 +43,7 @@ describe('Zigbee Cluster Comprehensive Tests', () => {
   })
 
   it('Should navigate to multiple clusters', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -64,7 +64,7 @@ describe('Zigbee Cluster Comprehensive Tests', () => {
   })
 
   it('Should display all cluster tabs', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -79,7 +79,7 @@ describe('Zigbee Cluster Comprehensive Tests', () => {
   })
 
   it('Should navigate between cluster tabs', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -99,7 +99,7 @@ describe('Zigbee Cluster Comprehensive Tests', () => {
   })
 
   it('Should search for clusters', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -121,7 +121,7 @@ describe('Zigbee Cluster Comprehensive Tests', () => {
   })
 
   it('Should filter clusters by domain', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -138,7 +138,7 @@ describe('Zigbee Cluster Comprehensive Tests', () => {
   })
 
   it('Should expand and collapse domains', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -156,7 +156,7 @@ describe('Zigbee Cluster Comprehensive Tests', () => {
   })
 
   it('Should access cluster by index', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {

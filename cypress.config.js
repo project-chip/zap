@@ -1,4 +1,5 @@
 import { defineConfig } from 'cypress'
+import { Mode } from './cypress/support/mode.js'
 
 export default defineConfig({
   viewportWidth: 1080,
@@ -12,24 +13,24 @@ export default defineConfig({
         require('@cypress/code-coverage/task')(on, config)
       }
 
-      const mode = config.env.mode || 'zigbee'
+      const mode = config.env.mode || Mode.zigbee
 
       // Use glob patterns for each mode - Cypress handles file discovery
-      if (mode === 'zigbee') {
+      if (mode === Mode.zigbee) {
         config.specPattern = 'cypress/e2e/**/*.cy.js'
         config.excludeSpecPattern = [
           ...(config.excludeSpecPattern || []),
           '**/matter/**',
           '**/multiprotocol/**'
         ]
-      } else if (mode === 'matter') {
+      } else if (mode === Mode.matter) {
         config.specPattern = 'cypress/e2e/**/*.cy.js'
         config.excludeSpecPattern = [
           ...(config.excludeSpecPattern || []),
           '**/zigbee/**',
           '**/multiprotocol/**'
         ]
-      } else if (mode === 'multiprotocol') {
+      } else if (mode === Mode.multiprotocol) {
         config.specPattern = 'cypress/e2e/**/*.cy.js'
         config.excludeSpecPattern = [
           ...(config.excludeSpecPattern || []),

@@ -7,7 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 
 describe('Testing Matter Device Type Feature Page', () => {
-  if (Cypress.env('mode') !== 'matter') {
+  if (Cypress.env('mode') !== Cypress.Mode.matter) {
     it('skipping feature page related tests since mode is not Matter', () => {
       return
     })

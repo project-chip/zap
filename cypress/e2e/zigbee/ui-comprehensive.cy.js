@@ -7,7 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Zigbee UI Comprehensive Tests', () => {
   beforeEach(() => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -43,7 +43,7 @@ describe('Zigbee UI Comprehensive Tests', () => {
   })
 
   it('Should handle domain expansion and collapse', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -63,7 +63,7 @@ describe('Zigbee UI Comprehensive Tests', () => {
   })
 
   it('Should handle tab navigation in cluster view', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -81,7 +81,7 @@ describe('Zigbee UI Comprehensive Tests', () => {
   })
 
   it('Should display toolbar elements', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.get('.q-toolbar').should('exist')
@@ -90,7 +90,7 @@ describe('Zigbee UI Comprehensive Tests', () => {
   })
 
   it('Should navigate using toolbar buttons', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     // Navigate to options
@@ -105,7 +105,7 @@ describe('Zigbee UI Comprehensive Tests', () => {
   })
 
   it('Should handle cluster configuration flow', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {

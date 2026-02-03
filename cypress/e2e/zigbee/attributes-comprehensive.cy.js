@@ -7,7 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Zigbee Attributes Comprehensive Tests', () => {
   beforeEach(() => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.visit('/')
@@ -43,7 +43,7 @@ describe('Zigbee Attributes Comprehensive Tests', () => {
   })
 
   it('Should display attributes in cluster view', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -60,7 +60,7 @@ describe('Zigbee Attributes Comprehensive Tests', () => {
   })
 
   it('Should toggle multiple attributes', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -80,7 +80,7 @@ describe('Zigbee Attributes Comprehensive Tests', () => {
   })
 
   it('Should search for attributes', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -104,7 +104,7 @@ describe('Zigbee Attributes Comprehensive Tests', () => {
   })
 
   it('Should verify attribute state persistence', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -139,7 +139,7 @@ describe('Zigbee Attributes Comprehensive Tests', () => {
   })
 
   it('Should display attribute reporting configuration', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {
@@ -159,7 +159,7 @@ describe('Zigbee Attributes Comprehensive Tests', () => {
   })
 
   it('Should toggle attribute reporting', () => {
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       return
     }
     cy.fixture('data').then((data) => {

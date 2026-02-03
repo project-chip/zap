@@ -146,7 +146,7 @@ describe.skip('Config Loading Tests', () => {
   describe('Scenario 1: Zigbee + Matter templates pre-loaded', () => {
     it('Should verify Zigbee config loads correctly when both templates are pre-loaded', () => {
       // This test runs in multiprotocol mode where both templates are pre-loaded
-      if (Cypress.env('mode') === 'multiprotocol') {
+      if (Cypress.env('mode') === Cypress.Mode.multiprotocol) {
         verifyZigbeeConfigLoads()
         checkTemplatesAvailable().then((categories) => {
           // Verify that templates are available (should include both zigbee and matter)
@@ -162,7 +162,7 @@ describe.skip('Config Loading Tests', () => {
 
     it('Should verify Matter config loads correctly when both templates are pre-loaded', () => {
       // This test runs in multiprotocol mode where both templates are pre-loaded
-      if (Cypress.env('mode') === 'multiprotocol') {
+      if (Cypress.env('mode') === Cypress.Mode.multiprotocol) {
         verifyMatterConfigLoads()
         checkTemplatesAvailable().then((categories) => {
           // Verify that templates are available (should include both zigbee and matter)
@@ -178,7 +178,7 @@ describe.skip('Config Loading Tests', () => {
 
     it('Should handle case when no matching packages are found', () => {
       // This test runs in multiprotocol mode
-      if (Cypress.env('mode') === 'multiprotocol') {
+      if (Cypress.env('mode') === Cypress.Mode.multiprotocol) {
         cy.url().then((url) => {
           if (url.includes('/config')) {
             // Check for warning messages about package matching
@@ -253,7 +253,7 @@ describe.skip('Config Loading Tests', () => {
   describe('Scenario 2: Only Zigbee template pre-loaded', () => {
     it('Should verify Matter config loads correctly when only Zigbee template is pre-loaded', () => {
       // This test runs in zigbee mode where only Zigbee template is pre-loaded
-      if (Cypress.env('mode') === 'zigbee') {
+      if (Cypress.env('mode') === Cypress.Mode.zigbee) {
         // Even though only Zigbee template is pre-loaded, Matter config should still load
         // (it will use internal packages if needed)
         verifyMatterConfigLoads()
