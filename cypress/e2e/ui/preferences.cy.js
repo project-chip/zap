@@ -205,29 +205,17 @@ describe('Preferences pages functionality', () => {
 
     it('Should display file location input', () => {
       cy.contains('Last file location').should('be.visible')
-      // q-input structure: .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input
-      // Find the q-input in the row and then the input element
-      cy.dataCy('file-location-row')
-        .find(
-          '.q-input .q-field__control-container input, .q-field .q-field__control-container input'
-        )
-        .should('exist')
+      cy.dataCy('file-location-input').should('exist')
+      cy.dataCy('file-location-input').should('match', 'input, textarea')
     })
 
     it('Should allow entering file path', () => {
       // Find the input field using Quasar's q-input structure
       // Structure: .q-input > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input
-      cy.dataCy('file-location-row')
-        .find(
-          '.q-input .q-field__control-container input, .q-field .q-field__control-container input'
-        )
+      cy.dataCy('file-location-input')
         .clear({ force: true })
         .type('/test/path', { force: true })
-      cy.dataCy('file-location-row')
-        .find(
-          '.q-input .q-field__control-container input, .q-field .q-field__control-container input'
-        )
-        .should('have.value', '/test/path')
+      cy.dataCy('file-location-input').should('have.value', '/test/path')
     })
 
     it('Should display tooltips', () => {
@@ -245,18 +233,11 @@ describe('Preferences pages functionality', () => {
     it('Should save file path when input changes', () => {
       // Test the setPath method by typing in the file location input
       const testPath = '/test/save/path'
-      cy.dataCy('file-location-row')
-        .find(
-          '.q-input .q-field__control-container input, .q-field .q-field__control-container input'
-        )
+      cy.dataCy('file-location-input')
         .clear({ force: true })
         .type(testPath, { force: true })
       // Verify the value is set
-      cy.dataCy('file-location-row')
-        .find(
-          '.q-input .q-field__control-container input, .q-field .q-field__control-container input'
-        )
-        .should('have.value', testPath)
+      cy.dataCy('file-location-input').should('have.value', testPath)
       // The setPath method should save to storage, verify by checking if it persists
       // (Note: This tests the @input handler which calls setPath)
     })

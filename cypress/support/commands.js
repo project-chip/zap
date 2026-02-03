@@ -94,7 +94,7 @@ Cypress.Commands.add('setZclProperties', () => {
 })
 
 Cypress.Commands.add('dataCy', (selector) => {
-  cy.get(`[data-cy="${selector}"]`)
+  return cy.get(`[data-cy="${selector}"]`)
 })
 
 // Check the value of feature map attribute on top of the cluster feature table

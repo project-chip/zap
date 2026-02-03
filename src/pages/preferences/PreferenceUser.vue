@@ -43,7 +43,13 @@ limitations under the License.
     <br />
     <div class="row w-full" data-cy="file-location-row">
       <div class="q-my-auto q-pr-sm">Last file location</div>
-      <q-input dense @input="setPath" v-model="localPath" label="Browse" />
+      <q-input
+        dense
+        @input="setPath"
+        v-model="localPath"
+        label="Browse"
+        :input-attrs="{ 'data-cy': 'file-location-input' }"
+      />
     </div>
   </PreferencePageLayout>
 </template>
