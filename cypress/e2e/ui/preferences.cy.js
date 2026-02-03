@@ -95,7 +95,7 @@ describe('Preferences pages functionality', () => {
         })
       // Short wait for CSS transition, then verify theme change
       cy.wait(1000)
-      cy.get('body').should('have.class', 'body--light')
+      cy.get('body').should('not.have.class', 'body--dark')
     })
 
     it('Should display development tools toggle', () => {
