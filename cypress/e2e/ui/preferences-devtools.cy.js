@@ -203,7 +203,7 @@ describe('Preferences DevTools pages functionality', () => {
       // The page displays exceptions from store.state.zap.exceptions
       // If there are exceptions, they should be displayed in q-list
       cy.get('body').then(($body) => {
-        if ($body.find('q-list').length > 0) {
+        if ($body.find('.q-list').length > 0) {
           cy.get('q-list').should('exist')
           // Check if exception items are displayed
           cy.get('.q-item').should('exist')
