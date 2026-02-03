@@ -206,7 +206,7 @@ describe('Preferences DevTools pages functionality', () => {
         if ($body.find('q-list').length > 0) {
           cy.get('q-list').should('exist')
           // Check if exception items are displayed
-          cy.get('q-item').should('exist')
+          cy.get('.q-item').should('exist')
         } else {
           // If no exceptions, the page should still be accessible
           cy.log('No exceptions to display')
