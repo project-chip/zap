@@ -107,42 +107,26 @@ describe('Preferences DevTools pages functionality', () => {
     })
 
     it('Should display SQL query input field', () => {
-      cy.get('label').contains('Outlined').should('be.visible')
-      // Find the input by its label - Quasar q-input structure
-      cy.contains('label', 'Outlined')
-        .parent()
-        .find('.q-field__control-container input')
-        .should('exist')
+      cy.dataCy('sql-query-input').should('be.visible')
+      cy.dataCy('sql-query-input').should('match', 'input, textarea')
     })
 
     it('Should allow entering SQL query', () => {
       const testQuery = 'SELECT * FROM zcl_cluster'
-      // Find input by label to ensure we get the right one
-      cy.contains('label', 'Outlined')
-        .parent()
-        .find('.q-field__control-container input')
-        .clear({ force: true })
-        .type(testQuery, { force: true })
-      cy.contains('label', 'Outlined')
-        .parent()
-        .find('.q-field__control-container input')
-        .should('have.value', testQuery)
+      cy.dataCy('sql-query-input').clear({ force: true }).type(testQuery, {
+        force: true
+      })
+      cy.dataCy('sql-query-input').should('have.value', testQuery)
     })
 
     it('Should execute SQL query and display results', () => {
       // Enter a simple SQL query
       const testQuery = 'SELECT name FROM zcl_cluster LIMIT 5'
-      // Find input by label
-      cy.contains('label', 'Outlined')
-        .parent()
-        .find('.q-field__control-container input')
-        .clear({ force: true })
-        .type(testQuery, { force: true })
+      cy.dataCy('sql-query-input').clear({ force: true }).type(testQuery, {
+        force: true
+      })
       // Trigger change event (hitEnter method)
-      cy.contains('label', 'Outlined')
-        .parent()
-        .find('.q-field__control-container input')
-        .trigger('change')
+      cy.dataCy('sql-query-input').trigger('change')
       // Wait for API response
       cy.wait(1000)
       // Check if result summary appears (either success or error)
@@ -156,26 +140,14 @@ describe('Preferences DevTools pages functionality', () => {
 
     it('Should display SQL query results in list', () => {
       const testQuery = 'SELECT name FROM zcl_cluster LIMIT 3'
-      // Find input by label
-      cy.contains('label', 'Outlined')
-        .parent()
-        .find('.q-field__control-container input')
-        .clear({ force: true })
-        .type(testQuery, { force: true })
-      cy.contains('label', 'Outlined')
-        .parent()
-        .find('.q-field__control-container input')
-        .trigger('change')
-      cy.wait(1000)
-      // Check if results are displayed (either in list or pre tag)
-      cy.get('body').then(($body) => {
-        if ($body.find('q-list').length > 0) {
-          cy.get('q-list').should('exist')
-        }
-        if ($body.find('pre').length > 0) {
-          cy.get('pre').should('exist')
-        }
+      cy.dataCy('sql-query-input').clear({ force: true }).type(testQuery, {
+        force: true
       })
+      cy.dataCy('sql-query-input').trigger('change')
+      cy.wait(1000)
+      // Quasar q-list renders as an element with `.q-list` class (not a <q-list> tag)
+      cy.get('.q-list').should('exist')
+      cy.get('.q-list').find('.q-item').should('have.length.at.least', 1)
     })
   })
 
@@ -201,12 +173,14 @@ describe('Preferences DevTools pages functionality', () => {
 
     it('Should display exceptions list when exceptions exist', () => {
       // The page displays exceptions from store.state.zap.exceptions
-      // If there are exceptions, they should be displayed in q-list
-      cy.get('body').then(($body) => {
-        if ($body.find('.q-list').length > 0) {
-          cy.get('q-list').should('exist')
-          // Check if exception items are displayed
-          cy.get('.q-item').should('exist')
+      // If there are exceptions, they should be displayed in the main content area.
+      // Note: Quasar sidebars also use `.q-list`/`.q-item`, so scope to the page container.
+      cy.get('.q-page-container').then(($container) => {
+        if ($container.text().includes('URL:')) {
+          cy.get('.q-page-container').contains('URL:').should('be.visible')
+          cy.get('.q-page-container')
+            .contains('Status Code:')
+            .should('be.visible')
         } else {
           // If no exceptions, the page should still be accessible
           cy.log('No exceptions to display')
@@ -215,24 +189,18 @@ describe('Preferences DevTools pages functionality', () => {
     })
 
     it('Should display exception details when exceptions exist', () => {
-      cy.get('body').then(($body) => {
-        if ($body.find('q-item').length > 0) {
-          // Check for exception detail fields
-          cy.get('q-item')
-            .first()
-            .within(() => {
-              // Exception items should contain URL, Method, Status Code, Message
-              cy.get('body').then(($itemBody) => {
-                // Check if any of these labels exist
-                const hasUrl = $itemBody.text().includes('URL:')
-                const hasMethod = $itemBody.text().includes('Method:')
-                const hasStatusCode = $itemBody.text().includes('Status Code:')
-                const hasMessage = $itemBody.text().includes('Message:')
-                // At least one should be present if exceptions exist
-                expect(hasUrl || hasMethod || hasStatusCode || hasMessage).to.be
-                  .true
-              })
-            })
+      // The exceptions list is rendered inside the page container.
+      // Avoid selecting the sidebar `.q-item` elements.
+      cy.get('.q-page-container').then(($container) => {
+        if ($container.text().includes('URL:')) {
+          cy.get('.q-page-container').contains('URL:').should('be.visible')
+          cy.get('.q-page-container').contains('Method:').should('be.visible')
+          cy.get('.q-page-container')
+            .contains('Status Code:')
+            .should('be.visible')
+          cy.get('.q-page-container').contains('Message:').should('be.visible')
+        } else {
+          cy.log('No exceptions to display')
         }
       })
     })
