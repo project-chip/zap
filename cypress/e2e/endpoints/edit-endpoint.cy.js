@@ -14,7 +14,37 @@ describe('Testing Editing endpoints', () => {
       cy.addEndpoint(data.endpoint1)
     })
   })
+  it(
+    'edit endpoint -> delete and add',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get('[data-test="edit-endpoint"]').last().click()
 
+      cy.fixture('data').then((data) => {
+        cy.get('[data-test="select-endpoint-input"]')
+          .click()
+          .type(data.endpoint3.substring(0, 5), { force: true })
+        cy.wait(500)
+        cy.get('div').contains(data.endpoint3).click({ force: true })
+      })
+      cy.get('[data-test="endpoint-title"]').click() // it makes sure that the previous input field has been unselected
+      cy.get('button').contains('Save').click()
+      cy.wait(500)
+      // Test delete and add option
+      cy.get('button').contains('Delete and Add').click()
+      // Verify the endpoint was updated successfully
+      cy.fixture('data').then((data) => {
+        cy.get('aside').children().should('contain', data.endpoint3)
+      })
+      cy.get('[data-test="delete-endpoint"]').each(() => {
+        cy.get('[data-test="delete-endpoint"]').last().click()
+        cy.wait(300)
+        cy.get('#delete_endpoint').click()
+      })
+      cy.wait(300)
+      cy.get('#delete_last_endpoint').click()
+    }
+  )
   it('create a new endpoint', () => {
     // Verify the endpoint was created successfully
     cy.fixture('data').then((data) => {
@@ -42,30 +72,6 @@ describe('Testing Editing endpoints', () => {
       // Verify the endpoint was updated successfully
       cy.fixture('data').then((data) => {
         cy.get('aside').children().should('contain', data.endpoint2)
-      })
-    }
-  )
-  it(
-    'edit endpoint -> delete and add',
-    { retries: { runMode: 2, openMode: 2 } },
-    () => {
-      cy.get('[data-test="edit-endpoint"]').last().click()
-
-      cy.fixture('data').then((data) => {
-        cy.get('[data-test="select-endpoint-input"]')
-          .click()
-          .type(data.endpoint3.substring(0, 5), { force: true })
-        cy.wait(500)
-        cy.get('div').contains(data.endpoint3).click({ force: true })
-      })
-      cy.get('[data-test="endpoint-title"]').click() // it makes sure that the previous input field has been unselected
-      cy.get('button').contains('Save').click()
-      cy.wait(500)
-      // Test delete and add option
-      cy.get('button').contains('Delete and Add').click()
-      // Verify the endpoint was updated successfully
-      cy.fixture('data').then((data) => {
-        cy.get('aside').children().should('contain', data.endpoint3)
       })
     }
   )

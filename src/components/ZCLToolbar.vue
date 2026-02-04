@@ -37,7 +37,7 @@
           label="Back"
           id="Back"
           color="grey"
-          data-test="go-back-button"
+          data-cy="btn-go-back"
         />
       </Transition>
     </q-toolbar-title>
@@ -88,6 +88,7 @@
     <router-link v-slot="{ isActive, navigate }" to="/options">
       <q-btn
         id="global_options"
+        data-cy="btn-options"
         class="navmenu-item"
         :class="{ 'navmenu-item--active': isActive }"
         color="grey"
@@ -104,6 +105,7 @@
 
     <router-link v-slot="{ isActive, navigate }" to="/extensions">
       <q-btn
+        data-cy="btn-extensions"
         class="navmenu-item q-py-sm v-step-16"
         :class="{ 'navmenu-item--active': isActive }"
         flat
@@ -123,6 +125,7 @@
       flat
       no-caps
       id="Notifications"
+      data-cy="btn-notifications"
       @click="
         () => {
           toggleNotificationTab()

@@ -42,6 +42,8 @@
     "test:coverage": "npm run test:unit:coverage && npm run test:e2e-ci && npm run coverage:combine",
     "test:e2e-matter": "node src-script/zap-uitest.js open matter",
     "test:e2e-matter-ci": "node src-script/zap-uitest.js run matter",
+    "test:e2e-multiprotocol": "node src-script/zap-uitest.js open multiprotocol",
+    "test:e2e-multiprotocol-ci": "node src-script/zap-uitest.js run multiprotocol",
     "report": "node src-script/zap-combine-reports.js",
     "postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary && npm run version-stamp",
     "buildAndPack:win": "npm run build && npm run pack:win",

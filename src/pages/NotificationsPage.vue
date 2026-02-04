@@ -49,6 +49,7 @@
             <q-btn
               flat
               icon="delete"
+              data-cy="btn-delete-notification"
               @click="deleteNotification(props.row.id)"
             />
           </q-td>

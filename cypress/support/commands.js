@@ -94,7 +94,7 @@ Cypress.Commands.add('setZclProperties', () => {
 })
 
 Cypress.Commands.add('dataCy', (selector) => {
-  cy.get(`[data-cy=${selector}]`)
+  return cy.get(`[data-cy="${selector}"]`)
 })
 
 // Check the value of feature map attribute on top of the cluster feature table
@@ -151,6 +151,10 @@ Cypress.Commands.add(
   }
 )
 
+Cypress.Commands.add('goBackButton', () => {
+  cy.dataCy('btn-go-back').click({ force: true })
+  cy.wait(1000)
+})
 // Check the enabled state of given attributes, commands, and events in the cluster view
 Cypress.Commands.add(
   'checkEnabledStateOfElements',

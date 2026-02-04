@@ -30,6 +30,7 @@ limitations under the License.
           color="primary"
           label="View Manual"
           v-on:click="openDocumentation()"
+          data-cy="view-manual-button"
         />
       </div>
     </q-img>

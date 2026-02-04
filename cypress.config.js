@@ -1,4 +1,5 @@
 import { defineConfig } from 'cypress'
+import { Mode } from './cypress/support/mode.js'
 
 export default defineConfig({
   viewportWidth: 1080,
@@ -6,18 +7,37 @@ export default defineConfig({
   video: false,
   e2e: {
     baseUrl: 'http://localhost:9070',
-    // We've imported your old cypress plugins here.
-    // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
-      require('@cypress/code-coverage/task')(on, config)
+      // Only load coverage plugin when CYPRESS_COVERAGE is set
+      if (process.env.CYPRESS_COVERAGE) {
+        require('@cypress/code-coverage/task')(on, config)
+      }
 
-      // Optional: Add coverage configuration
-      on('task', {
-        coverage(coverage) {
-          // Custom coverage processing if needed
-          return null
-        }
-      })
+      const mode = config.env.mode || Mode.zigbee
+
+      // Use glob patterns for each mode - Cypress handles file discovery
+      if (mode === Mode.zigbee) {
+        config.specPattern = 'cypress/e2e/**/*.cy.js'
+        config.excludeSpecPattern = [
+          ...(config.excludeSpecPattern || []),
+          '**/matter/**',
+          '**/multiprotocol/**'
+        ]
+      } else if (mode === Mode.matter) {
+        config.specPattern = 'cypress/e2e/**/*.cy.js'
+        config.excludeSpecPattern = [
+          ...(config.excludeSpecPattern || []),
+          '**/zigbee/**',
+          '**/multiprotocol/**'
+        ]
+      } else if (mode === Mode.multiprotocol) {
+        config.specPattern = 'cypress/e2e/**/*.cy.js'
+        config.excludeSpecPattern = [
+          ...(config.excludeSpecPattern || []),
+          '**/zigbee/**',
+          '**/matter/**'
+        ]
+      }
 
       return config
     },

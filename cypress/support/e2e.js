@@ -20,6 +20,12 @@ import './commands'
 // require('./commands')
 import '@cypress/code-coverage/support'
 
+import { Mode, ModeValues } from './mode'
+
+// Expose modes globally for all specs (avoid repeating strings/imports)
+Cypress.Mode = Mode
+Cypress.ModeValues = ModeValues
+
 // Collect coverage from window object
 Cypress.on('window:before:load', (win) => {
   if (win.__coverage__) {

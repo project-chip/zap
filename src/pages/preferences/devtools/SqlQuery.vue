@@ -16,7 +16,13 @@ limitations under the License.
 <template>
   <PreferencePageLayout>
     <template #title> SQL Query </template>
-    <q-input outlined v-model="text" label="Outlined" @change="hitEnter" />
+    <q-input
+      v-model="text"
+      outlined
+      label="SQL query"
+      :input-attrs="{ 'data-cy': 'sql-query-input' }"
+      @change="hitEnter"
+    />
     <p>{{ resultSummary }}</p>
     <q-list bordered separator>
       <div v-for="(item, index) in items" v-bind:key="index" class="row">

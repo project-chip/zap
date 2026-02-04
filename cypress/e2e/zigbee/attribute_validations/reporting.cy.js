@@ -8,7 +8,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 describe('Add multiple clusters and search', () => {
   it('create two endpoints and validate basic information', function () {
     // Skip the test if mode is "matter"
-    if (Cypress.env('mode') !== 'zigbee') {
+    if (Cypress.env('mode') !== Cypress.Mode.zigbee) {
       cy.log('Skipping test because mode is not "zigbee"')
       return
     }

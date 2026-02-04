@@ -38,21 +38,6 @@
       :breakpoint="0"
       class="bg-glass column"
     >
-      <!-- <div
-        v-on:click.ctrl="showVersion"
-        v-if="showPreviewTab && this.endpointId[this.selectedEndpointId]"
-      >
-        <q-select
-          class="q-mx-sm q-mt-sm"
-          filled
-          :options="endpoints"
-          :model-value="selectedEndpointId"
-          label="Endpoint"
-          emit-value
-          map-options
-          @update:model-value="setSelectedEndpoint($event)"
-        />
-      </div> -->
       <q-btn-dropdown
         no-caps
         color="primary"
@@ -82,7 +67,11 @@
         </q-list>
       </q-btn-dropdown>
       <div class="col column q-mx-sm">
-        <q-scroll-area class="fit" ref="generationScroll">
+        <q-scroll-area
+          class="fit"
+          ref="generationScroll"
+          data-cy="generation-scroll-area"
+        >
           <pre class="q-ma-sm">{{ generationData }}</pre>
           <q-scroll-observer @scroll="onScroll" />
         </q-scroll-area>
