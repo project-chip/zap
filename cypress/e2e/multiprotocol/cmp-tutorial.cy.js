@@ -49,7 +49,7 @@ describe('CMP Tutorial (multiprotocol)', () => {
     openCmpTutorial()
 
     for (let i = 0; i < CMP_TUTORIAL_NEXT_CLICKS; i++) {
-      cy.contains('Next').click().wait(650)
+      cy.contains('Next').click()
     }
 
     cy.contains('Finish').click().wait(500)
