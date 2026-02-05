@@ -19,13 +19,13 @@ describe('CMP Tutorial (multiprotocol)', () => {
       // Don't prevent other errors from failing the test
       return true
     })
+    if (Cypress.env('mode') !== 'multiprotocol') {
+      return
+    }
   })
 
   // eslint-disable-next-line require-jsdoc
   function openCmpTutorial() {
-    if (Cypress.env('mode') !== 'multiprotocol') {
-      return
-    }
     cy.visit('/')
     cy.setMultiprotocolZclProperties()
     cy.wait(2000)
