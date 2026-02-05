@@ -1,10 +1,16 @@
 /// <reference types="cypress" />
 
-// Keep this in sync with `src/tutorials/cmpTutorialConfig.json` tutorialSteps length.
-// The CMP tutorial currently has 16 steps, so we need 15 "Next" clicks before "Finish".
-const CMP_TUTORIAL_NEXT_CLICKS = 15
-
 describe('CMP Tutorial (multiprotocol)', () => {
+  let cmpTutorialNextClicks = 0
+
+  before(() => {
+    // Derive "Next" click count from tutorial configuration
+    cy.readFile('src/tutorials/cmpTutorialConfig.json').then((cfg) => {
+      const steps = Array.isArray(cfg?.tutorialSteps) ? cfg.tutorialSteps : []
+      cmpTutorialNextClicks = Math.max(0, steps.length - 1)
+    })
+  })
+
   beforeEach(() => {
     // Ignore uncaught exceptions from the application
     Cypress.on('uncaught:exception', (err) => {
@@ -19,7 +25,7 @@ describe('CMP Tutorial (multiprotocol)', () => {
       // Don't prevent other errors from failing the test
       return true
     })
-    if (Cypress.env('mode') !== 'multiprotocol') {
+    if (Cypress.env('mode') !== Cypress.Mode.multiprotocol) {
       return
     }
   })
@@ -48,7 +54,7 @@ describe('CMP Tutorial (multiprotocol)', () => {
   it('Complete a full CMP tutorial', () => {
     openCmpTutorial()
 
-    for (let i = 0; i < CMP_TUTORIAL_NEXT_CLICKS; i++) {
+    for (let i = 0; i < cmpTutorialNextClicks; i++) {
       cy.contains('Next').click()
     }
 
