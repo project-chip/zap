@@ -768,6 +768,56 @@ test(
 )
 
 test(
+  'Check feature with desc conformance allows toggling but shows warning',
+  () => {
+    // Test enabling a feature with 'desc' conformance
+    let elements = {
+      attributes: [],
+      commands: [],
+      events: []
+    }
+    let featureMap = {
+      DESCFEATURE: false
+    }
+    let featureWithDesc = {
+      cluster: 'Test Cluster',
+      name: 'Feature With Desc',
+      code: 'DESCFEATURE',
+      conformance: 'desc',
+      deviceTypes: ['Test Device Type'],
+      bit: 0
+    }
+    let clusterFeatures = [featureWithDesc]
+    let endpointId = 1
+
+    // Enable the feature with 'desc' conformance
+    featureMap['DESCFEATURE'] = true
+    let result = conformChecker.checkElementConformance(
+      elements,
+      featureMap,
+      featureWithDesc,
+      endpointId,
+      clusterFeatures
+    )
+
+    // Should allow toggling (disableChange is false) but show warning
+    let warningPrefix = env.formatEmojiMessage(
+      '⚠️',
+      `Check Feature Compliance on endpoint: ${endpointId}, cluster: ${featureWithDesc.cluster}, ` +
+        `feature: ${featureWithDesc.name} (${featureWithDesc.code}) (bit ${featureWithDesc.bit} in featureMap attribute)`
+    )
+    let expectedWarning =
+      warningPrefix +
+      ` is being enabled, but it has descriptive conformance and requires manual validation from the feature specification to enable/disable the right dependencies in ZAP.`
+
+    expect(result.displayWarning).toBeTruthy()
+    expect(result.disableChange).toBeFalsy()
+    expect(result.warningMessage).toBe(expectedWarning)
+  },
+  testUtil.timeout.short()
+)
+
+test(
   'Test API for getting FeatureMap attribute value',
   async () => {
     // get relevant data from the On/Off cluster and pass it to the API

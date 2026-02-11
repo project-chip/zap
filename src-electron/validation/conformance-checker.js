@@ -90,19 +90,7 @@ function generateWarningMessage(
     }
   }
 
-  // Check 2: if the feature conformance contains the operand 'desc'
-  let featureContainsDesc = conformEvaluator.checkIfExpressionHasOperand(
-    featureData.conformance,
-    dbEnum.conformanceTag.described
-  )
-  if (featureContainsDesc) {
-    result.warningMessage.push(
-      warningPrefix +
-        ` ${updateDisabledString} its conformance is too complex for ZAP to process, or it includes 'desc'.`
-    )
-  }
-
-  // Check 3: if the feature update will change the conformance of other dependent features
+  // Check 2: if the feature update will change the conformance of other dependent features
   if (featuresToUpdate && Object.keys(featuresToUpdate).length > 0) {
     let featuresToUpdateString = Object.entries(featuresToUpdate)
       .map(([feature, isEnabled]) =>
@@ -115,7 +103,7 @@ function generateWarningMessage(
     )
   }
 
-  // Check 4: if any elements that conform to the updated feature contain 'desc' in their conformance
+  // Check 3: if any elements that conform to the updated feature contain 'desc' in their conformance
   if (
     (descElements.attributes && descElements.attributes.length > 0) ||
     (descElements.commands && descElements.commands.length > 0) ||
@@ -142,7 +130,6 @@ function generateWarningMessage(
 
   if (
     missingOperands.length == 0 &&
-    !featureContainsDesc &&
     (Object.keys(descElements).length == 0 ||
       (descElements.attributes.length == 0 &&
         descElements.commands.length == 0 &&
@@ -202,6 +189,17 @@ function generateWarningMessage(
           ? buildElementConformMessage('enabled')
           : buildNonElementConformMessage('enabled', 'mandatory'))
       result.displayWarning = !added
+    }
+    // if the feature conformance contains the operand 'desc', do not disable toggling, but show warning message
+    let featureContainsDesc = conformEvaluator.checkIfExpressionHasOperand(
+      featureData.conformance,
+      dbEnum.conformanceTag.described
+    )
+    if (featureContainsDesc) {
+      result.warningMessage =
+        warningPrefix +
+        ` is being ${added ? 'enabled' : 'disabled'}, but it has descriptive conformance and requires manual validation from the feature specification to enable/disable the right dependencies in ZAP.`
+      result.displayWarning = true
     }
 
     // generate patterns for outdated feature warnings to be deleted
