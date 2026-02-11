@@ -393,9 +393,10 @@ export default {
       this.getNotifications()
     }
 
+    this.generationDirectory = this.query['output']
     observable.observeAttribute(rendApi.observable.reported_files, (value) => {
       if (value.context == 'generateDir') {
-        this.generationDirectory = value.filePaths[0]
+        this.generationDirectory = value.filePaths[0] ?? this.query['output']
         this.doGeneration(this.generationDirectory)
       }
     })
