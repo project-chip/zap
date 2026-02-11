@@ -238,6 +238,7 @@
     "mac": {
       "category": "public.app-category.developer-tools",
       "darkModeSupport": true,
+      "identity": "",
       "target": [
         {
           "target": "zip",
