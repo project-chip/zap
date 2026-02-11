@@ -198,7 +198,7 @@ function generateWarningMessage(
     if (featureContainsDesc) {
       result.warningMessage =
         warningPrefix +
-        ` is being ${added ? 'enabled' : 'disabled'}, but it has descriptive conformance and is too complex for ZAP to process.`
+        ` is being ${added ? 'enabled' : 'disabled'}, but it has descriptive conformance and requires manual validation from the feature specification to enable/disable the right dependencies in ZAP.`
       result.displayWarning = true
     }
 
