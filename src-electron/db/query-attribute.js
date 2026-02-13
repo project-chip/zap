@@ -1074,6 +1074,11 @@ async function selectTokenAttributesForEndpoint(
   AND
     ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   ${singletonQuery}
+  ORDER BY
+    CLUSTER.MANUFACTURER_CODE,
+    ATTRIBUTE.MANUFACTURER_CODE,
+    CLUSTER.NAME,
+    ATTRIBUTE.CODE
     `,
     endpointTypeRef
   )
@@ -1178,8 +1183,6 @@ AND
         )
         ORDER BY
           SINGLETON DESC,
-          CLUSTER_MANUFACTURER_CODE,
-          MANUFACTURER_CODE,
           CASE
             WHEN
               SINGLETON = 1
@@ -1188,6 +1191,8 @@ AND
             ELSE
               ENDPOINT_IDENTIFIER
           END,
+          CLUSTER_MANUFACTURER_CODE,
+          MANUFACTURER_CODE,
           CLUSTER_CODE,
           CODE
       )
