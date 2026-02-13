@@ -22,6 +22,8 @@ const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine')
 const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
+const queryAttribute = require('../src-electron/db/query-attribute')
+const queryPackage = require('../src-electron/db/query-package')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
@@ -69,6 +71,85 @@ test(
     expect(importResult.sessionId).not.toBeNull()
   },
   testUtil.timeout.long()
+)
+
+test(
+  'selectAllUserTokenAttributes returns attributes in endpoint order',
+  async () => {
+    const packageIds = await queryPackage.getSessionZclPackageIds(
+      db,
+      templateContext.sessionId
+    )
+    const attrs = await queryAttribute.selectAllUserTokenAttributes(
+      db,
+      templateContext.sessionId,
+      packageIds,
+      {}
+    )
+    expect(attrs.length).toBeGreaterThan(0)
+    // Singletons first (by smallest endpoint), then non-singletons grouped by endpoint.
+    let lastEndpointId = -1
+    let seenNonSingleton = false
+    for (const a of attrs) {
+      if (a.isSingleton) {
+        expect(seenNonSingleton).toBe(false)
+      } else {
+        seenNonSingleton = true
+        expect(a.endpointId).toBeGreaterThanOrEqual(lastEndpointId)
+        lastEndpointId = a.endpointId
+      }
+    }
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'selectTokenAttributesForEndpoint returns attributes in deterministic cluster/attribute order',
+  async () => {
+    const packageIds = await queryPackage.getSessionZclPackageIds(
+      db,
+      templateContext.sessionId
+    )
+    const allAttrs = await queryAttribute.selectAllUserTokenAttributes(
+      db,
+      templateContext.sessionId,
+      packageIds,
+      {}
+    )
+    const endpointTypeRef = allAttrs.find(
+      (a) => !a.isSingleton
+    )?.endpointTypeRef
+    if (endpointTypeRef == null) return
+    const perEndpoint = await queryAttribute.selectTokenAttributesForEndpoint(
+      db,
+      packageIds,
+      endpointTypeRef,
+      { hash: { isSingleton: 0 } }
+    )
+    if (perEndpoint.length < 2) return
+    for (let i = 1; i < perEndpoint.length; i++) {
+      const prev = perEndpoint[i - 1]
+      const curr = perEndpoint[i]
+      const cmpClusterMfg =
+        (prev.clusterMfgCode ?? 0) - (curr.clusterMfgCode ?? 0)
+      if (cmpClusterMfg !== 0) {
+        expect(cmpClusterMfg).toBeLessThanOrEqual(0)
+        continue
+      }
+      const cmpMfg = (prev.mfgCode ?? 0) - (curr.mfgCode ?? 0)
+      if (cmpMfg !== 0) {
+        expect(cmpMfg).toBeLessThanOrEqual(0)
+        continue
+      }
+      const cmpName = (prev.clusterName || '').localeCompare(
+        curr.clusterName || ''
+      )
+      expect(cmpName).toBeLessThanOrEqual(0)
+      if (prev.clusterName !== curr.clusterName) continue
+      expect(prev.code ?? 0).toBeLessThanOrEqual(curr.code ?? 0)
+    }
+  },
+  testUtil.timeout.medium()
 )
 
 test(
@@ -473,6 +554,22 @@ test(
     expect(header).toContain(
       'halCommonSetToken(TOKEN_APPLICATION_VERSION_7, data);'
     )
+
+    // Token attribute order: non-singleton defines must appear in endpoint order
+    // (e.g. all endpoint 1, then 2, then 7) so the identifier section is grouped by endpoint.
+    const identifierSection = header.includes('// Identifier tags for tokens')
+      ? header.slice(header.indexOf('// Identifier tags for tokens'))
+      : ''
+    const endpointCommentRegex =
+      /\/\/ Creator for attribute: .+, endpoint: (\d+)/g
+    const endpointIds = []
+    let match
+    while ((match = endpointCommentRegex.exec(identifierSection)) !== null) {
+      endpointIds.push(parseInt(match[1], 10))
+    }
+    for (let i = 1; i < endpointIds.length; i++) {
+      expect(endpointIds[i]).toBeGreaterThanOrEqual(endpointIds[i - 1])
+    }
   },
   testUtil.timeout.long()
 )
