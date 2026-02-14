@@ -133,7 +133,7 @@
     "@globalhive/vuejs-tour": "^1.3.4",
     "@quasar/extras": "^1.16.12",
     "@types/yargs": "^15.0.5",
-    "axios": "^0.28.0",
+    "axios": "^1.8.4",
     "axios-cookiejar-support": "^5.0.2",
     "bufferutil": "^4.0.7",
     "bytebuffer": "^5.0.1",
