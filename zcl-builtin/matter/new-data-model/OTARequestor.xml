@@ -123,10 +123,10 @@ Davis, CA 95616, USA
       </item>
     </enum>
     <struct name="ProviderLocation">
-      <field id="1" name="ProviderNodeID" type="node-id">
+      <field fieldId="1" name="ProviderNodeID" type="node-id">
         <mandatoryConform/>
       </field>
-      <field id="2" name="Endpoint" type="endpoint-no">
+      <field fieldId="2" name="Endpoint" type="endpoint-no">
         <mandatoryConform/>
       </field>
       <access fabricScoped="true"/>
@@ -158,20 +158,20 @@ Davis, CA 95616, USA
     <command id="0x00" name="AnnounceOTAProvider" direction="commandToServer" response="Y">
       <access invokePrivilege="admin"/>
       <optionalConform/>
-      <field id="0" name="ProviderNodeID" type="node-id">
+      <field fieldId="0" name="ProviderNodeID" type="node-id">
         <mandatoryConform/>
       </field>
-      <field id="1" name="VendorID" type="vendor-id">
+      <field fieldId="1" name="VendorID" type="vendor-id">
         <mandatoryConform/>
       </field>
-      <field id="2" name="AnnouncementReason" type="AnnouncementReasonEnum">
+      <field fieldId="2" name="AnnouncementReason" type="AnnouncementReasonEnum">
         <mandatoryConform/>
       </field>
-      <field id="3" name="MetadataForNode" type="octstr">
+      <field fieldId="3" name="MetadataForNode" type="octstr">
         <optionalConform/>
         <constraint type="maxLength" value="512"/>
       </field>
-      <field id="4" name="Endpoint" type="endpoint-no">
+      <field fieldId="4" name="Endpoint" type="endpoint-no">
         <mandatoryConform/>
       </field>
     </command>
@@ -180,16 +180,16 @@ Davis, CA 95616, USA
     <event id="0x00" name="StateTransition" priority="info">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="PreviousState" type="UpdateStateEnum" default="Unknown">
+      <field fieldId="0" name="PreviousState" type="UpdateStateEnum" default="Unknown">
         <mandatoryConform/>
       </field>
-      <field id="1" name="NewState" type="UpdateStateEnum">
+      <field fieldId="1" name="NewState" type="UpdateStateEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="Reason" type="ChangeReasonEnum">
+      <field fieldId="2" name="Reason" type="ChangeReasonEnum">
         <mandatoryConform/>
       </field>
-      <field id="3" name="TargetSoftwareVersion" type="uint32" default="null">
+      <field fieldId="3" name="TargetSoftwareVersion" type="uint32" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
@@ -197,28 +197,28 @@ Davis, CA 95616, USA
     <event id="0x01" name="VersionApplied" priority="critical">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="SoftwareVersion" type="uint32">
+      <field fieldId="0" name="SoftwareVersion" type="uint32">
         <mandatoryConform/>
       </field>
-      <field id="1" name="ProductID" type="uint16">
+      <field fieldId="1" name="ProductID" type="uint16">
         <mandatoryConform/>
       </field>
     </event>
     <event id="0x02" name="DownloadError" priority="info">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="SoftwareVersion" type="uint32">
+      <field fieldId="0" name="SoftwareVersion" type="uint32">
         <mandatoryConform/>
       </field>
-      <field id="1" name="BytesDownloaded" type="uint64">
+      <field fieldId="1" name="BytesDownloaded" type="uint64">
         <mandatoryConform/>
       </field>
-      <field id="2" name="ProgressPercent" type="uint8" default="null">
+      <field fieldId="2" name="ProgressPercent" type="uint8" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="between" from="0" to="100"/>
       </field>
-      <field id="3" name="PlatformCode" type="int64" default="null">
+      <field fieldId="3" name="PlatformCode" type="int64" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>

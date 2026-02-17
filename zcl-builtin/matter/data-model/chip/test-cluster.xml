@@ -574,12 +574,12 @@ limitations under the License.
 
     <event code="0x0001" name="TestEvent" priority="info" side="server">
       <description>Example test event</description>
-      <field id="1" name="arg1" type="INT8U"/>
-      <field id="2" name="arg2" type="SimpleEnum"/>
-      <field id="3" name="arg3" type="BOOLEAN"/>
-      <field id="4" name="arg4" type="SimpleStruct"/>
-      <field id="5" name="arg5" type="SimpleStruct" array="true"/>
-      <field id="6" name="arg6" type="SimpleEnum" array="true"/>
+      <field fieldId="1" name="arg1" type="INT8U"/>
+      <field fieldId="2" name="arg2" type="SimpleEnum"/>
+      <field fieldId="3" name="arg3" type="BOOLEAN"/>
+      <field fieldId="4" name="arg4" type="SimpleStruct"/>
+      <field fieldId="5" name="arg5" type="SimpleStruct" array="true"/>
+      <field fieldId="6" name="arg6" type="SimpleEnum" array="true"/>
     </event>
 
     <event code="0x0002" name="TestFabricScopedEvent" priority="info" side="server" isFabricSensitive="true">

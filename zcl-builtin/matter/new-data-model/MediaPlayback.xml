@@ -181,35 +181,35 @@ Davis, CA 95616, USA
       </item>
     </enum>
     <struct name="PlaybackPositionStruct">
-      <field id="0" name="UpdatedAt" type="epoch-us">
+      <field fieldId="0" name="UpdatedAt" type="epoch-us">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Position" type="uint64">
+      <field fieldId="1" name="Position" type="uint64">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="TrackAttributesStruct">
-      <field id="0" name="LanguageCode" type="string">
+      <field fieldId="0" name="LanguageCode" type="string">
         <mandatoryConform/>
         <constraint type="maxLength" value="32"/>
       </field>
-      <field id="1" name="Characteristics" type="list" default="null">
+      <field fieldId="1" name="Characteristics" type="list" default="null">
         <entry type="CharacteristicEnum"/>
         <quality nullable="true"/>
         <optionalConform/>
       </field>
-      <field id="2" name="DisplayName" type="string" default="null">
+      <field fieldId="2" name="DisplayName" type="string" default="null">
         <quality nullable="true"/>
         <optionalConform/>
       </field>
     </struct>
     <struct name="TrackStruct">
-      <field id="0" name="ID" type="string">
+      <field fieldId="0" name="ID" type="string">
         <mandatoryConform/>
         <constraint type="maxLength" value="32"/>
       </field>
-      <field id="1" name="TrackAttributes" type="TrackAttributesStruct">
+      <field fieldId="1" name="TrackAttributes" type="TrackAttributesStruct">
         <mandatoryConform/>
       </field>
     </struct>
@@ -332,7 +332,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="VS"/>
       </mandatoryConform>
-      <field id="0" name="AudioAdvanceUnmuted" type="bool" default="false">
+      <field fieldId="0" name="AudioAdvanceUnmuted" type="bool" default="false">
         <mandatoryConform>
           <feature name="AA"/>
         </mandatoryConform>
@@ -343,7 +343,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="VS"/>
       </mandatoryConform>
-      <field id="0" name="AudioAdvanceUnmuted" type="bool" default="false">
+      <field fieldId="0" name="AudioAdvanceUnmuted" type="bool" default="false">
         <mandatoryConform>
           <feature name="AA"/>
         </mandatoryConform>
@@ -352,24 +352,24 @@ Davis, CA 95616, USA
     <command id="0x08" name="SkipForward" direction="commandToServer" response="PlaybackResponse">
       <access invokePrivilege="operate"/>
       <optionalConform/>
-      <field id="0" name="DeltaPositionMilliseconds" type="uint64">
+      <field fieldId="0" name="DeltaPositionMilliseconds" type="uint64">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x09" name="SkipBackward" direction="commandToServer" response="PlaybackResponse">
       <access invokePrivilege="operate"/>
       <optionalConform/>
-      <field id="0" name="DeltaPositionMilliseconds" type="uint64">
+      <field fieldId="0" name="DeltaPositionMilliseconds" type="uint64">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x0A" name="PlaybackResponse" direction="responseFromServer">
       <mandatoryConform/>
-      <field id="0" name="Status" type="StatusEnum">
+      <field fieldId="0" name="Status" type="StatusEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Data" type="string">
+      <field fieldId="1" name="Data" type="string">
         <optionalConform/>
       </field>
     </command>
@@ -378,7 +378,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="AS"/>
       </mandatoryConform>
-      <field id="0" name="Position" type="uint64">
+      <field fieldId="0" name="Position" type="uint64">
         <mandatoryConform/>
       </field>
     </command>
@@ -387,11 +387,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="AT"/>
       </mandatoryConform>
-      <field id="0" name="TrackID" type="string">
+      <field fieldId="0" name="TrackID" type="string">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="AudioOutputIndex" type="uint8">
+      <field fieldId="1" name="AudioOutputIndex" type="uint8">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="desc"/>
@@ -402,7 +402,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="TT"/>
       </mandatoryConform>
-      <field id="0" name="TrackID" type="string">
+      <field fieldId="0" name="TrackID" type="string">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -418,51 +418,51 @@ Davis, CA 95616, USA
     <event id="0x00" name="StateChanged" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="CurrentState" type="PlaybackStateEnum">
+      <field fieldId="0" name="CurrentState" type="PlaybackStateEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="StartTime" type="epoch-us">
+      <field fieldId="1" name="StartTime" type="epoch-us">
         <mandatoryConform>
           <feature name="AS"/>
         </mandatoryConform>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="Duration" type="uint64">
+      <field fieldId="2" name="Duration" type="uint64">
         <mandatoryConform>
           <feature name="AS"/>
         </mandatoryConform>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="SampledPosition" type="PlaybackPositionStruct">
+      <field fieldId="3" name="SampledPosition" type="PlaybackPositionStruct">
         <mandatoryConform>
           <feature name="AS"/>
         </mandatoryConform>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="PlaybackSpeed" type="single">
+      <field fieldId="4" name="PlaybackSpeed" type="single">
         <mandatoryConform>
           <feature name="AS"/>
         </mandatoryConform>
         <constraint type="desc"/>
       </field>
-      <field id="5" name="SeekRangeEnd" type="uint64">
+      <field fieldId="5" name="SeekRangeEnd" type="uint64">
         <mandatoryConform>
           <feature name="AS"/>
         </mandatoryConform>
         <constraint type="desc"/>
       </field>
-      <field id="6" name="SeekRangeStart" type="uint64">
+      <field fieldId="6" name="SeekRangeStart" type="uint64">
         <mandatoryConform>
           <feature name="AS"/>
         </mandatoryConform>
         <constraint type="desc"/>
       </field>
-      <field id="7" name="Data" type="octstr">
+      <field fieldId="7" name="Data" type="octstr">
         <optionalConform/>
         <constraint type="maxLength" value="900"/>
       </field>
-      <field id="8" name="AudioAdvanceUnmuted" type="bool" default="false">
+      <field fieldId="8" name="AudioAdvanceUnmuted" type="bool" default="false">
         <mandatoryConform>
           <feature name="AA"/>
         </mandatoryConform>

@@ -39,13 +39,13 @@ limitations under the License.
     </command>
     <event side="server" code="0x00" name="SoftwareFault" priority="info" optional="true">
       <description>Indicate the last software fault that has taken place on the Node.</description>
-      <field id="0" name="ID" type="INT64U"/>
-      <field id="1" name="Name" type="CHAR_STRING" length="8" optional="true"/>
-      <field id="2" name="FaultRecording" type="OCTET_STRING" length="1024" optional="true"/>
-    </event>    
+      <field fieldId="0" name="ID" type="INT64U"/>
+      <field fieldId="1" name="Name" type="CHAR_STRING" length="8" optional="true"/>
+      <field fieldId="2" name="FaultRecording" type="OCTET_STRING" length="1024" optional="true"/>
+    </event>
   </cluster>
   <bitmap name="SoftwareDiagnosticsFeature" type="BITMAP32">
     <cluster code="0x0034"/>
     <field name="WaterMarks" mask="0x1"/>
-  </bitmap>   
+  </bitmap>
 </configurator>

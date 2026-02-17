@@ -174,7 +174,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="SPRS"/>
       </mandatoryConform>
-      <field id="0" name="AlarmsToSuppress" type="AlarmModeBitmap">
+      <field fieldId="0" name="AlarmsToSuppress" type="AlarmModeBitmap">
         <mandatoryConform/>
       </field>
     </command>
@@ -186,7 +186,7 @@ Davis, CA 95616, USA
           <feature name="AUD"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="AlarmsToEnableDisable" type="AlarmModeBitmap">
+      <field fieldId="0" name="AlarmsToEnableDisable" type="AlarmModeBitmap">
         <mandatoryConform/>
       </field>
     </command>
@@ -200,10 +200,10 @@ Davis, CA 95616, USA
           <feature name="AUD"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="AlarmsActive" type="AlarmModeBitmap">
+      <field fieldId="0" name="AlarmsActive" type="AlarmModeBitmap">
         <mandatoryConform/>
       </field>
-      <field id="1" name="AlarmsSuppressed" type="AlarmModeBitmap">
+      <field fieldId="1" name="AlarmsSuppressed" type="AlarmModeBitmap">
         <mandatoryConform>
           <feature name="SPRS"/>
         </mandatoryConform>
@@ -212,7 +212,7 @@ Davis, CA 95616, USA
     <event id="0x01" name="SensorFault" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="SensorFault" type="SensorFaultBitmap">
+      <field fieldId="0" name="SensorFault" type="SensorFaultBitmap">
         <mandatoryConform/>
       </field>
     </event>

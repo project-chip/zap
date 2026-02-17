@@ -29,7 +29,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:attribute name="modifier" type="xs:string"/>
   </xs:complexType>
   <xs:complexType name="eventField">
-    <xs:attribute name="id" use="required" type="xs:string"/>
+    <xs:attribute name="fieldId" type="xs:integer" use="required"/>
     <xs:attribute name="name" use="required" type="xs:string"/>
     <xs:attribute name="type" use="required" type="xs:string"/>
     <xs:attribute name="array" use="optional" type="xs:boolean"/>
@@ -61,7 +61,6 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:attribute name="fieldId" type="xs:integer"/>
     <xs:attribute name="countArg" type="xs:string" use="optional"/>
     <xs:attribute name="isNullable" type="xs:boolean"/>
-    <xs:attribute name="id" type="xs:string" use="optional"/>
     <xs:attribute name="min" type="xs:string" use="optional"/>
     <xs:attribute name="max" type="xs:string" use="optional"/>
     <xs:attribute name="minLength" type="xs:integer" use="optional"/>

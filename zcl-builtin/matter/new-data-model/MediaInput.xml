@@ -110,17 +110,17 @@ Davis, CA 95616, USA
       </item>
     </enum>
     <struct name="InputInfoStruct">
-      <field id="0" name="Index" type="uint8">
+      <field fieldId="0" name="Index" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="1" name="InputType" type="InputTypeEnum">
+      <field fieldId="1" name="InputType" type="InputTypeEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="Name" type="string">
+      <field fieldId="2" name="Name" type="string">
         <mandatoryConform/>
       </field>
-      <field id="3" name="Description" type="string">
+      <field fieldId="3" name="Description" type="string">
         <mandatoryConform/>
       </field>
     </struct>
@@ -140,7 +140,7 @@ Davis, CA 95616, USA
     <command id="0x00" name="SelectInput" direction="commandToServer" response="Y">
       <access invokePrivilege="operate"/>
       <mandatoryConform/>
-      <field id="0" name="Index" type="uint8">
+      <field fieldId="0" name="Index" type="uint8">
         <mandatoryConform/>
       </field>
     </command>
@@ -157,10 +157,10 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="NU"/>
       </mandatoryConform>
-      <field id="0" name="Index" type="uint8">
+      <field fieldId="0" name="Index" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Name" type="string">
+      <field fieldId="1" name="Name" type="string">
         <mandatoryConform/>
       </field>
     </command>

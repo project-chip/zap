@@ -287,13 +287,13 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="STEP"/>
       </mandatoryConform>
-      <field id="0" name="Direction" type="StepDirectionEnum" default="Increase">
+      <field fieldId="0" name="Direction" type="StepDirectionEnum" default="Increase">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Wrap" type="bool" default="false">
+      <field fieldId="1" name="Wrap" type="bool" default="false">
         <optionalConform/>
       </field>
-      <field id="2" name="LowestOff" type="bool" default="true">
+      <field fieldId="2" name="LowestOff" type="bool" default="true">
         <optionalConform/>
       </field>
     </command>

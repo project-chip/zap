@@ -70,7 +70,7 @@ Davis, CA 95616, USA
     <command id="0x00" name="GetSetupPIN" direction="commandToServer" response="GetSetupPINResponse">
       <access invokePrivilege="admin" fabricScoped="true" timed="true"/>
       <mandatoryConform/>
-      <field id="0" name="TempAccountIdentifier" type="string">
+      <field fieldId="0" name="TempAccountIdentifier" type="string">
         <mandatoryConform/>
         <constraint type="lengthBetween" from="16" to="100"/>
       </field>
@@ -78,7 +78,7 @@ Davis, CA 95616, USA
     <command id="0x01" name="GetSetupPINResponse" direction="responseFromServer">
       <access fabricScoped="true"/>
       <mandatoryConform/>
-      <field id="0" name="SetupPIN" type="string">
+      <field fieldId="0" name="SetupPIN" type="string">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -86,22 +86,22 @@ Davis, CA 95616, USA
     <command id="0x02" name="Login" direction="commandToServer" response="Y">
       <access invokePrivilege="admin" fabricScoped="true" timed="true"/>
       <mandatoryConform/>
-      <field id="0" name="TempAccountIdentifier" type="string">
+      <field fieldId="0" name="TempAccountIdentifier" type="string">
         <mandatoryConform/>
         <constraint type="lengthBetween" from="16" to="100"/>
       </field>
-      <field id="1" name="SetupPIN" type="string">
+      <field fieldId="1" name="SetupPIN" type="string">
         <mandatoryConform/>
         <constraint type="minLength" value="8"/>
       </field>
-      <field id="2" name="Node" type="node-id">
+      <field fieldId="2" name="Node" type="node-id">
         <optionalConform/>
       </field>
     </command>
     <command id="0x03" name="Logout" direction="commandToServer" response="Y">
       <access invokePrivilege="operate" fabricScoped="true" timed="true"/>
       <mandatoryConform/>
-      <field id="0" name="Node" type="node-id">
+      <field fieldId="0" name="Node" type="node-id">
         <optionalConform/>
       </field>
     </command>
@@ -110,7 +110,7 @@ Davis, CA 95616, USA
     <event id="0x00" name="LoggedOut" priority="critical">
       <access readPrivilege="admin" fabricSensitive="true"/>
       <optionalConform/>
-      <field id="0" name="Node" type="node-id">
+      <field fieldId="0" name="Node" type="node-id">
         <optionalConform/>
       </field>
     </event>

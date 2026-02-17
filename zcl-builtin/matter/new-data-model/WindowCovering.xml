@@ -633,7 +633,7 @@ Davis, CA 95616, USA
           <feature name="ABS"/>
         </andTerm>
       </optionalConform>
-      <field id="0" name="LiftValue" type="uint16">
+      <field fieldId="0" name="LiftValue" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -651,11 +651,11 @@ Davis, CA 95616, USA
           <feature name="LF"/>
         </optionalConform>
       </otherwiseConform>
-      <field id="0" name="LiftPercentageValue" type="percent">
+      <field fieldId="0" name="LiftPercentageValue" type="percent">
         <optionalConform choice="a"/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="LiftPercent100thsValue" type="percent100ths">
+      <field fieldId="1" name="LiftPercent100thsValue" type="percent100ths">
         <optionalConform choice="a"/>
         <constraint type="desc"/>
       </field>
@@ -668,7 +668,7 @@ Davis, CA 95616, USA
           <feature name="ABS"/>
         </andTerm>
       </optionalConform>
-      <field id="0" name="TiltValue" type="uint16">
+      <field fieldId="0" name="TiltValue" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -686,11 +686,11 @@ Davis, CA 95616, USA
           <feature name="TL"/>
         </optionalConform>
       </otherwiseConform>
-      <field id="0" name="TiltPercentageValue" type="percent">
+      <field fieldId="0" name="TiltPercentageValue" type="percent">
         <optionalConform choice="a"/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="TiltPercent100thsValue" type="percent100ths">
+      <field fieldId="1" name="TiltPercent100thsValue" type="percent100ths">
         <optionalConform choice="a"/>
         <constraint type="desc"/>
       </field>

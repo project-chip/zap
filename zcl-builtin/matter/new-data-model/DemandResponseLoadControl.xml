@@ -262,103 +262,103 @@ Davis, CA 95616, USA
       </bitfield>
     </bitmap>
     <struct name="AverageLoadControlStruct">
-      <field id="1" name="LoadAdjustment" type="int8">
+      <field fieldId="1" name="LoadAdjustment" type="int8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="100"/>
       </field>
     </struct>
     <struct name="DutyCycleControlStruct">
-      <field id="1" name="DutyCycle" type="uint8">
+      <field fieldId="1" name="DutyCycle" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="100"/>
       </field>
     </struct>
     <struct name="HeatingSourceControlStruct">
-      <field id="1" name="HeatingSource" type="HeatingSourceEnum">
+      <field fieldId="1" name="HeatingSource" type="HeatingSourceEnum">
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="LoadControlEventStruct">
-      <field id="0" name="EventID" type="octstr" default="0">
+      <field fieldId="0" name="EventID" type="octstr" default="0">
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="1" name="ProgramID" type="octstr" default="null">
+      <field fieldId="1" name="ProgramID" type="octstr" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="2" name="Control" type="EventControlBitmap" default="1">
+      <field fieldId="2" name="Control" type="EventControlBitmap" default="1">
         <mandatoryConform/>
       </field>
-      <field id="3" name="DeviceClass" type="DeviceClassBitmap">
+      <field fieldId="3" name="DeviceClass" type="DeviceClassBitmap">
         <mandatoryConform/>
       </field>
-      <field id="4" name="EnrollmentGroup" type="uint8" default="null">
+      <field fieldId="4" name="EnrollmentGroup" type="uint8" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="ENRLG"/>
         </mandatoryConform>
       </field>
-      <field id="5" name="Criticality" type="CriticalityLevelEnum" default="0">
+      <field fieldId="5" name="Criticality" type="CriticalityLevelEnum" default="0">
         <mandatoryConform/>
       </field>
-      <field id="6" name="StartTime" type="epoch-s" default="null">
+      <field fieldId="6" name="StartTime" type="epoch-s" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="7" name="Transitions" type="list" default="empty">
+      <field fieldId="7" name="Transitions" type="list" default="empty">
         <entry type="LoadControlEventTransitionStruct"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="10"/>
       </field>
     </struct>
     <struct name="LoadControlEventTransitionStruct">
-      <field id="1" name="Duration" type="uint16" default="0">
+      <field fieldId="1" name="Duration" type="uint16" default="0">
         <mandatoryConform/>
         <constraint type="max" value="1440"/>
       </field>
-      <field id="2" name="Control" type="EventTransitionControlBitmap" default="0">
+      <field fieldId="2" name="Control" type="EventTransitionControlBitmap" default="0">
         <mandatoryConform/>
       </field>
-      <field id="3" name="TemperatureControl" type="TemperatureControlStruct" default="null">
+      <field fieldId="3" name="TemperatureControl" type="TemperatureControlStruct" default="null">
         <quality nullable="true"/>
       </field>
-      <field id="4" name="AverageLoadControl" type="AverageLoadControlStruct" default="null">
+      <field fieldId="4" name="AverageLoadControl" type="AverageLoadControlStruct" default="null">
         <quality nullable="true"/>
       </field>
-      <field id="5" name="DutyCycleControl" type="DutyCycleControlStruct" default="null">
+      <field fieldId="5" name="DutyCycleControl" type="DutyCycleControlStruct" default="null">
         <quality nullable="true"/>
       </field>
-      <field id="6" name="PowerSavingsControl" type="PowerSavingsControlStruct" default="null">
+      <field fieldId="6" name="PowerSavingsControl" type="PowerSavingsControlStruct" default="null">
         <quality nullable="true"/>
       </field>
-      <field id="7" name="HeatingSourceControl" type="HeatingSourceControlStruct" default="null">
+      <field fieldId="7" name="HeatingSourceControl" type="HeatingSourceControlStruct" default="null">
         <quality nullable="true"/>
       </field>
     </struct>
     <struct name="LoadControlProgramStruct">
-      <field id="0" name="ProgramID" type="octstr" default="0">
+      <field fieldId="0" name="ProgramID" type="octstr" default="0">
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="1" name="Name" type="string">
+      <field fieldId="1" name="Name" type="string">
         <mandatoryConform/>
         <constraint type="maxLength" value="32"/>
       </field>
-      <field id="2" name="EnrollmentGroup" type="uint8" default="null">
+      <field fieldId="2" name="EnrollmentGroup" type="uint8" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="ENRLG"/>
         </mandatoryConform>
         <constraint type="between" from="0x01" to="0xFF"/>
       </field>
-      <field id="3" name="RandomStartMinutes" type="uint8" default="null">
+      <field fieldId="3" name="RandomStartMinutes" type="uint8" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="between" from="0x00" to="0x3C"/>
       </field>
-      <field id="4" name="RandomDurationMinutes" type="uint8" default="null">
+      <field fieldId="4" name="RandomDurationMinutes" type="uint8" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="between" from="0x00" to="0x3C"/>
@@ -366,33 +366,33 @@ Davis, CA 95616, USA
       <access fabricScoped="true"/>
     </struct>
     <struct name="PowerSavingsControlStruct">
-      <field id="1" name="PowerSavings" type="PowerSavingsEnum">
+      <field fieldId="1" name="PowerSavings" type="PowerSavingsEnum">
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="TemperatureControlStruct">
-      <field id="0" name="CoolingTempOffset" type="ref_TempDiff" default="null">
+      <field fieldId="0" name="CoolingTempOffset" type="ref_TempDiff" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="TEMPO"/>
         </mandatoryConform>
         <constraint type="between" from="0x00" to="0x0FE"/>
       </field>
-      <field id="1" name="HeatingTempOffset" type="ref_TempDiff" default="null">
+      <field fieldId="1" name="HeatingTempOffset" type="ref_TempDiff" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="TEMPO"/>
         </mandatoryConform>
         <constraint type="between" from="0x00" to="0x0FE"/>
       </field>
-      <field id="2" name="CoolingTempSetpoint" type="temperature" default="null">
+      <field fieldId="2" name="CoolingTempSetpoint" type="temperature" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="TEMPS"/>
         </mandatoryConform>
         <constraint type="between" from="0x954D" to="0x7FFF"/>
       </field>
-      <field id="3" name="HeatingTempSetpoint" type="temperature" default="null">
+      <field fieldId="3" name="HeatingTempSetpoint" type="temperature" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="TEMPS"/>
@@ -455,14 +455,14 @@ Davis, CA 95616, USA
     <command id="0x00" name="RegisterLoadControlProgramRequest" direction="commandToServer" response="Y">
       <access invokePrivilege="operate"/>
       <mandatoryConform/>
-      <field id="0" name="LoadControlProgram" type="LoadControlProgramStruct">
+      <field fieldId="0" name="LoadControlProgram" type="LoadControlProgramStruct">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x01" name="UnregisterLoadControlProgramRequest" direction="commandToServer" response="Y">
       <access invokePrivilege="operate"/>
       <mandatoryConform/>
-      <field id="0" name="LoadControlProgramID" type="octstr">
+      <field fieldId="0" name="LoadControlProgramID" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
@@ -470,18 +470,18 @@ Davis, CA 95616, USA
     <command id="0x02" name="AddLoadControlEventRequest" direction="commandToServer" response="Y">
       <access invokePrivilege="operate"/>
       <mandatoryConform/>
-      <field id="0" name="Event" type="LoadControlEventStruct">
+      <field fieldId="0" name="Event" type="LoadControlEventStruct">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x03" name="RemoveLoadControlEventRequest" direction="commandToServer" response="Y">
       <access invokePrivilege="operate"/>
       <mandatoryConform/>
-      <field id="0" name="EventID" type="octstr">
+      <field fieldId="0" name="EventID" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="1" name="CancelControl" type="CancelControlBitmap" default="0">
+      <field fieldId="1" name="CancelControl" type="CancelControlBitmap" default="0">
         <mandatoryConform/>
       </field>
     </command>
@@ -494,24 +494,24 @@ Davis, CA 95616, USA
     <event id="0x00" name="LoadControlEventStatusChange" priority="info">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="EventID" type="octstr">
+      <field fieldId="0" name="EventID" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="1" name="TransitionIndex" type="uint8" default="null">
+      <field fieldId="1" name="TransitionIndex" type="uint8" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="2" name="Status" type="LoadControlEventStatusEnum">
+      <field fieldId="2" name="Status" type="LoadControlEventStatusEnum">
         <mandatoryConform/>
       </field>
-      <field id="3" name="Criticality" type="CriticalityLevelEnum">
+      <field fieldId="3" name="Criticality" type="CriticalityLevelEnum">
         <mandatoryConform/>
       </field>
-      <field id="4" name="Control" type="EventControlBitmap" default="0">
+      <field fieldId="4" name="Control" type="EventControlBitmap" default="0">
         <mandatoryConform/>
       </field>
-      <field id="5" name="TemperatureControl" type="TemperatureControlStruct" default="null">
+      <field fieldId="5" name="TemperatureControl" type="TemperatureControlStruct" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <orTerm>
@@ -520,31 +520,31 @@ Davis, CA 95616, USA
           </orTerm>
         </mandatoryConform>
       </field>
-      <field id="6" name="AverageLoadControl" type="AverageLoadControlStruct" default="null">
+      <field fieldId="6" name="AverageLoadControl" type="AverageLoadControlStruct" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="LOADA"/>
         </mandatoryConform>
       </field>
-      <field id="7" name="DutyCycleControl" type="DutyCycleControlStruct" default="null">
+      <field fieldId="7" name="DutyCycleControl" type="DutyCycleControlStruct" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="DUTYC"/>
         </mandatoryConform>
       </field>
-      <field id="8" name="PowerSavingsControl" type="PowerSavingsControlStruct" default="null">
+      <field fieldId="8" name="PowerSavingsControl" type="PowerSavingsControlStruct" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="PWRSV"/>
         </mandatoryConform>
       </field>
-      <field id="9" name="HeatingSourceControl" type="HeatingSourceControlStruct" default="null">
+      <field fieldId="9" name="HeatingSourceControl" type="HeatingSourceControlStruct" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="HEATS"/>
         </mandatoryConform>
       </field>
-      <field id="255" name="Signature" type="octstr" default="null">
+      <field fieldId="255" name="Signature" type="octstr" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="maxLength" value="48"/>

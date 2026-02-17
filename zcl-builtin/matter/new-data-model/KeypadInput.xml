@@ -353,13 +353,13 @@ Davis, CA 95616, USA
     <command id="0x00" name="SendKey" direction="commandToServer" response="SendKeyResponse">
       <access invokePrivilege="operate"/>
       <mandatoryConform/>
-      <field id="0" name="KeyCode" type="CecKeyCodeEnum">
+      <field fieldId="0" name="KeyCode" type="CecKeyCodeEnum">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x01" name="SendKeyResponse" direction="responseFromServer">
       <mandatoryConform/>
-      <field id="0" name="Status" type="StatusEnum">
+      <field fieldId="0" name="Status" type="StatusEnum">
         <mandatoryConform/>
       </field>
     </command>

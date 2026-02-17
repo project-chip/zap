@@ -35,33 +35,33 @@ Interactions with the switch device are exposed as attributes (for the latching 
     <attribute side="server" code="0x0002" define="MULTI_PRESS_MAX" type="INT8U" writable="false" optional="true" default="2" min="2">MultiPressMax</attribute>
     <event side="server" code="0x00" priority="info" name="SwitchLatched" optional="true">
       <description>SwitchLatched</description>
-      <field id="0" name="NewPosition" type="INT8U" />
+      <field fieldId="0" name="NewPosition" type="INT8U" />
     </event>
     <event side="server" code="0x01" priority="info" name="InitialPress" optional="true">
       <description>InitialPress</description>
-      <field id="0" name="NewPosition" type="INT8U" />
+      <field fieldId="0" name="NewPosition" type="INT8U" />
     </event>
     <event side="server" code="0x02" priority="info" name="LongPress" optional="true">
       <description>LongPress</description>
-      <field id="0" name="NewPosition" type="INT8U" />
+      <field fieldId="0" name="NewPosition" type="INT8U" />
     </event>
     <event side="server" code="0x03" priority="info" name="ShortRelease" optional="true">
       <description>ShortRelease</description>
-      <field id="0" name="PreviousPosition" type="INT8U" />
+      <field fieldId="0" name="PreviousPosition" type="INT8U" />
     </event>
     <event side="server" code="0x04" priority="info" name="LongRelease" optional="true">
       <description>LongRelease</description>
-      <field id="0" name="PreviousPosition" type="INT8U" />
+      <field fieldId="0" name="PreviousPosition" type="INT8U" />
     </event>
     <event side="server" code="0x05" priority="info" name="MultiPressOngoing" optional="true">
       <description>MultiPressOngoing</description>
-      <field id="0" name="NewPosition" type="INT8U" />
-      <field id="1" name="CurrentNumberOfPressesCounted" type="INT8U" />
+      <field fieldId="0" name="NewPosition" type="INT8U" />
+      <field fieldId="1" name="CurrentNumberOfPressesCounted" type="INT8U" />
     </event>
     <event side="server" code="0x06" priority="info" name="MultiPressComplete" optional="true">
       <description>MultiPressComplete</description>
-      <field id="0" name="PreviousPosition" type="INT8U" />
-      <field id="1" name="TotalNumberOfPressesCounted" type="INT8U" />
+      <field fieldId="0" name="PreviousPosition" type="INT8U" />
+      <field fieldId="1" name="TotalNumberOfPressesCounted" type="INT8U" />
     </event>
 
   </cluster>

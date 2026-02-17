@@ -23,7 +23,7 @@ limitations under the License.
     <item name="WEP" value="0x02"/>
     <item name="WPA" value="0x03"/>
     <item name="WPA2" value="0x04"/>
-    <item name="WPA3" value="0x05"/>    
+    <item name="WPA3" value="0x05"/>
   </enum>
   <enum name="WiFiVersionType" type="ENUM8">
     <cluster code="0x0036"/>
@@ -32,7 +32,7 @@ limitations under the License.
     <item name="802.11g" value="0x02"/>
     <item name="802.11n" value="0x03"/>
     <item name="802.11ac" value="0x04"/>
-    <item name="802.11ax" value="0x05"/>    
+    <item name="802.11ax" value="0x05"/>
   </enum>
   <enum name="AssociationFailureCause" type="ENUM8">
     <cluster code="0x0036"/>
@@ -45,7 +45,7 @@ limitations under the License.
     <cluster code="0x0036"/>
     <item name="Connected" value="0x00"/>
     <item name="NotConnected" value="0x01"/>
-  </enum>  
+  </enum>
   <cluster>
     <domain>General</domain>
     <name>WiFi Network Diagnostics</name>
@@ -70,20 +70,20 @@ limitations under the License.
     </command>
     <event side="server" code="0x00" name="Disconnection" priority="info" optional="true">
       <description>Indicate that a Node’s Wi-Fi connection has been disconnected as a result of de-authenticated or dis-association and indicates the reason.</description>
-      <field id="0" name="ReasonCode" type="INT16U"/>
+      <field fieldId="0" name="ReasonCode" type="INT16U"/>
     </event>
     <event side="server" code="0x01" name="AssociationFailure" priority="info" optional="true">
       <description>Indicate that a Node has failed to connect, or reconnect, to a Wi-Fi access point.</description>
-      <field id="0" name="AssociationFailure" type="AssociationFailureCause"/>
-      <field id="1" name="Status" type="INT16U"/>      
+      <field fieldId="0" name="AssociationFailure" type="AssociationFailureCause"/>
+      <field fieldId="1" name="Status" type="INT16U"/>
     </event>
     <event side="server" code="0x02" name="ConnectionStatus" priority="info" optional="true">
       <description>Indicate that a Node’s connection status to a Wi-Fi network has changed.</description>
-      <field id="0" name="ConnectionStatus" type="WiFiConnectionStatus"/>
-    </event>                  
+      <field fieldId="0" name="ConnectionStatus" type="WiFiConnectionStatus"/>
+    </event>
   </cluster>
   <bitmap name="WiFiNetworkDiagnosticsFeature" type="BITMAP32">
     <field name="PacketCounts" mask="0x1"/>
     <field name="ErrorCounts" mask="0x2"/>
-  </bitmap>  
+  </bitmap>
 </configurator>

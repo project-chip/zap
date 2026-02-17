@@ -115,66 +115,66 @@ Davis, CA 95616, USA
       </bitfield>
     </bitmap>
     <struct name="AppInfoStruct">
-      <field id="0" name="CatalogVendorID" type="uint16">
+      <field fieldId="0" name="CatalogVendorID" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="1" name="ApplicationID" type="string">
+      <field fieldId="1" name="ApplicationID" type="string">
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="BlockChannelStruct">
-      <field id="0" name="BlockChannelIndex" type="uint16">
+      <field fieldId="0" name="BlockChannelIndex" type="uint16">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="MajorNumber" type="uint16">
+      <field fieldId="1" name="MajorNumber" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="2" name="MinorNumber" type="uint16">
+      <field fieldId="2" name="MinorNumber" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="3" name="Identifier" type="string">
+      <field fieldId="3" name="Identifier" type="string">
         <optionalConform/>
       </field>
     </struct>
     <struct name="RatingNameStruct">
-      <field id="0" name="RatingName" type="string">
+      <field fieldId="0" name="RatingName" type="string">
         <mandatoryConform/>
         <constraint type="maxLength" value="8"/>
       </field>
-      <field id="1" name="RatingNameDesc" type="string">
+      <field fieldId="1" name="RatingNameDesc" type="string">
         <optionalConform/>
         <constraint type="maxLength" value="64"/>
       </field>
     </struct>
     <struct name="TimePeriodStruct type">
-      <field id="0" name="StartHour" type="uint8">
+      <field fieldId="0" name="StartHour" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="23"/>
       </field>
-      <field id="1" name="StartMinute" type="uint8">
+      <field fieldId="1" name="StartMinute" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="59"/>
       </field>
-      <field id="2" name="EndHour" type="uint8">
+      <field fieldId="2" name="EndHour" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="23"/>
       </field>
-      <field id="3" name="EndMinute" type="uint8">
+      <field fieldId="3" name="EndMinute" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="59"/>
       </field>
     </struct>
     <struct name="TimeWindowStruct">
-      <field id="0" name="TimeWindowIndex" type="uint16">
+      <field fieldId="0" name="TimeWindowIndex" type="uint16">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="DayOfWeek" type="DayOfWeekBitmap type">
+      <field fieldId="1" name="DayOfWeek" type="DayOfWeekBitmap type">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="TimePeriod" type="list">
+      <field fieldId="2" name="TimePeriod" type="list">
         <entry type="TimePeriodStruct type"/>
         <mandatoryConform/>
         <constraint type="desc"/>
@@ -263,11 +263,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="PM"/>
       </mandatoryConform>
-      <field id="0" name="OldPIN" type="string">
+      <field fieldId="0" name="OldPIN" type="string">
         <mandatoryConform/>
         <constraint type="maxLength" value="6"/>
       </field>
-      <field id="1" name="NewPIN" type="string">
+      <field fieldId="1" name="NewPIN" type="string">
         <mandatoryConform/>
         <constraint type="maxLength" value="6"/>
       </field>
@@ -282,7 +282,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="PM"/>
       </mandatoryConform>
-      <field id="0" name="PINCode" type="string">
+      <field fieldId="0" name="PINCode" type="string">
         <mandatoryConform/>
         <constraint type="maxLength" value="6"/>
       </field>
@@ -300,11 +300,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="ST"/>
       </mandatoryConform>
-      <field id="0" name="PINCode" type="string">
+      <field fieldId="0" name="PINCode" type="string">
         <optionalConform/>
         <constraint type="maxLength" value="6"/>
       </field>
-      <field id="1" name="BonusTime" type="elapsed-s" default="300s">
+      <field fieldId="1" name="BonusTime" type="elapsed-s" default="300s">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -314,7 +314,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="ST"/>
       </mandatoryConform>
-      <field id="0" name="ScreenTime" type="elapsed-s">
+      <field fieldId="0" name="ScreenTime" type="elapsed-s">
         <mandatoryConform/>
         <constraint type="max" value="86400"/>
       </field>
@@ -336,7 +336,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="OCR"/>
       </mandatoryConform>
-      <field id="0" name="Rating" type="string">
+      <field fieldId="0" name="Rating" type="string">
         <mandatoryConform/>
         <constraint type="maxLength" value="8"/>
       </field>
@@ -346,7 +346,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="SCR"/>
       </mandatoryConform>
-      <field id="0" name="Rating" type="string">
+      <field fieldId="0" name="Rating" type="string">
         <mandatoryConform/>
         <constraint type="maxLength" value="8"/>
       </field>
@@ -356,7 +356,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="BC"/>
       </mandatoryConform>
-      <field id="0" name="Channels" type="list">
+      <field fieldId="0" name="Channels" type="list">
         <entry type="BlockChannelStruct"/>
         <mandatoryConform/>
       </field>
@@ -366,7 +366,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="BC"/>
       </mandatoryConform>
-      <field id="0" name="ChannelIndexes" type="list">
+      <field fieldId="0" name="ChannelIndexes" type="list">
         <entry type="uint16"/>
         <mandatoryConform/>
       </field>
@@ -376,7 +376,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="BA"/>
       </mandatoryConform>
-      <field id="0" name="Applications" type="list">
+      <field fieldId="0" name="Applications" type="list">
         <entry type="AppInfoStruct"/>
         <mandatoryConform/>
       </field>
@@ -386,7 +386,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="BA"/>
       </mandatoryConform>
-      <field id="0" name="Applications" type="list">
+      <field fieldId="0" name="Applications" type="list">
         <entry type="AppInfoStruct"/>
         <mandatoryConform/>
       </field>
@@ -396,7 +396,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="BTW"/>
       </mandatoryConform>
-      <field id="0" name="TimeWindow" type="TimeWindowStruct">
+      <field fieldId="0" name="TimeWindow" type="TimeWindowStruct">
         <mandatoryConform/>
       </field>
     </command>
@@ -405,7 +405,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="BTW"/>
       </mandatoryConform>
-      <field id="0" name="TimeWindowIndexes" type="list">
+      <field fieldId="0" name="TimeWindowIndexes" type="list">
         <entry type="uint16"/>
         <mandatoryConform/>
       </field>

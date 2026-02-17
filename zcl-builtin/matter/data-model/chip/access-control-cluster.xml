@@ -72,7 +72,7 @@ limitations under the License.
       and enforce Access Control for the Node's endpoints and their associated
       cluster instances.</description>
 
-    <!-- Modified attribute definition from `type="array" entryType="X"` to `array="true" type="X"`  
+    <!-- Modified attribute definition from `type="array" entryType="X"` to `array="true" type="X"`
      to support testing loading list-typed attributes -->
     <attribute side="server" code="0x0000" define="ACL" array="true" type="AccessControlEntryStruct" writable="true">
       <description>ACL</description>
@@ -114,18 +114,18 @@ limitations under the License.
 
     <event side="server" code="0x0000" name="AccessControlEntryChanged" priority="info" isFabricSensitive="true" optional="false">
       <description>The cluster SHALL send AccessControlEntryChanged events whenever its ACL attribute data is changed by an Administrator.</description>
-      <field id="1" name="AdminNodeID" type="node_id" isNullable="true"/>
-      <field id="2" name="AdminPasscodeID" type="INT16U" isNullable="true"/>
-      <field id="3" name="ChangeType" type="ChangeTypeEnum"/>
-      <field id="4" name="LatestValue" type="AccessControlEntryStruct" isNullable="true"/>
+      <field fieldId="1" name="AdminNodeID" type="node_id" isNullable="true"/>
+      <field fieldId="2" name="AdminPasscodeID" type="INT16U" isNullable="true"/>
+      <field fieldId="3" name="ChangeType" type="ChangeTypeEnum"/>
+      <field fieldId="4" name="LatestValue" type="AccessControlEntryStruct" isNullable="true"/>
       <access op="read" privilege="administer"/>
     </event>
     <event side="server" code="0x0001" name="AccessControlExtensionChanged" priority="info" isFabricSensitive="true" optional="false">
       <description>The cluster SHALL send AccessControlExtensionChanged events whenever its extension attribute data is changed by an Administrator.</description>
-      <field id="1" name="AdminNodeID" type="node_id" isNullable="true"/>
-      <field id="2" name="AdminPasscodeID" type="INT16U" isNullable="true"/>
-      <field id="3" name="ChangeType" type="ChangeTypeEnum"/>
-      <field id="4" name="LatestValue" type="AccessControlExtensionStruct" isNullable="true"/>
+      <field fieldId="1" name="AdminNodeID" type="node_id" isNullable="true"/>
+      <field fieldId="2" name="AdminPasscodeID" type="INT16U" isNullable="true"/>
+      <field fieldId="3" name="ChangeType" type="ChangeTypeEnum"/>
+      <field fieldId="4" name="LatestValue" type="AccessControlExtensionStruct" isNullable="true"/>
       <access op="read" privilege="administer"/>
     </event>
   </cluster>

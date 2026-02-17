@@ -117,41 +117,41 @@ Davis, CA 95616, USA
       </bitfield>
     </bitmap>
     <struct name="PriceComponentStruct">
-      <field id="0" name="Price" type="int32">
+      <field fieldId="0" name="Price" type="int32">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Source" type="PriceComponentSourceEnum" default="Tariff">
+      <field fieldId="1" name="Source" type="PriceComponentSourceEnum" default="Tariff">
         <mandatoryConform/>
       </field>
-      <field id="2" name="Description" type="string">
+      <field fieldId="2" name="Description" type="string">
         <optionalConform/>
         <constraint type="maxLength" value="32 chars"/>
       </field>
       <access fabricScoped="true"/>
     </struct>
     <struct name="PriceStruct">
-      <field id="0" name="PeriodStart" type="epoch-s">
+      <field fieldId="0" name="PeriodStart" type="epoch-s">
         <mandatoryConform/>
       </field>
-      <field id="1" name="PeriodEnd" type="epoch-s" default="null">
+      <field fieldId="1" name="PeriodEnd" type="epoch-s" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="2" name="Price" type="int32">
+      <field fieldId="2" name="Price" type="int32">
         <mandatoryConform/>
       </field>
-      <field id="3" name="DecimalPoints" type="uint8" default="0">
+      <field fieldId="3" name="DecimalPoints" type="uint8" default="0">
         <mandatoryConform/>
       </field>
-      <field id="4" name="Currency" type="uint16">
+      <field fieldId="4" name="Currency" type="uint16">
         <mandatoryConform/>
         <constraint type="max" value="999"/>
       </field>
-      <field id="5" name="Description" type="string">
+      <field fieldId="5" name="Description" type="string">
         <optionalConform/>
         <constraint type="maxLength" value="32"/>
       </field>
-      <field id="6" name="Components" type="list" default="empty">
+      <field fieldId="6" name="Components" type="list" default="empty">
         <entry type="PriceComponentStruct"/>
         <optionalConform/>
         <constraint type="maxCount" value="10"/>
@@ -181,14 +181,14 @@ Davis, CA 95616, USA
     <command id="0x00" name="GetDetailedPriceRequest" direction="commandToServer" response="GetDetailedPriceResponse">
       <access invokePrivilege="operate"/>
       <optionalConform/>
-      <field id="0" name="Details" type="PriceDetailBitmap" default="0">
+      <field fieldId="0" name="Details" type="PriceDetailBitmap" default="0">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x01" name="GetDetailedPriceResponse" direction="responseFromServer">
       <access invokePrivilege="operate"/>
       <optionalConform/>
-      <field id="0" name="Price" type="PriceStruct" default="null">
+      <field fieldId="0" name="Price" type="PriceStruct" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
@@ -198,7 +198,7 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="FORE"/>
       </optionalConform>
-      <field id="0" name="Details" type="PriceDetailBitmap" default="0">
+      <field fieldId="0" name="Details" type="PriceDetailBitmap" default="0">
         <mandatoryConform/>
       </field>
     </command>
@@ -207,7 +207,7 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="FORE"/>
       </optionalConform>
-      <field id="0" name="Price" type="list" default="empty">
+      <field fieldId="0" name="Price" type="list" default="empty">
         <entry type="PriceStruct"/>
         <mandatoryConform/>
       </field>
@@ -217,14 +217,14 @@ Davis, CA 95616, USA
     <event id="0x00" name="PriceChange" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="Price" type="PriceStruct">
+      <field fieldId="0" name="Price" type="PriceStruct">
         <mandatoryConform/>
       </field>
     </event>
     <event id="0x01" name="ForecastChange" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="Forecast" type="list">
+      <field fieldId="0" name="Forecast" type="list">
         <entry type="PriceStruct"/>
         <mandatoryConform/>
       </field>

@@ -34,7 +34,7 @@ limitations under the License.
     <cluster code="0x0035"/>
     <item name="Connected" value="0x00"/>
     <item name="NotConnected" value="0x01"/>
-  </enum>  
+  </enum>
   <struct name="NeighborTable">
     <cluster code="0x0035"/>
     <item name="ExtAddress" type="INT64U"/>
@@ -159,13 +159,13 @@ limitations under the License.
     </command>
     <event side="server" code="0x00" name="ConnectionStatus" priority="info" optional="true">
       <description>Indicate that a Node’s connection status to a Thread network has changed</description>
-      <field id="0" name="ConnectionStatus" type="ConnectionStatusEnum"/>
+      <field fieldId="0" name="ConnectionStatus" type="ConnectionStatusEnum"/>
     </event>
     <event side="server" code="0x01" name="NetworkFaultChange" priority="info" optional="true">
       <description>Indicate a change in the set of network faults currently detected by the Node</description>
-      <field id="0" name="Current" type="NetworkFault" array="true"/>
-      <field id="1" name="Previous" type="NetworkFault" array="true"/>
-    </event>    
+      <field fieldId="0" name="Current" type="NetworkFault" array="true"/>
+      <field fieldId="1" name="Previous" type="NetworkFault" array="true"/>
+    </event>
   </cluster>
   <bitmap name="ThreadNetworkDiagnosticsFeature" type="BITMAP32">
     <cluster code="0x0035"/>
@@ -173,5 +173,5 @@ limitations under the License.
     <field name="ErrorCounts" mask="0x2"/>
     <field name="MLECounts" mask="0x4"/>
     <field name="MACCounts" mask="0x8"/>
-  </bitmap>  
+  </bitmap>
 </configurator>

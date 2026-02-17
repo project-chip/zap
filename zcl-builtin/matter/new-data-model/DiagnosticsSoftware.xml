@@ -70,20 +70,20 @@ Davis, CA 95616, USA
   </features>
   <dataTypes>
     <struct name="ThreadMetricsStruct">
-      <field id="0" name="ID" type="uint64">
+      <field fieldId="0" name="ID" type="uint64">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Name" type="string" default="empty">
+      <field fieldId="1" name="Name" type="string" default="empty">
         <optionalConform/>
         <constraint type="maxLength" value="8"/>
       </field>
-      <field id="2" name="StackFreeCurrent" type="uint32" default="MS">
+      <field fieldId="2" name="StackFreeCurrent" type="uint32" default="MS">
         <optionalConform/>
       </field>
-      <field id="3" name="StackFreeMinimum" type="uint32" default="MS">
+      <field fieldId="3" name="StackFreeMinimum" type="uint32" default="MS">
         <optionalConform/>
       </field>
-      <field id="4" name="StackSize" type="uint32" default="MS">
+      <field fieldId="4" name="StackSize" type="uint32" default="MS">
         <optionalConform/>
       </field>
     </struct>
@@ -122,14 +122,14 @@ Davis, CA 95616, USA
     <event id="0x00" name="SoftwareFault" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="ID" type="uint64" default="0">
+      <field fieldId="0" name="ID" type="uint64" default="0">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Name" type="string" default="empty">
+      <field fieldId="1" name="Name" type="string" default="empty">
         <optionalConform/>
         <constraint type="maxLength" value="8"/>
       </field>
-      <field id="2" name="FaultRecording" type="octstr" default="empty">
+      <field fieldId="2" name="FaultRecording" type="octstr" default="empty">
         <optionalConform/>
         <constraint type="maxLength" value="1024"/>
       </field>

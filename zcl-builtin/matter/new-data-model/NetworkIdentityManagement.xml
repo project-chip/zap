@@ -73,7 +73,7 @@ Davis, CA 95616, USA
       </item>
     </enum>
     <struct name="ClientEndorsementStruct">
-      <field id="0" name="NodeID" type="node-id" default="null">
+      <field fieldId="0" name="NodeID" type="node-id" default="null">
         <access fabricSensitive="true"/>
         <quality nullable="true"/>
         <mandatoryConform/>
@@ -81,15 +81,15 @@ Davis, CA 95616, USA
       <access fabricScoped="true"/>
     </struct>
     <struct name="ClientStruct">
-      <field id="0" name="ClientNumber" type="uint16">
+      <field fieldId="0" name="ClientNumber" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="2047"/>
       </field>
-      <field id="1" name="ClientIdentifier" type="octstr">
+      <field fieldId="1" name="ClientIdentifier" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="20"/>
       </field>
-      <field id="2" name="Endorsements" type="list">
+      <field fieldId="2" name="Endorsements" type="list">
         <entry type="ClientEndorsementStruct"/>
         <mandatoryConform/>
         <constraint type="countBetween" from="1" to="SupportedFabrics"/>
@@ -127,21 +127,21 @@ Davis, CA 95616, USA
     <command id="0x00" name="AddOrUpdateClient" direction="commandToServer" response="Y">
       <access invokePrivilege="admin" fabricScoped="true" timed="true"/>
       <mandatoryConform/>
-      <field id="0" name="ClientIdentity" type="octstr">
+      <field fieldId="0" name="ClientIdentity" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="140"/>
       </field>
-      <field id="1" name="NodeID" type="node-id">
+      <field fieldId="1" name="NodeID" type="node-id">
         <optionalConform/>
       </field>
     </command>
     <command id="0x01" name="RemoveClient" direction="commandToServer" response="Y">
       <access invokePrivilege="admin" fabricScoped="true" timed="true"/>
       <mandatoryConform/>
-      <field id="0" name="ClientNumber" type="uint16">
+      <field fieldId="0" name="ClientNumber" type="uint16">
         <optionalConform choice="a"/>
       </field>
-      <field id="1" name="ClientIdentifier" type="octstr">
+      <field fieldId="1" name="ClientIdentifier" type="octstr">
         <optionalConform choice="a"/>
         <constraint type="maxLength" value="20"/>
       </field>
@@ -149,18 +149,18 @@ Davis, CA 95616, USA
     <command id="0x40" name="EndorseNetworkIdentityUpdate" direction="commandToServer" response="Y">
       <access invokePrivilege="admin" fabricScoped="true" timed="true"/>
       <mandatoryConform/>
-      <field id="0" name="NetworkIdentifier" type="octstr">
+      <field fieldId="0" name="NetworkIdentifier" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="20"/>
       </field>
-      <field id="1" name="PreviousNetworkIdentifiers" type="list">
+      <field fieldId="1" name="PreviousNetworkIdentifiers" type="list">
         <entry type="octstr">
           <constraint type="maxLength" value="20"/>
         </entry>
         <mandatoryConform/>
         <constraint type="countBetween" from="1" to="3"/>
       </field>
-      <field id="2" name="Signature" type="octstr">
+      <field fieldId="2" name="Signature" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="64"/>
       </field>

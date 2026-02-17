@@ -459,11 +459,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HS"/>
       </mandatoryConform>
-      <field id="0" name="Hue" type="uint8">
+      <field fieldId="0" name="Hue" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="254"/>
       </field>
-      <field id="1" name="Direction" type="enum8">
+      <field fieldId="1" name="Direction" type="enum8">
         <enum>
           <item value="0" name="Item0" summary="Shortest distance">
             <mandatoryConform/>
@@ -481,15 +481,15 @@ Davis, CA 95616, USA
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="TransitionTime" type="uint16">
+      <field fieldId="2" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="3" name="OptionsMask" type="map8" default="0">
+      <field fieldId="3" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="4" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -499,7 +499,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HS"/>
       </mandatoryConform>
-      <field id="0" name="MoveMode" type="enum8">
+      <field fieldId="0" name="MoveMode" type="enum8">
         <enum>
           <item value="0" name="Item0" summary="Stop">
             <mandatoryConform/>
@@ -517,14 +517,14 @@ Davis, CA 95616, USA
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Rate" type="uint8">
+      <field fieldId="1" name="Rate" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="2" name="OptionsMask" type="map8" default="0">
+      <field fieldId="2" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="3" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -534,7 +534,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HS"/>
       </mandatoryConform>
-      <field id="0" name="StepMode" type="enum8">
+      <field fieldId="0" name="StepMode" type="enum8">
         <enum>
           <item value="0" name="Item0" summary="Reserved">
             <mandatoryConform/>
@@ -552,17 +552,17 @@ Davis, CA 95616, USA
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="StepSize" type="uint8">
+      <field fieldId="1" name="StepSize" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="2" name="TransitionTime" type="uint8">
+      <field fieldId="2" name="TransitionTime" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="3" name="OptionsMask" type="map8" default="0">
+      <field fieldId="3" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="4" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -572,19 +572,19 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HS"/>
       </mandatoryConform>
-      <field id="0" name="Saturation" type="uint8">
+      <field fieldId="0" name="Saturation" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="254"/>
       </field>
-      <field id="1" name="TransitionTime" type="uint16">
+      <field fieldId="1" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="2" name="OptionsMask" type="map8" default="0">
+      <field fieldId="2" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="3" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -594,7 +594,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HS"/>
       </mandatoryConform>
-      <field id="0" name="MoveMode" type="enum8">
+      <field fieldId="0" name="MoveMode" type="enum8">
         <enum>
           <item value="0" name="Item0" summary="Stop">
             <mandatoryConform/>
@@ -612,14 +612,14 @@ Davis, CA 95616, USA
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Rate" type="uint8">
+      <field fieldId="1" name="Rate" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="2" name="OptionsMask" type="map8" default="0">
+      <field fieldId="2" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="3" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -629,7 +629,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HS"/>
       </mandatoryConform>
-      <field id="0" name="StepMode" type="enum8">
+      <field fieldId="0" name="StepMode" type="enum8">
         <enum>
           <item value="0" name="Item0" summary="Reserved">
             <mandatoryConform/>
@@ -647,17 +647,17 @@ Davis, CA 95616, USA
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="StepSize" type="uint8">
+      <field fieldId="1" name="StepSize" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="2" name="TransitionTime" type="uint8">
+      <field fieldId="2" name="TransitionTime" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="3" name="OptionsMask" type="map8" default="0">
+      <field fieldId="3" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="4" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -667,23 +667,23 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HS"/>
       </mandatoryConform>
-      <field id="0" name="Hue" type="uint8">
+      <field fieldId="0" name="Hue" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="254"/>
       </field>
-      <field id="1" name="Saturation" type="uint8">
+      <field fieldId="1" name="Saturation" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="254"/>
       </field>
-      <field id="2" name="TransitionTime" type="uint16">
+      <field fieldId="2" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="3" name="OptionsMask" type="map8" default="0">
+      <field fieldId="3" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="4" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -693,23 +693,23 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="XY"/>
       </mandatoryConform>
-      <field id="0" name="ColorX" type="uint16">
+      <field fieldId="0" name="ColorX" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="0xFEFF"/>
       </field>
-      <field id="1" name="ColorY" type="uint16">
+      <field fieldId="1" name="ColorY" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="0xFEFF"/>
       </field>
-      <field id="2" name="TransitionTime" type="uint16">
+      <field fieldId="2" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="3" name="OptionsMask" type="map8" default="0">
+      <field fieldId="3" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="4" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -719,17 +719,17 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="XY"/>
       </mandatoryConform>
-      <field id="0" name="RateX" type="int16">
+      <field fieldId="0" name="RateX" type="int16">
         <mandatoryConform/>
       </field>
-      <field id="1" name="RateY" type="int16">
+      <field fieldId="1" name="RateY" type="int16">
         <mandatoryConform/>
       </field>
-      <field id="2" name="OptionsMask" type="map8" default="0">
+      <field fieldId="2" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="3" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -739,21 +739,21 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="XY"/>
       </mandatoryConform>
-      <field id="0" name="StepX" type="int16">
+      <field fieldId="0" name="StepX" type="int16">
         <mandatoryConform/>
       </field>
-      <field id="1" name="StepY" type="int16">
+      <field fieldId="1" name="StepY" type="int16">
         <mandatoryConform/>
       </field>
-      <field id="2" name="TransitionTime" type="uint16">
+      <field fieldId="2" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="3" name="OptionsMask" type="map8" default="0">
+      <field fieldId="3" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="4" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -763,19 +763,19 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="CT"/>
       </mandatoryConform>
-      <field id="0" name="ColorTemperatureMireds" type="uint16">
+      <field fieldId="0" name="ColorTemperatureMireds" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="0xFEFF"/>
       </field>
-      <field id="1" name="TransitionTime" type="uint16">
+      <field fieldId="1" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="2" name="OptionsMask" type="map8" default="0">
+      <field fieldId="2" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="3" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -785,22 +785,22 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="EHUE"/>
       </mandatoryConform>
-      <field id="0" name="EnhancedHue" type="uint16">
+      <field fieldId="0" name="EnhancedHue" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Direction" type="enum8">
+      <field fieldId="1" name="Direction" type="enum8">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="TransitionTime" type="uint16">
+      <field fieldId="2" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="3" name="OptionsMask" type="map8" default="0">
+      <field fieldId="3" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="4" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -810,18 +810,18 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="EHUE"/>
       </mandatoryConform>
-      <field id="0" name="MoveMode" type="enum8">
+      <field fieldId="0" name="MoveMode" type="enum8">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Rate" type="uint16">
+      <field fieldId="1" name="Rate" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="2" name="OptionsMask" type="map8" default="0">
+      <field fieldId="2" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="3" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -831,22 +831,22 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="EHUE"/>
       </mandatoryConform>
-      <field id="0" name="StepMode" type="enum8">
+      <field fieldId="0" name="StepMode" type="enum8">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="StepSize" type="uint16">
+      <field fieldId="1" name="StepSize" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="2" name="TransitionTime" type="uint16">
+      <field fieldId="2" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="3" name="OptionsMask" type="map8" default="0">
+      <field fieldId="3" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="4" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -856,22 +856,22 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="EHUE"/>
       </mandatoryConform>
-      <field id="0" name="EnhancedHue" type="uint16">
+      <field fieldId="0" name="EnhancedHue" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Saturation" type="uint8">
+      <field fieldId="1" name="Saturation" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="254"/>
       </field>
-      <field id="2" name="TransitionTime" type="uint16">
+      <field fieldId="2" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="3" name="OptionsMask" type="map8" default="0">
+      <field fieldId="3" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="4" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -881,7 +881,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="CL"/>
       </mandatoryConform>
-      <field id="0" name="UpdateFlags" type="map8">
+      <field fieldId="0" name="UpdateFlags" type="map8">
         <bitmap>
           <bitfield name="Reserved" bit="4-7">
             <mandatoryConform/>
@@ -902,7 +902,7 @@ Davis, CA 95616, USA
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Action" type="enum8">
+      <field fieldId="1" name="Action" type="enum8">
         <enum>
           <item value="0" name="Item0" summary="De-activate the color loop.">
             <mandatoryConform/>
@@ -917,7 +917,7 @@ Davis, CA 95616, USA
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="Direction" type="enum8">
+      <field fieldId="2" name="Direction" type="enum8">
         <enum>
           <item value="0" name="Item0" summary="Decrement the hue in the color loop.">
             <mandatoryConform/>
@@ -929,17 +929,17 @@ Davis, CA 95616, USA
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="Time" type="uint16">
+      <field fieldId="3" name="Time" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="4" name="StartHue" type="uint16">
+      <field fieldId="4" name="StartHue" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="5" name="OptionsMask" type="map8" default="0">
+      <field fieldId="5" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="6" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="6" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -953,11 +953,11 @@ Davis, CA 95616, USA
           <feature name="CT"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="OptionsMask" type="map8" default="0">
+      <field fieldId="0" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="1" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -967,26 +967,26 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="CT"/>
       </mandatoryConform>
-      <field id="0" name="MoveMode" type="map8">
+      <field fieldId="0" name="MoveMode" type="map8">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Rate" type="uint16">
+      <field fieldId="1" name="Rate" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="2" name="ColorTemperatureMinimumMireds" type="uint16">
-        <mandatoryConform/>
-        <constraint type="between" from="0" to="0xFEFF"/>
-      </field>
-      <field id="3" name="ColorTemperatureMaximumMireds" type="uint16">
+      <field fieldId="2" name="ColorTemperatureMinimumMireds" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="0xFEFF"/>
       </field>
-      <field id="4" name="OptionsMask" type="map8" default="0">
+      <field fieldId="3" name="ColorTemperatureMaximumMireds" type="uint16">
+        <mandatoryConform/>
+        <constraint type="between" from="0" to="0xFEFF"/>
+      </field>
+      <field fieldId="4" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="5" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="5" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -996,30 +996,30 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="CT"/>
       </mandatoryConform>
-      <field id="0" name="StepMode" type="map8">
+      <field fieldId="0" name="StepMode" type="map8">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="StepSize" type="uint16">
+      <field fieldId="1" name="StepSize" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="2" name="TransitionTime" type="uint16">
+      <field fieldId="2" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="3" name="ColorTemperatureMinimumMireds" type="uint16">
+      <field fieldId="3" name="ColorTemperatureMinimumMireds" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="0xFEFF"/>
       </field>
-      <field id="4" name="ColorTemperatureMaximumMireds" type="uint16">
+      <field fieldId="4" name="ColorTemperatureMaximumMireds" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="0xFEFF"/>
       </field>
-      <field id="5" name="OptionsMask" type="map8" default="0">
+      <field fieldId="5" name="OptionsMask" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="6" name="OptionsOverride" type="map8" default="0">
+      <field fieldId="6" name="OptionsOverride" type="map8" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>

@@ -514,112 +514,112 @@ Davis, CA 95616, USA
       </bitfield>
     </bitmap>
     <struct name="PresetStruct">
-      <field id="0" name="PresetHandle" type="octstr">
+      <field fieldId="0" name="PresetHandle" type="octstr">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="1" name="PresetScenario" type="PresetScenarioEnum">
+      <field fieldId="1" name="PresetScenario" type="PresetScenarioEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="Name" type="string" default="null">
+      <field fieldId="2" name="Name" type="string" default="null">
         <quality nullable="true"/>
         <optionalConform/>
         <constraint type="maxLength" value="64"/>
       </field>
-      <field id="3" name="CoolingSetpoint" type="temperature" default="26°C">
+      <field fieldId="3" name="CoolingSetpoint" type="temperature" default="26°C">
         <mandatoryConform>
           <feature name="COOL"/>
         </mandatoryConform>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="HeatingSetpoint" type="temperature" default="20°C">
+      <field fieldId="4" name="HeatingSetpoint" type="temperature" default="20°C">
         <mandatoryConform>
           <feature name="HEAT"/>
         </mandatoryConform>
         <constraint type="desc"/>
       </field>
-      <field id="5" name="BuiltIn" type="bool" default="false">
+      <field fieldId="5" name="BuiltIn" type="bool" default="false">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="PresetTypeStruct">
-      <field id="0" name="PresetScenario" type="PresetScenarioEnum">
+      <field fieldId="0" name="PresetScenario" type="PresetScenarioEnum">
         <mandatoryConform/>
       </field>
-      <field id="1" name="NumberOfPresets" type="uint8" default="0">
+      <field fieldId="1" name="NumberOfPresets" type="uint8" default="0">
         <mandatoryConform/>
       </field>
-      <field id="2" name="PresetTypeFeatures" type="PresetTypeFeaturesBitmap" default="0">
+      <field fieldId="2" name="PresetTypeFeatures" type="PresetTypeFeaturesBitmap" default="0">
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="QueuedPresetStruct">
-      <field id="0" name="PresetHandle" type="octstr">
+      <field fieldId="0" name="PresetHandle" type="octstr">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="1" name="TransitionTimestamp" type="utc" default="null">
+      <field fieldId="1" name="TransitionTimestamp" type="utc" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="ScheduleStruct">
-      <field id="0" name="ScheduleHandle" type="octstr">
+      <field fieldId="0" name="ScheduleHandle" type="octstr">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="1" name="SystemMode" type="SystemModeEnum">
+      <field fieldId="1" name="SystemMode" type="SystemModeEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="Name" type="string">
+      <field fieldId="2" name="Name" type="string">
         <optionalConform/>
         <constraint type="maxLength" value="64"/>
       </field>
-      <field id="3" name="PresetHandle" type="octstr">
+      <field fieldId="3" name="PresetHandle" type="octstr">
         <optionalConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="4" name="Transitions" type="list" default="empty">
+      <field fieldId="4" name="Transitions" type="list" default="empty">
         <entry type="ScheduleTransitionStruct"/>
         <mandatoryConform/>
         <constraint type="countBetween" from="1" to="NumberOfScheduleTransitions Attribute"/>
       </field>
-      <field id="5" name="BuiltIn" type="bool" default="false">
+      <field fieldId="5" name="BuiltIn" type="bool" default="false">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="ScheduleTransitionStruct">
-      <field id="0" name="DayOfWeek" type="ScheduleDayOfWeekBitmap">
+      <field fieldId="0" name="DayOfWeek" type="ScheduleDayOfWeekBitmap">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="TransitionTime" type="uint16">
+      <field fieldId="1" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="0" to="1439"/>
       </field>
-      <field id="2" name="PresetHandle" type="octstr">
+      <field fieldId="2" name="PresetHandle" type="octstr">
         <optionalConform>
           <feature name="PRES"/>
         </optionalConform>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="3" name="SystemMode" type="SystemModeEnum">
+      <field fieldId="3" name="SystemMode" type="SystemModeEnum">
         <optionalConform/>
         <constraint type="desc"/>
       </field>
-      <field id="4" name="CoolingSetpoint" type="temperature">
+      <field fieldId="4" name="CoolingSetpoint" type="temperature">
         <optionalConform>
           <feature name="COOL"/>
         </optionalConform>
         <constraint type="desc"/>
       </field>
-      <field id="5" name="HeatingSetpoint" type="temperature">
+      <field fieldId="5" name="HeatingSetpoint" type="temperature">
         <optionalConform>
           <feature name="HEAT"/>
         </optionalConform>
@@ -627,29 +627,29 @@ Davis, CA 95616, USA
       </field>
     </struct>
     <struct name="ScheduleTypeStruct">
-      <field id="0" name="SystemMode" type="SystemModeEnum">
+      <field fieldId="0" name="SystemMode" type="SystemModeEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="NumberOfSchedules" type="uint8" default="0">
+      <field fieldId="1" name="NumberOfSchedules" type="uint8" default="0">
         <mandatoryConform/>
         <constraint type="max" value="NumberOfSchedules Attribute"/>
       </field>
-      <field id="2" name="ScheduleTypeFeatures" type="ScheduleTypeFeaturesBitmap" default="0">
+      <field fieldId="2" name="ScheduleTypeFeatures" type="ScheduleTypeFeaturesBitmap" default="0">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
     </struct>
     <struct name="WeeklyScheduleTransitionStruct">
-      <field id="0" name="TransitionTime" type="uint16">
+      <field fieldId="0" name="TransitionTime" type="uint16">
         <mandatoryConform/>
         <constraint type="max" value="1439"/>
       </field>
-      <field id="1" name="HeatSetpoint" type="temperature">
+      <field fieldId="1" name="HeatSetpoint" type="temperature">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="2" name="CoolSetpoint" type="temperature">
+      <field fieldId="2" name="CoolSetpoint" type="temperature">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
@@ -1118,11 +1118,11 @@ Davis, CA 95616, USA
     <command id="0x00" name="SetpointRaiseLower" direction="commandToServer" response="Y">
       <access invokePrivilege="operate"/>
       <mandatoryConform/>
-      <field id="0" name="Mode" type="SetpointRaiseLowerModeEnum">
+      <field fieldId="0" name="Mode" type="SetpointRaiseLowerModeEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Amount" type="int8">
+      <field fieldId="1" name="Amount" type="int8">
         <mandatoryConform/>
       </field>
     </command>
@@ -1130,18 +1130,18 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="SCH"/>
       </mandatoryConform>
-      <field id="0" name="NumberOfTransitionsForSequence" type="uint8">
+      <field fieldId="0" name="NumberOfTransitionsForSequence" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="1" name="DayOfWeekForSequence" type="ScheduleDayOfWeekBitmap">
-        <mandatoryConform/>
-        <constraint type="desc"/>
-      </field>
-      <field id="2" name="ModeForSequence" type="ScheduleModeBitmap">
+      <field fieldId="1" name="DayOfWeekForSequence" type="ScheduleDayOfWeekBitmap">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="Transitions" type="list">
+      <field fieldId="2" name="ModeForSequence" type="ScheduleModeBitmap">
+        <mandatoryConform/>
+        <constraint type="desc"/>
+      </field>
+      <field fieldId="3" name="Transitions" type="list">
         <entry type="WeeklyScheduleTransitionStruct"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="10"/>
@@ -1152,18 +1152,18 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="SCH"/>
       </mandatoryConform>
-      <field id="0" name="NumberOfTransitionsForSequence" type="uint8">
+      <field fieldId="0" name="NumberOfTransitionsForSequence" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="1" name="DayOfWeekForSequence" type="ScheduleDayOfWeekBitmap">
-        <mandatoryConform/>
-        <constraint type="desc"/>
-      </field>
-      <field id="2" name="ModeForSequence" type="ScheduleModeBitmap">
+      <field fieldId="1" name="DayOfWeekForSequence" type="ScheduleDayOfWeekBitmap">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="Transitions" type="list">
+      <field fieldId="2" name="ModeForSequence" type="ScheduleModeBitmap">
+        <mandatoryConform/>
+        <constraint type="desc"/>
+      </field>
+      <field fieldId="3" name="Transitions" type="list">
         <entry type="WeeklyScheduleTransitionStruct"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="10"/>
@@ -1173,27 +1173,27 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <command name="GetRelayStatusLog"/>
       </mandatoryConform>
-      <field id="0" name="TimeOfDay" type="uint16">
+      <field fieldId="0" name="TimeOfDay" type="uint16">
         <mandatoryConform/>
         <constraint type="max" value="1439"/>
       </field>
-      <field id="1" name="RelayStatus" type="RelayStateBitmap">
+      <field fieldId="1" name="RelayStatus" type="RelayStateBitmap">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="LocalTemperature" type="temperature">
+      <field fieldId="2" name="LocalTemperature" type="temperature">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="3" name="HumidityInPercentage" type="uint8">
+      <field fieldId="3" name="HumidityInPercentage" type="uint8">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="between" from="0%" to="100%"/>
       </field>
-      <field id="4" name="SetPoint" type="temperature">
+      <field fieldId="4" name="SetPoint" type="temperature">
         <mandatoryConform/>
       </field>
-      <field id="5" name="UnreadEntries" type="uint16">
+      <field fieldId="5" name="UnreadEntries" type="uint16">
         <mandatoryConform/>
       </field>
     </command>
@@ -1202,11 +1202,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="SCH"/>
       </mandatoryConform>
-      <field id="0" name="DaysToReturn" type="ScheduleDayOfWeekBitmap">
+      <field fieldId="0" name="DaysToReturn" type="ScheduleDayOfWeekBitmap">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="ModeToReturn" type="ScheduleModeBitmap">
+      <field fieldId="1" name="ModeToReturn" type="ScheduleModeBitmap">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -1228,7 +1228,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="MSCH"/>
       </mandatoryConform>
-      <field id="0" name="ScheduleHandle" type="octstr">
+      <field fieldId="0" name="ScheduleHandle" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
@@ -1238,11 +1238,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="PRES"/>
       </mandatoryConform>
-      <field id="0" name="PresetHandle" type="octstr">
+      <field fieldId="0" name="PresetHandle" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="1" name="DelayMinutes" type="uint16" default="0">
+      <field fieldId="1" name="DelayMinutes" type="uint16" default="0">
         <optionalConform>
           <feature name="QDPRES"/>
         </optionalConform>
@@ -1256,7 +1256,7 @@ Davis, CA 95616, USA
           <feature name="PRES"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="TimeoutSeconds" type="uint16">
+      <field fieldId="0" name="TimeoutSeconds" type="uint16">
         <mandatoryConform/>
         <constraint type="max" value="120"/>
       </field>

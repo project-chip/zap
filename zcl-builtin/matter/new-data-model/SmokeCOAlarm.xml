@@ -242,7 +242,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="SMOKE"/>
       </mandatoryConform>
-      <field id="0" name="AlarmSeverityLevel" type="AlarmStateEnum">
+      <field fieldId="0" name="AlarmSeverityLevel" type="AlarmStateEnum">
         <mandatoryConform/>
       </field>
     </event>
@@ -251,14 +251,14 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="CO"/>
       </mandatoryConform>
-      <field id="0" name="AlarmSeverityLevel" type="AlarmStateEnum">
+      <field fieldId="0" name="AlarmSeverityLevel" type="AlarmStateEnum">
         <mandatoryConform/>
       </field>
     </event>
     <event id="0x02" name="LowBattery" priority="info">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="AlarmSeverityLevel" type="AlarmStateEnum">
+      <field fieldId="0" name="AlarmSeverityLevel" type="AlarmStateEnum">
         <mandatoryConform/>
       </field>
     </event>
@@ -287,7 +287,7 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="SMOKE"/>
       </optionalConform>
-      <field id="0" name="AlarmSeverityLevel" type="AlarmStateEnum">
+      <field fieldId="0" name="AlarmSeverityLevel" type="AlarmStateEnum">
         <mandatoryConform/>
       </field>
     </event>
@@ -296,7 +296,7 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="CO"/>
       </optionalConform>
-      <field id="0" name="AlarmSeverityLevel" type="AlarmStateEnum">
+      <field fieldId="0" name="AlarmSeverityLevel" type="AlarmStateEnum">
         <mandatoryConform/>
       </field>
     </event>

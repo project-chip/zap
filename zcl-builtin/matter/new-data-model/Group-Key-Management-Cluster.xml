@@ -89,72 +89,72 @@ Davis, CA 95616, USA
       </item>
     </enum>
     <struct name="GroupInfoMapStruct">
-      <field id="1" name="GroupId" type="group-id">
+      <field fieldId="1" name="GroupId" type="group-id">
         <mandatoryConform/>
       </field>
-      <field id="2" name="Endpoints" type="list">
+      <field fieldId="2" name="Endpoints" type="list">
         <entry type="endpoint-no"/>
         <mandatoryConform/>
         <constraint type="minCount" value="1"/>
       </field>
-      <field id="3" name="GroupName" type="string">
+      <field fieldId="3" name="GroupName" type="string">
         <optionalConform/>
         <constraint type="maxLength" value="16"/>
       </field>
       <access fabricScoped="true"/>
     </struct>
     <struct name="GroupKeyMapStruct">
-      <field id="1" name="GroupId" type="group-id">
+      <field fieldId="1" name="GroupId" type="group-id">
         <mandatoryConform/>
       </field>
-      <field id="2" name="GroupKeySetID" type="uint16">
+      <field fieldId="2" name="GroupKeySetID" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="65535"/>
       </field>
       <access fabricScoped="true"/>
     </struct>
     <struct name="GroupKeySetStruct">
-      <field id="0" name="GroupKeySetID" type="uint16">
+      <field fieldId="0" name="GroupKeySetID" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="1" name="GroupKeySecurityPolicy" type="GroupKeySecurityPolicyEnum">
+      <field fieldId="1" name="GroupKeySecurityPolicy" type="GroupKeySecurityPolicyEnum">
         <access fabricSensitive="true"/>
         <mandatoryConform/>
       </field>
-      <field id="2" name="EpochKey0" type="octstr">
-        <access fabricSensitive="true"/>
-        <quality nullable="true"/>
-        <mandatoryConform/>
-        <constraint type="maxLength" value="16"/>
-      </field>
-      <field id="3" name="EpochStartTime0" type="epoch-us">
-        <access fabricSensitive="true"/>
-        <quality nullable="true"/>
-        <mandatoryConform/>
-      </field>
-      <field id="4" name="EpochKey1" type="octstr">
+      <field fieldId="2" name="EpochKey0" type="octstr">
         <access fabricSensitive="true"/>
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="5" name="EpochStartTime1" type="epoch-us">
+      <field fieldId="3" name="EpochStartTime0" type="epoch-us">
         <access fabricSensitive="true"/>
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="6" name="EpochKey2" type="octstr">
+      <field fieldId="4" name="EpochKey1" type="octstr">
         <access fabricSensitive="true"/>
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="7" name="EpochStartTime2" type="epoch-us">
+      <field fieldId="5" name="EpochStartTime1" type="epoch-us">
         <access fabricSensitive="true"/>
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="8" name="GroupKeyMulticastPolicy" type="GroupKeyMulticastPolicyEnum">
+      <field fieldId="6" name="EpochKey2" type="octstr">
+        <access fabricSensitive="true"/>
+        <quality nullable="true"/>
+        <mandatoryConform/>
+        <constraint type="maxLength" value="16"/>
+      </field>
+      <field fieldId="7" name="EpochStartTime2" type="epoch-us">
+        <access fabricSensitive="true"/>
+        <quality nullable="true"/>
+        <mandatoryConform/>
+      </field>
+      <field fieldId="8" name="GroupKeyMulticastPolicy" type="GroupKeyMulticastPolicyEnum">
         <access fabricSensitive="true"/>
         <otherwiseConform>
           <provisionalConform/>
@@ -193,40 +193,40 @@ Davis, CA 95616, USA
     <command id="0x00" name="KeySetWrite Command" direction="commandToServer" response="Y">
       <access invokePrivilege="admin" fabricScoped="true"/>
       <mandatoryConform/>
-      <field id="0" name="GroupKeySet" type="GroupKeySetStruct">
+      <field fieldId="0" name="GroupKeySet" type="GroupKeySetStruct">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x01" name="KeySetRead Command" direction="commandToServer" response="KeySetReadResponse Command">
       <access invokePrivilege="admin" fabricScoped="true"/>
       <mandatoryConform/>
-      <field id="0" name="GroupKeySetID" type="uint16">
+      <field fieldId="0" name="GroupKeySetID" type="uint16">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x02" name="KeySetReadResponse Command" direction="responseFromServer">
       <mandatoryConform/>
-      <field id="0" name="GroupKeySet" type="GroupKeySetStruct">
+      <field fieldId="0" name="GroupKeySet" type="GroupKeySetStruct">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x03" name="KeySetRemove Command" direction="commandToServer" response="Y">
       <access invokePrivilege="admin" fabricScoped="true"/>
       <mandatoryConform/>
-      <field id="0" name="GroupKeySetID" type="uint16">
+      <field fieldId="0" name="GroupKeySetID" type="uint16">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x04" name="KeySetReadAllIndices Command" direction="commandToServer" response="KeySetReadAllIndicesResponse Command">
       <access invokePrivilege="admin" fabricScoped="true"/>
       <mandatoryConform/>
-      <field id="0" name="reserved">
+      <field fieldId="0" name="reserved">
         <disallowConform/>
       </field>
     </command>
     <command id="0x05" name="KeySetReadAllIndicesResponse Command" direction="responseFromServer">
       <mandatoryConform/>
-      <field id="0" name="GroupKeySetIDs" type="list">
+      <field fieldId="0" name="GroupKeySetIDs" type="list">
         <entry type="uint16"/>
         <mandatoryConform/>
       </field>

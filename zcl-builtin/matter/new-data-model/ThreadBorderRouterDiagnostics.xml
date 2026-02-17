@@ -72,7 +72,7 @@ Davis, CA 95616, USA
     </command>
     <command id="0x01" name="OpDatasetResponse" direction="responseFromServer">
       <mandatoryConform/>
-      <field id="0" name="OperationalDataset" type="octstr">
+      <field fieldId="0" name="OperationalDataset" type="octstr">
         <mandatoryConform>
           <feature name="TH"/>
         </mandatoryConform>
@@ -85,7 +85,7 @@ Davis, CA 95616, USA
     </command>
     <command id="0x03" name="TopologyResponse" direction="responseFromServer">
       <mandatoryConform/>
-      <field id="0" name="ThreadTopology" type="TODO">
+      <field fieldId="0" name="ThreadTopology" type="TODO">
         <mandatoryConform>
           <feature name="TH"/>
         </mandatoryConform>

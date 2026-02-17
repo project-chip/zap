@@ -43,9 +43,9 @@ limitations under the License.
     </command>
     <event code="0x0001" name="HelloEvent" priority="info" side="server">
       <description>Example test event</description>
-      <field id="1" name="arg1" type="INT8U" isNullable="true"/>
-      <field id="2" name="arg2" type="INT32U" array="true"/>
-      <field id="3" name="arg3" type="CHAR_STRING"/>
+      <field fieldId="1" name="arg1" type="INT8U" isNullable="true"/>
+      <field fieldId="2" name="arg2" type="INT32U" array="true"/>
+      <field fieldId="3" name="arg3" type="CHAR_STRING"/>
     </event>
   </cluster>
   <cluster>
@@ -72,9 +72,9 @@ limitations under the License.
     </command>
     <event code="0x0001" name="HelloEvent" priority="info" side="server" isFabricSensitive="true">
       <description>Example test event</description>
-      <field id="1" name="arg1" type="INT8U" isNullable="true"/>
-      <field id="2" name="arg2" type="INT32U" array="true"/>
-      <field id="3" name="arg3" type="CHAR_STRING"/>
+      <field fieldId="1" name="arg1" type="INT8U" isNullable="true"/>
+      <field fieldId="2" name="arg2" type="INT32U" array="true"/>
+      <field fieldId="3" name="arg3" type="CHAR_STRING"/>
     </event>
   </cluster>
 </configurator>

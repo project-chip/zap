@@ -67,26 +67,26 @@ Davis, CA 95616, USA
   <classification hierarchy="base" role="utility" picsCode="BIND" scope="Endpoint"/>
   <dataTypes>
     <struct name="TargetStruct">
-      <field id="1" name="Node" type="node-id">
+      <field fieldId="1" name="Node" type="node-id">
         <mandatoryConform>
           <attribute name="Endpoint"/>
         </mandatoryConform>
       </field>
-      <field id="2" name="Group" type="group-id">
+      <field fieldId="2" name="Group" type="group-id">
         <mandatoryConform>
           <notTerm>
             <attribute name="Endpoint"/>
           </notTerm>
         </mandatoryConform>
       </field>
-      <field id="3" name="Endpoint" type="endpoint-no">
+      <field fieldId="3" name="Endpoint" type="endpoint-no">
         <mandatoryConform>
           <notTerm>
             <attribute name="Group"/>
           </notTerm>
         </mandatoryConform>
       </field>
-      <field id="4" name="Cluster" type="cluster-id">
+      <field fieldId="4" name="Cluster" type="cluster-id">
         <optionalConform/>
       </field>
       <access fabricScoped="true"/>

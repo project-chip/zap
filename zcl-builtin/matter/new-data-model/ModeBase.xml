@@ -72,25 +72,25 @@ Require at least one standard mode tag. Define reserved ranges for base/derived 
   </features>
   <dataTypes>
     <struct name="ModeOptionStruct">
-      <field id="0" name="Label" type="string" default="MS">
+      <field fieldId="0" name="Label" type="string" default="MS">
         <mandatoryConform/>
         <constraint type="maxLength" value="64"/>
       </field>
-      <field id="1" name="Mode" type="uint8" default="MS">
+      <field fieldId="1" name="Mode" type="uint8" default="MS">
         <mandatoryConform/>
       </field>
-      <field id="2" name="ModeTags" type="list" default="MS">
+      <field fieldId="2" name="ModeTags" type="list" default="MS">
         <entry type="ModeTagStruct"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="8"/>
       </field>
     </struct>
     <struct name="ModeTagStruct">
-      <field id="0" name="MfgCode" type="vendor-id">
+      <field fieldId="0" name="MfgCode" type="vendor-id">
         <optionalConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Value" type="enum16">
+      <field fieldId="1" name="Value" type="enum16">
         <mandatoryConform/>
       </field>
     </struct>
@@ -128,7 +128,7 @@ Require at least one standard mode tag. Define reserved ranges for base/derived 
     <command id="0x00" name="ChangeToMode" direction="commandToServer" response="ChangeToModeResponse">
       <access invokePrivilege="operate"/>
       <mandatoryConform/>
-      <field id="0" name="NewMode" type="uint8">
+      <field fieldId="0" name="NewMode" type="uint8">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -136,7 +136,7 @@ Require at least one standard mode tag. Define reserved ranges for base/derived 
     <command id="0x01" name="ChangeToModeResponse" direction="responseFromServer">
       <access invokePrivilege="operate"/>
       <mandatoryConform/>
-      <field id="0" name="Status" type="enum8">
+      <field fieldId="0" name="Status" type="enum8">
         <enum>
           <item from="0x00" to="0x3F" name="CommonCodes" summary="Common standard values defined in the generic Mode Base cluster specification.">
             <mandatoryConform/>
@@ -151,7 +151,7 @@ Require at least one standard mode tag. Define reserved ranges for base/derived 
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="StatusText" type="string">
+      <field fieldId="1" name="StatusText" type="string">
         <constraint type="maxLength" value="64"/>
       </field>
     </command>

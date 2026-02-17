@@ -24,13 +24,13 @@ limitations under the License.
     <client init="false" tick="false">true</client>
     <server init="false" tick="false">true</server>
     <description>This cluster is used to describe the configuration and capabilities of a physical power source that provides power to the Node.</description>
-    <!-- TODO: Add feature map once it is supported 
+    <!-- TODO: Add feature map once it is supported
     <tag name="WIRED" description="A wired power source"/>
     <tag name="BAT" description="A battery powered source"/>
     <tag name="RECHG" description="A rechargeable battery power source"/>
     <tag name="REPLC" description="A replaceable battery power source"/>
     -->
-    
+
     <attribute side="server" code="0x0000" define="POWER_SOURCE_STATUS" type="ENUM8"  min="0x00" max="0x03" writable="false">Status</attribute>
     <attribute side="server" code="0x0001" define="POWER_SOURCE_ORDER" type="INT8U" min="0x00" max="0xFF" writable="false">Order</attribute>
     <attribute side="server" code="0x0002" define="POWER_SOURCE_DESCRIPTION" type="CHAR_STRING" length="60" writable="false">Description</attribute>
@@ -66,17 +66,17 @@ limitations under the License.
     <!-- TODO: Do events work?
     <event code="0x0000" name="WiredFaultChange" priority="info" side="server">
       <description>The WiredFaultChange Event SHALL indicate a change in the set of wired faults currently detected by the Node on this wired power source.</description>
-      <field id="1" name="WiredFaultChangeType" type="WiredFaultChangeType"/>
+      <field fieldId="1" name="WiredFaultChangeType" type="WiredFaultChangeType"/>
     </event>
 
     <event code="0x0001" name="BatFaultChange" priority="info" side="server">
       <description>The BatFaultChange Event SHALL indicate a change in the set of battery faults currently detected by the Node on this battery power source.</description>
-      <field id="1" name="BatFaultChangeType" type="BatFaultChangeType"/>
+      <field fieldId="1" name="BatFaultChangeType" type="BatFaultChangeType"/>
     </event>
 
     <event code="0x0002" name="BatChargeFaultChange" priority="info" side="server">
       <description>The BatChargeFaultChange Event SHALL indicate a change in the set of charge faults currently detected by the Node on this battery power source.</description>
-      <field id="1" name="BatChargeFaultChangeType" type="BatChargeFaultChangeType"/>
+      <field fieldId="1" name="BatChargeFaultChangeType" type="BatChargeFaultChangeType"/>
     </event>
     -->
 

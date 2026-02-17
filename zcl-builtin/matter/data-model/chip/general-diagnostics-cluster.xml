@@ -38,7 +38,7 @@ limitations under the License.
     <item name="ThreadFault" value="0x03"/>
     <item name="NFCFault" value="0x04"/>
     <item name="BLEFault" value="0x05"/>
-    <item name="EthernetFault" value="0x06"/>    
+    <item name="EthernetFault" value="0x06"/>
   </enum>
   <enum name="NetworkFaultEnum" type="ENUM8">
     <cluster code="0x0033"/>
@@ -56,7 +56,7 @@ limitations under the License.
     <item name="HardwareWatchdogReset" value="0x04"/>
     <item name="SoftwareUpdateCompleted" value="0x05"/>
     <item name="SoftwareReset" value="0x06"/>
-  </enum>  
+  </enum>
   <enum name="InterfaceTypeEnum" type="ENUM8">
     <cluster code="0x0033"/>
     <item name="Unspecified" value="0x00"/>
@@ -102,22 +102,22 @@ limitations under the License.
 
     <event side="server" code="0x00" name="HardwareFaultChange" priority="critical" optional="true">
       <description>Indicate a change in the set of hardware faults currently detected by the Node.</description>
-      <field id="0" name="Current" type="HardwareFaultEnum" array="true"/>
-      <field id="1" name="Previous" type="HardwareFaultEnum" array="true"/>
+      <field fieldId="0" name="Current" type="HardwareFaultEnum" array="true"/>
+      <field fieldId="1" name="Previous" type="HardwareFaultEnum" array="true"/>
     </event>
     <event side="server" code="0x01" name="RadioFaultChange" priority="critical" optional="true">
       <description>Indicate a change in the set of radio faults currently detected by the Node.</description>
-      <field id="0" name="Current" type="RadioFaultEnum" array="true"/>
-      <field id="1" name="Previous" type="RadioFaultEnum" array="true"/>
+      <field fieldId="0" name="Current" type="RadioFaultEnum" array="true"/>
+      <field fieldId="1" name="Previous" type="RadioFaultEnum" array="true"/>
     </event>
     <event side="server" code="0x02" name="NetworkFaultChange" priority="critical" optional="true">
       <description>Indicate a change in the set of network faults currently detected by the Node.</description>
-      <field id="0" name="Current" type="NetworkFaultEnum" array="true"/>
-      <field id="1" name="Previous" type="NetworkFaultEnum" array="true"/>
+      <field fieldId="0" name="Current" type="NetworkFaultEnum" array="true"/>
+      <field fieldId="1" name="Previous" type="NetworkFaultEnum" array="true"/>
     </event>
     <event side="server" code="0x03" name="BootReason" priority="critical" optional="false">
       <description>Indicate the reason that caused the device to start-up.</description>
-      <field id="0" name="BootReason" type="BootReasonEnum"/>
+      <field fieldId="0" name="BootReason" type="BootReasonEnum"/>
     </event>
   </cluster>
 </configurator>

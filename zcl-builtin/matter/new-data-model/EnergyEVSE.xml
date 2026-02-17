@@ -220,22 +220,22 @@ Davis, CA 95616, USA
       </bitfield>
     </bitmap>
     <struct name="ChargingTargetScheduleStruct">
-      <field id="0" name="DayOfWeekForSequence" type="TargetDayOfWeekBitmap">
+      <field fieldId="0" name="DayOfWeekForSequence" type="TargetDayOfWeekBitmap">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="ChargingTargets" type="list">
+      <field fieldId="1" name="ChargingTargets" type="list">
         <entry type="ChargingTargetStruct"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="10"/>
       </field>
     </struct>
     <struct name="ChargingTargetStruct">
-      <field id="0" name="TargetTimeMinutesPastMidnight" type="uint16" default="0">
+      <field fieldId="0" name="TargetTimeMinutesPastMidnight" type="uint16" default="0">
         <mandatoryConform/>
         <constraint type="between" from="0" to="1439"/>
       </field>
-      <field id="1" name="TargetSoC" type="percent" default="0">
+      <field fieldId="1" name="TargetSoC" type="percent" default="0">
         <otherwiseConform>
           <mandatoryConform>
             <feature name="SOC"/>
@@ -243,7 +243,7 @@ Davis, CA 95616, USA
           <optionalConform choice="a" more="true"/>
         </otherwiseConform>
       </field>
-      <field id="2" name="AddedEnergy" type="energy-mWh" default="0">
+      <field fieldId="2" name="AddedEnergy" type="energy-mWh" default="0">
         <optionalConform choice="a" more="true"/>
         <constraint type="min" value="0"/>
       </field>
@@ -403,7 +403,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="PREF"/>
       </mandatoryConform>
-      <field id="0" name="ChargingTargetSchedules" type="list">
+      <field fieldId="0" name="ChargingTargetSchedules" type="list">
         <entry type="ChargingTargetScheduleStruct"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="7"/>
@@ -416,15 +416,15 @@ Davis, CA 95616, USA
     <command id="0x02" name="EnableCharging" direction="commandToServer" response="Y">
       <access invokePrivilege="operate" timed="true"/>
       <mandatoryConform/>
-      <field id="0" name="ChargingEnabledUntil" type="epoch-s" default="null">
+      <field fieldId="0" name="ChargingEnabledUntil" type="epoch-s" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="MinimumChargeCurrent" type="amperage-mA">
+      <field fieldId="1" name="MinimumChargeCurrent" type="amperage-mA">
         <mandatoryConform/>
         <constraint type="min" value="0"/>
       </field>
-      <field id="2" name="MaximumChargeCurrent" type="amperage-mA">
+      <field fieldId="2" name="MaximumChargeCurrent" type="amperage-mA">
         <mandatoryConform/>
         <constraint type="min" value="0"/>
       </field>
@@ -434,11 +434,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="V2X"/>
       </mandatoryConform>
-      <field id="0" name="DischargingEnabledUntil" type="epoch-s" default="null">
+      <field fieldId="0" name="DischargingEnabledUntil" type="epoch-s" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="MaximumDischargeCurrent" type="amperage-mA">
+      <field fieldId="1" name="MaximumDischargeCurrent" type="amperage-mA">
         <mandatoryConform/>
         <constraint type="min" value="0"/>
       </field>
@@ -452,7 +452,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="PREF"/>
       </mandatoryConform>
-      <field id="0" name="ChargingTargetSchedules" type="list">
+      <field fieldId="0" name="ChargingTargetSchedules" type="list">
         <entry type="ChargingTargetScheduleStruct"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="7"/>
@@ -475,27 +475,27 @@ Davis, CA 95616, USA
     <event id="0x00" name="EVConnected" priority="info">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="SessionID" type="uint32">
+      <field fieldId="0" name="SessionID" type="uint32">
         <mandatoryConform/>
       </field>
     </event>
     <event id="0x01" name="EVNotDetected" priority="info">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="SessionID" type="uint32">
+      <field fieldId="0" name="SessionID" type="uint32">
         <mandatoryConform/>
       </field>
-      <field id="1" name="State" type="StateEnum">
+      <field fieldId="1" name="State" type="StateEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="SessionDuration" type="elapsed-s">
+      <field fieldId="2" name="SessionDuration" type="elapsed-s">
         <mandatoryConform/>
       </field>
-      <field id="3" name="SessionEnergyCharged" type="energy-mWh">
+      <field fieldId="3" name="SessionEnergyCharged" type="energy-mWh">
         <mandatoryConform/>
         <constraint type="min" value="0"/>
       </field>
-      <field id="4" name="SessionEnergyDischarged" type="energy-mWh">
+      <field fieldId="4" name="SessionEnergyDischarged" type="energy-mWh">
         <mandatoryConform>
           <feature name="V2X"/>
         </mandatoryConform>
@@ -505,13 +505,13 @@ Davis, CA 95616, USA
     <event id="0x02" name="EnergyTransferStarted" priority="info">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="SessionID" type="uint32">
+      <field fieldId="0" name="SessionID" type="uint32">
         <mandatoryConform/>
       </field>
-      <field id="1" name="State" type="StateEnum">
+      <field fieldId="1" name="State" type="StateEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="MaximumCurrent" type="amperage-mA">
+      <field fieldId="2" name="MaximumCurrent" type="amperage-mA">
         <mandatoryConform/>
         <constraint type="min" value="0"/>
       </field>
@@ -519,16 +519,16 @@ Davis, CA 95616, USA
     <event id="0x03" name="EnergyTransferStopped" priority="info">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="SessionID" type="uint32">
+      <field fieldId="0" name="SessionID" type="uint32">
         <mandatoryConform/>
       </field>
-      <field id="1" name="State" type="StateEnum">
+      <field fieldId="1" name="State" type="StateEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="Reason" type="EnergyTransferStoppedReasonEnum">
+      <field fieldId="2" name="Reason" type="EnergyTransferStoppedReasonEnum">
         <mandatoryConform/>
       </field>
-      <field id="4" name="EnergyTransferred" type="energy-mWh">
+      <field fieldId="4" name="EnergyTransferred" type="energy-mWh">
         <mandatoryConform/>
         <constraint type="min" value="0"/>
       </field>
@@ -536,17 +536,17 @@ Davis, CA 95616, USA
     <event id="0x04" name="Fault" priority="critical">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="SessionID" type="uint32">
+      <field fieldId="0" name="SessionID" type="uint32">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="State" type="StateEnum">
+      <field fieldId="1" name="State" type="StateEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="FaultStatePreviousState" type="FaultStateEnum">
+      <field fieldId="2" name="FaultStatePreviousState" type="FaultStateEnum">
         <mandatoryConform/>
       </field>
-      <field id="4" name="FaultStateCurrentState" type="FaultStateEnum">
+      <field fieldId="4" name="FaultStateCurrentState" type="FaultStateEnum">
         <mandatoryConform/>
       </field>
     </event>
@@ -555,7 +555,7 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="RFID"/>
       </optionalConform>
-      <field id="0" name="UID" type="octstr">
+      <field fieldId="0" name="UID" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="10"/>
       </field>

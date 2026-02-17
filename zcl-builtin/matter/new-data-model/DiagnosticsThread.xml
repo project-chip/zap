@@ -125,131 +125,131 @@ Davis, CA 95616, USA
       </item>
     </enum>
     <struct name="NeighborTableStruct">
-      <field id="0" name="ExtAddress" type="uint64">
+      <field fieldId="0" name="ExtAddress" type="uint64">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Age" type="uint32">
+      <field fieldId="1" name="Age" type="uint32">
         <mandatoryConform/>
       </field>
-      <field id="2" name="Rloc16" type="uint16">
+      <field fieldId="2" name="Rloc16" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="3" name="LinkFrameCounter" type="uint32">
+      <field fieldId="3" name="LinkFrameCounter" type="uint32">
         <mandatoryConform/>
       </field>
-      <field id="4" name="MleFrameCounter" type="uint32">
+      <field fieldId="4" name="MleFrameCounter" type="uint32">
         <mandatoryConform/>
       </field>
-      <field id="5" name="LQI" type="uint8">
+      <field fieldId="5" name="LQI" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="255"/>
       </field>
-      <field id="6" name="AverageRssi" type="int8" default="null">
+      <field fieldId="6" name="AverageRssi" type="int8" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="between" from="-128" to="0"/>
       </field>
-      <field id="7" name="LastRssi" type="int8" default="null">
+      <field fieldId="7" name="LastRssi" type="int8" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="between" from="-128" to="0"/>
       </field>
-      <field id="8" name="FrameErrorRate" type="uint8" default="0">
+      <field fieldId="8" name="FrameErrorRate" type="uint8" default="0">
         <mandatoryConform/>
         <constraint type="between" from="0" to="100"/>
       </field>
-      <field id="9" name="MessageErrorRate" type="uint8" default="0">
+      <field fieldId="9" name="MessageErrorRate" type="uint8" default="0">
         <mandatoryConform/>
         <constraint type="between" from="0" to="100"/>
       </field>
-      <field id="10" name="RxOnWhenIdle" type="bool">
+      <field fieldId="10" name="RxOnWhenIdle" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="11" name="FullThreadDevice" type="bool">
+      <field fieldId="11" name="FullThreadDevice" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="12" name="FullNetworkData" type="bool">
+      <field fieldId="12" name="FullNetworkData" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="13" name="IsChild" type="bool">
+      <field fieldId="13" name="IsChild" type="bool">
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="OperationalDatasetComponents">
-      <field id="0" name="ActiveTimestampPresent" type="bool">
+      <field fieldId="0" name="ActiveTimestampPresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="1" name="PendingTimestampPresent" type="bool">
+      <field fieldId="1" name="PendingTimestampPresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="2" name="MasterKeyPresent" type="bool">
+      <field fieldId="2" name="MasterKeyPresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="3" name="NetworkNamePresent" type="bool">
+      <field fieldId="3" name="NetworkNamePresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="4" name="ExtendedPanIdPresent" type="bool">
+      <field fieldId="4" name="ExtendedPanIdPresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="5" name="MeshLocalPrefixPresent" type="bool">
+      <field fieldId="5" name="MeshLocalPrefixPresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="6" name="DelayPresent" type="bool">
+      <field fieldId="6" name="DelayPresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="7" name="PanIdPresent" type="bool">
+      <field fieldId="7" name="PanIdPresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="8" name="ChannelPresent" type="bool">
+      <field fieldId="8" name="ChannelPresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="9" name="PskcPresent" type="bool">
+      <field fieldId="9" name="PskcPresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="10" name="SecurityPolicyPresent" type="bool">
+      <field fieldId="10" name="SecurityPolicyPresent" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="11" name="ChannelMaskPresent" type="bool">
+      <field fieldId="11" name="ChannelMaskPresent" type="bool">
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="RouteTableStruct">
-      <field id="0" name="ExtAddress" type="uint64">
+      <field fieldId="0" name="ExtAddress" type="uint64">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Rloc16" type="uint16">
+      <field fieldId="1" name="Rloc16" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="2" name="RouterId" type="uint8">
+      <field fieldId="2" name="RouterId" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="3" name="NextHop" type="uint8">
+      <field fieldId="3" name="NextHop" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="4" name="PathCost" type="uint8">
+      <field fieldId="4" name="PathCost" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="5" name="LQIIn" type="uint8">
+      <field fieldId="5" name="LQIIn" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="6" name="LQIOut" type="uint8">
+      <field fieldId="6" name="LQIOut" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="7" name="Age" type="uint8">
+      <field fieldId="7" name="Age" type="uint8">
         <mandatoryConform/>
       </field>
-      <field id="8" name="Allocated" type="bool">
+      <field fieldId="8" name="Allocated" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="9" name="LinkEstablished" type="bool">
+      <field fieldId="9" name="LinkEstablished" type="bool">
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="SecurityPolicy">
-      <field id="0" name="RotationTime" type="uint16">
+      <field fieldId="0" name="RotationTime" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Flags" type="uint16">
+      <field fieldId="1" name="Flags" type="uint16">
         <mandatoryConform/>
       </field>
     </struct>
@@ -676,19 +676,19 @@ Davis, CA 95616, USA
     <event id="0x00" name="ConnectionStatus" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="ConnectionStatus" type="ConnectionStatusEnum">
+      <field fieldId="0" name="ConnectionStatus" type="ConnectionStatusEnum">
         <mandatoryConform/>
       </field>
     </event>
     <event id="0x01" name="NetworkFaultChange" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="Current" type="list">
+      <field fieldId="0" name="Current" type="list">
         <entry type="NetworkFaultEnum"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="4"/>
       </field>
-      <field id="1" name="Previous" type="list">
+      <field fieldId="1" name="Previous" type="list">
         <entry type="NetworkFaultEnum"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="4"/>

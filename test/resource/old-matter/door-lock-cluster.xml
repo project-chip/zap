@@ -605,43 +605,43 @@ limitations under the License.
         <!-- Events -->
         <event side="server" code="0" name="DoorLockAlarm" priority="critical">
             <description>The door lock cluster provides several alarms which can be sent when there is a critical state on the door lock.</description>
-            <field id="0" name="AlarmCode" type="DlAlarmCode" />
+            <field fieldId="0" name="AlarmCode" type="DlAlarmCode" />
         </event>
         <!-- Conformance feature DPS - for now optional -->
         <event side="server" code="1" name="DoorStateChange" priority="critical" optional="true">
             <description>The door lock server sends out a DoorStateChange event when the door lock door state changes.</description>
-            <field id="0" name="DoorState" type="DlDoorState" />
+            <field fieldId="0" name="DoorState" type="DlDoorState" />
         </event>
         <event side="server" code="2" name="LockOperation" priority="critical">
             <description>The door lock server sends out a LockOperation event when the event is triggered by the various lock operation sources.</description>
-            <field id="0" name="LockOperationType" type="DlLockOperationType" />
-            <field id="1" name="OperationSource" type="DlOperationSource" />
-            <field id="2" name="UserIndex" type="INT16U" isNullable="true" />
-            <field id="3" name="FabricIndex" type="fabric_idx" isNullable="true" />
-            <field id="4" name="SourceNode" type="NODE_ID" isNullable="true" />
+            <field fieldId="0" name="LockOperationType" type="DlLockOperationType" />
+            <field fieldId="1" name="OperationSource" type="DlOperationSource" />
+            <field fieldId="2" name="UserIndex" type="INT16U" isNullable="true" />
+            <field fieldId="3" name="FabricIndex" type="fabric_idx" isNullable="true" />
+            <field fieldId="4" name="SourceNode" type="NODE_ID" isNullable="true" />
             <!-- Conformance feature [USR] - for now optional -->
-            <field id="5" name="Credentials" type="DlCredential" array="true" isNullable="true" optional="true" />
+            <field fieldId="5" name="Credentials" type="DlCredential" array="true" isNullable="true" optional="true" />
         </event>
         <event side="server" code="3" name="LockOperationError" priority="critical">
             <description>The door lock server sends out a LockOperationError event when a lock operation fails for various reasons.</description>
-            <field id="0" name="LockOperationType" type="DlLockOperationType" />
-            <field id="1" name="OperationSource" type="DlOperationSource" />
-            <field id="2" name="OperationError" type="DlOperationError" />
-            <field id="3" name="UserIndex" type="INT16U" isNullable="true" />
-            <field id="4" name="FabricIndex" type="fabric_idx" isNullable="true" />
-            <field id="5" name="SourceNode" type="NODE_ID" isNullable="true" />
+            <field fieldId="0" name="LockOperationType" type="DlLockOperationType" />
+            <field fieldId="1" name="OperationSource" type="DlOperationSource" />
+            <field fieldId="2" name="OperationError" type="DlOperationError" />
+            <field fieldId="3" name="UserIndex" type="INT16U" isNullable="true" />
+            <field fieldId="4" name="FabricIndex" type="fabric_idx" isNullable="true" />
+            <field fieldId="5" name="SourceNode" type="NODE_ID" isNullable="true" />
             <!-- Conformance feature [USR] - for now optional -->
-            <field id="6" name="Credentials" type="DlCredential" array="true" isNullable="true" optional="true" />
+            <field fieldId="6" name="Credentials" type="DlCredential" array="true" isNullable="true" optional="true" />
         </event>
         <event side="server" code="4" name="LockUserChange" priority="info">
             <description>The door lock server sends out a LockUserChange event when a lock user, schedule, or credential change has occurred.</description>
-            <field id="0" name="LockDataType" type="DlLockDataType" />
-            <field id="1" name="DataOperationType" type="DlDataOperationType" />
-            <field id="2" name="OperationSource" type="DlOperationSource" />
-            <field id="3" name="UserIndex" type="INT16U" isNullable="true" />
-            <field id="4" name="FabricIndex" type="fabric_idx" isNullable="true" />
-            <field id="5" name="SourceNode" type="NODE_ID" isNullable="true" />
-            <field id="6" name="DataIndex" type="INT16U" isNullable="true" />
+            <field fieldId="0" name="LockDataType" type="DlLockDataType" />
+            <field fieldId="1" name="DataOperationType" type="DlDataOperationType" />
+            <field fieldId="2" name="OperationSource" type="DlOperationSource" />
+            <field fieldId="3" name="UserIndex" type="INT16U" isNullable="true" />
+            <field fieldId="4" name="FabricIndex" type="fabric_idx" isNullable="true" />
+            <field fieldId="5" name="SourceNode" type="NODE_ID" isNullable="true" />
+            <field fieldId="6" name="DataIndex" type="INT16U" isNullable="true" />
         </event>
     </cluster>
 
@@ -671,7 +671,7 @@ limitations under the License.
         <field mask="0x01" name="Single" />
         <field mask="0x02" name="Dual" />
         <field mask="0x04" name="Tri" />
-    </bitmap> 
+    </bitmap>
 
     <struct name="DlCredential">
         <cluster code="0x0101" />

@@ -233,24 +233,24 @@ Davis, CA 95616, USA
     <event id="0x00" name="Disconnection" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="ReasonCode" type="uint16">
+      <field fieldId="0" name="ReasonCode" type="uint16">
         <mandatoryConform/>
       </field>
     </event>
     <event id="0x01" name="AssociationFailure" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="AssociationFailureCause" type="AssociationFailureCauseEnum">
+      <field fieldId="0" name="AssociationFailureCause" type="AssociationFailureCauseEnum">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Status" type="uint16">
+      <field fieldId="1" name="Status" type="uint16">
         <mandatoryConform/>
       </field>
     </event>
     <event id="0x02" name="ConnectionStatus" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="ConnectionStatus" type="ConnectionStatusEnum">
+      <field fieldId="0" name="ConnectionStatus" type="ConnectionStatusEnum">
         <mandatoryConform/>
       </field>
     </event>

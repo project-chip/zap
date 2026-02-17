@@ -267,173 +267,173 @@ Davis, CA 95616, USA
       </item>
     </enum>
     <struct name="ConstraintsStruct">
-      <field id="0" name="StartTime" type="epoch-s">
+      <field fieldId="0" name="StartTime" type="epoch-s">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Duration" type="elapsed-s">
+      <field fieldId="1" name="Duration" type="elapsed-s">
         <mandatoryConform/>
         <constraint type="between" from="0" to="86400"/>
       </field>
-      <field id="2" name="NominalPower" type="power-mW">
+      <field fieldId="2" name="NominalPower" type="power-mW">
         <mandatoryConform>
           <feature name="PFR"/>
         </mandatoryConform>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="MaximumEnergy" type="energy-mWh">
+      <field fieldId="3" name="MaximumEnergy" type="energy-mWh">
         <mandatoryConform>
           <feature name="PFR"/>
         </mandatoryConform>
       </field>
-      <field id="4" name="LoadControl" type="int8">
+      <field fieldId="4" name="LoadControl" type="int8">
         <mandatoryConform>
           <feature name="SFR"/>
         </mandatoryConform>
       </field>
     </struct>
     <struct name="CostStruct">
-      <field id="0" name="CostType" type="CostTypeEnum" default="0">
+      <field fieldId="0" name="CostType" type="CostTypeEnum" default="0">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Value" type="int32" default="0">
+      <field fieldId="1" name="Value" type="int32" default="0">
         <mandatoryConform/>
       </field>
-      <field id="2" name="DecimalPoints" type="uint8" default="0">
+      <field fieldId="2" name="DecimalPoints" type="uint8" default="0">
         <mandatoryConform/>
       </field>
-      <field id="3" name="Currency" type="uint16" default="0">
+      <field fieldId="3" name="Currency" type="uint16" default="0">
         <optionalConform/>
         <constraint type="max" value="999"/>
       </field>
     </struct>
     <struct name="ForecastStruct">
-      <field id="0" name="ForecastId" type="uint16" default="0">
+      <field fieldId="0" name="ForecastId" type="uint16" default="0">
         <mandatoryConform/>
       </field>
-      <field id="1" name="ActiveSlotNumber" type="uint16" default="0">
+      <field fieldId="1" name="ActiveSlotNumber" type="uint16" default="0">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="2" name="StartTime" type="epoch-s">
+      <field fieldId="2" name="StartTime" type="epoch-s">
         <mandatoryConform/>
       </field>
-      <field id="3" name="EndTime" type="epoch-s">
+      <field fieldId="3" name="EndTime" type="epoch-s">
         <mandatoryConform/>
       </field>
-      <field id="4" name="EarliestStartTime" type="epoch-s">
+      <field fieldId="4" name="EarliestStartTime" type="epoch-s">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="STA"/>
         </mandatoryConform>
       </field>
-      <field id="5" name="LatestEndTime" type="epoch-s">
+      <field fieldId="5" name="LatestEndTime" type="epoch-s">
         <mandatoryConform>
           <feature name="STA"/>
         </mandatoryConform>
       </field>
-      <field id="6" name="IsPauseable" type="bool">
+      <field fieldId="6" name="IsPauseable" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="7" name="Slots" type="list">
+      <field fieldId="7" name="Slots" type="list">
         <entry type="SlotStruct"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="10"/>
       </field>
-      <field id="8" name="ForecastUpdateReason" type="ForecastUpdateReasonEnum">
+      <field fieldId="8" name="ForecastUpdateReason" type="ForecastUpdateReasonEnum">
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="PowerAdjustStruct">
-      <field id="0" name="MinPower" type="power-mW" default="0">
+      <field fieldId="0" name="MinPower" type="power-mW" default="0">
         <mandatoryConform/>
       </field>
-      <field id="1" name="MaxPower" type="power-mW" default="0">
+      <field fieldId="1" name="MaxPower" type="power-mW" default="0">
         <mandatoryConform/>
       </field>
-      <field id="2" name="MinDuration" type="elapsed-s" default="0">
+      <field fieldId="2" name="MinDuration" type="elapsed-s" default="0">
         <mandatoryConform/>
       </field>
-      <field id="3" name="MaxDuration" type="elapsed-s">
+      <field fieldId="3" name="MaxDuration" type="elapsed-s">
         <mandatoryConform/>
       </field>
     </struct>
     <struct name="SlotAdjustmentStruct">
-      <field id="0" name="SlotIndex" type="uint8">
+      <field fieldId="0" name="SlotIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="NominalPower" type="power-mW">
+      <field fieldId="1" name="NominalPower" type="power-mW">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="Duration" type="elapsed-s">
+      <field fieldId="2" name="Duration" type="elapsed-s">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
     </struct>
     <struct name="SlotStruct">
-      <field id="0" name="MinDuration" type="elapsed-s">
+      <field fieldId="0" name="MinDuration" type="elapsed-s">
         <mandatoryConform/>
       </field>
-      <field id="1" name="MaxDuration" type="elapsed-s">
+      <field fieldId="1" name="MaxDuration" type="elapsed-s">
         <mandatoryConform/>
       </field>
-      <field id="2" name="DefaultDuration" type="elapsed-s">
+      <field fieldId="2" name="DefaultDuration" type="elapsed-s">
         <mandatoryConform/>
       </field>
-      <field id="3" name="ElapsedSlotTime" type="elapsed-s">
+      <field fieldId="3" name="ElapsedSlotTime" type="elapsed-s">
         <mandatoryConform/>
       </field>
-      <field id="4" name="RemainingSlotTime" type="elapsed-s">
+      <field fieldId="4" name="RemainingSlotTime" type="elapsed-s">
         <mandatoryConform/>
       </field>
-      <field id="5" name="SlotIsPauseable" type="bool">
+      <field fieldId="5" name="SlotIsPauseable" type="bool">
         <mandatoryConform>
           <feature name="PAU"/>
         </mandatoryConform>
       </field>
-      <field id="6" name="MinPauseDuration" type="elapsed-s">
+      <field fieldId="6" name="MinPauseDuration" type="elapsed-s">
         <mandatoryConform>
           <feature name="PAU"/>
         </mandatoryConform>
       </field>
-      <field id="7" name="MaxPauseDuration" type="elapsed-s">
+      <field fieldId="7" name="MaxPauseDuration" type="elapsed-s">
         <mandatoryConform>
           <feature name="PAU"/>
         </mandatoryConform>
       </field>
-      <field id="8" name="ManufacturerESAState" type="uint16">
+      <field fieldId="8" name="ManufacturerESAState" type="uint16">
         <mandatoryConform>
           <feature name="SFR"/>
         </mandatoryConform>
       </field>
-      <field id="9" name="NominalPower" type="power-mW">
+      <field fieldId="9" name="NominalPower" type="power-mW">
         <mandatoryConform>
           <feature name="PFR"/>
         </mandatoryConform>
       </field>
-      <field id="10" name="MinPower" type="power-mW">
+      <field fieldId="10" name="MinPower" type="power-mW">
         <mandatoryConform>
           <feature name="PFR"/>
         </mandatoryConform>
       </field>
-      <field id="11" name="MaxPower" type="power-mW">
+      <field fieldId="11" name="MaxPower" type="power-mW">
         <mandatoryConform>
           <feature name="PFR"/>
         </mandatoryConform>
       </field>
-      <field id="12" name="NominalEnergy" type="energy-mWh">
+      <field fieldId="12" name="NominalEnergy" type="energy-mWh">
         <mandatoryConform>
           <feature name="PFR"/>
         </mandatoryConform>
       </field>
-      <field id="13" name="Costs" type="list">
+      <field fieldId="13" name="Costs" type="list">
         <entry type="CostStruct"/>
         <optionalConform/>
         <constraint type="maxCount" value="5"/>
       </field>
-      <field id="14" name="MinPowerAdjustment" type="power-mW">
+      <field fieldId="14" name="MinPowerAdjustment" type="power-mW">
         <mandatoryConform>
           <andTerm>
             <feature name="FA"/>
@@ -441,7 +441,7 @@ Davis, CA 95616, USA
           </andTerm>
         </mandatoryConform>
       </field>
-      <field id="15" name="MaxPowerAdjustment" type="power-mW">
+      <field fieldId="15" name="MaxPowerAdjustment" type="power-mW">
         <mandatoryConform>
           <andTerm>
             <feature name="FA"/>
@@ -449,7 +449,7 @@ Davis, CA 95616, USA
           </andTerm>
         </mandatoryConform>
       </field>
-      <field id="16" name="MinDurationAdjustment" type="elapsed-s">
+      <field fieldId="16" name="MinDurationAdjustment" type="elapsed-s">
         <mandatoryConform>
           <andTerm>
             <feature name="FA"/>
@@ -460,7 +460,7 @@ Davis, CA 95616, USA
           </andTerm>
         </mandatoryConform>
       </field>
-      <field id="17" name="MaxDurationAdjustment" type="elapsed-s">
+      <field fieldId="17" name="MaxDurationAdjustment" type="elapsed-s">
         <mandatoryConform>
           <andTerm>
             <feature name="FA"/>
@@ -479,15 +479,15 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="PA"/>
       </mandatoryConform>
-      <field id="0" name="Power" type="power-mW">
+      <field fieldId="0" name="Power" type="power-mW">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Duration" type="elapsed-s">
+      <field fieldId="1" name="Duration" type="elapsed-s">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="Cause" type="AdjustmentCauseEnum">
+      <field fieldId="2" name="Cause" type="AdjustmentCauseEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -503,11 +503,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="STA"/>
       </mandatoryConform>
-      <field id="0" name="RequestedStartTime" type="epoch-s">
+      <field fieldId="0" name="RequestedStartTime" type="epoch-s">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Cause" type="AdjustmentCauseEnum">
+      <field fieldId="1" name="Cause" type="AdjustmentCauseEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -517,11 +517,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="PAU"/>
       </mandatoryConform>
-      <field id="0" name="Duration" type="elapsed-s">
+      <field fieldId="0" name="Duration" type="elapsed-s">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Cause" type="AdjustmentCauseEnum">
+      <field fieldId="1" name="Cause" type="AdjustmentCauseEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -537,15 +537,15 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="FA"/>
       </mandatoryConform>
-      <field id="0" name="ForecastId" type="uint32">
+      <field fieldId="0" name="ForecastId" type="uint32">
         <mandatoryConform/>
       </field>
-      <field id="1" name="SlotAdjustments" type="list">
+      <field fieldId="1" name="SlotAdjustments" type="list">
         <entry type="SlotAdjustmentStruct"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="10"/>
       </field>
-      <field id="2" name="Cause" type="AdjustmentCauseEnum">
+      <field fieldId="2" name="Cause" type="AdjustmentCauseEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -555,12 +555,12 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="CON"/>
       </mandatoryConform>
-      <field id="0" name="Constraints" type="list">
+      <field fieldId="0" name="Constraints" type="list">
         <entry type="ConstraintsStruct"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="10"/>
       </field>
-      <field id="1" name="Cause" type="AdjustmentCauseEnum">
+      <field fieldId="1" name="Cause" type="AdjustmentCauseEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -588,13 +588,13 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="PA"/>
       </mandatoryConform>
-      <field id="0" name="Cause" type="CauseEnum" default="NormalCompletion">
+      <field fieldId="0" name="Cause" type="CauseEnum" default="NormalCompletion">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Duration" type="elapsed-s">
+      <field fieldId="1" name="Duration" type="elapsed-s">
         <mandatoryConform/>
       </field>
-      <field id="2" name="EnergyUse" type="energy-mWh">
+      <field fieldId="2" name="EnergyUse" type="energy-mWh">
         <mandatoryConform/>
       </field>
     </event>
@@ -609,7 +609,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="PAU"/>
       </mandatoryConform>
-      <field id="0" name="Cause" type="CauseEnum" default="NormalCompletion">
+      <field fieldId="0" name="Cause" type="CauseEnum" default="NormalCompletion">
         <mandatoryConform/>
       </field>
     </event>

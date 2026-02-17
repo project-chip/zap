@@ -152,20 +152,20 @@ Davis, CA 95616, USA
       </item>
     </enum>
     <struct name="CapabilityMinimaStruct">
-      <field id="0" name="CaseSessionsPerFabric" type="uint16" default="3">
+      <field fieldId="0" name="CaseSessionsPerFabric" type="uint16" default="3">
         <mandatoryConform/>
         <constraint type="min" value="3"/>
       </field>
-      <field id="1" name="SubscriptionsPerFabric" type="uint16" default="3">
+      <field fieldId="1" name="SubscriptionsPerFabric" type="uint16" default="3">
         <mandatoryConform/>
         <constraint type="min" value="3"/>
       </field>
     </struct>
     <struct name="ProductAppearanceStruct">
-      <field id="0" name="Finish" type="ProductFinishEnum">
+      <field fieldId="0" name="Finish" type="ProductFinishEnum">
         <mandatoryConform/>
       </field>
-      <field id="1" name="PrimaryColor" type="ColorEnum">
+      <field fieldId="1" name="PrimaryColor" type="ColorEnum">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
@@ -307,7 +307,7 @@ Davis, CA 95616, USA
     <event id="0x00" name="StartUp" priority="critical">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="SoftwareVersion" type="uint32">
+      <field fieldId="0" name="SoftwareVersion" type="uint32">
         <mandatoryConform/>
       </field>
     </event>
@@ -318,14 +318,14 @@ Davis, CA 95616, USA
     <event id="0x02" name="Leave" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
-      <field id="0" name="FabricIndex" type="fabric-idx">
+      <field fieldId="0" name="FabricIndex" type="fabric-idx">
         <mandatoryConform/>
         <constraint type="between" from="1" to="254"/>
       </field>
     </event>
     <event id="0x03" name="ReachableChanged" priority="info">
       <access readPrivilege="view"/>
-      <field id="0" name="ReachableNewValue" type="bool">
+      <field fieldId="0" name="ReachableNewValue" type="bool">
         <mandatoryConform/>
       </field>
     </event>

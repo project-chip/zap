@@ -778,10 +778,10 @@ Davis, CA 95616, USA
       </bitfield>
     </bitmap>
     <struct name="CredentialStruct">
-      <field id="0" name="CredentialType" type="CredentialTypeEnum">
+      <field fieldId="0" name="CredentialType" type="CredentialTypeEnum">
         <mandatoryConform/>
       </field>
-      <field id="1" name="CredentialIndex" type="uint16" default="0">
+      <field fieldId="1" name="CredentialIndex" type="uint16" default="0">
         <mandatoryConform/>
       </field>
     </struct>
@@ -1189,7 +1189,7 @@ Davis, CA 95616, USA
     <command id="0x00" name="LockDoor" direction="commandToServer" response="Y">
       <access invokePrivilege="operate" timed="true"/>
       <mandatoryConform/>
-      <field id="0" name="PINCode" type="octstr">
+      <field fieldId="0" name="PINCode" type="octstr">
         <optionalConform>
           <andTerm>
             <feature name="COTA"/>
@@ -1201,7 +1201,7 @@ Davis, CA 95616, USA
     <command id="0x01" name="UnlockDoor" direction="commandToServer" response="Y">
       <access invokePrivilege="operate" timed="true"/>
       <mandatoryConform/>
-      <field id="0" name="PINCode" type="octstr">
+      <field fieldId="0" name="PINCode" type="octstr">
         <optionalConform>
           <andTerm>
             <feature name="COTA"/>
@@ -1217,10 +1217,10 @@ Davis, CA 95616, USA
     <command id="0x03" name="UnlockWithTimeout" direction="commandToServer" response="Y">
       <access invokePrivilege="operate" timed="true"/>
       <optionalConform/>
-      <field id="0" name="Timeout" type="uint16">
+      <field fieldId="0" name="Timeout" type="uint16">
         <mandatoryConform/>
       </field>
-      <field id="1" name="PINCode" type="octstr">
+      <field fieldId="1" name="PINCode" type="octstr">
         <optionalConform>
           <andTerm>
             <feature name="COTA"/>
@@ -1234,7 +1234,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="LOG"/>
       </mandatoryConform>
-      <field id="0" name="LogIndex" type="uint16">
+      <field fieldId="0" name="LogIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -1243,28 +1243,28 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="LOG"/>
       </mandatoryConform>
-      <field id="0" name="LogEntryID" type="uint16">
+      <field fieldId="0" name="LogEntryID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="Timestamp" type="epoch-s">
+      <field fieldId="1" name="Timestamp" type="epoch-s">
         <mandatoryConform/>
       </field>
-      <field id="2" name="EventType" type="EventTypeEnum">
+      <field fieldId="2" name="EventType" type="EventTypeEnum">
         <mandatoryConform/>
       </field>
-      <field id="3" name="Source" type="EventSourceEnum">
+      <field fieldId="3" name="Source" type="EventSourceEnum">
         <mandatoryConform/>
       </field>
-      <field id="4" name="EventID" type="uint8">
-        <mandatoryConform/>
-        <constraint type="desc"/>
-      </field>
-      <field id="5" name="UserID" type="uint16">
+      <field fieldId="4" name="EventID" type="uint8">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="6" name="PIN" type="octstr">
+      <field fieldId="5" name="UserID" type="uint16">
+        <mandatoryConform/>
+        <constraint type="desc"/>
+      </field>
+      <field fieldId="6" name="PIN" type="octstr">
         <mandatoryConform/>
       </field>
     </command>
@@ -1278,20 +1278,20 @@ Davis, CA 95616, USA
           <feature name="PIN"/>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="UserStatus" type="UserStatusEnum" default="OccupiedEnabled">
+      <field fieldId="1" name="UserStatus" type="UserStatusEnum" default="OccupiedEnabled">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="UserType" type="UserTypeEnum" default="UnrestrictedUser">
+      <field fieldId="2" name="UserType" type="UserTypeEnum" default="UnrestrictedUser">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="3" name="PIN" type="octstr">
+      <field fieldId="3" name="PIN" type="octstr">
         <mandatoryConform/>
       </field>
     </command>
@@ -1305,7 +1305,7 @@ Davis, CA 95616, USA
           <feature name="PIN"/>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -1319,21 +1319,21 @@ Davis, CA 95616, USA
           <feature name="PIN"/>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="UserStatus" type="UserStatusEnum" default="Available">
+      <field fieldId="1" name="UserStatus" type="UserStatusEnum" default="Available">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="UserType" type="UserTypeEnum">
+      <field fieldId="2" name="UserType" type="UserTypeEnum">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="PINCode" type="octstr" default="empty">
+      <field fieldId="3" name="PINCode" type="octstr" default="empty">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
@@ -1348,7 +1348,7 @@ Davis, CA 95616, USA
           <feature name="PIN"/>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="PINSlotIndex" type="uint16">
+      <field fieldId="0" name="PINSlotIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfPINUsersSupported"/>
         <constraint type="allowed" value="0xFFFE"/>
@@ -1379,11 +1379,11 @@ Davis, CA 95616, USA
           </orTerm>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="UserStatus" type="UserStatusEnum">
+      <field fieldId="1" name="UserStatus" type="UserStatusEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -1402,7 +1402,7 @@ Davis, CA 95616, USA
           </orTerm>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -1413,11 +1413,11 @@ Davis, CA 95616, USA
           <feature name="USR"/>
         </notTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="UserStatus" type="UserStatusEnum">
+      <field fieldId="1" name="UserStatus" type="UserStatusEnum">
         <mandatoryConform/>
       </field>
     </command>
@@ -1426,30 +1426,30 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="WDSCH"/>
       </mandatoryConform>
-      <field id="0" name="WeekDayIndex" type="uint8">
+      <field fieldId="0" name="WeekDayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfWeekDaySchedulesSupportedPerUser"/>
       </field>
-      <field id="1" name="UserIndex" type="uint16">
+      <field fieldId="1" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
-      <field id="2" name="DaysMask" type="DaysMaskBitmap">
+      <field fieldId="2" name="DaysMask" type="DaysMaskBitmap">
         <mandatoryConform/>
       </field>
-      <field id="3" name="StartHour" type="uint8">
+      <field fieldId="3" name="StartHour" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="23"/>
       </field>
-      <field id="4" name="StartMinute" type="uint8">
+      <field fieldId="4" name="StartMinute" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="59"/>
       </field>
-      <field id="5" name="EndHour" type="uint8">
+      <field fieldId="5" name="EndHour" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="23"/>
       </field>
-      <field id="6" name="EndMinute" type="uint8">
+      <field fieldId="6" name="EndMinute" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="0" to="59"/>
       </field>
@@ -1459,11 +1459,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="WDSCH"/>
       </mandatoryConform>
-      <field id="0" name="WeekDayIndex" type="uint8">
+      <field fieldId="0" name="WeekDayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfWeekDaySchedulesSupportedPerUser"/>
       </field>
-      <field id="1" name="UserIndex" type="uint16">
+      <field fieldId="1" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
@@ -1472,34 +1472,34 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="WDSCH"/>
       </mandatoryConform>
-      <field id="0" name="WeekDayIndex" type="uint8">
+      <field fieldId="0" name="WeekDayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfWeekDaySchedulesSupportedPerUser"/>
       </field>
-      <field id="1" name="UserIndex" type="uint16">
+      <field fieldId="1" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
-      <field id="2" name="Status" type="enum8" default="SUCCESS">
+      <field fieldId="2" name="Status" type="enum8" default="SUCCESS">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="DaysMask" type="DaysMaskBitmap">
+      <field fieldId="3" name="DaysMask" type="DaysMaskBitmap">
         <optionalConform/>
       </field>
-      <field id="4" name="StartHour" type="uint8">
+      <field fieldId="4" name="StartHour" type="uint8">
         <optionalConform/>
         <constraint type="between" from="0" to="23"/>
       </field>
-      <field id="5" name="StartMinute" type="uint8">
+      <field fieldId="5" name="StartMinute" type="uint8">
         <optionalConform/>
         <constraint type="between" from="0" to="59"/>
       </field>
-      <field id="6" name="EndHour" type="uint8">
+      <field fieldId="6" name="EndHour" type="uint8">
         <optionalConform/>
         <constraint type="between" from="0" to="23"/>
       </field>
-      <field id="7" name="EndMinute" type="uint8">
+      <field fieldId="7" name="EndMinute" type="uint8">
         <optionalConform/>
         <constraint type="between" from="0" to="59"/>
       </field>
@@ -1509,12 +1509,12 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="WDSCH"/>
       </mandatoryConform>
-      <field id="0" name="WeekDayIndex" type="uint8">
+      <field fieldId="0" name="WeekDayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfWeekDaySchedulesSupportedPerUser"/>
         <constraint type="allowed" value="0xFE"/>
       </field>
-      <field id="1" name="UserIndex" type="uint16">
+      <field fieldId="1" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
@@ -1524,18 +1524,18 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="YDSCH"/>
       </mandatoryConform>
-      <field id="0" name="YearDayIndex" type="uint8">
+      <field fieldId="0" name="YearDayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfYearDaySchedulesSupportedPerUser"/>
       </field>
-      <field id="1" name="UserIndex" type="uint16">
+      <field fieldId="1" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
-      <field id="2" name="LocalStartTime" type="epoch-s">
+      <field fieldId="2" name="LocalStartTime" type="epoch-s">
         <mandatoryConform/>
       </field>
-      <field id="3" name="LocalEndTime" type="epoch-s">
+      <field fieldId="3" name="LocalEndTime" type="epoch-s">
         <mandatoryConform/>
       </field>
     </command>
@@ -1544,11 +1544,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="YDSCH"/>
       </mandatoryConform>
-      <field id="0" name="YearDayIndex" type="uint8">
+      <field fieldId="0" name="YearDayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfYearDaySchedulesSupportedPerUser"/>
       </field>
-      <field id="1" name="UserIndex" type="uint16">
+      <field fieldId="1" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
@@ -1557,22 +1557,22 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="YDSCH"/>
       </mandatoryConform>
-      <field id="0" name="YearDayIndex" type="uint8">
+      <field fieldId="0" name="YearDayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfYearDaySchedulesSupportedPerUser"/>
       </field>
-      <field id="1" name="UserIndex" type="uint16">
+      <field fieldId="1" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
-      <field id="2" name="Status" type="enum8" default="SUCCESS">
+      <field fieldId="2" name="Status" type="enum8" default="SUCCESS">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="LocalStartTime" type="epoch-s">
+      <field fieldId="2" name="LocalStartTime" type="epoch-s">
         <optionalConform/>
       </field>
-      <field id="3" name="LocalEndTime" type="epoch-s">
+      <field fieldId="3" name="LocalEndTime" type="epoch-s">
         <optionalConform/>
       </field>
     </command>
@@ -1581,12 +1581,12 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="YDSCH"/>
       </mandatoryConform>
-      <field id="0" name="YearDayIndex" type="uint8">
+      <field fieldId="0" name="YearDayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfYearDaySchedulesSupportedPerUser"/>
         <constraint type="allowed" value="0xFE"/>
       </field>
-      <field id="1" name="UserIndex" type="uint16">
+      <field fieldId="1" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
@@ -1596,17 +1596,17 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HDSCH"/>
       </mandatoryConform>
-      <field id="0" name="HolidayIndex" type="uint8">
+      <field fieldId="0" name="HolidayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfHolidaySchedulesSupported"/>
       </field>
-      <field id="1" name="LocalStartTime" type="epoch-s">
+      <field fieldId="1" name="LocalStartTime" type="epoch-s">
         <mandatoryConform/>
       </field>
-      <field id="2" name="LocalEndTime" type="epoch-s">
+      <field fieldId="2" name="LocalEndTime" type="epoch-s">
         <mandatoryConform/>
       </field>
-      <field id="3" name="OperatingMode" type="OperatingModeEnum">
+      <field fieldId="3" name="OperatingMode" type="OperatingModeEnum">
         <mandatoryConform/>
       </field>
     </command>
@@ -1615,7 +1615,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HDSCH"/>
       </mandatoryConform>
-      <field id="0" name="HolidayIndex" type="uint8">
+      <field fieldId="0" name="HolidayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfHolidaySchedulesSupported"/>
       </field>
@@ -1624,23 +1624,23 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HDSCH"/>
       </mandatoryConform>
-      <field id="0" name="HolidayIndex" type="uint8">
+      <field fieldId="0" name="HolidayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfHolidaySchedulesSupported"/>
       </field>
-      <field id="1" name="Status" type="enum8" default="SUCCESS">
+      <field fieldId="1" name="Status" type="enum8" default="SUCCESS">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="LocalStartTime" type="epoch-s">
+      <field fieldId="2" name="LocalStartTime" type="epoch-s">
         <quality nullable="true"/>
         <optionalConform/>
       </field>
-      <field id="3" name="Local End Time" type="epoch-s">
+      <field fieldId="3" name="Local End Time" type="epoch-s">
         <quality nullable="true"/>
         <optionalConform/>
       </field>
-      <field id="4" name="OperatingMode" type="OperatingModeEnum">
+      <field fieldId="4" name="OperatingMode" type="OperatingModeEnum">
         <quality nullable="true"/>
         <optionalConform/>
       </field>
@@ -1650,7 +1650,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="HDSCH"/>
       </mandatoryConform>
-      <field id="0" name="HolidayIndex" type="uint8">
+      <field fieldId="0" name="HolidayIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfHolidaySchedulesSupported"/>
         <constraint type="allowed" value="0xFE"/>
@@ -1670,11 +1670,11 @@ Davis, CA 95616, USA
           </orTerm>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="UserType" type="UserTypeEnum">
+      <field fieldId="1" name="UserType" type="UserTypeEnum">
         <mandatoryConform/>
       </field>
     </command>
@@ -1692,7 +1692,7 @@ Davis, CA 95616, USA
           </orTerm>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -1703,11 +1703,11 @@ Davis, CA 95616, USA
           <feature name="USR"/>
         </notTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="UserType" type="UserTypeEnum">
+      <field fieldId="1" name="UserType" type="UserTypeEnum">
         <mandatoryConform/>
       </field>
     </command>
@@ -1721,21 +1721,21 @@ Davis, CA 95616, USA
           <feature name="RID"/>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="UserStatus" type="UserStatusEnum" default="OccupiedEnabled">
+      <field fieldId="1" name="UserStatus" type="UserStatusEnum" default="OccupiedEnabled">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="UserType" type="UserTypeEnum" default="UnrestrictedUser">
+      <field fieldId="2" name="UserType" type="UserTypeEnum" default="UnrestrictedUser">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="RFIDCode" type="octstr">
+      <field fieldId="3" name="RFIDCode" type="octstr">
         <mandatoryConform/>
       </field>
     </command>
@@ -1749,7 +1749,7 @@ Davis, CA 95616, USA
           <feature name="RID"/>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
@@ -1763,21 +1763,21 @@ Davis, CA 95616, USA
           <feature name="RID"/>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="UserID" type="uint16">
+      <field fieldId="0" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="UserStatus" type="UserStatusEnum" default="Available">
+      <field fieldId="1" name="UserStatus" type="UserStatusEnum" default="Available">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="UserType" type="UserTypeEnum">
+      <field fieldId="2" name="UserType" type="UserTypeEnum">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="RFIDCode" type="octstr" default="empty">
+      <field fieldId="3" name="RFIDCode" type="octstr" default="empty">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
@@ -1792,7 +1792,7 @@ Davis, CA 95616, USA
           <feature name="RID"/>
         </andTerm>
       </mandatoryConform>
-      <field id="0" name="RFIDSlotIndex" type="uint16">
+      <field fieldId="0" name="RFIDSlotIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfRFIDUsersSupported"/>
         <constraint type="allowed" value="0xFFFE"/>
@@ -1814,31 +1814,31 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="USR"/>
       </mandatoryConform>
-      <field id="0" name="OperationType" type="DataOperationTypeEnum">
+      <field fieldId="0" name="OperationType" type="DataOperationTypeEnum">
         <mandatoryConform/>
         <constraint type="allowed" value="Add"/>
         <constraint type="allowed" value="Modify"/>
       </field>
-      <field id="1" name="UserIndex" type="uint16">
+      <field fieldId="1" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
-      <field id="2" name="UserName" type="string" default="empty">
+      <field fieldId="2" name="UserName" type="string" default="empty">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="maxLength" value="10"/>
       </field>
-      <field id="3" name="UserUniqueID" type="uint32" default="0xFFFFFFFF">
+      <field fieldId="3" name="UserUniqueID" type="uint32" default="0xFFFFFFFF">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="4" name="UserStatus" type="UserStatusEnum" default="OccupiedEnabled">
+      <field fieldId="4" name="UserStatus" type="UserStatusEnum" default="OccupiedEnabled">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="allowed" value="OccupiedEnabled"/>
         <constraint type="allowed" value="OccupiedDisabled"/>
       </field>
-      <field id="5" name="UserType" type="UserTypeEnum" default="UnrestrictedUser">
+      <field fieldId="5" name="UserType" type="UserTypeEnum" default="UnrestrictedUser">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="allowed" value="UnrestrictedUser"/>
@@ -1849,7 +1849,7 @@ Davis, CA 95616, USA
         <constraint type="allowed" value="ScheduleRestrictedUser"/>
         <constraint type="allowed" value="RemoteOnlyUser"/>
       </field>
-      <field id="6" name="CredentialRule" type="CredentialRuleEnum" default="Single">
+      <field fieldId="6" name="CredentialRule" type="CredentialRuleEnum" default="Single">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
@@ -1859,7 +1859,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="USR"/>
       </mandatoryConform>
-      <field id="0" name="UserIndex" type="uint16">
+      <field fieldId="0" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
@@ -1868,47 +1868,47 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="USR"/>
       </mandatoryConform>
-      <field id="0" name="UserIndex" type="uint16">
+      <field fieldId="0" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
-      <field id="1" name="UserName" type="string" default="empty">
+      <field fieldId="1" name="UserName" type="string" default="empty">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="maxLength" value="10"/>
       </field>
-      <field id="2" name="UserUniqueID" type="uint32" default="0">
+      <field fieldId="2" name="UserUniqueID" type="uint32" default="0">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="3" name="UserStatus" type="UserStatusEnum" default="Available">
+      <field fieldId="3" name="UserStatus" type="UserStatusEnum" default="Available">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="4" name="UserType" type="UserTypeEnum" default="UnrestrictedUser">
+      <field fieldId="4" name="UserType" type="UserTypeEnum" default="UnrestrictedUser">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="5" name="CredentialRule" type="CredentialRuleEnum" default="Single">
+      <field fieldId="5" name="CredentialRule" type="CredentialRuleEnum" default="Single">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="6" name="Credentials" type="list">
+      <field fieldId="6" name="Credentials" type="list">
         <entry type="CredentialStruct"/>
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="countBetween" from="0" to="NumberOfCredentialsSupportedPerUser"/>
       </field>
-      <field id="7" name="CreatorFabricIndex" type="fabric-idx">
+      <field fieldId="7" name="CreatorFabricIndex" type="fabric-idx">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="8" name="LastModifiedFabricIndex" type="fabric-idx">
+      <field fieldId="8" name="LastModifiedFabricIndex" type="fabric-idx">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="9" name="NextUserIndex" type="uint16">
+      <field fieldId="9" name="NextUserIndex" type="uint16">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
@@ -1919,7 +1919,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="USR"/>
       </mandatoryConform>
-      <field id="0" name="UserIndex" type="uint16">
+      <field fieldId="0" name="UserIndex" type="uint16">
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
         <constraint type="allowed" value="0xFFFE"/>
@@ -1936,33 +1936,33 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="NOT"/>
       </optionalConform>
-      <field id="0" name="ProgramEventSource" type="EventSourceEnum">
+      <field fieldId="0" name="ProgramEventSource" type="EventSourceEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="ProgramEventCode" type="ProgrammingEventCodeEnum">
+      <field fieldId="1" name="ProgramEventCode" type="ProgrammingEventCodeEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="UserID" type="uint16">
+      <field fieldId="2" name="UserID" type="uint16">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="PIN" type="octstr">
+      <field fieldId="3" name="PIN" type="octstr">
         <mandatoryConform/>
       </field>
-      <field id="4" name="UserType" type="UserTypeEnum">
-        <mandatoryConform/>
-        <constraint type="desc"/>
-      </field>
-      <field id="5" name="UserStatus" type="UserStatusEnum">
+      <field fieldId="4" name="UserType" type="UserTypeEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="6" name="LocalTime" type="epoch-s">
+      <field fieldId="5" name="UserStatus" type="UserStatusEnum">
+        <mandatoryConform/>
+        <constraint type="desc"/>
+      </field>
+      <field fieldId="6" name="LocalTime" type="epoch-s">
         <mandatoryConform/>
       </field>
-      <field id="7" name="Data" type="string">
+      <field fieldId="7" name="Data" type="string">
         <optionalConform/>
       </field>
     </command>
@@ -1971,30 +1971,30 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="USR"/>
       </mandatoryConform>
-      <field id="0" name="OperationType" type="DataOperationTypeEnum">
+      <field fieldId="0" name="OperationType" type="DataOperationTypeEnum">
         <mandatoryConform/>
         <constraint type="allowed" value="Add"/>
         <constraint type="allowed" value="Modify"/>
       </field>
-      <field id="1" name="Credential" type="CredentialStruct">
+      <field fieldId="1" name="Credential" type="CredentialStruct">
         <mandatoryConform/>
       </field>
-      <field id="2" name="CredentialData" type="octstr">
+      <field fieldId="2" name="CredentialData" type="octstr">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="UserIndex" type="uint16">
+      <field fieldId="3" name="UserIndex" type="uint16">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
-      <field id="4" name="UserStatus" type="UserStatusEnum" default="OccupiedEnabled">
+      <field fieldId="4" name="UserStatus" type="UserStatusEnum" default="OccupiedEnabled">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="allowed" value="OccupiedEnabled"/>
         <constraint type="allowed" value="OccupiedDisabled"/>
       </field>
-      <field id="5" name="UserType" type="UserTypeEnum" default="UnrestrictedUser">
+      <field fieldId="5" name="UserType" type="UserTypeEnum" default="UnrestrictedUser">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="allowed" value="UnrestrictedUser"/>
@@ -2010,16 +2010,16 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="USR"/>
       </mandatoryConform>
-      <field id="0" name="Status" type="status">
+      <field fieldId="0" name="Status" type="status">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="UserIndex" type="uint16" default="0">
+      <field fieldId="1" name="UserIndex" type="uint16" default="0">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
-      <field id="2" name="NextCredentialIndex" type="uint16">
+      <field fieldId="2" name="NextCredentialIndex" type="uint16">
         <quality nullable="true"/>
         <optionalConform/>
         <constraint type="desc"/>
@@ -2030,7 +2030,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="USR"/>
       </mandatoryConform>
-      <field id="0" name="Credential" type="CredentialStruct">
+      <field fieldId="0" name="Credential" type="CredentialStruct">
         <mandatoryConform/>
       </field>
     </command>
@@ -2038,28 +2038,28 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="USR"/>
       </mandatoryConform>
-      <field id="0" name="CredentialExists" type="bool">
+      <field fieldId="0" name="CredentialExists" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="1" name="UserIndex" type="uint16">
+      <field fieldId="1" name="UserIndex" type="uint16">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="between" from="1" to="NumberOfTotalUsersSupported"/>
       </field>
-      <field id="2" name="CreatorFabricIndex" type="fabric-idx">
+      <field fieldId="2" name="CreatorFabricIndex" type="fabric-idx">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="3" name="LastModifiedFabricIndex" type="fabric-idx">
+      <field fieldId="3" name="LastModifiedFabricIndex" type="fabric-idx">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="4" name="NextCredentialIndex" type="uint16">
+      <field fieldId="4" name="NextCredentialIndex" type="uint16">
         <quality nullable="true"/>
         <optionalConform/>
         <constraint type="desc"/>
       </field>
-      <field id="5" name="CredentialData" type="octstr">
+      <field fieldId="5" name="CredentialData" type="octstr">
         <quality nullable="true"/>
         <optionalConform>
           <feature name="ALIRO"/>
@@ -2072,7 +2072,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="USR"/>
       </mandatoryConform>
-      <field id="0" name="Credential" type="CredentialStruct">
+      <field fieldId="0" name="Credential" type="CredentialStruct">
         <quality nullable="true"/>
         <mandatoryConform/>
         <constraint type="desc"/>
@@ -2083,7 +2083,7 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="UBOLT"/>
       </mandatoryConform>
-      <field id="0" name="PINCode" type="octstr">
+      <field fieldId="0" name="PINCode" type="octstr">
         <optionalConform>
           <andTerm>
             <feature name="COTA"/>
@@ -2097,19 +2097,19 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="ALIRO"/>
       </mandatoryConform>
-      <field id="0" name="SigningKey" type="octstr">
+      <field fieldId="0" name="SigningKey" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="32"/>
       </field>
-      <field id="1" name="VerificationKey" type="octstr">
+      <field fieldId="1" name="VerificationKey" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="65"/>
       </field>
-      <field id="2" name="GroupIdentifier" type="octstr">
+      <field fieldId="2" name="GroupIdentifier" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="16"/>
       </field>
-      <field id="3" name="GroupResolvingKey" type="octstr">
+      <field fieldId="3" name="GroupResolvingKey" type="octstr">
         <mandatoryConform>
           <feature name="ALBU"/>
         </mandatoryConform>
@@ -2127,7 +2127,7 @@ Davis, CA 95616, USA
     <event id="0x00" name="DoorLockAlarm" priority="critical">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="AlarmCode" type="AlarmCodeEnum">
+      <field fieldId="0" name="AlarmCode" type="AlarmCodeEnum">
         <mandatoryConform/>
       </field>
     </event>
@@ -2136,32 +2136,32 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="DPS"/>
       </mandatoryConform>
-      <field id="0" name="DoorState" type="DoorStateEnum">
+      <field fieldId="0" name="DoorState" type="DoorStateEnum">
         <mandatoryConform/>
       </field>
     </event>
     <event id="0x02" name="LockOperation" priority="critical">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="LockOperationType" type="LockOperationTypeEnum">
+      <field fieldId="0" name="LockOperationType" type="LockOperationTypeEnum">
         <mandatoryConform/>
       </field>
-      <field id="1" name="OperationSource" type="OperationSourceEnum">
+      <field fieldId="1" name="OperationSource" type="OperationSourceEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="UserIndex" type="uint16">
+      <field fieldId="2" name="UserIndex" type="uint16">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="3" name="FabricIndex" type="fabric-idx">
+      <field fieldId="3" name="FabricIndex" type="fabric-idx">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="4" name="SourceNode" type="node-id">
+      <field fieldId="4" name="SourceNode" type="node-id">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="5" name="Credentials" type="list">
+      <field fieldId="5" name="Credentials" type="list">
         <entry type="CredentialStruct"/>
         <quality nullable="true"/>
         <optionalConform>
@@ -2173,28 +2173,28 @@ Davis, CA 95616, USA
     <event id="0x03" name="LockOperationError" priority="critical">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="0" name="LockOperationType" type="LockOperationTypeEnum">
+      <field fieldId="0" name="LockOperationType" type="LockOperationTypeEnum">
         <mandatoryConform/>
       </field>
-      <field id="1" name="OperationSource" type="OperationSourceEnum">
+      <field fieldId="1" name="OperationSource" type="OperationSourceEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="OperationError" type="OperationErrorEnum">
+      <field fieldId="2" name="OperationError" type="OperationErrorEnum">
         <mandatoryConform/>
       </field>
-      <field id="3" name="UserIndex" type="uint16">
+      <field fieldId="3" name="UserIndex" type="uint16">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="4" name="FabricIndex" type="fabric-idx">
+      <field fieldId="4" name="FabricIndex" type="fabric-idx">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="5" name="SourceNode" type="node-id">
+      <field fieldId="5" name="SourceNode" type="node-id">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="6" name="Credentials" type="list">
+      <field fieldId="6" name="Credentials" type="list">
         <entry type="CredentialStruct"/>
         <quality nullable="true"/>
         <optionalConform>
@@ -2208,31 +2208,31 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="USR"/>
       </mandatoryConform>
-      <field id="0" name="LockDataType" type="LockDataTypeEnum">
+      <field fieldId="0" name="LockDataType" type="LockDataTypeEnum">
         <mandatoryConform/>
       </field>
-      <field id="1" name="DataOperationType" type="DataOperationTypeEnum">
+      <field fieldId="1" name="DataOperationType" type="DataOperationTypeEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="OperationSource" type="OperationSourceEnum">
+      <field fieldId="2" name="OperationSource" type="OperationSourceEnum">
         <mandatoryConform/>
         <constraint type="allowed" value="Unspecified"/>
         <constraint type="allowed" value="Keypad"/>
         <constraint type="allowed" value="Remote"/>
       </field>
-      <field id="3" name="UserIndex" type="uint16">
+      <field fieldId="3" name="UserIndex" type="uint16">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="4" name="FabricIndex" type="fabric-idx">
+      <field fieldId="4" name="FabricIndex" type="fabric-idx">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="5" name="SourceNode" type="node-id">
+      <field fieldId="5" name="SourceNode" type="node-id">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="6" name="DataIndex" type="uint16">
+      <field fieldId="6" name="DataIndex" type="uint16">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>

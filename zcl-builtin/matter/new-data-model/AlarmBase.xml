@@ -101,14 +101,14 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="RESET"/>
       </mandatoryConform>
-      <field id="0" name="Alarms" type="AlarmBitmap" default="0">
+      <field fieldId="0" name="Alarms" type="AlarmBitmap" default="0">
         <mandatoryConform/>
       </field>
     </command>
     <command id="0x01" name="ModifyEnabledAlarms" direction="commandToServer" response="Y">
       <access invokePrivilege="operate"/>
       <optionalConform/>
-      <field id="0" name="Mask" type="AlarmBitmap" default="0">
+      <field fieldId="0" name="Mask" type="AlarmBitmap" default="0">
         <mandatoryConform/>
       </field>
     </command>
@@ -117,16 +117,16 @@ Davis, CA 95616, USA
     <event id="0x00" name="Notify" priority="info">
       <access readPrivilege="view"/>
       <mandatoryConform/>
-      <field id="1" name="Active" type="AlarmBitmap" default="0">
+      <field fieldId="1" name="Active" type="AlarmBitmap" default="0">
         <mandatoryConform/>
       </field>
-      <field id="2" name="Inactive" type="AlarmBitmap" default="0">
+      <field fieldId="2" name="Inactive" type="AlarmBitmap" default="0">
         <mandatoryConform/>
       </field>
-      <field id="3" name="State" type="AlarmBitmap" default="0">
+      <field fieldId="3" name="State" type="AlarmBitmap" default="0">
         <mandatoryConform/>
       </field>
-      <field id="4" name="Mask" type="AlarmBitmap" default="0">
+      <field fieldId="4" name="Mask" type="AlarmBitmap" default="0">
         <mandatoryConform/>
       </field>
     </event>

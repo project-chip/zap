@@ -89,10 +89,10 @@ Davis, CA 95616, USA
       </item>
     </enum>
     <struct name="BalanceStruct">
-      <field id="0" name="Step" type="percent" default="MS">
+      <field fieldId="0" name="Step" type="percent" default="MS">
         <mandatoryConform/>
       </field>
-      <field id="1" name="Label" type="string">
+      <field fieldId="1" name="Label" type="string">
         <optionalConform/>
         <constraint type="maxLength" value="64"/>
       </field>

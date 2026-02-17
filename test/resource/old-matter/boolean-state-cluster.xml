@@ -30,7 +30,7 @@ limitations under the License.
 
     <event code="0x0000" name="StateChange" priority="info" side="server">
       <description>This event SHALL be generated when the StateValue attribute changes.</description>
-      <field id="0" name="StateValue" type="boolean"/>
+      <field fieldId="0" name="StateValue" type="boolean"/>
     </event>
   </cluster>
 </configurator>

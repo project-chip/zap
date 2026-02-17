@@ -182,14 +182,14 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
       </bitfield>
     </bitmap>
     <struct name="NetworkInfoStruct">
-      <field id="0" name="NetworkID" type="octstr">
+      <field fieldId="0" name="NetworkID" type="octstr">
         <mandatoryConform/>
         <constraint type="lengthBetween" from="1" to="32"/>
       </field>
-      <field id="1" name="Connected" type="bool">
+      <field fieldId="1" name="Connected" type="bool">
         <mandatoryConform/>
       </field>
-      <field id="2" name="NetworkIdentifier" type="octstr" default="null">
+      <field fieldId="2" name="NetworkIdentifier" type="octstr" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="PDC"/>
@@ -197,7 +197,7 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
         <constraint type="maxLength" value="20"/>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="ClientIdentifier" type="octstr" default="null">
+      <field fieldId="3" name="ClientIdentifier" type="octstr" default="null">
         <quality nullable="true"/>
         <mandatoryConform>
           <feature name="PDC"/>
@@ -207,78 +207,78 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
       </field>
     </struct>
     <struct name="ThreadInterfaceScanResultStruct">
-      <field id="0" name="PanId" type="uint16">
+      <field fieldId="0" name="PanId" type="uint16">
         <mandatoryConform>
           <feature name="TH"/>
         </mandatoryConform>
         <constraint type="between" from="0" to="65534"/>
       </field>
-      <field id="1" name="ExtendedPanId" type="uint64">
+      <field fieldId="1" name="ExtendedPanId" type="uint64">
         <mandatoryConform>
           <feature name="TH"/>
         </mandatoryConform>
       </field>
-      <field id="2" name="NetworkName" type="string">
+      <field fieldId="2" name="NetworkName" type="string">
         <mandatoryConform>
           <feature name="TH"/>
         </mandatoryConform>
         <constraint type="lengthBetween" from="1" to="16"/>
       </field>
-      <field id="3" name="Channel" type="uint16">
+      <field fieldId="3" name="Channel" type="uint16">
         <mandatoryConform>
           <feature name="TH"/>
         </mandatoryConform>
       </field>
-      <field id="4" name="Version" type="uint8">
+      <field fieldId="4" name="Version" type="uint8">
         <mandatoryConform>
           <feature name="TH"/>
         </mandatoryConform>
       </field>
-      <field id="5" name="ExtendedAddress" type="hwadr">
+      <field fieldId="5" name="ExtendedAddress" type="hwadr">
         <mandatoryConform>
           <feature name="TH"/>
         </mandatoryConform>
       </field>
-      <field id="6" name="RSSI" type="int8">
+      <field fieldId="6" name="RSSI" type="int8">
         <mandatoryConform>
           <feature name="TH"/>
         </mandatoryConform>
       </field>
-      <field id="7" name="LQI" type="uint8">
+      <field fieldId="7" name="LQI" type="uint8">
         <mandatoryConform>
           <feature name="TH"/>
         </mandatoryConform>
       </field>
     </struct>
     <struct name="WiFiInterfaceScanResultStruct">
-      <field id="0" name="Security" type="WiFiSecurityBitmap">
+      <field fieldId="0" name="Security" type="WiFiSecurityBitmap">
         <mandatoryConform>
           <feature name="WI"/>
         </mandatoryConform>
       </field>
-      <field id="1" name="SSID" type="octstr">
+      <field fieldId="1" name="SSID" type="octstr">
         <mandatoryConform>
           <feature name="WI"/>
         </mandatoryConform>
         <constraint type="maxLength" value="32"/>
       </field>
-      <field id="2" name="BSSID" type="octstr">
+      <field fieldId="2" name="BSSID" type="octstr">
         <mandatoryConform>
           <feature name="WI"/>
         </mandatoryConform>
         <constraint type="maxLength" value="6"/>
       </field>
-      <field id="3" name="Channel" type="uint16">
+      <field fieldId="3" name="Channel" type="uint16">
         <mandatoryConform>
           <feature name="WI"/>
         </mandatoryConform>
       </field>
-      <field id="4" name="WiFiBand" type="WiFiBandEnum">
+      <field fieldId="4" name="WiFiBand" type="WiFiBandEnum">
         <optionalConform>
           <feature name="WI"/>
         </optionalConform>
       </field>
-      <field id="5" name="RSSI" type="int8">
+      <field fieldId="5" name="RSSI" type="int8">
         <optionalConform>
           <feature name="WI"/>
         </optionalConform>
@@ -374,14 +374,14 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
           <feature name="TH"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="SSID" type="octstr" default="null">
+      <field fieldId="0" name="SSID" type="octstr" default="null">
         <quality nullable="true"/>
         <optionalConform>
           <feature name="WI"/>
         </optionalConform>
         <constraint type="lengthBetween" from="1" to="32"/>
       </field>
-      <field id="1" name="Breadcrumb" type="uint64">
+      <field fieldId="1" name="Breadcrumb" type="uint64">
         <optionalConform/>
       </field>
     </command>
@@ -392,22 +392,22 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
           <feature name="TH"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="NetworkingStatus" type="NetworkCommissioningStatusEnum">
+      <field fieldId="0" name="NetworkingStatus" type="NetworkCommissioningStatusEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="DebugText" type="string">
+      <field fieldId="1" name="DebugText" type="string">
         <optionalConform/>
         <constraint type="maxLength" value="512"/>
       </field>
-      <field id="2" name="WiFiScanResults" type="list">
+      <field fieldId="2" name="WiFiScanResults" type="list">
         <entry type="WiFiInterfaceScanResultStruct"/>
         <mandatoryConform>
           <feature name="WI"/>
         </mandatoryConform>
         <constraint type="desc"/>
       </field>
-      <field id="3" name="ThreadScanResults" type="list">
+      <field fieldId="3" name="ThreadScanResults" type="list">
         <entry type="ThreadInterfaceScanResultStruct"/>
         <mandatoryConform>
           <feature name="TH"/>
@@ -420,27 +420,27 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
       <mandatoryConform>
         <feature name="WI"/>
       </mandatoryConform>
-      <field id="0" name="SSID" type="octstr">
+      <field fieldId="0" name="SSID" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="32"/>
       </field>
-      <field id="1" name="Credentials" type="octstr">
+      <field fieldId="1" name="Credentials" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="64"/>
       </field>
-      <field id="2" name="Breadcrumb" type="uint64">
+      <field fieldId="2" name="Breadcrumb" type="uint64">
         <optionalConform/>
       </field>
-      <field id="3" name="NetworkIdentity" type="octstr">
+      <field fieldId="3" name="NetworkIdentity" type="octstr">
         <optionalConform>
           <feature name="PDC"/>
         </optionalConform>
         <constraint type="maxLength" value="140"/>
       </field>
-      <field id="4" name="ClientIdentifier" type="octstr">
+      <field fieldId="4" name="ClientIdentifier" type="octstr">
         <constraint type="maxLength" value="20"/>
       </field>
-      <field id="5" name="PossessionNonce" type="octstr">
+      <field fieldId="5" name="PossessionNonce" type="octstr">
         <constraint type="maxLength" value="32"/>
       </field>
     </command>
@@ -449,11 +449,11 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
       <mandatoryConform>
         <feature name="TH"/>
       </mandatoryConform>
-      <field id="0" name="OperationalDataset" type="octstr">
+      <field fieldId="0" name="OperationalDataset" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="254"/>
       </field>
-      <field id="1" name="Breadcrumb" type="uint64">
+      <field fieldId="1" name="Breadcrumb" type="uint64">
         <optionalConform/>
       </field>
     </command>
@@ -465,11 +465,11 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
           <feature name="TH"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="NetworkID" type="octstr">
+      <field fieldId="0" name="NetworkID" type="octstr">
         <mandatoryConform/>
         <constraint type="lengthBetween" from="1" to="32"/>
       </field>
-      <field id="1" name="Breadcrumb" type="uint64">
+      <field fieldId="1" name="Breadcrumb" type="uint64">
         <optionalConform/>
       </field>
     </command>
@@ -480,25 +480,25 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
           <feature name="TH"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="NetworkingStatus" type="NetworkCommissioningStatusEnum">
+      <field fieldId="0" name="NetworkingStatus" type="NetworkCommissioningStatusEnum">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="1" name="DebugText" type="string">
+      <field fieldId="1" name="DebugText" type="string">
         <optionalConform/>
         <constraint type="maxLength" value="512"/>
       </field>
-      <field id="2" name="NetworkIndex" type="uint8">
+      <field fieldId="2" name="NetworkIndex" type="uint8">
         <optionalConform/>
         <constraint type="between" from="0" to="MaxNetworks - 1"/>
       </field>
-      <field id="3" name="ClientIdentity" type="octstr">
+      <field fieldId="3" name="ClientIdentity" type="octstr">
         <optionalConform>
           <feature name="PDC"/>
         </optionalConform>
         <constraint type="maxLength" value="140"/>
       </field>
-      <field id="4" name="PossessionSignature" type="octstr">
+      <field fieldId="4" name="PossessionSignature" type="octstr">
         <optionalConform>
           <feature name="PDC"/>
         </optionalConform>
@@ -513,11 +513,11 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
           <feature name="TH"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="NetworkID" type="octstr">
+      <field fieldId="0" name="NetworkID" type="octstr">
         <mandatoryConform/>
         <constraint type="lengthBetween" from="1" to="32"/>
       </field>
-      <field id="1" name="Breadcrumb" type="uint64">
+      <field fieldId="1" name="Breadcrumb" type="uint64">
         <optionalConform/>
       </field>
     </command>
@@ -528,13 +528,13 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
           <feature name="TH"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="NetworkingStatus" type="NetworkCommissioningStatusEnum">
+      <field fieldId="0" name="NetworkingStatus" type="NetworkCommissioningStatusEnum">
         <mandatoryConform/>
       </field>
-      <field id="1" name="DebugText" type="string">
+      <field fieldId="1" name="DebugText" type="string">
         <optionalConform/>
       </field>
-      <field id="2" name="ErrorValue" type="int32">
+      <field fieldId="2" name="ErrorValue" type="int32">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
@@ -547,15 +547,15 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
           <feature name="TH"/>
         </orTerm>
       </mandatoryConform>
-      <field id="0" name="NetworkID" type="octstr">
+      <field fieldId="0" name="NetworkID" type="octstr">
         <mandatoryConform/>
         <constraint type="lengthBetween" from="1" to="32"/>
       </field>
-      <field id="1" name="NetworkIndex" type="uint8">
+      <field fieldId="1" name="NetworkIndex" type="uint8">
         <mandatoryConform/>
         <constraint type="desc"/>
       </field>
-      <field id="2" name="Breadcrumb" type="uint64">
+      <field fieldId="2" name="Breadcrumb" type="uint64">
         <optionalConform/>
       </field>
     </command>
@@ -564,11 +564,11 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
       <mandatoryConform>
         <feature name="PDC"/>
       </mandatoryConform>
-      <field id="0" name="KeyIdentifier" type="octstr">
+      <field fieldId="0" name="KeyIdentifier" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="20"/>
       </field>
-      <field id="1" name="PossessionNonce" type="octstr">
+      <field fieldId="1" name="PossessionNonce" type="octstr">
         <optionalConform/>
         <constraint type="maxLength" value="32"/>
       </field>
@@ -577,11 +577,11 @@ Added support for Wi-Fi Per-Device Credentials (PDC feature; QueryIdentity and Q
       <mandatoryConform>
         <feature name="PDC"/>
       </mandatoryConform>
-      <field id="0" name="Identity" type="octstr">
+      <field fieldId="0" name="Identity" type="octstr">
         <mandatoryConform/>
         <constraint type="maxLength" value="140"/>
       </field>
-      <field id="1" name="PossessionSignature" type="octstr">
+      <field fieldId="1" name="PossessionSignature" type="octstr">
         <optionalConform/>
         <constraint type="maxLength" value="64"/>
       </field>

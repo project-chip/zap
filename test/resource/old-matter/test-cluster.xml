@@ -128,7 +128,7 @@ limitations under the License.
         <field mask="0x04" name="MaskVal3" />
         <field mask="0x40000000" name="MaskVal4" />
     </bitmap>
-    
+
     <bitmap name="Bitmap64MaskMap" type="BITMAP64">
         <cluster code="0x050F" />
         <field mask="0x01" name="MaskVal1" />
@@ -136,7 +136,7 @@ limitations under the License.
         <field mask="0x04" name="MaskVal3" />
         <field mask="0x4000000000000000" name="MaskVal4" />
     </bitmap>
-    
+
   <cluster>
     <domain>CHIP</domain>
     <name>Test Cluster</name>
@@ -567,17 +567,17 @@ limitations under the License.
 
     <event code="0x0001" name="TestEvent" priority="info" side="server">
       <description>Example test event</description>
-      <field id="1" name="arg1" type="INT8U"/>
-      <field id="2" name="arg2" type="SimpleEnum"/>
-      <field id="3" name="arg3" type="BOOLEAN"/>
-      <field id="4" name="arg4" type="SimpleBitmap"/>
-      <field id="5" name="arg5" type="SimpleStruct" array="true"/>
-      <field id="6" name="arg6" type="SimpleEnum" array="true"/>
+      <field fieldId="1" name="arg1" type="INT8U"/>
+      <field fieldId="2" name="arg2" type="SimpleEnum"/>
+      <field fieldId="3" name="arg3" type="BOOLEAN"/>
+      <field fieldId="4" name="arg4" type="SimpleBitmap"/>
+      <field fieldId="5" name="arg5" type="SimpleStruct" array="true"/>
+      <field fieldId="6" name="arg6" type="SimpleEnum" array="true"/>
     </event>
 
     <event code="0x0002" name="TestFabricScopedEvent" priority="info" side="server">
       <description>Example test event</description>
-      <field id="0xFE" name="arg1" type="fabric_idx"/>
+      <field fieldId="0xFE" name="arg1" type="fabric_idx"/>
     </event>
 
   </cluster>

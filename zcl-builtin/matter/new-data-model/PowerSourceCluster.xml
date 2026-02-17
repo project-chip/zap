@@ -925,15 +925,15 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="CHGM"/>
       </mandatoryConform>
-      <field id="0" name="EnableTime" type="uint16" default="null">
+      <field fieldId="0" name="EnableTime" type="uint16" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="MinimumChargeCurrent" type="uint16">
+      <field fieldId="1" name="MinimumChargeCurrent" type="uint16">
         <mandatoryConform/>
         <constraint type="allowed" value="6-32"/>
       </field>
-      <field id="2" name="MaximumChargeCurrent" type="uint16">
+      <field fieldId="2" name="MaximumChargeCurrent" type="uint16">
         <mandatoryConform/>
         <constraint type="allowed" value="6-32"/>
       </field>
@@ -943,11 +943,11 @@ Davis, CA 95616, USA
       <mandatoryConform>
         <feature name="DCHGM"/>
       </mandatoryConform>
-      <field id="0" name="EnableTime" type="uint16" default="null">
+      <field fieldId="0" name="EnableTime" type="uint16" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="MaximumDischargeCurrent" type="uint16">
+      <field fieldId="1" name="MaximumDischargeCurrent" type="uint16">
         <mandatoryConform/>
         <constraint type="allowed" value="6-32"/>
       </field>
@@ -963,12 +963,12 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="WIRED"/>
       </optionalConform>
-      <field id="0" name="Current" type="list" default="empty">
+      <field fieldId="0" name="Current" type="list" default="empty">
         <entry type="WiredFaultEnum"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="8"/>
       </field>
-      <field id="1" name="Previous" type="list" default="empty">
+      <field fieldId="1" name="Previous" type="list" default="empty">
         <entry type="WiredFaultEnum"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="8"/>
@@ -979,12 +979,12 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="BAT"/>
       </optionalConform>
-      <field id="0" name="Current" type="list" default="empty">
+      <field fieldId="0" name="Current" type="list" default="empty">
         <entry type="BatFaultEnum"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="8"/>
       </field>
-      <field id="1" name="Previous" type="list" default="empty">
+      <field fieldId="1" name="Previous" type="list" default="empty">
         <entry type="BatFaultEnum"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="8"/>
@@ -995,12 +995,12 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="RECHG"/>
       </optionalConform>
-      <field id="0" name="Current" type="list" default="empty">
+      <field fieldId="0" name="Current" type="list" default="empty">
         <entry type="BatChargeFaultEnum"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="16"/>
       </field>
-      <field id="1" name="Previous" type="list" default="empty">
+      <field fieldId="1" name="Previous" type="list" default="empty">
         <entry type="BatChargeFaultEnum"/>
         <mandatoryConform/>
         <constraint type="maxCount" value="16"/>
@@ -1011,11 +1011,11 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="BAT"/>
       </optionalConform>
-      <field id="0" name="SessionID" type="uint32" default="null">
+      <field fieldId="0" name="SessionID" type="uint32" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="ChargeState" type="BatChargeStateEnum">
+      <field fieldId="1" name="ChargeState" type="BatChargeStateEnum">
         <mandatoryConform/>
       </field>
     </event>
@@ -1024,22 +1024,22 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="BAT"/>
       </optionalConform>
-      <field id="0" name="SessionID" type="uint32" default="null">
+      <field fieldId="0" name="SessionID" type="uint32" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="ChargeState" type="BatChargeStateEnum">
+      <field fieldId="1" name="ChargeState" type="BatChargeStateEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="SessionDuration" type="elapsed-s" default="null">
+      <field fieldId="2" name="SessionDuration" type="elapsed-s" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="3" name="SessionEnergyCharged" type="int64" default="null">
+      <field fieldId="3" name="SessionEnergyCharged" type="int64" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="4" name="SessionEnergyDischarged" type="int64" default="null">
+      <field fieldId="4" name="SessionEnergyDischarged" type="int64" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
@@ -1049,11 +1049,11 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="RECHG"/>
       </optionalConform>
-      <field id="0" name="SessionID" type="uint32" default="null">
+      <field fieldId="0" name="SessionID" type="uint32" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="ChargeState" type="BatChargeStateEnum">
+      <field fieldId="1" name="ChargeState" type="BatChargeStateEnum">
         <mandatoryConform/>
       </field>
     </event>
@@ -1062,18 +1062,18 @@ Davis, CA 95616, USA
       <optionalConform>
         <feature name="RECHG"/>
       </optionalConform>
-      <field id="0" name="SessionID" type="uint32" default="null">
+      <field fieldId="0" name="SessionID" type="uint32" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="1" name="ChargeState" type="BatChargeStateEnum">
+      <field fieldId="1" name="ChargeState" type="BatChargeStateEnum">
         <mandatoryConform/>
       </field>
-      <field id="2" name="Reason" type="BatEnergyTransferStopReasonEnum" default="null">
+      <field fieldId="2" name="Reason" type="BatEnergyTransferStopReasonEnum" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
-      <field id="3" name="EnergyTransferred" type="int64" default="null">
+      <field fieldId="3" name="EnergyTransferred" type="int64" default="null">
         <quality nullable="true"/>
         <mandatoryConform/>
       </field>
