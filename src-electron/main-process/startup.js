@@ -907,21 +907,22 @@ async function generateSingleFile(
   if (usedTemplatePackageIds.length === 0) {
     usedTemplatePackageIds = [templatePackageId]
   }
-  let genResults = []
-  for (let i = 0; i < usedTemplatePackageIds.length; i++) {
-    let genResult = await generatorEngine.generateAndWriteFiles(
-      db,
-      sessionId,
-      usedTemplatePackageIds[i],
-      output,
-      options
+  const genResults = await Promise.all(
+    usedTemplatePackageIds.map((templatePackageId) =>
+      generatorEngine.generateAndWriteFiles(
+        db,
+        sessionId,
+        templatePackageId,
+        output,
+        options
+      )
     )
-
+  )
+  for (const genResult of genResults) {
     if (genResult.hasErrors) {
       console.log(JSON.stringify(genResult.errors))
       throw new Error(`Generation failed: ${zapFile}`)
     }
-    genResults.push(genResult)
   }
 
   if (options.upgradeZapFile && isZapFileUpgradeNeeded) {

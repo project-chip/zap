@@ -953,22 +953,30 @@ async function collectAttributes(
 
       c.attributes.sort(zclUtil.attributeComparator)
 
+      // Resolve all attribute default values in parallel, then process in order.
+      const attributeDefaultValues = await Promise.all(
+        c.attributes.map((a) =>
+          determineAttributeDefaultValue(
+            a.defaultValue,
+            a.type,
+            a.typeSize,
+            a.isNullable,
+            db,
+            sessionId
+          )
+        )
+      )
+
       // Go over all the attributes in the endpoint and add them to the list.
-      for (let a of c.attributes) {
+      for (let attrIdx = 0; attrIdx < c.attributes.length; attrIdx++) {
+        let a = c.attributes[attrIdx]
+        let attributeDefaultValue = attributeDefaultValues[attrIdx]
         // typeSize is the size of a buffer needed to hold the attribute, if
         // that's known.
         let typeSize = a.typeSize
         // defaultSize is the size of the attribute in the readonly defaults
         // store.
         let defaultSize = typeSize
-        let attributeDefaultValue = await determineAttributeDefaultValue(
-          a.defaultValue,
-          a.type,
-          typeSize,
-          a.isNullable,
-          db,
-          sessionId
-        )
         // Various types store the length of the actual content in bytes.
         // For those, we can size the default storage to be just big enough for
         // the actual default value.

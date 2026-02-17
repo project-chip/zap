@@ -118,22 +118,25 @@ async function produceIterativeContent(
     db,
     sessionId
   )
-  let res = []
-  for (let it of iterationArray) {
-    options.overrideKey = util.patternFormat(singleTemplatePkg.category, it)
-    options.initialContext = it
-    let r = await produceContent(
-      hb,
-      metaInfo,
-      db,
-      sessionId,
-      singleTemplatePkg,
-      genTemplateJsonPackage,
-      options
-    )
-    res.push(...r)
-  }
-  return res
+  let resultArrays = await Promise.all(
+    iterationArray.map((it) => {
+      const iterOptions = {
+        ...options,
+        overrideKey: util.patternFormat(singleTemplatePkg.category, it),
+        initialContext: it
+      }
+      return produceContent(
+        hb,
+        metaInfo,
+        db,
+        sessionId,
+        singleTemplatePkg,
+        genTemplateJsonPackage,
+        iterOptions
+      )
+    })
+  )
+  return resultArrays.flat()
 }
 
 /**
@@ -209,10 +212,11 @@ async function produceContent(
         )
       )
     ])
-    // Render deferred blocks
-    for (let deferredBlock of context.global.deferredBlocks) {
-      content += await deferredBlock(context)
-    }
+    // Render deferred blocks (parallel; order preserved by Promise.all)
+    const deferredParts = await Promise.all(
+      context.global.deferredBlocks.map((block) => block(context))
+    )
+    content += deferredParts.join('')
   } catch (error) {
     // Log the error and throw it
     notification.setNotification(

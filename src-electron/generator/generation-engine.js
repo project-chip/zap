@@ -596,9 +596,13 @@ async function loadTemplates(
       templateData: []
     }
     if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
-      for (let jsonFile of genTemplatesJsonArray) {
-        if (jsonFile == null || jsonFile == '') continue
-        let ctx = await loadGenTemplatesJsonFile(db, jsonFile)
+      const filesToLoad = genTemplatesJsonArray.filter(
+        (f) => f != null && f !== ''
+      )
+      const loadResults = await Promise.all(
+        filesToLoad.map((jsonFile) => loadGenTemplatesJsonFile(db, jsonFile))
+      )
+      for (const ctx of loadResults) {
         if (ctx.error) {
           if (options.failOnLoadingError) globalCtx.error = ctx.error
         } else {
@@ -761,28 +765,32 @@ async function generateAllTemplates(
     hb: hb
   }
 
-  for (let pkg of packages) {
-    let outputOptions = await queryPackage.selectAllOptionsValues(
-      genResult.db,
-      pkg.id,
-      dbEnum.packageOptionCategory.outputOptions
-    )
-    outputOptions.forEach((opt) => {
-      if (opt.optionCode == 'iterator') {
-        pkg.iterator = opt.optionLabel
-      }
+  await Promise.all(
+    packages.map(async (pkg) => {
+      const [outputOptions, generatorOptions] = await Promise.all([
+        queryPackage.selectAllOptionsValues(
+          genResult.db,
+          pkg.id,
+          dbEnum.packageOptionCategory.outputOptions
+        ),
+        queryPackage.selectAllOptionsValues(
+          genResult.db,
+          pkg.id,
+          dbEnum.packageOptionCategory.generator
+        )
+      ])
+      outputOptions.forEach((opt) => {
+        if (opt.optionCode == 'iterator') {
+          pkg.iterator = opt.optionLabel
+        }
+      })
+      generatorOptions.forEach((opt) => {
+        if (opt.optionCode == 'static') {
+          pkg.static = opt.optionLabel
+        }
+      })
     })
-    let generatorOptions = await queryPackage.selectAllOptionsValues(
-      genResult.db,
-      pkg.id,
-      dbEnum.packageOptionCategory.generator
-    )
-    generatorOptions.forEach((opt) => {
-      if (opt.optionCode == 'static') {
-        pkg.static = opt.optionLabel
-      }
-    })
-  }
+  )
   // First extract overridePath if one exists, as we need to
   // pass it to the generation.
   packages.forEach((singlePkg) => {
