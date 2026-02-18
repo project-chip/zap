@@ -904,3 +904,55 @@ test(
   },
   testUtil.timeout.medium()
 )
+
+test(
+  'insertEndpointType throws when adding two Matter application device types to same simple endpoint',
+  async () => {
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'USER',
+      'SESSION'
+    )
+    let sid = userSession.sessionId
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      sid,
+      {
+        zcl: env.builtinMatterZclMetafile(),
+        template: testUtil.testTemplate.matter3,
+        partitions: 2
+      },
+      null,
+      [templateContext.packageId]
+    )
+    let sessionPartitionInfo =
+      await querySession.getAllSessionPartitionInfoForSession(db, sid)
+    let allDeviceTypes = await queryDeviceType.selectAllDeviceTypes(
+      db,
+      zclPackageId
+    )
+    // Use device types that have <class>Simple</class> in matter-devices.xml
+    // so the ENDPOINT_TYPE_SIMPLE_DEVICE_CHECK trigger fires
+    let refrigerator = allDeviceTypes.find((d) => d.label === 'MA-refrigerator')
+    let tempCabinet = allDeviceTypes.find(
+      (d) => d.label === 'MA-temperature-controlled-cabinet'
+    )
+    expect(refrigerator).toBeDefined()
+    expect(tempCabinet).toBeDefined()
+
+    await expect(
+      queryConfig.insertEndpointType(
+        db,
+        sessionPartitionInfo[0],
+        'testEpt',
+        [refrigerator.id, tempCabinet.id],
+        [refrigerator.code, tempCabinet.code],
+        [1, 1],
+        true
+      )
+    ).rejects.toThrow(
+      'Simple endpoint cannot have more than one application device type'
+    )
+  },
+  testUtil.timeout.medium()
+)
