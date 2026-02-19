@@ -46,7 +46,7 @@ const MAX_WORKERS = 8 //cap at 8 workers
  *
  * @param {object} pool - workerpool pool instance
  * @param {object} payload - singleTemplatePkg, genTemplateJsonPackage, iterOptions, index
- * @returns {Promise<Object>} Resolves with index and result array from the worker.
+ * @returns {Promise<index, result>} Resolves with index and result array from the worker.
  * @example
  *   execIterationRender(pool, { singleTemplatePkg, genTemplateJsonPackage, iterOptions, index })
  */
@@ -667,13 +667,9 @@ async function loadTemplates(
       templateData: []
     }
     if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
-      const filesToLoad = genTemplatesJsonArray.filter(
-        (f) => f != null && f !== ''
-      )
-      const loadResults = await Promise.all(
-        filesToLoad.map((jsonFile) => loadGenTemplatesJsonFile(db, jsonFile))
-      )
-      for (const ctx of loadResults) {
+      for (let jsonFile of genTemplatesJsonArray) {
+        if (jsonFile == null || jsonFile == '') continue
+        let ctx = await loadGenTemplatesJsonFile(db, jsonFile)
         if (ctx.error) {
           if (options.failOnLoadingError) globalCtx.error = ctx.error
         } else {

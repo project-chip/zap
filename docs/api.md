@@ -8286,7 +8286,7 @@ Get endpoint type events from the given endpoint type ID.
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
-    * [~execIterationRender(pool, payload)](#module_JS API_ generator logic..execIterationRender) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [~execIterationRender(pool, payload)](#module_JS API_ generator logic..execIterationRender) ⇒ <code>Promise.&lt;index, result&gt;</code>
     * [~createIterationPool(opts)](#module_JS API_ generator logic..createIterationPool) ⇒ <code>Object</code>
     * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
@@ -8339,11 +8339,11 @@ Get endpoint type events from the given endpoint type ID.
 
 <a name="module_JS API_ generator logic..execIterationRender"></a>
 
-### JS API: generator logic~execIterationRender(pool, payload) ⇒ <code>Promise.&lt;Object&gt;</code>
+### JS API: generator logic~execIterationRender(pool, payload) ⇒ <code>Promise.&lt;index, result&gt;</code>
 Runs one template render job on the pool.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
-**Returns**: <code>Promise.&lt;Object&gt;</code> - Resolves with index and result array from the worker.  
+**Returns**: <code>Promise.&lt;index, result&gt;</code> - Resolves with index and result array from the worker.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -13735,7 +13735,7 @@ This module contains the API for templating. For more detailed instructions, rea
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
-    * [~execIterationRender(pool, payload)](#module_JS API_ generator logic..execIterationRender) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [~execIterationRender(pool, payload)](#module_JS API_ generator logic..execIterationRender) ⇒ <code>Promise.&lt;index, result&gt;</code>
     * [~createIterationPool(opts)](#module_JS API_ generator logic..createIterationPool) ⇒ <code>Object</code>
     * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
@@ -13788,11 +13788,11 @@ This module contains the API for templating. For more detailed instructions, rea
 
 <a name="module_JS API_ generator logic..execIterationRender"></a>
 
-### JS API: generator logic~execIterationRender(pool, payload) ⇒ <code>Promise.&lt;Object&gt;</code>
+### JS API: generator logic~execIterationRender(pool, payload) ⇒ <code>Promise.&lt;index, result&gt;</code>
 Runs one template render job on the pool.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
-**Returns**: <code>Promise.&lt;Object&gt;</code> - Resolves with index and result array from the worker.  
+**Returns**: <code>Promise.&lt;index, result&gt;</code> - Resolves with index and result array from the worker.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -14491,7 +14491,7 @@ await initAsync(); const hb = templateEngine.hbInstance();
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
-    * [~execIterationRender(pool, payload)](#module_JS API_ generator logic..execIterationRender) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [~execIterationRender(pool, payload)](#module_JS API_ generator logic..execIterationRender) ⇒ <code>Promise.&lt;index, result&gt;</code>
     * [~createIterationPool(opts)](#module_JS API_ generator logic..createIterationPool) ⇒ <code>Object</code>
     * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
@@ -14544,11 +14544,11 @@ await initAsync(); const hb = templateEngine.hbInstance();
 
 <a name="module_JS API_ generator logic..execIterationRender"></a>
 
-### JS API: generator logic~execIterationRender(pool, payload) ⇒ <code>Promise.&lt;Object&gt;</code>
+### JS API: generator logic~execIterationRender(pool, payload) ⇒ <code>Promise.&lt;index, result&gt;</code>
 Runs one template render job on the pool.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
-**Returns**: <code>Promise.&lt;Object&gt;</code> - Resolves with index and result array from the worker.  
+**Returns**: <code>Promise.&lt;index, result&gt;</code> - Resolves with index and result array from the worker.  
 
 | Param | Type | Description |
 | --- | --- | --- |

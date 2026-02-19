@@ -207,11 +207,9 @@ async function setNotificationOnFeatureChange(db, sessionId, result) {
     outdatedWarningPatterns
   } = result
   if (disableChange) {
-    await Promise.all(
-      warningMessage.map((message) =>
-        setWarningIfMessageNotExists(db, sessionId, message)
-      )
-    )
+    for (const message of warningMessage) {
+      await setWarningIfMessageNotExists(db, sessionId, message)
+    }
   } else {
     await deleteNotificationWithPatterns(db, sessionId, outdatedWarningPatterns)
     if (displayWarning) {
