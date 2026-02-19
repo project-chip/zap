@@ -575,8 +575,8 @@ limitations under the License.
     <event code="0x0001" name="TestEvent" priority="info" side="server">
       <description>Example test event</description>
       <field id="1" name="arg1" type="INT8U"/>
-      <field id="2" name="arg2" type="SimpleEnum"/>
-      <field id="3" name="arg3" type="BOOLEAN"/>
+      <field fieldId="2" name="arg2" type="SimpleEnum"/>
+      <field fieldId="3" id="100" name="arg3" type="BOOLEAN"/> <!-- id here is intentionally incorrect to test that it is ignored and fieldId is used -->
       <field id="4" name="arg4" type="SimpleStruct"/>
       <field id="5" name="arg5" type="SimpleStruct" array="true"/>
       <field id="6" name="arg6" type="SimpleEnum" array="true"/>

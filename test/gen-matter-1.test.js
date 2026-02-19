@@ -256,9 +256,12 @@ test(
     expect(deviceType).toContain('>> Command: MoveToLevelWithOnOff [4]')
 
     let events = genResult.content['events.out']
-    expect(events).toContain('Field: PreviousState [ENUM]')
-    expect(events).toContain('Field: OperationSource [ENUM]')
-    expect(events).toContain('Field: SourceNode')
+    expect(events).toContain('Field: 0 PreviousState [ENUM]')
+    expect(events).toContain('Field: 1 OperationSource [ENUM]')
+    expect(events).toContain('Field: 4 SourceNode')
+    expect(events).toContain('Field: 1 arg1')
+    expect(events).toContain('Field: 2 arg2')
+    expect(events).toContain('Field: 3 arg3')
 
     let chipToolHelper = genResult.content['chip-tool-helpers.txt']
     expect(chipToolHelper).toContain('0,1// actual type: BOOLEAN')
@@ -318,7 +321,7 @@ test(
     expect(sdkExt).not.toContain('SoftwareVersion - int32u - default_value=')
     let eventOut = genResult.content['events.out']
     expect(eventOut).toContain(
-      '> Field: SoftwareVersion  default_value=0x00000000'
+      '> Field: 0 SoftwareVersion  default_value=0x00000000'
     )
     expect(eventOut).not.toContain('> Field: ProductID  default_value=')
   },
