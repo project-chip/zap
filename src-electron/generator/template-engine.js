@@ -187,9 +187,28 @@ async function produceContent(
     overridePath: null,
     overrideKey: null,
     disableDeprecationWarnings: false,
-    initialContext: null
+    initialContext: null,
+    iterationPool: null
   }
 ) {
+  // Offload single (non-iterative) template render to worker when pool is available.
+  const pool = options.iterationPool
+  if (pool != null) {
+    const iterOptions = {
+      overridePath: options.overridePath,
+      overrideKey: options.overrideKey ?? null,
+      disableDeprecationWarnings: options.disableDeprecationWarnings,
+      initialContext: options.initialContext ?? null
+    }
+    const r = await pool.runRender({
+      singleTemplatePkg,
+      genTemplateJsonPackage,
+      iterOptions,
+      index: 0
+    })
+    return r.result
+  }
+
   let template = await produceCompiledTemplate(hb, singleTemplatePkg)
   let context = {
     global: {
