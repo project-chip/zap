@@ -155,6 +155,10 @@ across different query files.</p>
 </dd>
 <dt><a href="#module_JS API_ generator logic">JS API: generator logic</a></dt>
 <dd></dd>
+<dt><a href="#module_template-iteration-worker">template-iteration-worker</a></dt>
+<dd><p>Worker for workerpool: init from workerData once, then expose render(singleTemplatePkg, genTemplateJsonPackage, iterOptions, index).
+Loaded in a separate thread; registers with workerpool a worker that returns { index, result } per render call.</p>
+</dd>
 <dt><a href="#module_JS API_ template iterators.">JS API: template iterators.</a></dt>
 <dd></dd>
 <dt><a href="#module_JS API_ generator logic">JS API: generator logic</a></dt>
@@ -8282,6 +8286,8 @@ Get endpoint type events from the given endpoint type ID.
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
+    * [~execIterationRender(pool, payload)](#module_JS API_ generator logic..execIterationRender) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [~createIterationPool(opts)](#module_JS API_ generator logic..createIterationPool) ⇒ <code>Object</code>
     * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
@@ -8293,6 +8299,7 @@ Get endpoint type events from the given endpoint type ID.
     * [~loadGenTemplatesJsonFile(db, genTemplatesJson)](#module_JS API_ generator logic..loadGenTemplatesJsonFile) ⇒
     * [~retrievePackageMetaInfo(db, genTemplatesPkgId)](#module_JS API_ generator logic..retrievePackageMetaInfo) ⇒
     * [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module_JS API_ generator logic..generateAllTemplates) ⇒
+    * [~generateAllTemplatesImpl(genResult, genTemplateJsonPkg, options)](#module_JS API_ generator logic..generateAllTemplatesImpl) ⇒
     * [~generateSingleTemplate(genResult, singleTemplatePkg)](#module_JS API_ generator logic..generateSingleTemplate) ⇒
     * [~generate(db, sessionId, templatePackageId, templateGeneratorOptions, options)](#module_JS API_ generator logic..generate) ⇒
     * [~writeFileWithBackup(fileName, content, doBackup)](#module_JS API_ generator logic..writeFileWithBackup) ⇒
@@ -8330,6 +8337,42 @@ Get endpoint type events from the given endpoint type ID.
     * [~templatePromise(global, promise)](#module_JS API_ generator logic..templatePromise)
     * [~deprecatedHelper(fn, explanation)](#module_JS API_ generator logic..deprecatedHelper) ⇒
 
+<a name="module_JS API_ generator logic..execIterationRender"></a>
+
+### JS API: generator logic~execIterationRender(pool, payload) ⇒ <code>Promise.&lt;Object&gt;</code>
+Runs one template render job on the pool.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Promise.&lt;Object&gt;</code> - Resolves with index and result array from the worker.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| pool | <code>object</code> | workerpool pool instance |
+| payload | <code>object</code> | singleTemplatePkg, genTemplateJsonPackage, iterOptions, index |
+
+**Example**  
+```js
+execIterationRender(pool, { singleTemplatePkg, genTemplateJsonPackage, iterOptions, index })
+```
+<a name="module_JS API_ generator logic..createIterationPool"></a>
+
+### JS API: generator logic~createIterationPool(opts) ⇒ <code>Object</code>
+Creates a worker pool for iterative template rendering. Workers load template-iteration-worker.js
+and receive db path, partials, metaInfo, helpers, and sessionId via workerData.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Object</code> - Object with runRender(payload) returning a Promise, and async terminate().  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>object</code> | dbFilePath, partials, metaInfo, helperPaths, sessionId; optionally size (worker count). |
+
+**Example**  
+```js
+const pool = createIterationPool({ dbFilePath, partials, metaInfo, helperPaths, sessionId });
+  const out = await pool.runRender({ singleTemplatePkg, genTemplateJsonPackage, iterOptions, index });
+  await pool.terminate();
+```
 <a name="module_JS API_ generator logic..findAndReadJsonFiles"></a>
 
 ### JS API: generator logic~findAndReadJsonFiles(obj, basePath) ⇒ <code>Promise.&lt;string&gt;</code>
@@ -8482,6 +8525,26 @@ Generates all the templates inside a toplevel package.
 | genTemplateJsonPkg | <code>\*</code> | Package that points to genTemplate.json file |
 | generateOnly | <code>\*</code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
 
+<a name="module_JS API_ generator logic..generateAllTemplatesImpl"></a>
+
+### JS API: generator logic~generateAllTemplatesImpl(genResult, genTemplateJsonPkg, options) ⇒
+Generates output for all templates under a gen template package: loads packages, builds Handlebars
+env (partials, metaInfo, helpers), optionally creates an iteration worker pool, then runs
+generateSingleTemplate for each template (sequentially or in parallel).
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: Promise that resolves with genResult; genResult.partial set to false, genResult.errors set if any failed.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| genResult | <code>\*</code> | Generation result with db, sessionId, generatorOptions; updated with output and errors. |
+| genTemplateJsonPkg | <code>\*</code> | Package that points to genTemplate.json file. |
+| options | <code>\*</code> | dbFilePath, disableDeprecationWarnings, generateOnly, generateSequentially, iterationPool, etc. |
+
+**Example**  
+```js
+const result = await generateAllTemplatesImpl(genResult, genTemplateJsonPkg, { dbFilePath, ... });
+```
 <a name="module_JS API_ generator logic..generateSingleTemplate"></a>
 
 ### JS API: generator logic~generateSingleTemplate(genResult, singleTemplatePkg) ⇒
@@ -13672,6 +13735,8 @@ This module contains the API for templating. For more detailed instructions, rea
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
+    * [~execIterationRender(pool, payload)](#module_JS API_ generator logic..execIterationRender) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [~createIterationPool(opts)](#module_JS API_ generator logic..createIterationPool) ⇒ <code>Object</code>
     * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
@@ -13683,6 +13748,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~loadGenTemplatesJsonFile(db, genTemplatesJson)](#module_JS API_ generator logic..loadGenTemplatesJsonFile) ⇒
     * [~retrievePackageMetaInfo(db, genTemplatesPkgId)](#module_JS API_ generator logic..retrievePackageMetaInfo) ⇒
     * [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module_JS API_ generator logic..generateAllTemplates) ⇒
+    * [~generateAllTemplatesImpl(genResult, genTemplateJsonPkg, options)](#module_JS API_ generator logic..generateAllTemplatesImpl) ⇒
     * [~generateSingleTemplate(genResult, singleTemplatePkg)](#module_JS API_ generator logic..generateSingleTemplate) ⇒
     * [~generate(db, sessionId, templatePackageId, templateGeneratorOptions, options)](#module_JS API_ generator logic..generate) ⇒
     * [~writeFileWithBackup(fileName, content, doBackup)](#module_JS API_ generator logic..writeFileWithBackup) ⇒
@@ -13720,6 +13786,42 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~templatePromise(global, promise)](#module_JS API_ generator logic..templatePromise)
     * [~deprecatedHelper(fn, explanation)](#module_JS API_ generator logic..deprecatedHelper) ⇒
 
+<a name="module_JS API_ generator logic..execIterationRender"></a>
+
+### JS API: generator logic~execIterationRender(pool, payload) ⇒ <code>Promise.&lt;Object&gt;</code>
+Runs one template render job on the pool.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Promise.&lt;Object&gt;</code> - Resolves with index and result array from the worker.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| pool | <code>object</code> | workerpool pool instance |
+| payload | <code>object</code> | singleTemplatePkg, genTemplateJsonPackage, iterOptions, index |
+
+**Example**  
+```js
+execIterationRender(pool, { singleTemplatePkg, genTemplateJsonPackage, iterOptions, index })
+```
+<a name="module_JS API_ generator logic..createIterationPool"></a>
+
+### JS API: generator logic~createIterationPool(opts) ⇒ <code>Object</code>
+Creates a worker pool for iterative template rendering. Workers load template-iteration-worker.js
+and receive db path, partials, metaInfo, helpers, and sessionId via workerData.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Object</code> - Object with runRender(payload) returning a Promise, and async terminate().  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>object</code> | dbFilePath, partials, metaInfo, helperPaths, sessionId; optionally size (worker count). |
+
+**Example**  
+```js
+const pool = createIterationPool({ dbFilePath, partials, metaInfo, helperPaths, sessionId });
+  const out = await pool.runRender({ singleTemplatePkg, genTemplateJsonPackage, iterOptions, index });
+  await pool.terminate();
+```
 <a name="module_JS API_ generator logic..findAndReadJsonFiles"></a>
 
 ### JS API: generator logic~findAndReadJsonFiles(obj, basePath) ⇒ <code>Promise.&lt;string&gt;</code>
@@ -13872,6 +13974,26 @@ Generates all the templates inside a toplevel package.
 | genTemplateJsonPkg | <code>\*</code> | Package that points to genTemplate.json file |
 | generateOnly | <code>\*</code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
 
+<a name="module_JS API_ generator logic..generateAllTemplatesImpl"></a>
+
+### JS API: generator logic~generateAllTemplatesImpl(genResult, genTemplateJsonPkg, options) ⇒
+Generates output for all templates under a gen template package: loads packages, builds Handlebars
+env (partials, metaInfo, helpers), optionally creates an iteration worker pool, then runs
+generateSingleTemplate for each template (sequentially or in parallel).
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: Promise that resolves with genResult; genResult.partial set to false, genResult.errors set if any failed.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| genResult | <code>\*</code> | Generation result with db, sessionId, generatorOptions; updated with output and errors. |
+| genTemplateJsonPkg | <code>\*</code> | Package that points to genTemplate.json file. |
+| options | <code>\*</code> | dbFilePath, disableDeprecationWarnings, generateOnly, generateSequentially, iterationPool, etc. |
+
+**Example**  
+```js
+const result = await generateAllTemplatesImpl(genResult, genTemplateJsonPkg, { dbFilePath, ... });
+```
 <a name="module_JS API_ generator logic..generateSingleTemplate"></a>
 
 ### JS API: generator logic~generateSingleTemplate(genResult, singleTemplatePkg) ⇒
@@ -14340,6 +14462,27 @@ Function wrapper that can be used when a helper is deprecated.
 | fn | <code>\*</code> |  |
 | explanation | <code>\*</code> | can contain `text`, or `from`/`to`, or just be a string message itself. |
 
+<a name="module_template-iteration-worker"></a>
+
+## template-iteration-worker
+Worker for workerpool: init from workerData once, then expose render(singleTemplatePkg, genTemplateJsonPackage, iterOptions, index).
+Loaded in a separate thread; registers with workerpool a worker that returns { index, result } per render call.
+
+**Example**  
+```js
+Pool loads this script; main process uses pool.exec('render', [singleTemplatePkg, genTemplateJsonPackage, iterOptions, index]).
+```
+<a name="module_template-iteration-worker..initAsync"></a>
+
+### template-iteration-worker~initAsync() ⇒
+Initializes the worker once: opens DB, loads template engine, registers partials and helpers from workerData. Idempotent.
+
+**Kind**: inner method of [<code>template-iteration-worker</code>](#module_template-iteration-worker)  
+**Returns**: Promise that resolves when db, templateEngine, cachedMetaInfo, and cachedSessionId are set.  
+**Example**  
+```js
+await initAsync(); const hb = templateEngine.hbInstance();
+```
 <a name="module_JS API_ template iterators."></a>
 
 ## JS API: template iterators.
@@ -14348,6 +14491,8 @@ Function wrapper that can be used when a helper is deprecated.
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
+    * [~execIterationRender(pool, payload)](#module_JS API_ generator logic..execIterationRender) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [~createIterationPool(opts)](#module_JS API_ generator logic..createIterationPool) ⇒ <code>Object</code>
     * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
@@ -14359,6 +14504,7 @@ Function wrapper that can be used when a helper is deprecated.
     * [~loadGenTemplatesJsonFile(db, genTemplatesJson)](#module_JS API_ generator logic..loadGenTemplatesJsonFile) ⇒
     * [~retrievePackageMetaInfo(db, genTemplatesPkgId)](#module_JS API_ generator logic..retrievePackageMetaInfo) ⇒
     * [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module_JS API_ generator logic..generateAllTemplates) ⇒
+    * [~generateAllTemplatesImpl(genResult, genTemplateJsonPkg, options)](#module_JS API_ generator logic..generateAllTemplatesImpl) ⇒
     * [~generateSingleTemplate(genResult, singleTemplatePkg)](#module_JS API_ generator logic..generateSingleTemplate) ⇒
     * [~generate(db, sessionId, templatePackageId, templateGeneratorOptions, options)](#module_JS API_ generator logic..generate) ⇒
     * [~writeFileWithBackup(fileName, content, doBackup)](#module_JS API_ generator logic..writeFileWithBackup) ⇒
@@ -14396,6 +14542,42 @@ Function wrapper that can be used when a helper is deprecated.
     * [~templatePromise(global, promise)](#module_JS API_ generator logic..templatePromise)
     * [~deprecatedHelper(fn, explanation)](#module_JS API_ generator logic..deprecatedHelper) ⇒
 
+<a name="module_JS API_ generator logic..execIterationRender"></a>
+
+### JS API: generator logic~execIterationRender(pool, payload) ⇒ <code>Promise.&lt;Object&gt;</code>
+Runs one template render job on the pool.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Promise.&lt;Object&gt;</code> - Resolves with index and result array from the worker.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| pool | <code>object</code> | workerpool pool instance |
+| payload | <code>object</code> | singleTemplatePkg, genTemplateJsonPackage, iterOptions, index |
+
+**Example**  
+```js
+execIterationRender(pool, { singleTemplatePkg, genTemplateJsonPackage, iterOptions, index })
+```
+<a name="module_JS API_ generator logic..createIterationPool"></a>
+
+### JS API: generator logic~createIterationPool(opts) ⇒ <code>Object</code>
+Creates a worker pool for iterative template rendering. Workers load template-iteration-worker.js
+and receive db path, partials, metaInfo, helpers, and sessionId via workerData.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Object</code> - Object with runRender(payload) returning a Promise, and async terminate().  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>object</code> | dbFilePath, partials, metaInfo, helperPaths, sessionId; optionally size (worker count). |
+
+**Example**  
+```js
+const pool = createIterationPool({ dbFilePath, partials, metaInfo, helperPaths, sessionId });
+  const out = await pool.runRender({ singleTemplatePkg, genTemplateJsonPackage, iterOptions, index });
+  await pool.terminate();
+```
 <a name="module_JS API_ generator logic..findAndReadJsonFiles"></a>
 
 ### JS API: generator logic~findAndReadJsonFiles(obj, basePath) ⇒ <code>Promise.&lt;string&gt;</code>
@@ -14548,6 +14730,26 @@ Generates all the templates inside a toplevel package.
 | genTemplateJsonPkg | <code>\*</code> | Package that points to genTemplate.json file |
 | generateOnly | <code>\*</code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
 
+<a name="module_JS API_ generator logic..generateAllTemplatesImpl"></a>
+
+### JS API: generator logic~generateAllTemplatesImpl(genResult, genTemplateJsonPkg, options) ⇒
+Generates output for all templates under a gen template package: loads packages, builds Handlebars
+env (partials, metaInfo, helpers), optionally creates an iteration worker pool, then runs
+generateSingleTemplate for each template (sequentially or in parallel).
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: Promise that resolves with genResult; genResult.partial set to false, genResult.errors set if any failed.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| genResult | <code>\*</code> | Generation result with db, sessionId, generatorOptions; updated with output and errors. |
+| genTemplateJsonPkg | <code>\*</code> | Package that points to genTemplate.json file. |
+| options | <code>\*</code> | dbFilePath, disableDeprecationWarnings, generateOnly, generateSequentially, iterationPool, etc. |
+
+**Example**  
+```js
+const result = await generateAllTemplatesImpl(genResult, genTemplateJsonPkg, { dbFilePath, ... });
+```
 <a name="module_JS API_ generator logic..generateSingleTemplate"></a>
 
 ### JS API: generator logic~generateSingleTemplate(genResult, singleTemplatePkg) ⇒

@@ -23,15 +23,86 @@ const _ = require('lodash')
 const fs = require('fs')
 const fsPromise = fs.promises
 const path = require('path')
+const os = require('os')
 const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const templateEngine = require('./template-engine.js')
+const workerpool = require('workerpool')
 const dbApi = require('../db/db-api.js')
 const dbCache = require('../db/db-cache.js')
 const queryNotification = require('../db/query-package-notification.js')
+
+const ITERATION_WORKER_SCRIPT = path.join(
+  __dirname,
+  'template-iteration-worker.js'
+)
+const MAX_WORKERS = 8 //cap at 8 workers
+
+/**
+ * Runs one template render job on the pool.
+ *
+ * @param {object} pool - workerpool pool instance
+ * @param {object} payload - singleTemplatePkg, genTemplateJsonPackage, iterOptions, index
+ * @returns {Promise<Object>} Resolves with index and result array from the worker.
+ * @example
+ *   execIterationRender(pool, { singleTemplatePkg, genTemplateJsonPackage, iterOptions, index })
+ */
+function execIterationRender(pool, payload) {
+  return pool
+    .exec('render', [
+      payload.singleTemplatePkg,
+      payload.genTemplateJsonPackage,
+      payload.iterOptions,
+      payload.index
+    ])
+    .then((r) => ({ index: r.index, result: r.result }))
+}
+
+/**
+ * Creates a worker pool for iterative template rendering. Workers load template-iteration-worker.js
+ * and receive db path, partials, metaInfo, helpers, and sessionId via workerData.
+ *
+ * @param {object} opts - dbFilePath, partials, metaInfo, helperPaths, sessionId; optionally size (worker count).
+ * @returns {Object} Object with runRender(payload) returning a Promise, and async terminate().
+ * @example
+ *   const pool = createIterationPool({ dbFilePath, partials, metaInfo, helperPaths, sessionId });
+ *   const out = await pool.runRender({ singleTemplatePkg, genTemplateJsonPackage, iterOptions, index });
+ *   await pool.terminate();
+ */
+function createIterationPool(opts) {
+  const {
+    dbFilePath,
+    partials = {},
+    metaInfo = { aliases: [], categories: [], resources: {} },
+    helperPaths = [],
+    sessionId
+  } = opts
+  const cpuSize = Math.max(
+    1,
+    Math.min(
+      opts.size != null ? opts.size : Math.max(1, os.cpus().length - 1),
+      MAX_WORKERS
+    )
+  )
+  const pool = workerpool.pool(ITERATION_WORKER_SCRIPT, {
+    maxWorkers: cpuSize,
+    workerType: 'thread',
+    workerThreadOpts: {
+      workerData: { dbFilePath, partials, metaInfo, helperPaths, sessionId }
+    }
+  })
+  return {
+    runRender(payload) {
+      return execIterationRender(pool, payload)
+    },
+    async terminate() {
+      await pool.terminate()
+    }
+  }
+}
 
 /**
  * Finds and reads JSON files referenced in a nested object.
@@ -735,8 +806,41 @@ async function generateAllTemplates(
   options = {
     generateOnly: null,
     disableDeprecationWarnings: false,
-    generateSequentially: false
+    generateSequentially: false,
+    dbFilePath: null
   }
+) {
+  try {
+    return await generateAllTemplatesImpl(
+      genResult,
+      genTemplateJsonPkg,
+      options
+    )
+  } finally {
+    // Terminate the worker pool if it was created for generation.
+    if (options.iterationPool != null) {
+      await options.iterationPool.terminate()
+      options.iterationPool = null
+    }
+  }
+}
+
+/**
+ * Generates output for all templates under a gen template package: loads packages, builds Handlebars
+ * env (partials, metaInfo, helpers), optionally creates an iteration worker pool, then runs
+ * generateSingleTemplate for each template (sequentially or in parallel).
+ *
+ * @param {*} genResult - Generation result with db, sessionId, generatorOptions; updated with output and errors.
+ * @param {*} genTemplateJsonPkg - Package that points to genTemplate.json file.
+ * @param {*} options - dbFilePath, disableDeprecationWarnings, generateOnly, generateSequentially, iterationPool, etc.
+ * @returns Promise that resolves with genResult; genResult.partial set to false, genResult.errors set if any failed.
+ * @example
+ *   const result = await generateAllTemplatesImpl(genResult, genTemplateJsonPkg, { dbFilePath, ... });
+ */
+async function generateAllTemplatesImpl(
+  genResult,
+  genTemplateJsonPkg,
+  options
 ) {
   let packages = await queryPackage.getPackageByParent(
     genResult.db,
@@ -822,11 +926,30 @@ async function generateAllTemplates(
   templateEngine.initializeBuiltInHelpersForPackage(hb, metaInfo)
 
   // Next load the addon helpers which were not yet initialized earlier.
-  packages.forEach((singlePkg) => {
-    if (singlePkg.type == dbEnum.packageType.genHelper) {
-      templateEngine.loadHelper(hb, singlePkg.path, context)
-    }
+  const helperPackages = packages.filter(
+    (pkg) => pkg.type === dbEnum.packageType.genHelper
+  )
+  helperPackages.forEach((singlePkg) => {
+    templateEngine.loadHelper(hb, singlePkg.path, context)
   })
+
+  // Create worker pool for iterative templates after env is ready (partials, metaInfo, helpers). Opt-out: ZAP_DISABLE_WORKER_POOL=1
+  const useWorkerPool =
+    options.dbFilePath != null && process.env.ZAP_DISABLE_WORKER_POOL !== '1'
+  if (useWorkerPool && options.iterationPool == null) {
+    const partialsMap = {}
+    partialPackages.forEach((pkg, i) => {
+      partialsMap[pkg.category] = partialDataArray[i]
+    })
+    const helperPaths = helperPackages.map((p) => p.path)
+    options.iterationPool = createIterationPool({
+      dbFilePath: options.dbFilePath,
+      partials: partialsMap,
+      metaInfo,
+      helperPaths,
+      sessionId: genResult.sessionId
+    })
+  }
 
   // Next prepare the templates
   packages.forEach((singlePkg) => {
@@ -850,19 +973,32 @@ async function generateAllTemplates(
     }
   })
 
+  const templateOptions = {
+    overridePath: overridePath,
+    disableDeprecationWarnings: options.disableDeprecationWarnings,
+    iterationPool: options.iterationPool
+  }
   if (options.generateSequentially) {
     await util.executePromisesSequentially(generationTemplates, (t) =>
-      generateSingleTemplate(hb, metaInfo, genResult, t, genTemplateJsonPkg, {
-        overridePath: overridePath,
-        disableDeprecationWarnings: options.disableDeprecationWarnings
-      })
+      generateSingleTemplate(
+        hb,
+        metaInfo,
+        genResult,
+        t,
+        genTemplateJsonPkg,
+        templateOptions
+      )
     )
   } else {
     let templates = generationTemplates.map((pkg) =>
-      generateSingleTemplate(hb, metaInfo, genResult, pkg, genTemplateJsonPkg, {
-        overridePath: overridePath,
-        disableDeprecationWarnings: options.disableDeprecationWarnings
-      })
+      generateSingleTemplate(
+        hb,
+        metaInfo,
+        genResult,
+        pkg,
+        genTemplateJsonPkg,
+        templateOptions
+      )
     )
     await Promise.all(templates)
   }
@@ -1069,7 +1205,12 @@ async function generateAndWriteFiles(
     db,
     sessionId,
     templatePackageId,
-    templateGeneratorOptions
+    templateGeneratorOptions,
+    {
+      generateOnly: null,
+      disableDeprecationWarnings: false,
+      dbFilePath: options.dbFilePath // Multithreaded worker pool needs dbPath for multi-threading or else it will fail.
+    }
   )
 
   // The path we append, assuming you specify the --appendGenerationSubdirectory, and a

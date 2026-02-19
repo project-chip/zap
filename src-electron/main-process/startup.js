@@ -1022,6 +1022,7 @@ async function startGeneration(argv, options) {
   options.appendGenerationSubdirectory = argv.appendGenerationSubdirectory
   options.packageMatch = argv.packageMatch
   options.generationLog = argv.generationLog
+  options.dbFilePath = dbFile // Needed for multithreaded worker pool to pass dbPath for multi-threading or else it will fail.
   // Used to upgrade the zap file during generation. Makes sure packages are
   // updated in .zap file during project creation in Studio.
   options.upgradeZapFile = argv.upgradeZapFile

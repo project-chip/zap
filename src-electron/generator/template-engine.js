@@ -110,7 +110,8 @@ async function produceIterativeContent(
   genTemplateJsonPackage,
   options = {
     overridePath: null,
-    disableDeprecationWarnings: false
+    disableDeprecationWarnings: false,
+    iterationPool: null
   }
 ) {
   let iterationArray = await templateIterators.getIterativeObject(
@@ -118,6 +119,31 @@ async function produceIterativeContent(
     db,
     sessionId
   )
+
+  const pool = options.iterationPool
+  if (pool != null) {
+    // Multi-threaded: run each iteration in a worker (metaInfo/sessionId already set via registerEnv).
+    const results = await Promise.all(
+      iterationArray.map((it, index) => {
+        const iterOptions = {
+          overridePath: options.overridePath,
+          disableDeprecationWarnings: options.disableDeprecationWarnings,
+          overrideKey: util.patternFormat(singleTemplatePkg.category, it),
+          initialContext: it
+        }
+        return pool.runRender({
+          singleTemplatePkg,
+          genTemplateJsonPackage,
+          iterOptions,
+          index
+        })
+      })
+    )
+    results.sort((a, b) => a.index - b.index)
+    return results.map((r) => r.result).flat()
+  }
+
+  // Single-threaded (default): run iterations on main thread.
   let resultArrays = await Promise.all(
     iterationArray.map((it) => {
       const iterOptions = {
