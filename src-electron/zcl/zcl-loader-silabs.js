@@ -587,7 +587,8 @@ function prepareCluster(cluster, context, isExtension = false) {
         let lastFieldId = -1
         event.field.forEach((field) => {
           let defaultFieldId = lastFieldId + 1
-          lastFieldId = field.$.id ? parseInt(field.$.id) : defaultFieldId
+          const rawFieldId = field.$.fieldId ?? field.$.id
+          lastFieldId = rawFieldId ? parseInt(rawFieldId) : defaultFieldId
           if (field.$.removedIn == null) {
             ev.fields.push({
               name: field.$.name,
