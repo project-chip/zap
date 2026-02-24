@@ -667,11 +667,12 @@ async function insertEndpointType(
     )
   } catch (err) {
     // Catching an error from a sql trigger
-    let isErrorStringPresent = err.includes('Error:')
+    const errStr = typeof err === 'string' ? err : (err?.message ?? String(err))
+    const isErrorStringPresent = errStr.includes('Error:')
     notification.setNotification(
       db,
       'ERROR',
-      isErrorStringPresent ? err.split('Error:')[1] : err,
+      isErrorStringPresent ? errStr.split('Error:')[1].trim() : errStr,
       sessionPartitionInfo.sessionRef,
       1,
       1
@@ -686,7 +687,7 @@ async function insertEndpointType(
       'DELETE FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?',
       newEndpointTypeId
     )
-    throw new Error(err)
+    throw new Error(errStr)
   }
 
   // Resolve endpointDefaults based on device type order.
@@ -877,11 +878,13 @@ async function updateEndpointType(db, sessionId, endpointTypeId, changesArray) {
       )
     } catch (err) {
       // Catching an error from a sql trigger
-      let isErrorStringPresent = err.includes('Error:')
+      const errStr =
+        typeof err === 'string' ? err : (err?.message ?? String(err))
+      const isErrorStringPresent = errStr.includes('Error:')
       notification.setNotification(
         db,
         'ERROR',
-        isErrorStringPresent ? err.split('Error:')[1] : err,
+        isErrorStringPresent ? errStr.split('Error:')[1].trim() : errStr,
         sessionId,
         1,
         1
@@ -903,7 +906,7 @@ async function updateEndpointType(db, sessionId, endpointTypeId, changesArray) {
           (?, ?, ?, ?, ?)`,
         existingEndpointTypeDeviceInfoValues
       )
-      throw new Error(err)
+      throw new Error(errStr)
     }
 
     // When updating the zcl device types, overwrite on top of existing configuration

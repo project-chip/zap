@@ -16,6 +16,7 @@
  */
 
 import axios from 'axios'
+import { Notify } from 'quasar'
 import restApi from '../../src-shared/rest-api.js'
 import * as Util from '../util/util.js'
 import * as SessionId from '../util/session-id.js'
@@ -136,11 +137,14 @@ function serverPost(url, data, config = null) {
   return axios['post'](fillUrl(url), data, fillConfig(config))
     .then((response) => processResponse('POST', url, response))
     .catch((error) => {
-      zapUpdateExceptions(
-        data,
-        error.response.status,
-        error.response.data.message
-      )
+      const message =
+        error.response?.data?.message || error.message || 'Request failed'
+      zapUpdateExceptions(data, error.response?.status, message)
+      Notify.create({
+        message,
+        type: 'negative',
+        position: 'top'
+      })
     })
 }
 
@@ -172,7 +176,16 @@ function serverPatch(url, data, config = null) {
   if (log) console.log(`PATCH → : ${url}, ${data}`)
   return axios['patch'](fillUrl(url), data, fillConfig(config))
     .then((response) => processResponse('PATCH', url, response))
-    .catch((error) => console.log(error))
+    .catch((error) => {
+      const message =
+        error.response?.data?.message || error.message || 'Request failed'
+      zapUpdateExceptions(data, error.response?.status, message)
+      Notify.create({
+        message,
+        type: 'negative',
+        position: 'top'
+      })
+    })
 }
 
 window.serverGet = serverGet
