@@ -111,20 +111,21 @@ async function loadEndpoints() {
 
   const endpoints = await queryEndpoint.selectAllEndpoints(db, sessionId);
 
-  // Selection is one by one since existing API does not seem to provide
-  // linkage between cluster and what endpoint it belongs to.
-  //
-  // TODO: there should be a better way
-  for (const endpoint of endpoints) {
-    const endpointClusters =
-      await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, [
-        { endpointTypeId: endpoint.endpointTypeRef }
-      ]);
-    result.push({
-      ...endpoint,
-      clusters: endpointClusters.filter((c) => c.enabled == 1)
-    });
-  }
+  // Fetch cluster details per endpoint in parallel (API does not provide
+  // linkage between cluster and endpoint; one query per endpoint type).
+  const endpointResults = await Promise.all(
+    endpoints.map(async (endpoint) => {
+      const endpointClusters =
+        await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, [
+          { endpointTypeId: endpoint.endpointTypeRef }
+        ]);
+      return {
+        ...endpoint,
+        clusters: endpointClusters.filter((c) => c.enabled == 1)
+      };
+    })
+  );
+  result.push(...endpointResults);
 
   return result;
 }

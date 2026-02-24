@@ -164,13 +164,8 @@ async function searchNotificationByMessageAndDelete(db, sessionId, message) {
     [sessionId, message]
   )
   if (rows && rows.length > 0) {
-    let ids = rows.map((row) => row.NOTICE_ID)
-    let deleteResponses = []
-    for (let id of ids) {
-      let response = await deleteNotification(db, id)
-      deleteResponses.push(response)
-    }
-    return deleteResponses
+    const ids = rows.map((row) => row.NOTICE_ID)
+    return Promise.all(ids.map((id) => deleteNotification(db, id)))
   }
   return false
 }
@@ -212,7 +207,7 @@ async function setNotificationOnFeatureChange(db, sessionId, result) {
     outdatedWarningPatterns
   } = result
   if (disableChange) {
-    for (let message of warningMessage) {
+    for (const message of warningMessage) {
       await setWarningIfMessageNotExists(db, sessionId, message)
     }
   } else {
@@ -288,13 +283,8 @@ async function deleteNotificationWithPatterns(db, sessionId, patterns) {
 
   let rows = await dbApi.dbAll(db, query, params)
   if (rows && rows.length > 0) {
-    let ids = rows.map((row) => row.NOTICE_ID)
-    let deleteResponses = []
-    for (let id of ids) {
-      let response = await deleteNotification(db, id)
-      deleteResponses.push(response)
-    }
-    return deleteResponses
+    const ids = rows.map((row) => row.NOTICE_ID)
+    return Promise.all(ids.map((id) => deleteNotification(db, id)))
   }
   return false
 }

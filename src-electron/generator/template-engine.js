@@ -110,7 +110,8 @@ async function produceIterativeContent(
   genTemplateJsonPackage,
   options = {
     overridePath: null,
-    disableDeprecationWarnings: false
+    disableDeprecationWarnings: false,
+    iterationPool: null
   }
 ) {
   let iterationArray = await templateIterators.getIterativeObject(
@@ -118,22 +119,50 @@ async function produceIterativeContent(
     db,
     sessionId
   )
-  let res = []
-  for (let it of iterationArray) {
-    options.overrideKey = util.patternFormat(singleTemplatePkg.category, it)
-    options.initialContext = it
-    let r = await produceContent(
-      hb,
-      metaInfo,
-      db,
-      sessionId,
-      singleTemplatePkg,
-      genTemplateJsonPackage,
-      options
+
+  const pool = options.iterationPool
+  if (pool != null) {
+    // Multi-threaded: run each iteration in a worker (metaInfo/sessionId already set via registerEnv).
+    const results = await Promise.all(
+      iterationArray.map((it, index) => {
+        const iterOptions = {
+          overridePath: options.overridePath,
+          disableDeprecationWarnings: options.disableDeprecationWarnings,
+          overrideKey: util.patternFormat(singleTemplatePkg.category, it),
+          initialContext: it
+        }
+        return pool.runRender({
+          singleTemplatePkg,
+          genTemplateJsonPackage,
+          iterOptions,
+          index
+        })
+      })
     )
-    res.push(...r)
+    results.sort((a, b) => a.index - b.index)
+    return results.map((r) => r.result).flat()
   }
-  return res
+
+  // Single-threaded (default): run iterations on main thread.
+  let resultArrays = await Promise.all(
+    iterationArray.map((it) => {
+      const iterOptions = {
+        ...options,
+        overrideKey: util.patternFormat(singleTemplatePkg.category, it),
+        initialContext: it
+      }
+      return produceContent(
+        hb,
+        metaInfo,
+        db,
+        sessionId,
+        singleTemplatePkg,
+        genTemplateJsonPackage,
+        iterOptions
+      )
+    })
+  )
+  return resultArrays.flat()
 }
 
 /**
@@ -158,9 +187,28 @@ async function produceContent(
     overridePath: null,
     overrideKey: null,
     disableDeprecationWarnings: false,
-    initialContext: null
+    initialContext: null,
+    iterationPool: null
   }
 ) {
+  // Offload single (non-iterative) template render to worker when pool is available.
+  const pool = options.iterationPool
+  if (pool != null) {
+    const iterOptions = {
+      overridePath: options.overridePath,
+      overrideKey: options.overrideKey ?? null,
+      disableDeprecationWarnings: options.disableDeprecationWarnings,
+      initialContext: options.initialContext ?? null
+    }
+    const r = await pool.runRender({
+      singleTemplatePkg,
+      genTemplateJsonPackage,
+      iterOptions,
+      index: 0
+    })
+    return r.result
+  }
+
   let template = await produceCompiledTemplate(hb, singleTemplatePkg)
   let context = {
     global: {
@@ -209,10 +257,11 @@ async function produceContent(
         )
       )
     ])
-    // Render deferred blocks
-    for (let deferredBlock of context.global.deferredBlocks) {
-      content += await deferredBlock(context)
-    }
+    // Render deferred blocks (parallel; order preserved by Promise.all)
+    const deferredParts = await Promise.all(
+      context.global.deferredBlocks.map((block) => block(context))
+    )
+    content += deferredParts.join('')
   } catch (error) {
     // Log the error and throw it
     notification.setNotification(
