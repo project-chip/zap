@@ -92,6 +92,11 @@ limitations under the License.
         </div>
         <div v-for="actionOption in actionOptions" :key="actionOption.label">
           <q-btn
+            v-if="
+              actionOption.label === 'Close All'
+                ? !allDomainsCollapsed
+                : allDomainsCollapsed
+            "
             class="full-height"
             flat
             rounded
@@ -255,6 +260,11 @@ export default {
     actionOptions: {
       get() {
         return this.$store.state.zap.clusterManager.actionOptions
+      }
+    },
+    allDomainsCollapsed: {
+      get() {
+        return this.$store.state.zap.clusterManager.allDomainsCollapsed
       }
     },
     isTutorialRunning: {

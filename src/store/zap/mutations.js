@@ -841,7 +841,6 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
  */
 export function doActionFilter(state, filterEnabledClusterPair) {
   let filter = filterEnabledClusterPair.filter
-  // When we close all, we also clear all filters.
   state.domains.map((domainName) => {
     setOpenDomain(state, {
       domainName: domainName,
@@ -854,6 +853,7 @@ export function doActionFilter(state, filterEnabledClusterPair) {
       )
     })
   })
+  state.clusterManager.allDomainsCollapsed = filter.label === 'Close All'
 }
 
 /**

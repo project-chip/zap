@@ -106,10 +106,15 @@ export default function () {
           }
         }
       ],
+      allDomainsCollapsed: true,
       actionOptions: [
         {
           label: 'Close All',
           domainFilterFn: (domain, currentOpenDomains, context) => false
+        },
+        {
+          label: 'Open All',
+          domainFilterFn: (domain, currentOpenDomains, context) => true
         }
       ],
       filterString: '',
