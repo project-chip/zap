@@ -10,10 +10,10 @@ for A in ${LOC}/../../silabs/*.xml; do
     xmllint --format --output $A.format --schema ${LOC}/../schema/zcl.xsd $A
     mv -f $A.format $A
 done
-for A in ${LOC}/../../matter/*.xml; do
-    xmllint --format --output $A.format --schema ${LOC}/../schema/zcl.xsd $A
-    mv -f $A.format $A
-done
+while IFS= read -r -d '' file; do
+    xmllint --format --output "$file.format" --schema ${LOC}/../schema/zcl.xsd "$file"
+    mv -f "$file.format" "$file"
+done < <(find "${LOC}/../../matter/data-model" -type f -name "*.xml" -print0)
 
 xmllint --format --output ${LOC}/../schema/zcl.xsd.format ${LOC}/../schema/zcl.xsd
 mv -f ${LOC}/../schema/zcl.xsd.format ${LOC}/../schema/zcl.xsd

@@ -15,10 +15,11 @@ for A in ${LOC}/../../silabs/*.xml; do
     SUM=$(( $SUM + $?))
 done
 
-for A in ${LOC}/../../matter/data-model/*.xml; do
-    xmllint --noout --schema ${LOC}/../schema/zcl.xsd  $A
-    SUM=$(( $SUM + $?))
-done
+while IFS= read -r -d '' file; do
+    echo "Validating: $file"
+    xmllint --noout --schema ${LOC}/../schema/zcl.xsd "$file"
+    SUM=$(( SUM + $? ))
+done < <(find "${LOC}/../../matter/data-model" -type f -name "*.xml" -print0)
 
 for A in ${LOC}/../../../test/resource/meta/*.xml; do
     xmllint --noout --schema ${LOC}/../schema/zcl.xsd  $A
