@@ -1,376 +1,257 @@
 /// <reference types="cypress" />
 
 /**
- * Tests for config loading scenarios with different pre-loaded template configurations.
- * These tests verify that Zigbee and Matter configs load correctly under various conditions.
+ * Scenario 1 – Zigbee + Matter templates are pre-loaded (multiprotocol mode).
+ *
+ * Runs only in multiprotocol mode because the file lives under
+ * cypress/e2e/multiprotocol/.
  */
 
-Cypress.on('uncaught:exception', (err, runnable) => {
-  // returning false here prevents Cypress from failing the test
-  return false
+import {
+  zigbeeZclPkg,
+  matterZclPkg,
+  zigbeeTemplatePkg,
+  matterTemplatePkg,
+  buildSessionAttemptResponse,
+  stubConfigApis
+} from '../../support/config-loading-helpers'
+
+Cypress.on('uncaught:exception', () => false)
+
+describe('Config loading – both Zigbee + Matter pre-loaded', () => {
+  it('should show both Zigbee and Matter ZCL packages', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: [zigbeeTemplatePkg, matterTemplatePkg]
+    })
+    stubConfigApis(body)
+
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
+
+    cy.contains('Zigbee Cluster Library metadata').should('be.visible')
+    cy.dataCy('zcl-package-checkbox').should('have.length', 2)
+    cy.contains('td', 'zigbee').should('exist')
+    cy.contains('td', 'matter').should('exist')
+  })
+
+  it('should show both Zigbee and Matter generation templates', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: [zigbeeTemplatePkg, matterTemplatePkg]
+    })
+    stubConfigApis(body)
+
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
+
+    cy.contains('Zap Generation Templates').should('be.visible')
+    cy.get('[data-test="gen-template"]').should('have.length', 2)
+  })
+
+  it('should show multiprotocol warning when both ZCL categories are selected', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: [zigbeeTemplatePkg, matterTemplatePkg]
+    })
+    stubConfigApis(body)
+
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
+
+    // Ensure both ZCL packages are checked
+    cy.dataCy('zcl-package-checkbox').each(($el) => {
+      if ($el.attr('aria-checked') !== 'true') {
+        cy.wrap($el).click({ force: true })
+      }
+    })
+
+    cy.contains('multi-protocol').should('be.visible')
+  })
+
+  it('should warn about internal packages when nothing is selected', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: [zigbeeTemplatePkg, matterTemplatePkg]
+    })
+    stubConfigApis(body)
+
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
+
+    // Uncheck every ZCL package
+    cy.dataCy('zcl-package-checkbox').each(($el) => {
+      if ($el.attr('aria-checked') === 'true') {
+        cy.wrap($el).click({ force: true })
+      }
+    })
+    // Uncheck every template package
+    cy.get('[data-test="gen-template"]').each(($el) => {
+      if ($el.attr('aria-checked') === 'true') {
+        cy.wrap($el).click({ force: true })
+      }
+    })
+
+    cy.contains(
+      'internal packages used for testing will be loaded automatically'
+    ).should('be.visible')
+  })
+
+  it('should warn about misaligned categories when ZCL and template selections differ', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: [zigbeeTemplatePkg, matterTemplatePkg]
+    })
+    stubConfigApis(body)
+
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
+
+    // Select both ZCL packages
+    cy.dataCy('zcl-package-checkbox').each(($el) => {
+      if ($el.attr('aria-checked') !== 'true') {
+        cy.wrap($el).click({ force: true })
+      }
+    })
+    // Select only the Zigbee template (first one)
+    cy.get('[data-test="gen-template"]').each(($el, index) => {
+      const checked = $el.attr('aria-checked') === 'true'
+      if (index === 0 && !checked) {
+        cy.wrap($el).click({ force: true })
+      } else if (index !== 0 && checked) {
+        cy.wrap($el).click({ force: true })
+      }
+    })
+
+    cy.contains(
+      'Corresponding ZCL and Template packages are not enabled based on the same category'
+    ).should('be.visible')
+  })
 })
 
-describe.skip('Config Loading Tests', () => {
-  beforeEach(() => {
+// ---------------------------------------------------------------------------
+// Only Zigbee template pre-loaded (multiprotocol context)
+// ---------------------------------------------------------------------------
+describe('Config loading – only Zigbee template pre-loaded (multiprotocol)', () => {
+  it('should show config page with both ZCL packages but only Zigbee template', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: [zigbeeTemplatePkg]
+    })
+    stubConfigApis(body)
+
     cy.visit('/')
-    cy.wait(2000)
+    cy.wait('@sessionAttempt')
+
+    cy.contains('Zigbee Cluster Library metadata').should('be.visible')
+    cy.dataCy('zcl-package-checkbox').should('have.length', 2)
+
+    cy.contains('Zap Generation Templates').should('be.visible')
+    cy.get('[data-test="gen-template"]').should('have.length', 1)
   })
 
-  /**
-   * Helper function to check if config page is accessible
-   */
-  function checkConfigPageAccessible() {
-    cy.url({ timeout: 5000 }).then((url) => {
-      return url.includes('/config')
+  it('should warn about misaligned categories when both ZCL selected but only Zigbee template exists', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: [zigbeeTemplatePkg]
     })
-  }
+    stubConfigApis(body)
 
-  /**
-   * Helper function to verify Zigbee config loads correctly
-   */
-  function verifyZigbeeConfigLoads() {
-    cy.url().then((url) => {
-      if (url.includes('/config')) {
-        // Check if ZCL packages table is visible
-        cy.contains('Zigbee Cluster Library metadata').should('be.visible')
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
 
-        // Look for Zigbee category packages in the table
-        cy.get('tbody')
-          .first()
-          .within(() => {
-            cy.get('tr').then(($rows) => {
-              // Check if there are any Zigbee category packages
-              let hasZigbee = false
-              $rows.each((index, row) => {
-                const categoryCell = Cypress.$(row).find('td').eq(1) // Category column
-                if (categoryCell.length > 0) {
-                  const categoryText = categoryCell.text().toLowerCase()
-                  if (categoryText.includes('zigbee')) {
-                    hasZigbee = true
-                    return false // break loop
-                  }
-                }
-              })
-              if (hasZigbee) {
-                cy.log('✓ Zigbee packages found in config')
-              } else {
-                cy.log(
-                  '⚠ No Zigbee packages found - may use internal packages'
-                )
-              }
-            })
-          })
-      } else {
-        // If not on config page, verify we're on the main page (config auto-submitted)
-        cy.url().should('not.include', '/config')
-        cy.log('✓ Config auto-submitted - Zigbee config loaded successfully')
+    // Select both ZCL packages
+    cy.dataCy('zcl-package-checkbox').each(($el) => {
+      if ($el.attr('aria-checked') !== 'true') {
+        cy.wrap($el).click({ force: true })
       }
     })
-  }
-
-  /**
-   * Helper function to verify Matter config loads correctly
-   */
-  function verifyMatterConfigLoads() {
-    cy.url().then((url) => {
-      if (url.includes('/config')) {
-        // Check if ZCL packages table is visible
-        cy.contains('Zigbee Cluster Library metadata').should('be.visible')
-
-        // Look for Matter category packages in the table
-        cy.get('tbody')
-          .first()
-          .within(() => {
-            cy.get('tr').then(($rows) => {
-              // Check if there are any Matter category packages
-              let hasMatter = false
-              $rows.each((index, row) => {
-                const categoryCell = Cypress.$(row).find('td').eq(1) // Category column
-                if (categoryCell.length > 0) {
-                  const categoryText = categoryCell.text().toLowerCase()
-                  if (categoryText.includes('matter')) {
-                    hasMatter = true
-                    return false // break loop
-                  }
-                }
-              })
-              if (hasMatter) {
-                cy.log('✓ Matter packages found in config')
-              } else {
-                cy.log(
-                  '⚠ No Matter packages found - may use internal packages'
-                )
-              }
-            })
-          })
-      } else {
-        // If not on config page, verify we're on the main page (config auto-submitted)
-        cy.url().should('not.include', '/config')
-        cy.log('✓ Config auto-submitted - Matter config loaded successfully')
-      }
-    })
-  }
-
-  /**
-   * Helper function to check if templates are available and return their categories
-   */
-  function checkTemplatesAvailable() {
-    return cy.url().then((url) => {
-      if (url.includes('/config')) {
-        cy.contains('Zap Generation Templates').should('be.visible')
-        return cy
-          .get('tbody')
-          .eq(1)
-          .then(($templateTable) => {
-            const templateRows = $templateTable.find('tr')
-            const categories = []
-            templateRows.each((index, row) => {
-              const categoryCell = Cypress.$(row).find('td').eq(1) // Category column
-              if (categoryCell.length > 0) {
-                const category = categoryCell.text().trim()
-                if (category) {
-                  categories.push(category.toLowerCase())
-                }
-              }
-            })
-            cy.log(`Found template categories: ${categories.join(', ')}`)
-            return categories
-          })
-      } else {
-        cy.log('Config page not accessible - templates may be pre-loaded')
-        return []
-      }
-    })
-  }
-
-  describe('Scenario 1: Zigbee + Matter templates pre-loaded', () => {
-    it('Should verify Zigbee config loads correctly when both templates are pre-loaded', () => {
-      // This test runs in multiprotocol mode where both templates are pre-loaded
-      if (Cypress.env('mode') === Cypress.Mode.multiprotocol) {
-        verifyZigbeeConfigLoads()
-        checkTemplatesAvailable().then((categories) => {
-          // Verify that templates are available (should include both zigbee and matter)
-          expect(categories.length).to.be.greaterThan(0)
-          cy.log(`Template categories available: ${categories.join(', ')}`)
-        })
-      } else {
-        cy.log(
-          'Skipping test - requires multiprotocol mode with both templates pre-loaded'
-        )
+    // Select the only available template (zigbee)
+    cy.get('[data-test="gen-template"]').each(($el) => {
+      if ($el.attr('aria-checked') !== 'true') {
+        cy.wrap($el).click({ force: true })
       }
     })
 
-    it('Should verify Matter config loads correctly when both templates are pre-loaded', () => {
-      // This test runs in multiprotocol mode where both templates are pre-loaded
-      if (Cypress.env('mode') === Cypress.Mode.multiprotocol) {
-        verifyMatterConfigLoads()
-        checkTemplatesAvailable().then((categories) => {
-          // Verify that templates are available (should include both zigbee and matter)
-          expect(categories.length).to.be.greaterThan(0)
-          cy.log(`Template categories available: ${categories.join(', ')}`)
-        })
-      } else {
-        cy.log(
-          'Skipping test - requires multiprotocol mode with both templates pre-loaded'
-        )
-      }
-    })
-
-    it('Should handle case when no matching packages are found', () => {
-      // This test runs in multiprotocol mode
-      if (Cypress.env('mode') === Cypress.Mode.multiprotocol) {
-        cy.url().then((url) => {
-          if (url.includes('/config')) {
-            // Check for warning messages about package matching
-            cy.get('body').then(($body) => {
-              const bodyText = $body.text()
-
-              // Check for error/warning icons indicating package issues
-              const hasWarningIcons =
-                $body.find('[data-cy="package-error-warning-icon"]').length >
-                  0 ||
-                $body.find('[data-cy="template-error-warning-icon"]').length > 0
-
-              if (hasWarningIcons) {
-                cy.log(
-                  '⚠ Warning/error icons found - indicating package matching issues'
-                )
-
-                // Click on warning icon to see details
-                cy.get(
-                  '[data-cy="package-error-warning-icon"], [data-cy="template-error-warning-icon"]'
-                )
-                  .first()
-                  .click({ force: true })
-
-                cy.wait(500)
-                cy.get('.q-dialog').should('exist')
-
-                // Check dialog content for error/warning messages
-                cy.get('.q-dialog').within(() => {
-                  cy.get('body').then(($dialogBody) => {
-                    const dialogText = $dialogBody.text()
-                    if (
-                      dialogText.includes('Error') ||
-                      dialogText.includes('Warning')
-                    ) {
-                      cy.log('Dialog shows package matching errors/warnings')
-                    }
-                  })
-                })
-
-                cy.contains('Close').click()
-                cy.wait(500)
-              } else {
-                cy.log('✓ No warning icons - packages match correctly')
-              }
-
-              // Check for warning messages about internal packages
-              if (
-                bodyText.includes('internal packages') ||
-                bodyText.includes('testing will be loaded automatically')
-              ) {
-                cy.log(
-                  'ℹ Warning found: internal packages will be loaded automatically'
-                )
-                cy.contains('internal packages', { matchCase: false }).should(
-                  'exist'
-                )
-              }
-            })
-          } else {
-            cy.log('Config page auto-submitted - packages matched successfully')
-          }
-        })
-      } else {
-        cy.log(
-          'Skipping test - requires multiprotocol mode with both templates pre-loaded'
-        )
-      }
-    })
+    cy.contains(
+      'Corresponding ZCL and Template packages are not enabled based on the same category'
+    ).should('be.visible')
   })
 
-  describe('Scenario 2: Only Zigbee template pre-loaded', () => {
-    it('Should verify Matter config loads correctly when only Zigbee template is pre-loaded', () => {
-      // This test runs in zigbee mode where only Zigbee template is pre-loaded
-      if (Cypress.env('mode') === Cypress.Mode.zigbee) {
-        // Even though only Zigbee template is pre-loaded, Matter config should still load
-        // (it will use internal packages if needed)
-        verifyMatterConfigLoads()
+  it('should not show multiprotocol warning when only Zigbee ZCL is selected', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: [zigbeeTemplatePkg]
+    })
+    stubConfigApis(body)
 
-        // Check that templates are available (should show Zigbee templates)
-        checkTemplatesAvailable()
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
 
-        // Verify that Matter packages can still be selected/loaded
-        cy.url().then((url) => {
-          if (url.includes('/config')) {
-            cy.get('body').then(($body) => {
-              // Check if Matter packages are available even without Matter templates
-              const bodyText = $body.text()
-              if (bodyText.includes('matter') || bodyText.includes('Matter')) {
-                cy.log(
-                  'Matter packages available even without Matter templates'
-                )
-              } else {
-                cy.log(
-                  'Matter packages not visible - may use internal packages automatically'
-                )
-              }
-            })
-          }
-        })
-      } else {
-        cy.log('Skipping test - requires zigbee mode with only Zigbee template')
+    // Select only the Zigbee ZCL package (first one)
+    cy.dataCy('zcl-package-checkbox').each(($el, index) => {
+      const checked = $el.attr('aria-checked') === 'true'
+      if (index === 0 && !checked) {
+        cy.wrap($el).click({ force: true })
+      } else if (index !== 0 && checked) {
+        cy.wrap($el).click({ force: true })
       }
     })
+
+    cy.contains('multi-protocol').should('not.exist')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// No templates pre-loaded (multiprotocol context)
+// ---------------------------------------------------------------------------
+describe('Config loading – no templates pre-loaded (multiprotocol)', () => {
+  it('should show config page with both ZCL packages but empty template table', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: []
+    })
+    stubConfigApis(body)
+
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
+
+    cy.contains('Zigbee Cluster Library metadata').should('be.visible')
+    cy.dataCy('zcl-package-checkbox').should('have.length', 2)
+    cy.contains('td', 'zigbee').should('exist')
+    cy.contains('td', 'matter').should('exist')
+
+    cy.contains('Zap Generation Templates').should('be.visible')
+    cy.get('[data-test="gen-template"]').should('have.length', 0)
   })
 
-  describe('Scenario 3: No templates pre-loaded', () => {
-    it('Should verify Zigbee config loads correctly when no templates are pre-loaded', () => {
-      // This scenario would require a server config with no templates
-      // For now, we test that config page handles missing templates gracefully
-      checkConfigPageAccessible().then((isAccessible) => {
-        if (isAccessible) {
-          verifyZigbeeConfigLoads()
-
-          // Check for warning about internal packages being used
-          cy.get('body').then(($body) => {
-            const bodyText = $body.text()
-            if (
-              bodyText.includes('internal packages') ||
-              bodyText.includes('testing will be loaded automatically')
-            ) {
-              cy.log(
-                'Warning found - internal packages will be loaded automatically'
-              )
-            }
-          })
-        } else {
-          cy.log('Config page not accessible - may have auto-submitted')
-        }
-      })
+  it('should display warning about internal fallback packages', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: []
     })
+    stubConfigApis(body)
 
-    it('Should verify Matter config loads correctly when no templates are pre-loaded', () => {
-      // This scenario would require a server config with no templates
-      checkConfigPageAccessible().then((isAccessible) => {
-        if (isAccessible) {
-          verifyMatterConfigLoads()
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
 
-          // Check for warning about internal packages being used
-          cy.get('body').then(($body) => {
-            const bodyText = $body.text()
-            if (
-              bodyText.includes('internal packages') ||
-              bodyText.includes('testing will be loaded automatically')
-            ) {
-              cy.log(
-                'Warning found - internal packages will be loaded automatically'
-              )
-            }
-          })
-        } else {
-          cy.log('Config page not accessible - may have auto-submitted')
-        }
-      })
-    })
+    cy.dataCy('zcl-package-checkbox').first().click({ force: true })
+
+    cy.contains(
+      'internal packages used for testing will be loaded automatically'
+    ).should('be.visible')
   })
 
-  describe('General config loading behavior', () => {
-    it('Should display config page with package selection when needed', () => {
-      checkConfigPageAccessible().then((isAccessible) => {
-        if (isAccessible) {
-          cy.contains('Zigbee Cluster Library metadata').should('be.visible')
-          cy.contains('Zap Generation Templates').should('be.visible')
-          cy.get('[data-test="login-submit"]').should('be.visible')
-        } else {
-          cy.log('Config page auto-submitted - packages already configured')
-        }
-      })
+  it('should still show the submit button so user can proceed without templates', () => {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: []
     })
+    stubConfigApis(body)
 
-    it('Should handle package selection and submission', () => {
-      checkConfigPageAccessible().then((isAccessible) => {
-        if (isAccessible) {
-          // Select at least one ZCL package
-          cy.dataCy('zcl-package-checkbox').first().check({ force: true })
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
 
-          // Select at least one template package
-          cy.get('tbody')
-            .eq(1)
-            .find('[data-test="gen-template"]')
-            .first()
-            .check({ force: true })
-
-          // Verify submit button is enabled
-          cy.get('[data-test="login-submit"]').should('be.visible')
-
-          // Note: We don't actually submit to avoid changing the test environment
-          cy.log('Package selection verified - ready for submission')
-        } else {
-          cy.log('Config page not accessible - skipping selection test')
-        }
-      })
-    })
+    cy.get('[data-test="login-submit"]').should('be.visible')
   })
 })
