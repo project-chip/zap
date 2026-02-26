@@ -251,14 +251,21 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
+  <xs:simpleType name="revisionValue">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="255"/>
+      <xs:whiteSpace value="collapse"/>
+    </xs:restriction>
+  </xs:simpleType>
   <xs:element name="revision">
-    <xs:simpleType>
-      <xs:restriction base="xs:integer">
-        <xs:minInclusive value="1"/>
-        <xs:maxInclusive value="255"/>
-        <xs:whiteSpace value="collapse"/>
-      </xs:restriction>
-    </xs:simpleType>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="revisionValue">
+          <xs:attribute name="editable" type="xs:boolean" use="optional"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
   </xs:element>
   <xs:element name="clusters">
     <xs:complexType>
@@ -313,6 +320,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
   <xs:attribute name="long" type="xs:boolean"/>
   <xs:attribute name="analog" type="xs:boolean" use="optional"/>
   <xs:attribute name="composite" type="xs:boolean" use="optional"/>
+  <xs:attribute name="baseType" type="xs:string" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="bitmap">
@@ -696,6 +704,9 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="changeOmitted" type="xs:boolean" use="optional"/>
       <xs:attribute name="persistence" type="xs:string" use="optional"/>
       <xs:attribute name="largeMessage" type="xs:boolean" use="optional"/>
+      <xs:attribute name="nullable" type="xs:boolean" use="optional"/>
+      <xs:attribute name="scene" type="xs:boolean" use="optional"/>
+      <xs:attribute name="reportable" type="xs:boolean" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="conformance" type="xs:string"/>
@@ -789,6 +800,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
   <xs:element name="features">
     <xs:complexType>
       <xs:sequence>
+        <xs:element name="cluster" type="clusterRef" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="feature" maxOccurs="unbounded">
           <xs:complexType mixed="true">
             <xs:choice minOccurs="0" maxOccurs="unbounded">

@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <configurator>
-  <enum name="LevelStatus" type="ENUM8">
   <enum name="PowerProfileState" type="ENUM8">
     <item name="PowerProfileWaitingToStart" value="0x01"/>
     <item name="PowerProfileStarted" value="0x02"/>
