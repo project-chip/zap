@@ -24,6 +24,50 @@ const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
 /**
+ * Remove adhoc signatures from a macOS zip package.
+ * Unzips, strips signatures, and re-zips.
+ * @param {string} zipPath - Path to the zip file
+ */
+async function removeAdhocSignature(zipPath) {
+  const absZipPath = path.resolve(zipPath)
+  const tempDir = absZipPath.replace('.zip', '-unsigned')
+  const zipName = path.basename(zipPath)
+
+  console.log(`Removing adhoc signatures from ${zipName}...`)
+
+  // Unzip
+  await scriptUtil.executeCmd({}, 'unzip', ['-q', absZipPath, '-d', tempDir])
+
+  // Find and remove signature from main app
+  const appPath = path.join(tempDir, 'zap.app')
+  if (fs.existsSync(appPath)) {
+    await scriptUtil.executeCmd({}, 'codesign', ['--remove-signature', appPath])
+
+    // Remove signatures from nested frameworks and binaries
+    try {
+      await scriptUtil.executeCmd({}, 'sh', [
+        '-c',
+        `find "${appPath}" -type f -perm +111 -exec codesign --remove-signature {} \\; 2>/dev/null || true`
+      ])
+    } catch (e) {
+      // Ignore errors from codesign on files that aren't signed
+    }
+  }
+
+  // Remove old zip and create new one from within the temp directory
+  fs.unlinkSync(absZipPath)
+  await scriptUtil.executeCmd({}, 'sh', [
+    '-c',
+    `cd "${tempDir}" && zip -r -q "${absZipPath}" .`
+  ])
+
+  // Cleanup temp directory
+  fs.rmSync(tempDir, { recursive: true, force: true })
+
+  console.log(`Successfully removed signatures from ${zipName}`)
+}
+
+/**
  *
  * @param {*} osName
  * @param {*} outputPath
@@ -35,6 +79,11 @@ async function buildForOS(osName, outputPath) {
       await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:mac']) // Building electron app
       await scriptUtil.executeCmd({}, 'npm', ['run', 'pkg:mac']) // Building zap-cli
       await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:cli:mac']) // Adding zap-cli to zip file
+
+      // Remove adhoc signatures from macOS packages
+      await removeAdhocSignature('./dist/zap-mac-x64.zip')
+      await removeAdhocSignature('./dist/zap-mac-arm64.zip')
+
       if (outputPath) {
         await scriptUtil.executeCmd({}, 'mv', [
           './dist/zap-mac-x64.zip',
