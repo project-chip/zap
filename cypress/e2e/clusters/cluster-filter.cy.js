@@ -33,6 +33,18 @@ describe('Testing cluster filters', () => {
         // Identify for Matter is enabled and should show up
         cy.get('tbody').children().contains(data.cluster10).should('exist')
       })
+
+      cy.dataCy('cluster-btn-closeall').click()
+      cy.dataCy('cluster-btn-openall').click()
+
+      cy.fixture('data').then((data) => {
+        // Power Configurator for Zigbee is disabled and should not show up
+        // Occupancy Sensing for Matter is disabled and should not exist
+        cy.get('tbody').children().contains(data.cluster9).should('not.exist')
+        // Basic for Zigbee is enabled and should show up
+        // Identify for Matter is enabled and should show up
+        cy.get('tbody').children().contains(data.cluster10).should('exist')
+      })
     }
   )
   it(

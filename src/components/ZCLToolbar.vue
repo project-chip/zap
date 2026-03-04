@@ -366,9 +366,6 @@ export default {
         window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.progressEnd)
       })
     },
-    regenerateIntoDirectory(currentPath) {
-      this.doGeneration(currentPath)
-    },
     getNotifications() {
       this.$serverGet(restApi.uri.unseenNotificationCount)
         .then((resp) => {
