@@ -14,6 +14,8 @@
  *    limitations under the License.
  */
 
+const restApi = require('../../../src-shared/rest-api.js')
+
 /**
  * Sets a property on an object to a given value.
  *
@@ -902,7 +904,7 @@ export function clearLastSelectedDomain(state) {
  */
 export function resetFilters(state) {
   state.clusterManager.filter = {
-    label: 'No Filter',
+    label: restApi.noFilter,
     domainFilterFn: (domain, currentOpenDomains, context) =>
       currentOpenDomains[domain]
   }
