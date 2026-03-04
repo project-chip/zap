@@ -832,6 +832,11 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
       value: openDomainValue
     })
   })
+
+  const anyDomainOpen = Object.values(state.clusterManager.openDomains).some(
+    (v) => v === true
+  )
+  state.clusterManager.allDomainsCollapsed = !anyDomainOpen
 }
 
 /**
