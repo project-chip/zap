@@ -109,11 +109,11 @@ export default function () {
       allDomainsCollapsed: true,
       actionOptions: [
         {
-          label: 'Close All',
+          label: restApi.closeAll,
           domainFilterFn: (domain, currentOpenDomains, context) => false
         },
         {
-          label: 'Open All',
+          label: restApi.openAll,
           domainFilterFn: (domain, currentOpenDomains, context) => true
         }
       ],

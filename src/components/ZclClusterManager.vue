@@ -93,7 +93,7 @@ limitations under the License.
         <div v-for="actionOption in actionOptions" :key="actionOption.label">
           <q-btn
             v-if="
-              actionOption.label === 'Close All'
+              actionOption.label === restApi.closeAll
                 ? !allDomainsCollapsed
                 : allDomainsCollapsed
             "
@@ -147,6 +147,7 @@ import uiOptions from '../util/ui-options.js'
 import { scroll } from 'quasar'
 const { getScrollTarget, setVerticalScrollPosition } = scroll
 import * as dbEnum from '../../src-shared/db-enum.js'
+import restApi from '../../src-shared/rest-api.js'
 
 export default {
   name: 'ZclClusterManager',

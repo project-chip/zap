@@ -858,7 +858,7 @@ export function doActionFilter(state, filterEnabledClusterPair) {
       )
     })
   })
-  state.clusterManager.allDomainsCollapsed = filter.label === 'Close All'
+  state.clusterManager.allDomainsCollapsed = filter.label === restApi.closeAll
 }
 
 /**
