@@ -22,8 +22,10 @@ limitations under the License.
       </div>
       <div class="column">
         <div class="col">
-          You can use this functionality to add custom ZCL clusters or commands
-          to the ZCL Advanced Platform (ZAP)
+          You can use this functionality to add custom ZCL clusters to the ZCL
+          Advanced Platform (ZAP). Click the button below to browse for an
+          <strong>XML file containing only cluster definitions</strong>. JSON
+          files are not currently supported for loading.
         </div>
         <p
           class="text-center"
@@ -39,8 +41,13 @@ limitations under the License.
           class="v-step-17 col q-mx-auto q-mt-md"
           @click="browseForFile()"
           rounded
-          label="Browse file"
-        />
+          label="Browse for XML file"
+        >
+          <q-tooltip>
+            Only XML files containing cluster definitions can be loaded. JSON
+            package files shown below are for reference only.
+          </q-tooltip>
+        </q-btn>
       </div>
     </q-card-section>
     <q-card-section class="q-pt-none">
