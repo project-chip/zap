@@ -17,7 +17,7 @@ describe('Testing cluster filters', () => {
     })
   })
   it(
-    'filter enabled clusters and check clusters',
+    'filter enabled clusters and check clusters and check close all and open all buttons',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get('[data-test="filter-input"]').click()
@@ -43,6 +43,29 @@ describe('Testing cluster filters', () => {
         cy.get('tbody').children().contains(data.cluster9).should('not.exist')
         // Basic for Zigbee is enabled and should show up
         // Identify for Matter is enabled and should show up
+        cy.get('tbody').children().contains(data.cluster10).should('exist')
+      })
+    }
+  )
+  it(
+    'filter all clusters and check close all and open all buttons',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get('[data-test="filter-input"]').click()
+      // Selecting All clusters
+      cy.get('.q-virtual-scroll__content > :nth-child(2)').click({
+        force: true
+      })
+      cy.fixture('data').then((data) => {
+        cy.get('tbody').children().contains(data.cluster9).should('exist')
+        cy.get('tbody').children().contains(data.cluster10).should('exist')
+      })
+
+      cy.dataCy('cluster-btn-closeall').click()
+      cy.dataCy('cluster-btn-openall').click()
+
+      cy.fixture('data').then((data) => {
+        cy.get('tbody').children().contains(data.cluster9).should('exist')
         cy.get('tbody').children().contains(data.cluster10).should('exist')
       })
     }
