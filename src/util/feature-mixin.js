@@ -117,6 +117,7 @@ export default {
         clusterFeatures: this.clusterFeatures,
         endpointId: this.endpointId[this.selectedEndpointId],
         endpointTypeId: this.selectedEndpointTypeId,
+        featureMapStorageOption: this.featureMapAttribute?.storageOption,
         changeConfirmed: false
       }).then((res) => {
         // store backend response and frontend data for reuse if updates are confirmed
@@ -221,6 +222,7 @@ export default {
         clusterFeatures: this.clusterFeatures,
         endpointId: this.endpointId[this.selectedEndpointId],
         endpointTypeId: this.selectedEndpointTypeId,
+        featureMapStorageOption: this.featureMapAttribute?.storageOption,
         changeConfirmed: true
       })
       if (this.displayWarning) {
