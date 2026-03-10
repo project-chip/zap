@@ -52,10 +52,16 @@ limitations under the License.
     </q-card-section>
     <q-card-section class="q-pt-none">
       <div class="row items-center">
-        <strong>Added files</strong>
+        <strong>Custom XML extensions</strong>
+      </div>
+      <div v-if="customPackages.length === 0" class="text-grey-7 q-mt-sm">
+        No custom extensions added yet.
       </div>
       <q-list class="cluster-list">
-        <div v-for="(sessionPackage, index) in packages" :key="index">
+        <div
+          v-for="(sessionPackage, index) in customPackages"
+          :key="'custom-' + index"
+        >
           <q-item dense class="q-px-none">
             <q-item-section>
               <q-expansion-item>
@@ -78,9 +84,6 @@ limitations under the License.
                   </div>
                   <q-space />
                   <q-btn
-                    v-if="
-                      sessionPackage.sessionPackage.type == 'zcl-xml-standalone'
-                    "
                     class="q-mx-xl"
                     label="Delete"
                     icon="delete"
@@ -89,6 +92,123 @@ limitations under the License.
                     @click.stop="deletePackage(sessionPackage)"
                     :disable="sessionPackage.sessionPackage.required"
                   />
+                </template>
+                <q-card>
+                  <q-card-section>
+                    <div class="q-mx-lg q-px-lg">
+                      <strong> Full File path:</strong>
+                      {{ sessionPackage.pkg.path }} <br />
+                      <strong> Package Type:</strong>
+                      {{ sessionPackage.pkg.type }} <br />
+                      <strong> Version: </strong
+                      >{{ sessionPackage.pkg.version }} <br />
+                      <strong> Required:</strong>
+                      {{
+                        sessionPackage.sessionPackage.required
+                          ? 'True'
+                          : 'False'
+                      }}
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
+            </q-item-section>
+            <q-dialog v-model="dialogData[sessionPackage.pkg.id]">
+              <q-card>
+                <q-card-section>
+                  <div class="row items-center">
+                    <div class="col-1">
+                      <q-icon
+                        :name="iconName(sessionPackage.pkg.id)"
+                        :color="iconColor(sessionPackage.pkg.id)"
+                        size="2em"
+                      ></q-icon>
+                    </div>
+                    <div class="text-h6 col">
+                      {{ sessionPackage.pkg.path }}
+                    </div>
+                    <div class="col-1 text-right">
+                      <q-btn dense flat icon="close" v-close-popup>
+                        <q-tooltip>Close</q-tooltip>
+                      </q-btn>
+                    </div>
+                  </div>
+                  <div v-if="notisData[sessionPackage.pkg.id]?.hasError">
+                    <div
+                      class="text-h6"
+                      style="margin-top: 15px; padding-left: 20px"
+                    >
+                      Errors
+                    </div>
+                    <ul>
+                      <li
+                        v-for="(error, index) in populateNotifications(
+                          sessionPackage.pkg.id,
+                          'ERROR'
+                        )"
+                        :key="'error' + index"
+                        style="margin-bottom: 10px"
+                      >
+                        {{ error.message }}
+                      </li>
+                    </ul>
+                  </div>
+                  <div v-if="notisData[sessionPackage.pkg.id]?.hasWarning">
+                    <div
+                      class="text-h6"
+                      style="margin-top: 15px; padding-left: 20px"
+                    >
+                      Warnings
+                    </div>
+                    <ul>
+                      <li
+                        v-for="(warning, index) in populateNotifications(
+                          sessionPackage.pkg.id,
+                          'WARNING'
+                        )"
+                        :key="index"
+                        style="margin-bottom: 10px"
+                      >
+                        {{ warning.message }}
+                      </li>
+                    </ul>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </q-dialog>
+          </q-item>
+        </div>
+      </q-list>
+    </q-card-section>
+    <q-card-section class="q-pt-none">
+      <div class="row items-center">
+        <strong>Built-in ZCL packages</strong>
+      </div>
+      <q-list class="cluster-list">
+        <div
+          v-for="(sessionPackage, index) in builtInPackages"
+          :key="'builtin-' + index"
+        >
+          <q-item dense class="q-px-none">
+            <q-item-section>
+              <q-expansion-item>
+                <template #header>
+                  <q-item-section avatar class="q-pr-none">
+                    <q-icon
+                      :class="{
+                        'cursor-pointer':
+                          iconName(sessionPackage.pkg.id) == 'error' ||
+                          iconName(sessionPackage.pkg.id) == 'warning'
+                      }"
+                      :name="iconName(sessionPackage.pkg.id)"
+                      :color="iconColor(sessionPackage.pkg.id)"
+                      size="1.5em"
+                      @click="() => handleIconClick(sessionPackage.pkg.id)"
+                    />
+                  </q-item-section>
+                  <div class="q-my-auto q-item__label q-item__label__popup">
+                    <strong>{{ getFileName(sessionPackage.pkg.path) }}</strong>
+                  </div>
                 </template>
                 <q-card>
                   <q-card-section>
@@ -201,6 +321,18 @@ export default {
       this.loadNewPackage().then(() => {
         this.$store.dispatch('zap/updateZclDeviceTypes')
       })
+    }
+  },
+  computed: {
+    customPackages() {
+      return this.packages.filter(
+        (p) => p.sessionPackage.type === 'zcl-xml-standalone'
+      )
+    },
+    builtInPackages() {
+      return this.packages.filter(
+        (p) => p.sessionPackage.type !== 'zcl-xml-standalone'
+      )
     }
   },
   methods: {
