@@ -209,6 +209,7 @@ limitations under the License.
                   <div class="q-my-auto q-item__label q-item__label__popup">
                     <strong>{{ getFileName(sessionPackage.pkg.path) }}</strong>
                   </div>
+                  <q-space />
                 </template>
                 <q-card>
                   <q-card-section>
