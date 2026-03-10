@@ -61,8 +61,17 @@ describe('Testing cluster filters', () => {
         cy.get('tbody').children().contains(data.cluster10).should('exist')
       })
 
+      // Close All: doActionFilter sets allDomainsCollapsed = true,
+      // hiding domains and swapping to Open All button
       cy.dataCy('cluster-btn-closeall').click()
+      cy.dataCy('cluster-btn-closeall').should('not.exist')
+      cy.dataCy('cluster-btn-openall').should('exist')
+
+      // Open All: doActionFilter sets allDomainsCollapsed = false,
+      // restoring domains and swapping back to Close All button
       cy.dataCy('cluster-btn-openall').click()
+      cy.dataCy('cluster-btn-openall').should('not.exist')
+      cy.dataCy('cluster-btn-closeall').should('exist')
 
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().contains(data.cluster9).should('exist')
