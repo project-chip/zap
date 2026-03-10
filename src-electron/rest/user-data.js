@@ -115,6 +115,7 @@ function httpPostCheckConformOnFeatureUpdate(db) {
       clusterFeatures,
       endpointId,
       endpointTypeId,
+      featureMapStorageOption,
       changeConfirmed
     } = request.body
 
@@ -135,7 +136,8 @@ function httpPostCheckConformOnFeatureUpdate(db) {
       featureMap,
       featureData,
       endpointId,
-      clusterFeatures
+      clusterFeatures,
+      featureMapStorageOption
     )
 
     if (changeConfirmed || result.disableChange) {

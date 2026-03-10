@@ -763,6 +763,53 @@ test(
     expect(result.attributesToUpdate.length).toBe(0)
     expect(result.commandsToUpdate.length).toBe(0)
     expect(result.eventsToUpdate.length).toBe(0)
+    featureMap['UNKNOWN'] = 0
+
+    // 6. test toggle a feature when featureMap attribute storage is External
+    // should disable the toggle and show a warning, regardless of conformance
+    featureMap['HS'] = 1
+    result = conformChecker.checkElementConformance(
+      elements,
+      featureMap,
+      featureHS,
+      endpointId,
+      clusterFeatures,
+      dbEnum.storageOption.external
+    )
+    expectedWarning =
+      warningPrefix +
+      `feature: ${featureHS.name} (${featureHS.code}) ${featureBitMessage} cannot be enabled as ` +
+      `the featureMap attribute in the cluster is external and ZAP does not have control over it.`
+    expect(result.displayWarning).toBeTruthy()
+    expect(result.disableChange).toBeTruthy()
+    expect(result.warningMessage[0]).toBe(expectedWarning)
+    expect(result.attributesToUpdate.length).toBe(0)
+    expect(result.commandsToUpdate.length).toBe(0)
+    expect(result.eventsToUpdate.length).toBe(0)
+
+    // 7. test toggle the same feature when featureMap attribute storage is RAM
+    // should behave identically to no storageOption passed — toggle is allowed
+    result = conformChecker.checkElementConformance(
+      elements,
+      featureMap,
+      featureHS,
+      endpointId,
+      clusterFeatures,
+      dbEnum.storageOption.ram
+    )
+    expect(result.displayWarning).toBeFalsy()
+    expect(result.disableChange).toBeFalsy()
+    expect(result.warningMessage).toBe('')
+    expect(result.attributesToUpdate.length).toBe(1)
+    expect(result.attributesToUpdate[0].name).toBe('CurrentHue')
+    expect(result.attributesToUpdate[0].value).toBeTruthy()
+    expect(result.commandsToUpdate.length).toBe(1)
+    expect(result.commandsToUpdate[0].name).toBe('MoveToHue')
+    expect(result.commandsToUpdate[0].value).toBeTruthy()
+    expect(result.eventsToUpdate.length).toBe(1)
+    expect(result.eventsToUpdate[0].name).toBe('event1')
+    expect(result.eventsToUpdate[0].value).toBeTruthy()
+    featureMap['HS'] = 0
   },
   testUtil.timeout.short()
 )

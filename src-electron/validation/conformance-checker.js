@@ -50,7 +50,8 @@ function generateWarningMessage(
   elementMap = {},
   descElements = {},
   featuresToUpdate = {},
-  changedConformFeatures = []
+  changedConformFeatures = [],
+  featureMapStorageOption = null
 ) {
   // feature change is disabled by default before the checks
   let result = {
@@ -71,6 +72,15 @@ function generateWarningMessage(
   let warningPrefix = buildWarningPrefix(featureData)
 
   let updateDisabledString = `cannot be ${added ? 'enabled' : 'disabled'} as`
+
+  // Check 0: if the featureMap attribute storage is external, ZAP cannot modify it
+  if (featureMapStorageOption === dbEnum.storageOption.external) {
+    result.warningMessage.push(
+      warningPrefix +
+        ` ${updateDisabledString} the featureMap attribute in the cluster is external and ZAP does not have control over it.`
+    )
+    return result
+  }
 
   // Check 1: if any operands in the feature conformance are missing from elementMap
   let missingOperands = []
@@ -244,7 +254,8 @@ function checkElementConformance(
   featureMap,
   featureData = null,
   endpointId = null,
-  clusterFeatures = null
+  clusterFeatures = null,
+  featureMapStorageOption = null
 ) {
   let { attributes, commands, events } = elements
   let featureCode = featureData ? featureData.code : ''
@@ -299,7 +310,8 @@ function checkElementConformance(
       elementMap,
       descElements,
       featuresToUpdate,
-      changedConformFeatures
+      changedConformFeatures,
+      featureMapStorageOption
     )
 
     if (warningInfo.disableChange) {
