@@ -150,3 +150,5 @@ exports.ide = ide
 exports.updateKey = updateKey
 
 exports.noFilter = 'No Filter'
+exports.closeAll = 'Close All'
+exports.openAll = 'Open All'

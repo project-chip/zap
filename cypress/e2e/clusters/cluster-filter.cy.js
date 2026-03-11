@@ -17,7 +17,7 @@ describe('Testing cluster filters', () => {
     })
   })
   it(
-    'filter enabled clusters and check clusters',
+    'filter enabled clusters and check clusters and check close all and open all buttons',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get('[data-test="filter-input"]').click()
@@ -31,7 +31,69 @@ describe('Testing cluster filters', () => {
         cy.get('tbody').children().contains(data.cluster9).should('not.exist')
         // Basic for Zigbee is enabled and should show up
         // Identify for Matter is enabled and should show up
-        cy.get('tbody').children().contains(data.cluster10).should('exist')
+        cy.get('tbody').children().contains(data.cluster10).should('be.visible')
+      })
+
+      cy.dataCy('cluster-btn-closeall').click()
+      cy.fixture('data').then((data) => {
+        cy.get('tbody')
+          .children()
+          .contains(data.cluster10)
+          .should('not.be.visible')
+      })
+
+      cy.dataCy('cluster-btn-openall').click()
+
+      cy.fixture('data').then((data) => {
+        // Power Configurator for Zigbee is disabled and should not show up
+        // Occupancy Sensing for Matter is disabled and should not exist
+        cy.get('tbody').children().contains(data.cluster9).should('not.exist')
+        // Basic for Zigbee is enabled and should show up
+        // Identify for Matter is enabled and should show up
+        cy.get('tbody').children().contains(data.cluster10).should('be.visible')
+      })
+    }
+  )
+  it(
+    'filter all clusters and check close all and open all buttons',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get('[data-test="filter-input"]').click()
+      // Selecting All clusters
+      cy.get('.q-virtual-scroll__content > :nth-child(2)').click({
+        force: true
+      })
+      cy.fixture('data').then((data) => {
+        cy.get('tbody').children().contains(data.cluster9).should('be.visible')
+        cy.get('tbody').children().contains(data.cluster10).should('be.visible')
+      })
+
+      // Close All: doActionFilter sets allDomainsCollapsed = true,
+      // hiding domains and swapping to Open All button
+      cy.dataCy('cluster-btn-closeall').click()
+      cy.dataCy('cluster-btn-closeall').should('not.exist')
+      cy.dataCy('cluster-btn-openall').should('exist')
+
+      cy.fixture('data').then((data) => {
+        cy.get('tbody')
+          .children()
+          .contains(data.cluster9)
+          .should('not.be.visible')
+        cy.get('tbody')
+          .children()
+          .contains(data.cluster10)
+          .should('not.be.visible')
+      })
+
+      // Open All: doActionFilter sets allDomainsCollapsed = false,
+      // restoring domains and swapping back to Close All button
+      cy.dataCy('cluster-btn-openall').click()
+      cy.dataCy('cluster-btn-openall').should('not.exist')
+      cy.dataCy('cluster-btn-closeall').should('exist')
+
+      cy.fixture('data').then((data) => {
+        cy.get('tbody').children().contains(data.cluster9).should('be.visible')
+        cy.get('tbody').children().contains(data.cluster10).should('be.visible')
       })
     }
   )
