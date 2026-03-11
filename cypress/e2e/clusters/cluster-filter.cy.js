@@ -57,8 +57,8 @@ describe('Testing cluster filters', () => {
         force: true
       })
       cy.fixture('data').then((data) => {
-        cy.get('tbody').children().contains(data.cluster9).should('exist')
-        cy.get('tbody').children().contains(data.cluster10).should('exist')
+        cy.get('tbody').children().contains(data.cluster9).should('be.visible')
+        cy.get('tbody').children().contains(data.cluster10).should('be.visible')
       })
 
       // Close All: doActionFilter sets allDomainsCollapsed = true,
@@ -74,8 +74,8 @@ describe('Testing cluster filters', () => {
       cy.dataCy('cluster-btn-closeall').should('exist')
 
       cy.fixture('data').then((data) => {
-        cy.get('tbody').children().contains(data.cluster9).should('exist')
-        cy.get('tbody').children().contains(data.cluster10).should('exist')
+        cy.get('tbody').children().contains(data.cluster9).should('be.visible')
+        cy.get('tbody').children().contains(data.cluster10).should('be.visible')
       })
     }
   )
