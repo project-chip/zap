@@ -821,10 +821,13 @@ test(
       endpointId,
       clusterFeatures
     )
+    let clusterPrefix = env.formatEmojiMessage(
+      '⚠️',
+      `Check Feature Compliance on endpoint: ${endpointId}, cluster: ${featureHS.cluster},`
+    )
     expectedWarning =
-      warningPrefix +
-      `feature: ${featureHS.name} (${featureHS.code}) ${featureBitMessage}` +
-      ` attribute CurrentHue has external storage. ZAP is unable to manage its value automatically.`
+      clusterPrefix +
+      ` attribute CurrentHue, required by feature: ${featureHS.name} (${featureHS.code}), has external storage and ZAP does not have control over it.`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeFalsy()
     expect(result.warningMessage).toContain(expectedWarning)

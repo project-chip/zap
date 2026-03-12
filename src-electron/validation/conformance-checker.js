@@ -232,11 +232,16 @@ function generateWarningMessage(
     ).filter((attr) => attr.storageOption === dbEnum.storageOption.external)
     if (externalAttributes.length > 0) {
       let externalAttrNames = externalAttributes.map((a) => a.name).join(', ')
-      let attrPlural =
-        externalAttributes.length === 1 ? 'attribute' : 'attributes'
+      let isSingular = externalAttributes.length === 1
+      let clusterPrefix = env.formatEmojiMessage(
+        '⚠️',
+        `Check Feature Compliance on endpoint: ${endpointId}, cluster: ${featureData.cluster},`
+      )
       result.warningMessage.push(
-        warningPrefix +
-          ` ${attrPlural} ${externalAttrNames} ${externalAttributes.length === 1 ? 'has' : 'have'} external storage. ZAP is unable to manage ${externalAttributes.length === 1 ? 'its' : 'their'} value automatically.`
+        clusterPrefix +
+          ` ${isSingular ? 'attribute' : 'attributes'} ${externalAttrNames},` +
+          ` required by feature: ${featureData.name} (${featureData.code}),` +
+          ` ${isSingular ? 'has' : 'have'} external storage and ZAP does not have control over it.`
       )
       result.displayWarning = true
     }
