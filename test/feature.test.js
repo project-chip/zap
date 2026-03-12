@@ -651,7 +651,7 @@ test(
     // no warnings should be generated
     expect(result.displayWarning).toBeFalsy()
     expect(result.disableChange).toBeFalsy()
-    expect(result.warningMessage).toBe('')
+    expect(result.warningMessage).toEqual([])
     // elements with conformance 'HS' should be enabled
     // and their values should be set to true
     expect(result.attributesToUpdate.length).toBe(1)
@@ -681,7 +681,7 @@ test(
       `as it is mandatory for device type: ${deviceType}.`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeFalsy()
-    expect(result.warningMessage).toBe(expectedWarning)
+    expect(result.warningMessage).toEqual([expectedWarning])
     // attributes and commands with conformance 'XY' should be disabled
     // and their values should be set to false
     expect(result.attributesToUpdate.length).toBe(1)
@@ -796,7 +796,7 @@ test(
     )
     expect(result.displayWarning).toBeFalsy()
     expect(result.disableChange).toBeFalsy()
-    expect(result.warningMessage).toBe('')
+    expect(result.warningMessage).toEqual([])
     expect(result.attributesToUpdate.length).toBe(1)
     expect(result.attributesToUpdate[0].name).toBe('CurrentHue')
     expect(result.attributesToUpdate[0].value).toBeTruthy()
@@ -806,6 +806,32 @@ test(
     expect(result.eventsToUpdate.length).toBe(1)
     expect(result.eventsToUpdate[0].name).toBe('event1')
     expect(result.eventsToUpdate[0].value).toBeTruthy()
+    featureMap['HS'] = 0
+
+    // 8. test enable a feature when a dependent attribute has external storage
+    // should display warning and change is still allowed
+    elements.attributes.find(
+      (attr) => attr.name === 'CurrentHue'
+    ).storageOption = dbEnum.storageOption.external
+    featureMap['HS'] = 1
+    result = conformChecker.checkElementConformance(
+      elements,
+      featureMap,
+      featureHS,
+      endpointId,
+      clusterFeatures
+    )
+    expectedWarning =
+      warningPrefix +
+      `feature: ${featureHS.name} (${featureHS.code}) ${featureBitMessage}` +
+      ` attribute CurrentHue has external storage. ZAP is unable to manage its value automatically.`
+    expect(result.displayWarning).toBeTruthy()
+    expect(result.disableChange).toBeFalsy()
+    expect(result.warningMessage).toContain(expectedWarning)
+    // clean up
+    elements.attributes.find(
+      (attr) => attr.name === 'CurrentHue'
+    ).storageOption = undefined
     featureMap['HS'] = 0
   },
   testUtil.timeout.short()
@@ -856,7 +882,7 @@ test(
 
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeFalsy()
-    expect(result.warningMessage).toBe(expectedWarning)
+    expect(result.warningMessage).toEqual([expectedWarning])
   },
   testUtil.timeout.short()
 )

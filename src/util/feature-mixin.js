@@ -159,6 +159,13 @@ export default {
 
       // update attributes, commands, and events for the toggle feature, and set notifications
       this.attributesToUpdate.forEach((attribute) => {
+        // External attributes are shown in the dialog but ZAP cannot control them
+        // so skip dispatching an update so their DB state is preserved.
+        // This ensures the backend still generates and saves the external-attribute
+        // warning when the confirm POST arrives.
+        if (attribute.storageOption === dbEnum.storageOption.external) {
+          return
+        }
         let editContext = {
           action: 'boolean',
           endpointTypeIdList: this.endpointTypeIdList,
