@@ -295,8 +295,7 @@ export default {
           message: warning,
           type: 'warning',
           classes: 'custom-notification notification-warning',
-          position: 'top',
-          html: true
+          position: 'top'
         })
       }
     },

@@ -776,10 +776,7 @@ test(
       clusterFeatures,
       dbEnum.storageOption.external
     )
-    expectedWarning =
-      warningPrefix +
-      `feature: ${featureHS.name} (${featureHS.code}) ${featureBitMessage} cannot be enabled as ` +
-      `the featureMap attribute in the cluster is external and ZAP does not have control over it.`
+    expectedWarning = `${warningPrefix}feature: ${featureHS.name} (${featureHS.code}) ${featureBitMessage} cannot be enabled as the featureMap attribute in the cluster is external and ZAP does not have control over it.`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeTruthy()
     expect(result.warningMessage[0]).toBe(expectedWarning)
