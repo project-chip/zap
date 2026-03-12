@@ -212,10 +212,12 @@ async function setNotificationOnFeatureChange(db, sessionId, result) {
     }
   } else {
     await deleteNotificationWithPatterns(db, sessionId, outdatedWarningPatterns)
-    if (displayWarning) {
-      await setNotification(db, 'WARNING', warningMessage, sessionId, 2, 0)
-    } else {
-      await searchNotificationByMessageAndDelete(db, sessionId, warningMessage)
+    for (const message of warningMessage) {
+      if (displayWarning) {
+        await setNotification(db, 'WARNING', message, sessionId, 2, 0)
+      } else {
+        await searchNotificationByMessageAndDelete(db, sessionId, message)
+      }
     }
   }
 }

@@ -51,7 +51,8 @@ function generateWarningMessage(
   descElements = {},
   featuresToUpdate = {},
   changedConformFeatures = [],
-  featureMapStorageOption = null
+  featureMapStorageOption = null,
+  attributes = []
 ) {
   // feature change is disabled by default before the checks
   let result = {
@@ -177,27 +178,29 @@ function generateWarningMessage(
     let buildNonElementConformMessage = (state, conformance) =>
       ` should be ${state}, as it is ${conformance} ${deviceTypeString}.`
 
-    // in this case only 1 warning message is needed
-    result.warningMessage = ''
+    result.warningMessage = []
     if (conformance == 'notSupported') {
-      result.warningMessage =
+      result.warningMessage.push(
         warningPrefix +
-        (combinedOperands
-          ? buildElementConformMessage('disabled')
-          : buildNonElementConformMessage('disabled', 'not supported'))
+          (combinedOperands
+            ? buildElementConformMessage('disabled')
+            : buildNonElementConformMessage('disabled', 'not supported'))
+      )
       result.displayWarning = added
     }
     if (conformance == 'provisional') {
-      result.warningMessage =
+      result.warningMessage.push(
         warningPrefix + ' is enabled, but it is still provisional.'
+      )
       result.displayWarning = added
     }
     if (conformance == 'mandatory') {
-      result.warningMessage =
+      result.warningMessage.push(
         warningPrefix +
-        (combinedOperands
-          ? buildElementConformMessage('enabled')
-          : buildNonElementConformMessage('enabled', 'mandatory'))
+          (combinedOperands
+            ? buildElementConformMessage('enabled')
+            : buildNonElementConformMessage('enabled', 'mandatory'))
+      )
       result.displayWarning = !added
     }
     // if the feature conformance contains the operand 'desc', do not disable toggling, but show warning message
@@ -206,9 +209,10 @@ function generateWarningMessage(
       dbEnum.conformanceTag.described
     )
     if (featureContainsDesc) {
-      result.warningMessage =
+      result.warningMessage.push(
         warningPrefix +
-        ` is being ${added ? 'enabled' : 'disabled'}, but it has descriptive conformance and requires manual validation from the feature specification to enable/disable the right dependencies in ZAP.`
+          ` is being ${added ? 'enabled' : 'disabled'}, but it has descriptive conformance and requires manual validation from the feature specification to enable/disable the right dependencies in ZAP.`
+      )
       result.displayWarning = true
     }
 
@@ -218,6 +222,24 @@ function generateWarningMessage(
       let prefix = buildWarningPrefix(feature)
       return getOutdatedWarningPatterns(prefix)
     })
+
+    // Check 4: if any attributes to be updated have external storage,
+    // ZAP cannot write their values — warn the user without disabling the toggle.
+    let externalAttributes = filterElementsToUpdate(
+      attributes,
+      elementMap,
+      featureData.code
+    ).filter((attr) => attr.storageOption === dbEnum.storageOption.external)
+    if (externalAttributes.length > 0) {
+      let externalAttrNames = externalAttributes.map((a) => a.name).join(', ')
+      let attrPlural =
+        externalAttributes.length === 1 ? 'attribute' : 'attributes'
+      result.warningMessage.push(
+        warningPrefix +
+          ` ${attrPlural} ${externalAttrNames} ${externalAttributes.length === 1 ? 'has' : 'have'} external storage. ZAP is unable to manage ${externalAttributes.length === 1 ? 'its' : 'their'} value automatically.`
+      )
+      result.displayWarning = true
+    }
   }
 
   return result
@@ -311,7 +333,8 @@ function checkElementConformance(
       descElements,
       featuresToUpdate,
       changedConformFeatures,
-      featureMapStorageOption
+      featureMapStorageOption,
+      attributes
     )
 
     if (warningInfo.disableChange) {
