@@ -50,7 +50,9 @@ function generateWarningMessage(
   elementMap = {},
   descElements = {},
   featuresToUpdate = {},
-  changedConformFeatures = []
+  changedConformFeatures = [],
+  featureMapStorageOption = null,
+  attributes = []
 ) {
   // feature change is disabled by default before the checks
   let result = {
@@ -71,6 +73,15 @@ function generateWarningMessage(
   let warningPrefix = buildWarningPrefix(featureData)
 
   let updateDisabledString = `cannot be ${added ? 'enabled' : 'disabled'} as`
+
+  // Check 0: if the featureMap attribute storage is external, ZAP cannot modify it
+  if (featureMapStorageOption === dbEnum.storageOption.external) {
+    result.warningMessage.push(
+      warningPrefix +
+        ` ${updateDisabledString} the featureMap attribute in the cluster is external and ZAP does not have control over it.`
+    )
+    return result
+  }
 
   // Check 1: if any operands in the feature conformance are missing from elementMap
   let missingOperands = []
@@ -167,27 +178,29 @@ function generateWarningMessage(
     let buildNonElementConformMessage = (state, conformance) =>
       ` should be ${state}, as it is ${conformance} ${deviceTypeString}.`
 
-    // in this case only 1 warning message is needed
-    result.warningMessage = ''
+    result.warningMessage = []
     if (conformance == 'notSupported') {
-      result.warningMessage =
+      result.warningMessage.push(
         warningPrefix +
-        (combinedOperands
-          ? buildElementConformMessage('disabled')
-          : buildNonElementConformMessage('disabled', 'not supported'))
+          (combinedOperands
+            ? buildElementConformMessage('disabled')
+            : buildNonElementConformMessage('disabled', 'not supported'))
+      )
       result.displayWarning = added
     }
     if (conformance == 'provisional') {
-      result.warningMessage =
+      result.warningMessage.push(
         warningPrefix + ' is enabled, but it is still provisional.'
+      )
       result.displayWarning = added
     }
     if (conformance == 'mandatory') {
-      result.warningMessage =
+      result.warningMessage.push(
         warningPrefix +
-        (combinedOperands
-          ? buildElementConformMessage('enabled')
-          : buildNonElementConformMessage('enabled', 'mandatory'))
+          (combinedOperands
+            ? buildElementConformMessage('enabled')
+            : buildNonElementConformMessage('enabled', 'mandatory'))
+      )
       result.displayWarning = !added
     }
     // if the feature conformance contains the operand 'desc', do not disable toggling, but show warning message
@@ -196,9 +209,10 @@ function generateWarningMessage(
       dbEnum.conformanceTag.described
     )
     if (featureContainsDesc) {
-      result.warningMessage =
+      result.warningMessage.push(
         warningPrefix +
-        ` is being ${added ? 'enabled' : 'disabled'}, but it has descriptive conformance and requires manual validation from the feature specification to enable/disable the right dependencies in ZAP.`
+          ` is being ${added ? 'enabled' : 'disabled'}, but it has descriptive conformance and requires manual validation from the feature specification to enable/disable the right dependencies in ZAP.`
+      )
       result.displayWarning = true
     }
 
@@ -208,6 +222,29 @@ function generateWarningMessage(
       let prefix = buildWarningPrefix(feature)
       return getOutdatedWarningPatterns(prefix)
     })
+
+    // Check 4: if any attributes to be updated have external storage,
+    // ZAP cannot write their values — warn the user without disabling the toggle.
+    let externalAttributes = filterElementsToUpdate(
+      attributes,
+      elementMap,
+      featureData.code
+    ).filter((attr) => attr.storageOption === dbEnum.storageOption.external)
+    if (externalAttributes.length > 0) {
+      let externalAttrNames = externalAttributes.map((a) => a.name).join(', ')
+      let isSingular = externalAttributes.length === 1
+      let clusterPrefix = env.formatEmojiMessage(
+        '⚠️',
+        `Check Feature Compliance on endpoint: ${endpointId}, cluster: ${featureData.cluster},`
+      )
+      result.warningMessage.push(
+        clusterPrefix +
+          ` ${isSingular ? 'attribute' : 'attributes'} ${externalAttrNames},` +
+          ` required by feature: ${featureData.name} (${featureData.code}),` +
+          ` ${isSingular ? 'has' : 'have'} external storage and ZAP does not have control over it.`
+      )
+      result.displayWarning = true
+    }
   }
 
   return result
@@ -244,7 +281,8 @@ function checkElementConformance(
   featureMap,
   featureData = null,
   endpointId = null,
-  clusterFeatures = null
+  clusterFeatures = null,
+  featureMapStorageOption = null
 ) {
   let { attributes, commands, events } = elements
   let featureCode = featureData ? featureData.code : ''
@@ -299,7 +337,9 @@ function checkElementConformance(
       elementMap,
       descElements,
       featuresToUpdate,
-      changedConformFeatures
+      changedConformFeatures,
+      featureMapStorageOption,
+      attributes
     )
 
     if (warningInfo.disableChange) {

@@ -117,6 +117,7 @@ export default {
         clusterFeatures: this.clusterFeatures,
         endpointId: this.endpointId[this.selectedEndpointId],
         endpointTypeId: this.selectedEndpointTypeId,
+        featureMapStorageOption: this.featureMapAttribute?.storageOption,
         changeConfirmed: false
       }).then((res) => {
         // store backend response and frontend data for reuse if updates are confirmed
@@ -158,6 +159,13 @@ export default {
 
       // update attributes, commands, and events for the toggle feature, and set notifications
       this.attributesToUpdate.forEach((attribute) => {
+        // External attributes are shown in the dialog but ZAP cannot control them
+        // so skip dispatching an update so their DB state is preserved.
+        // This ensures the backend still generates and saves the external-attribute
+        // warning when the confirm POST arrives.
+        if (attribute.storageOption === dbEnum.storageOption.external) {
+          return
+        }
         let editContext = {
           action: 'boolean',
           endpointTypeIdList: this.endpointTypeIdList,
@@ -221,6 +229,7 @@ export default {
         clusterFeatures: this.clusterFeatures,
         endpointId: this.endpointId[this.selectedEndpointId],
         endpointTypeId: this.selectedEndpointTypeId,
+        featureMapStorageOption: this.featureMapAttribute?.storageOption,
         changeConfirmed: true
       })
       if (this.displayWarning) {
@@ -293,8 +302,7 @@ export default {
           message: warning,
           type: 'warning',
           classes: 'custom-notification notification-warning',
-          position: 'top',
-          html: true
+          position: 'top'
         })
       }
     },
