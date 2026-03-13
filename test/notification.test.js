@@ -336,12 +336,12 @@ test(
     let notisWithMultipleMessages
 
     let warningResult = {
-      warningMessage: warningMessage,
+      warningMessage: [warningMessage],
       disableChange: false,
       displayWarning: true
     }
     let deleteWarningResult = {
-      warningMessage: warningMessage,
+      warningMessage: [warningMessage],
       disableChange: false,
       displayWarning: false
     }
@@ -426,7 +426,7 @@ test(
 
     // set other feature warnings
     let otherResult = {
-      warningMessage: disableMessage2,
+      warningMessage: [disableMessage2],
       disableChange: false,
       displayWarning: true
     }
@@ -436,21 +436,21 @@ test(
       otherResult
     )
 
-    otherResult.warningMessage = messageOfOtherPattern
+    otherResult.warningMessage = [messageOfOtherPattern]
     await sessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
       otherResult
     )
 
-    otherResult.warningMessage = messageOfOtherFeature
+    otherResult.warningMessage = [messageOfOtherFeature]
     await sessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
       otherResult
     )
 
-    otherResult.warningMessage = messageOfOtherType
+    otherResult.warningMessage = [messageOfOtherType]
     await sessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
