@@ -14,6 +14,8 @@
  *    limitations under the License.
  */
 
+const restApi = require('../../../src-shared/rest-api.js')
+
 /**
  * Sets a property on an object to a given value.
  *
@@ -832,6 +834,11 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
       value: openDomainValue
     })
   })
+
+  const anyDomainOpen = Object.values(state.clusterManager.openDomains).some(
+    (v) => v === true
+  )
+  state.clusterManager.allDomainsCollapsed = !anyDomainOpen
 }
 
 /**
@@ -841,7 +848,6 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
  */
 export function doActionFilter(state, filterEnabledClusterPair) {
   let filter = filterEnabledClusterPair.filter
-  // When we close all, we also clear all filters.
   state.domains.map((domainName) => {
     setOpenDomain(state, {
       domainName: domainName,
@@ -854,6 +860,7 @@ export function doActionFilter(state, filterEnabledClusterPair) {
       )
     })
   })
+  state.clusterManager.allDomainsCollapsed = filter.label === restApi.closeAll
 }
 
 /**
@@ -897,7 +904,7 @@ export function clearLastSelectedDomain(state) {
  */
 export function resetFilters(state) {
   state.clusterManager.filter = {
-    label: 'No Filter',
+    label: restApi.noFilter,
     domainFilterFn: (domain, currentOpenDomains, context) =>
       currentOpenDomains[domain]
   }

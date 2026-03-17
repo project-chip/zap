@@ -106,10 +106,15 @@ export default function () {
           }
         }
       ],
+      allDomainsCollapsed: true,
       actionOptions: [
         {
-          label: 'Close All',
+          label: restApi.closeAll,
           domainFilterFn: (domain, currentOpenDomains, context) => false
+        },
+        {
+          label: restApi.openAll,
+          domainFilterFn: (domain, currentOpenDomains, context) => true
         }
       ],
       filterString: '',

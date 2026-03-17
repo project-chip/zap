@@ -92,6 +92,11 @@ limitations under the License.
         </div>
         <div v-for="actionOption in actionOptions" :key="actionOption.label">
           <q-btn
+            v-if="
+              isCloseAllAction(actionOption)
+                ? !allDomainsCollapsed
+                : allDomainsCollapsed
+            "
             class="full-height"
             flat
             rounded
@@ -142,6 +147,7 @@ import uiOptions from '../util/ui-options.js'
 import { scroll } from 'quasar'
 const { getScrollTarget, setVerticalScrollPosition } = scroll
 import * as dbEnum from '../../src-shared/db-enum.js'
+import restApi from '../../src-shared/rest-api'
 
 export default {
   name: 'ZclClusterManager',
@@ -257,6 +263,11 @@ export default {
         return this.$store.state.zap.clusterManager.actionOptions
       }
     },
+    allDomainsCollapsed: {
+      get() {
+        return this.$store.state.zap.clusterManager.allDomainsCollapsed
+      }
+    },
     isTutorialRunning: {
       get() {
         return this.$store.state.zap.isTutorialRunning
@@ -324,6 +335,9 @@ export default {
         .sort(function (b, a) {
           return a.code > b.code
         })
+    },
+    isCloseAllAction(actionOption) {
+      return actionOption.label === restApi.closeAll
     },
     isClusterEnabled(clusterReference) {
       return (
