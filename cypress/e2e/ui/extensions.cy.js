@@ -36,28 +36,28 @@ describe('Extensions page functionality', () => {
     cy.dataCy('btn-extensions').click({ force: true })
     cy.wait(1000)
     cy.contains(
-      'You can use this functionality to add custom ZCL clusters or commands'
+      'You can use this functionality to add custom ZCL clusters to the ZCL Advanced Platform (ZAP). Click the button below to browse for an XML file containing only cluster definitions. JSON files are not currently supported for loading.'
     ).should('be.visible')
   })
 
   it('Should display Browse file button', () => {
     cy.dataCy('btn-extensions').click({ force: true })
     cy.wait(1000)
-    cy.contains('Browse file').should('be.visible')
-    cy.get('button').contains('Browse file').should('exist')
+    cy.contains('Browse for XML file').should('be.visible')
+    cy.get('button').contains('Browse for XML file').should('exist')
   })
 
   it('Should display Added files section', () => {
     cy.dataCy('btn-extensions').click({ force: true })
     cy.wait(1000)
-    cy.contains('Added files').should('be.visible')
+    cy.contains('Built-in ZCL packages').should('be.visible')
   })
 
   it('Should handle empty extensions list', () => {
     cy.dataCy('btn-extensions').click({ force: true })
     cy.wait(1000)
     // Even with no extensions, the page structure should be visible
-    cy.contains('Added files').should('be.visible')
+    cy.contains('Custom XML extensions').should('be.visible')
     cy.get('.cluster-list').should('exist')
   })
 
@@ -79,8 +79,8 @@ describe('Extensions page functionality', () => {
     cy.dataCy('btn-extensions').click({ force: true })
     cy.wait(1000)
     // The browse button should exist and be clickable
-    cy.get('button').contains('Browse file').should('be.visible')
+    cy.get('button').contains('Browse for XML file').should('be.visible')
     // Note: Actual file browser can't be tested in Cypress without mocking
-    cy.get('button').contains('Browse file').should('exist')
+    cy.get('button').contains('Browse for XML file').should('exist')
   })
 })
