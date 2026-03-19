@@ -651,7 +651,7 @@ test(
     // no warnings should be generated
     expect(result.displayWarning).toBeFalsy()
     expect(result.disableChange).toBeFalsy()
-    expect(result.warningMessage).toBe('')
+    expect(result.warningMessage).toEqual([])
     // elements with conformance 'HS' should be enabled
     // and their values should be set to true
     expect(result.attributesToUpdate.length).toBe(1)
@@ -681,7 +681,7 @@ test(
       `as it is mandatory for device type: ${deviceType}.`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeFalsy()
-    expect(result.warningMessage).toBe(expectedWarning)
+    expect(result.warningMessage).toEqual([expectedWarning])
     // attributes and commands with conformance 'XY' should be disabled
     // and their values should be set to false
     expect(result.attributesToUpdate.length).toBe(1)
@@ -763,6 +763,79 @@ test(
     expect(result.attributesToUpdate.length).toBe(0)
     expect(result.commandsToUpdate.length).toBe(0)
     expect(result.eventsToUpdate.length).toBe(0)
+    featureMap['UNKNOWN'] = 0
+
+    // 6. test toggle a feature when featureMap attribute storage is External
+    // should disable the toggle and show a warning, regardless of conformance
+    featureMap['HS'] = 1
+    result = conformChecker.checkElementConformance(
+      elements,
+      featureMap,
+      featureHS,
+      endpointId,
+      clusterFeatures,
+      dbEnum.storageOption.external
+    )
+    expectedWarning = `${warningPrefix}feature: ${featureHS.name} (${featureHS.code}) ${featureBitMessage} cannot be enabled as the featureMap attribute in the cluster is external and ZAP does not have control over it.`
+    expect(result.displayWarning).toBeTruthy()
+    expect(result.disableChange).toBeTruthy()
+    expect(result.warningMessage[0]).toBe(expectedWarning)
+    expect(result.attributesToUpdate.length).toBe(0)
+    expect(result.commandsToUpdate.length).toBe(0)
+    expect(result.eventsToUpdate.length).toBe(0)
+
+    // 7. test toggle the same feature when featureMap attribute storage is RAM
+    // should behave identically to no storageOption passed — toggle is allowed
+    result = conformChecker.checkElementConformance(
+      elements,
+      featureMap,
+      featureHS,
+      endpointId,
+      clusterFeatures,
+      dbEnum.storageOption.ram
+    )
+    expect(result.displayWarning).toBeFalsy()
+    expect(result.disableChange).toBeFalsy()
+    expect(result.warningMessage).toEqual([])
+    expect(result.attributesToUpdate.length).toBe(1)
+    expect(result.attributesToUpdate[0].name).toBe('CurrentHue')
+    expect(result.attributesToUpdate[0].value).toBeTruthy()
+    expect(result.commandsToUpdate.length).toBe(1)
+    expect(result.commandsToUpdate[0].name).toBe('MoveToHue')
+    expect(result.commandsToUpdate[0].value).toBeTruthy()
+    expect(result.eventsToUpdate.length).toBe(1)
+    expect(result.eventsToUpdate[0].name).toBe('event1')
+    expect(result.eventsToUpdate[0].value).toBeTruthy()
+    featureMap['HS'] = 0
+
+    // 8. test enable a feature when a dependent attribute has external storage
+    // should display warning and change is still allowed
+    elements.attributes.find(
+      (attr) => attr.name === 'CurrentHue'
+    ).storageOption = dbEnum.storageOption.external
+    featureMap['HS'] = 1
+    result = conformChecker.checkElementConformance(
+      elements,
+      featureMap,
+      featureHS,
+      endpointId,
+      clusterFeatures
+    )
+    let clusterPrefix = env.formatEmojiMessage(
+      '⚠️',
+      `Check Feature Compliance on endpoint: ${endpointId}, cluster: ${featureHS.cluster},`
+    )
+    expectedWarning =
+      clusterPrefix +
+      ` attribute CurrentHue, required by feature: ${featureHS.name} (${featureHS.code}), has external storage and ZAP does not have control over it.`
+    expect(result.displayWarning).toBeTruthy()
+    expect(result.disableChange).toBeFalsy()
+    expect(result.warningMessage).toContain(expectedWarning)
+    // clean up
+    elements.attributes.find(
+      (attr) => attr.name === 'CurrentHue'
+    ).storageOption = undefined
+    featureMap['HS'] = 0
   },
   testUtil.timeout.short()
 )
@@ -812,7 +885,7 @@ test(
 
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeFalsy()
-    expect(result.warningMessage).toBe(expectedWarning)
+    expect(result.warningMessage).toEqual([expectedWarning])
   },
   testUtil.timeout.short()
 )
