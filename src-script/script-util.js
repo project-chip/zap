@@ -137,10 +137,19 @@ async function rebuildSpaIfNeeded() {
       `Current src-shared hash: ${srcSharedHash.hash}`
     )
   )
+  // Track whether this build is coverage-instrumented. An instrumented SPA
+  // contains runtime `require(...)` calls for @babel/runtime helpers that
+  // break under Electron's default `nodeIntegration: false`. If the flag
+  // flips between runs, we must rebuild the SPA even when the sources are
+  // otherwise unchanged.
+  const coverage = Boolean(
+    process.env.CYPRESS_COVERAGE || process.env.NODE_ENV === 'test'
+  )
   let ctx = {
     hash: {
       srcHash: srcHash.hash,
-      srcSharedHash: srcSharedHash.hash
+      srcSharedHash: srcSharedHash.hash,
+      coverage
     }
   }
   return Promise.resolve(ctx)
@@ -171,9 +180,19 @@ async function rebuildSpaIfNeeded() {
                   `Previous src-shared hash: ${oldHash.srcSharedHash}`
                 )
               )
+              const previousCoverage = Boolean(oldHash.coverage)
+              if (previousCoverage !== coverage) {
+                console.log(
+                  env.formatEmojiMessage(
+                    '🔍',
+                    `Coverage flag changed (was ${previousCoverage}, now ${coverage}) — forcing SPA rebuild.`
+                  )
+                )
+              }
               ctx.needsRebuild =
                 oldHash.srcSharedHash != ctx.hash.srcSharedHash ||
-                oldHash.srcHash != ctx.hash.srcHash
+                oldHash.srcHash != ctx.hash.srcHash ||
+                previousCoverage !== coverage
             }
             if (ctx.needsRebuild) {
               console.log(

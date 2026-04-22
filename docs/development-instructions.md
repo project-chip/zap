@@ -2,7 +2,7 @@
 
 This section lists instructions for various things you might need to do in this repo.
 
-This is a node.js application, so you need node environment installed. The best way is to simply download latest install of [node](https://nodejs.org/en/download/) and you will get node and npm. If you have an older version of node installed on your workstation, it may give you trouble, particularly if it's very old. So make sure you have latest node v16.x, v18.x or v20.x version, with the npm that comes with it available. Run `node --version` to check what version is picked up. v20.x is recommended.
+This is a node.js application, so you need node environment installed. The best way is to simply download latest install of [node](https://nodejs.org/en/download/) and you will get node and npm. If you have an older version of node installed on your workstation, it may give you trouble, particularly if it's very old. For building the Electron UI and running the same toolchain as CI, use **Node.js v22.12 or newer** (GitHub Actions uses `22.x`). Older LTS versions (e.g. v20) may still run much of the stack but can show `EBADENGINE` warnings for `@electron/rebuild` and related packages. Run `node --version` to check what version is picked up.
 
 Once you have a desired version of node, you can run:
 

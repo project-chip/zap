@@ -123,11 +123,15 @@ function createQueryString(
 export function windowCreate(port, args) {
   let webPreferences = {
     nodeIntegration: false,
-    worldSafeExecuteJavaScript: true,
+    contextIsolation: true,
+    sandbox: false,
     preload: path.resolve(__dirname, 'preload.js')
   }
   windowCounter++
-  let w = new BrowserWindow({
+  const isWin32 = process.platform === 'win32'
+  // macOS: avoid titleBarStyle 'hidden' + titleBarOverlay here — on Electron 41+ that combo
+  // can leave the page area blank. Windows keeps a custom caption via titleBarOverlay.
+  let winOptions = {
     width: 1600,
     height: 800,
     x: 50 + windowCounter * 20,
@@ -138,16 +142,20 @@ export function windowCreate(port, args) {
     title: args?.filePath == null ? menu.newConfiguration : args?.filePath,
     useContentSize: true,
     webPreferences: webPreferences,
-    titleBarStyle: process.platform === 'darwin' ? 'hidden' : 'default',
-    trafficLightPosition: { x: 15, y: 20 },
-    titleBarOverlay: {
+    titleBarStyle: 'default'
+  }
+  if (isWin32) {
+    winOptions.titleBarOverlay = {
       color: '#F4F4F4',
       symbolColor: '#67696D'
     }
-  })
+  }
+  let w = new BrowserWindow(winOptions)
 
   ipcMain.on('set-title-bar-overlay', (_event, value) => {
-    w.setTitleBarOverlay(value)
+    if (isWin32 && typeof w.setTitleBarOverlay === 'function') {
+      w.setTitleBarOverlay(value)
+    }
   })
 
   let queryString = createQueryString(
@@ -162,6 +170,15 @@ export function windowCreate(port, args) {
   // @ts-ignore
   w.isDirty = false
   w.loadURL(`http://localhost:${port}/` + queryString)
+
+  w.webContents.on(
+    'did-fail-load',
+    (_event, errorCode, errorDescription, validatedURL) => {
+      env.logError(
+        `ZAP window failed to load (code ${errorCode}): ${errorDescription} — ${validatedURL}`
+      )
+    }
+  )
 
   w.on('page-title-updated', (e) => {
     e.preventDefault()
@@ -187,14 +204,28 @@ export function windowCreate(port, args) {
     }
   }) // EO close
 
-  w.webContents.on(
-    'console-message',
-    (event, level, message, line, sourceId) => {
-      if (!browserApi.processRendererNotify(w, message)) {
-        env.logBrowser(message)
-      }
+  // Electron 35+ passes a single event object with `.message`; older versions
+  // pass (event, level, message, line, sourceId). Support both.
+  w.webContents.on('console-message', (...cmArgs) => {
+    const ev = cmArgs[0]
+    const text =
+      typeof ev?.message === 'string'
+        ? ev.message
+        : cmArgs.length >= 3 && typeof cmArgs[2] === 'string'
+          ? cmArgs[2]
+          : ''
+    if (!browserApi.processRendererNotify(w, text)) {
+      env.logBrowser(text)
     }
-  )
+  })
+  w.webContents.on('render-process-gone', (_event, details) => {
+    env.logError(
+      `Renderer process gone: reason=${details.reason} exitCode=${details.exitCode}`
+    )
+  })
+  if (process.env.ZAP_DEVTOOLS === '1') {
+    w.webContents.openDevTools({ mode: 'detach' })
+  }
   w.webContents.on('before-input-event', (e, input) => {
     if (input.type === 'keyUp' && input.key.toLowerCase() === 'alt') {
       menu.toggleMenu(port)

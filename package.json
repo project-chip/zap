@@ -173,6 +173,7 @@
     "@babel/eslint-parser": "^7.25.1",
     "@babel/preset-typescript": "^7.24.7",
     "@cypress/code-coverage": "^3.12.45",
+    "@electron/rebuild": "^4.0.4",
     "@quasar/app-webpack": "^3.13.3",
     "@quasar/quasar-app-extension-testing": "^2.2.0",
     "@quasar/quasar-app-extension-testing-e2e-cypress": "^6.1.0",
@@ -182,17 +183,17 @@
     "7zip-bin": "^5.2.0",
     "autoprefixer": "^10.4.20",
     "babel-plugin-istanbul": "^7.0.1",
+    "coverage-istanbul-loader": "^3.0.5",
     "cross-env": "^7.0.3",
     "cross-spawn": "^7.0.3",
     "cypress": "^13.6.6",
     "date-fns": "^3.6.0",
-    "electron": "^31.3.1",
-    "electron-builder": "^24.0.0",
-    "electron-debug": "^4.0.0",
-    "electron-devtools-installer": "^3.2.0",
+    "electron": "^41.2.2",
+    "electron-builder": "^26.8.1",
+    "electron-debug": "^4.1.0",
+    "electron-devtools-installer": "^4.0.0",
     "electron-installer-dmg": "^5.0.1",
-    "electron-packager": "^17.1.2",
-    "electron-rebuild": "^3.0.0",
+    "electron-packager": "npm:@electron/packager@18.4.4",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
@@ -209,7 +210,7 @@
     "jsdoc-to-markdown": "^8.0.3",
     "license-checker": "^25.0.1",
     "node-7z": "^3.0.0",
-    "node-gyp": "^10.2.0",
+    "node-gyp": "^12.3.0",
     "nodejs-file-downloader": "^4.9.3",
     "octokit": "^1.7.2",
     "prettier": "3.6.2",
@@ -220,9 +221,12 @@
     "workbox-webpack-plugin": "^7.1.0"
   },
   "engines": {
-    "node": ">= 8.9.0",
+    "node": ">=20.9.0",
     "npm": ">= 5.6.0",
     "yarn": ">= 1.6.0"
+  },
+  "overrides": {
+    "@types/node": "20.14.15"
   },
   "browserslist": [
     "last 1 version, not dead, ie >= 11"
