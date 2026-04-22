@@ -502,7 +502,7 @@ function prepareCluster(cluster, context, isExtension = false) {
       }
       ret.introducedIn = cluster.$.introducedIn
       ret.removedIn = cluster.$.removedIn
-      ret.apiMaturity = cluster.$.apiMaturity
+      ret.apiMaturity = conformParser.getApiMaturityFromXML(cluster)
     }
   }
 
@@ -536,7 +536,7 @@ function prepareCluster(cluster, context, isExtension = false) {
           command.$.disableDefaultResponse == 'true' ? false : true,
         isFabricScoped: command.$.isFabricScoped == 'true',
         isLargeMessage: quality ? quality.largeMessage == 'true' : false,
-        apiMaturity: command.$.apiMaturity
+        apiMaturity: conformParser.getApiMaturityFromXML(command)
       }
       cmd.access = extractAccessIntoArray(command)
       if (cmd.manufacturerCode == null) {
@@ -571,7 +571,7 @@ function prepareCluster(cluster, context, isExtension = false) {
               fieldIdentifier: lastFieldId,
               introducedIn: arg.$.introducedIn,
               removedIn: arg.$.removedIn,
-              apiMaturity: arg.$.apiMaturity
+              apiMaturity: conformParser.getApiMaturityFromXML(arg)
             })
         })
       }
@@ -588,7 +588,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         side: event.$.side,
         conformance: conformParser.parseConformanceFromXML(event),
         priority: event.$.priority,
-        apiMaturity: event.$.apiMaturity,
+        apiMaturity: conformParser.getApiMaturityFromXML(event),
         description: event.description ? event.description[0].trim() : '',
         isOptional: conformParser.getOptionalAttributeFromXML(event, 'event'),
         isFabricSensitive: event.$.isFabricSensitive == 'true'
@@ -617,7 +617,7 @@ function prepareCluster(cluster, context, isExtension = false) {
               fieldIdentifier: lastFieldId,
               introducedIn: field.$.introducedIn,
               removedIn: field.$.removedIn,
-              apiMaturity: field.$.apiMaturity
+              apiMaturity: conformParser.getApiMaturityFromXML(field)
             })
           }
         })
@@ -726,7 +726,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         isFabricSensitive: isAccessFabricSensitive(attribute),
         entryType: attribute.$.entryType,
         mustUseTimedWrite: attribute.$.mustUseTimedWrite == 'true',
-        apiMaturity: attribute.$.apiMaturity,
+        apiMaturity: conformParser.getApiMaturityFromXML(attribute),
         isChangeOmitted: quality ? quality.changeOmitted == 'true' : false,
         persistence: quality ? quality.persistence : null
       }
@@ -1410,7 +1410,7 @@ function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
         ? [{ $: { code: a.$.cluster_code[0] } }]
         : null, // else case: Treating features in a cluster as a bitmap
     discriminator_ref: dataType,
-    apiMaturity: a.$.apiMaturity
+    apiMaturity: conformParser.getApiMaturityFromXML(a)
   }
 }
 
@@ -1467,7 +1467,7 @@ async function processEnumItems(db, filePath, packageId, knownPackages, data) {
           name: item.$.name,
           value: parseInt(item.$.value),
           fieldIdentifier: lastFieldId,
-          apiMaturity: item.$.apiMaturity
+          apiMaturity: conformParser.getApiMaturityFromXML(item)
         })
       })
     }
@@ -1570,7 +1570,7 @@ async function processBitmapFields(
             name: item.$.name,
             mask: parseInt(item.$.mask),
             fieldIdentifier: lastFieldId,
-            apiMaturity: item.$.apiMaturity
+            apiMaturity: conformParser.getApiMaturityFromXML(item)
           })
         })
       }
@@ -1605,7 +1605,7 @@ async function processBitmapFields(
           name: item.$.name,
           mask: 1 << itemBit,
           fieldIdentifier: itemBit,
-          apiMaturity: item.$.apiMaturity
+          apiMaturity: conformParser.getApiMaturityFromXML(item)
         })
       })
     )
@@ -1631,7 +1631,7 @@ function prepareStruct(a, dataType) {
     cluster_code: a.cluster ? a.cluster : null,
     discriminator_ref: dataType,
     isFabricScoped: a.$.isFabricScoped == 'true',
-    apiMaturity: a.$.apiMaturity
+    apiMaturity: conformParser.getApiMaturityFromXML(a)
   }
 }
 
@@ -1691,7 +1691,7 @@ async function processStructItems(db, filePath, packageIds, data, context) {
           isNullable: item.$.isNullable == 'true' ? true : false,
           isOptional: item.$.optional == 'true' ? true : false,
           isFabricSensitive: item.$.isFabricSensitive == 'true' ? true : false,
-          apiMaturity: item.$.apiMaturity
+          apiMaturity: conformParser.getApiMaturityFromXML(item)
         })
       })
     }

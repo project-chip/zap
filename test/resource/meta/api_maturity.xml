@@ -67,6 +67,23 @@ limitations under the License.
     <attribute side="server" code="0x0003" define="STRUCT_ATTR_1" type="StableStruct" writable="true" optional="true">StructAttr1</attribute>
     <attribute side="server" code="0x0004" define="STRUCT_ATTR_2" type="ProvisionalStruct" writable="true" optional="true">StructAttr2</attribute>
 
+    <!-- No 'apiMaturity' attribute; <provisionalConform/> fills it in as 'provisional'. -->
+    <attribute side="server" code="0x0005" define="CONFORM_PROVISIONAL_ATTR" type="INT8U" writable="true" optional="true">ConformProvisionalAttr<provisionalConform/></attribute>
+    <!-- No 'apiMaturity' attribute; provisional under <otherwiseConform> (spec-style). -->
+    <attribute side="server" code="0x0006" define="OTHERWISE_PROVISIONAL_ATTR" type="INT8U" writable="true" optional="true">OtherwiseProvisionalAttr<otherwiseConform>
+      <provisionalConform/>
+      <mandatoryConform>
+        <greaterOrEqualTerm>
+          <revision value="current"/>
+          <revision value="2"/>
+        </greaterOrEqualTerm>
+      </mandatoryConform>
+    </otherwiseConform></attribute>
+    <!-- Explicit 'apiMaturity' always wins; conformance never overrides it even when they disagree. -->
+    <attribute apiMaturity="deprecated" side="server" code="0x0007" define="CONTRADICTORY_ATTR" type="INT8U" writable="true" optional="true">ContradictoryApiMaturityAttr<provisionalConform/></attribute>
+    <!-- Explicit 'internal' is Silabs-specific and preserved regardless of conformance. -->
+    <attribute apiMaturity="internal" side="server" code="0x0008" define="INTERNAL_WITH_M_ATTR" type="INT8U" writable="true" optional="true">InternalWithMandatoryConformAttr<mandatoryConform/></attribute>
+
     <command source="client" code="0x00" name="StableCommand" response="StableCommandResponse" optional="false" apiMaturity="provisional">
       <description>A Test command</description>
       <access op="invoke" privilege="administer"/>

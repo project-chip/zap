@@ -103,6 +103,25 @@ test(
       'optional int8u attribute provisionalAttribute = 1 (provisional);'
     )
 
+    // apiMaturity is derived from conformance ONLY when no explicit
+    // apiMaturity attribute is present on the XML element.
+    expect(ept).toContain(
+      'optional int8u attribute conformProvisionalAttr = 5 (provisional);'
+    )
+    expect(ept).toContain(
+      'optional int8u attribute otherwiseProvisionalAttr = 6 (provisional);'
+    )
+    // An explicit apiMaturity attribute is authoritative: conformance never
+    // overrides it, even when the two disagree.
+    expect(ept).toContain(
+      'optional int8u attribute contradictoryApiMaturityAttr = 7 (deprecated);'
+    )
+    expect(ept).not.toContain('contradictoryApiMaturityAttr = 7 (provisional)')
+    // Explicit 'internal' apiMaturity is preserved regardless of conformance.
+    expect(ept).toContain(
+      'optional int8u attribute internalWithMandatoryConformAttr = 8 (internal);'
+    )
+
     // Maturity for structures should be correct
     expect(ept).toContain('struct StableStruct {')
     expect(ept).toContain('struct ProvisionalStruct (provisional) {')
