@@ -173,6 +173,7 @@ INSERT INTO ATTRIBUTE (
   REPORTING_POLICY,
   STORAGE_POLICY,
   IS_NULLABLE,
+  IS_FABRIC_SENSITIVE,
   IS_SCENE_REQUIRED,
   ARRAY_TYPE,
   MUST_USE_TIMED_WRITE,
@@ -183,7 +184,7 @@ INSERT INTO ATTRIBUTE (
   IS_CHANGE_OMITTED,
   PERSISTENCE
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   ?,
@@ -257,6 +258,7 @@ function attributeMap(clusterId, packageId, attributes) {
     attribute.reportingPolicy,
     attribute.storagePolicy,
     dbApi.toDbBool(attribute.isNullable),
+    dbApi.toDbBool(attribute.isFabricSensitive),
     dbApi.toDbBool(attribute.isSceneRequired),
     attribute.entryType,
     dbApi.toDbBool(attribute.mustUseTimedWrite),

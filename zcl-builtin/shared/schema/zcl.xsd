@@ -27,6 +27,17 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:attribute name="role" type="xs:string"/>
     <xs:attribute name="privilege" type="xs:string"/>
     <xs:attribute name="modifier" type="xs:string"/>
+    <!-- Matter CSA data model: fabric-sensitive quality on attribute/event/command access -->
+    <xs:attribute name="fabricSensitive" type="xs:boolean"/>
+    <!-- CSA-style mirrors of op/role (see connectedhomeip data_model XML) -->
+    <xs:attribute name="read" type="xs:boolean"/>
+    <xs:attribute name="write" type="xs:boolean"/>
+    <xs:attribute name="invoke" type="xs:boolean"/>
+    <xs:attribute name="readPrivilege" type="xs:string"/>
+    <xs:attribute name="writePrivilege" type="xs:string"/>
+    <xs:attribute name="invokePrivilege" type="xs:string"/>
+    <xs:attribute name="timed" type="xs:boolean"/>
+    <xs:attribute name="fabricScoped" type="xs:boolean"/>
   </xs:complexType>
   <xs:complexType name="eventField">
     <xs:attribute name="id" type="xs:string" use="optional"/>
@@ -697,6 +708,15 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="role" type="xs:string" use="required"/>
       <xs:attribute name="privilege" type="xs:string" use="optional"/>
       <xs:attribute name="modifier" type="xs:string" use="optional"/>
+      <xs:attribute name="fabricSensitive" type="xs:boolean" use="optional"/>
+      <xs:attribute name="read" type="xs:boolean" use="optional"/>
+      <xs:attribute name="write" type="xs:boolean" use="optional"/>
+      <xs:attribute name="invoke" type="xs:boolean" use="optional"/>
+      <xs:attribute name="readPrivilege" type="xs:string" use="optional"/>
+      <xs:attribute name="writePrivilege" type="xs:string" use="optional"/>
+      <xs:attribute name="invokePrivilege" type="xs:string" use="optional"/>
+      <xs:attribute name="timed" type="xs:boolean" use="optional"/>
+      <xs:attribute name="fabricScoped" type="xs:boolean" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="quality">

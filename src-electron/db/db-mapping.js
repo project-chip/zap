@@ -115,6 +115,7 @@ exports.map = {
       isReadable: dbApi.fromDbBool(x.IS_READABLE),
       isReadableAttribute: dbApi.fromDbBool(x.IS_READABLE),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
+      isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       defaultValue: x.DEFAULT_VALUE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isReportable:
@@ -726,6 +727,7 @@ exports.map = {
         x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE
       ), // Is Attribute mfg specific or not
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE), // Is attribute nullable
+      isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE), // Is attribute fabric sensitive
       isOptionalAttribute: dbApi.fromDbBool(x.IS_OPTIONAL),
       isReportableAttribute: dbApi.fromDbBool(x.INCLUDED_REPORTABLE), // Is attribute reportable
       isSceneRequired: dbApi.fromDbBool(x.IS_SCENE_REQUIRED),

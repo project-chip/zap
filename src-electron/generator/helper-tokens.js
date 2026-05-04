@@ -303,6 +303,7 @@ async function token_attribute_util(context, options) {
  * - isBound
  * - isChangeOmitted
  * - isClusterEnabled
+ * - isFabricSensitive
  * - isGlobalAttribute
  * - isIncluded
  * - isManufacturingSpecific

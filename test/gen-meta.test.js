@@ -28,6 +28,7 @@ const testUtil = require('./test-util')
 const queryPackage = require('../src-electron/db/query-package')
 const queryZcl = require('../src-electron/db/query-zcl')
 const queryAccess = require('../src-electron/db/query-access')
+const queryEvent = require('../src-electron/db/query-event')
 
 let db
 const testFile = path.join(__dirname, 'resource/test-meta.zap')
@@ -89,6 +90,8 @@ test(
       } else if (attr.name == 'at2') {
         hasAt2 = true
 
+        expect(attr.isFabricSensitive).toBe(true)
+
         let access = await queryAccess.selectAttributeAccess(db, attr.id)
         expect(access.length).toBe(1)
         expect(access[0].operation).toBeNull()
@@ -98,6 +101,20 @@ test(
     }
     expect(hasAt1).toBeTruthy()
     expect(hasAt2).toBeTruthy()
+
+    let test2Cluster = await queryZcl.selectClusterByCode(
+      db,
+      zclContext.packageId,
+      0xabce
+    )
+    expect(test2Cluster).not.toBeNull()
+    let cluster2Events = await queryEvent.selectEventsByClusterId(
+      db,
+      test2Cluster.id
+    )
+    let helloEvent = cluster2Events.find((e) => e.name === 'HelloEvent')
+    expect(helloEvent).toBeDefined()
+    expect(helloEvent.isFabricSensitive).toBe(true)
 
     const structs = await queryZcl.selectAllStructsWithItemCount(db, [
       zclContext.packageId

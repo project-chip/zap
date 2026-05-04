@@ -446,6 +446,23 @@ function extractAccessIntoArray(xmlElement) {
 }
 
 /**
+ * Check whether any <access fabricSensitive="true"/> child is present on the
+ * given parsed XML element. For attributes, the CSA data model only uses this
+ * form (not isFabricSensitive on the attribute start tag), e.g.
+ *   <access read="true" readPrivilege="manage" fabricSensitive="true"/>
+ *
+ * @param {*} xmlElement xml2js-parsed element that may contain an `access` array
+ * @returns Whether any access child has fabricSensitive="true"
+ */
+function isAccessFabricSensitive(xmlElement) {
+  if (!('access' in xmlElement)) return false
+  for (const ac of xmlElement.access) {
+    if (ac && ac.$ && ac.$.fabricSensitive == 'true') return true
+  }
+  return false
+}
+
+/**
  * Prepare XML cluster for insertion into the database.
  * This method can also prepare clusterExtensions.
  *
@@ -706,6 +723,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         introducedIn: attribute.$.introducedIn,
         removedIn: attribute.$.removedIn,
         isNullable: attribute.$.isNullable == 'true' ? true : false,
+        isFabricSensitive: isAccessFabricSensitive(attribute),
         entryType: attribute.$.entryType,
         mustUseTimedWrite: attribute.$.mustUseTimedWrite == 'true',
         apiMaturity: attribute.$.apiMaturity,

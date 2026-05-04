@@ -1011,6 +1011,7 @@ function zcl_global_commands(options) {
  * - id
  * - isArray
  * - isChangeOmitted
+ * - isFabricSensitive
  * - isNullable
  * - isOptional
  * - isReadable
