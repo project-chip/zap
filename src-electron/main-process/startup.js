@@ -42,6 +42,7 @@ const queryPackage = require('../db/query-package.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
+const validateAll = require('../validation/validate-all.js')
 const watchdog = require('./watchdog')
 const sdkUtil = require('../util/sdk-util')
 
@@ -630,6 +631,141 @@ async function startAnalyze(argv, options) {
 }
 
 /**
+ * Validate ZCL / data-model elements for one or more .zap files (headless).
+ *
+ * @param {*} argv
+ * @param {*} options
+ * @returns exit code 0 or 1 (1 if any attribute/endpoint validation errors)
+ */
+async function startValidate(argv, options) {
+  let paths = argv.zapFiles
+  options.logger(env.formatEmojiMessage('🤖', `Starting validation: ${paths}`))
+  let dbFile = env.sqliteFile('validate')
+  if (options.cleanDb && fs.existsSync(dbFile)) {
+    options.logger(env.formatEmojiMessage('🔧', 'remove old database file'))
+    fs.unlinkSync(dbFile)
+  }
+  let db = await dbApi.initDatabaseAndLoadSchema(
+    dbFile,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  options.logger(
+    env.formatEmojiMessage('🐝', 'database and schema initialized')
+  )
+  await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+    failOnLoadingError: !argv.noLoadingFailure
+  })
+  if (argv.generationTemplate != null) {
+    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
+      failOnLoadingError: !argv.noLoadingFailure
+    })
+    if (ctx.error) {
+      throw ctx.error
+    }
+  }
+
+  let exitCode = 0
+  const mergedReport = {
+    zapFiles: paths,
+    results: [],
+    summary: {
+      errors: 0,
+      warnings: 0,
+      attributes: 0,
+      endpoints: 0,
+      clusters: 0
+    }
+  }
+
+  await util.executePromisesSequentially(paths, async (singlePath) => {
+    let importResult = await importJs.importDataFromFile(db, singlePath, {
+      defaultZclMetafile: argv.zclProperties,
+      postImportScript: argv.postImportScript,
+      packageMatch: argv.packageMatch
+    })
+    let sessionId = importResult.sessionId
+    await util.ensurePackagesAndPopulateSessionOptions(db, sessionId, {
+      zcl: argv.zclProperties,
+      template: argv.generationTemplate
+    })
+    if (argv.postImportScript) {
+      await importJs.executePostImportScript(
+        db,
+        sessionId,
+        argv.postImportScript
+      )
+    }
+    const report = await validateAll.validateAll(db, sessionId, {
+      persistConformanceNotifications: false
+    })
+    const tagged = {
+      ...report,
+      zapFile: singlePath,
+      endpoints: report.endpoints.map((row) => ({
+        ...row,
+        zapFile: singlePath
+      })),
+      attributes: report.attributes.map((row) => ({
+        ...row,
+        zapFile: singlePath
+      })),
+      conformance: report.conformance.map((row) => ({
+        ...row,
+        zapFile: singlePath
+      }))
+    }
+    mergedReport.results.push(tagged)
+    mergedReport.summary.errors += report.summary.errors
+    mergedReport.summary.warnings += report.summary.warnings
+    mergedReport.summary.attributes += report.summary.attributes
+    mergedReport.summary.endpoints += report.summary.endpoints
+    mergedReport.summary.clusters += report.summary.clusters
+    if (report.summary.errors > 0) {
+      exitCode = 1
+    }
+
+    options.logger(
+      env.formatEmojiMessage(
+        '🔍',
+        `${singlePath}: errors=${report.summary.errors} warnings=${report.summary.warnings}`
+      )
+    )
+  })
+
+  options.logger(
+    env.formatEmojiMessage(
+      '🔧',
+      `Validation totals: errors=${mergedReport.summary.errors} warnings=${mergedReport.summary.warnings}`
+    )
+  )
+
+  if (argv.validateOutput != null) {
+    let outPath = argv.validateOutput
+    let ext = path.extname(outPath).toLowerCase()
+    let body =
+      ext === '.yaml' || ext === '.yml'
+        ? YAML.stringify(mergedReport)
+        : JSON.stringify(mergedReport, null, 2)
+    let parent = path.dirname(outPath)
+    if (!fs.existsSync(parent)) {
+      fs.mkdirSync(parent, { recursive: true })
+    }
+    await fsp.writeFile(outPath, body)
+    options.logger(
+      env.formatEmojiMessage('👉', `Wrote validation report: ${outPath}`)
+    )
+  } else {
+    process.stdout.write(JSON.stringify(mergedReport, null, 2) + '\n')
+  }
+
+  await dbApi.closeDatabase(db)
+  options.logger(env.formatEmojiMessage('🔧', 'Validation done!'))
+  if (options.quitFunction != null) options.quitFunction()
+  return exitCode
+}
+
+/**
  * Starts zap in a server mode.
  *
  * @param {*} options
@@ -1197,13 +1333,62 @@ async function startUpMainInstance(argv, callbacks) {
     }
     return startSelfCheck(argv, options)
   } else if (argv._.includes('analyze')) {
-    if (argv.zapFiles.length < 1)
-      throw 'You need to specify at least one zap file.'
+    if (argv.zapFiles.length < 1) {
+      console.error(
+        'Error: You need to specify at least one zap file.\n\n' +
+          'Usage:\n' +
+          '  npm run zap-analyze -- [options] <file.zap> [<file.zap> ...]\n\n' +
+          'Options:\n' +
+          '  -i, --in, --zap          Input .zap file(s). May be repeated or comma-separated.\n' +
+          '  -z, --zcl                ZCL metafile (e.g. zcl-builtin/silabs/zcl.json). May be repeated.\n' +
+          '  -g, --gen                Generation template metafile (e.g. gen-templates.json). May be repeated.\n'
+      )
+      cleanExit(argv.cleanupDelay, 1)
+      return
+    }
     let options = {
       quitFunction: quitFunction,
       logger: console.log
     }
     return startAnalyze(argv, options)
+  } else if (argv._.includes('validate')) {
+    if (argv.zapFiles.length < 1) {
+      console.error(
+        'Error: You need to specify at least one zap file.\n\n' +
+          'Usage:\n' +
+          '  npm run zap-validate -- [options] <file.zap> [<file.zap> ...]\n\n' +
+          'Options:\n' +
+          '  -i, --in, --zap          Input .zap file(s). May be repeated or comma-separated.\n' +
+          '  -z, --zcl                ZCL metafile (e.g. zcl-builtin/silabs/zcl.json). May be repeated.\n' +
+          '  -g, --gen                Generation template metafile (e.g. gen-templates.json). May be repeated.\n' +
+          '  -o, --validateOutput     Write validation report to a file (.json or .yaml). Defaults to stdout.\n'
+      )
+      cleanExit(argv.cleanupDelay, 1)
+      return
+    }
+    // When no report file is given, the JSON report goes to stdout, so route
+    // status messages to stderr to keep stdout clean and pipe-friendly.
+    // quitFunction is intentionally omitted here so that startValidate returns
+    // the numeric exit code rather than calling process.exit(0) prematurely.
+    // cleanExit below propagates the code to CI callers.
+    let options = {
+      quitFunction: null,
+      logger: argv.validateOutput == null ? console.error : console.log
+    }
+    return startValidate(argv, options)
+      .then((code) => {
+        if (code !== 0) {
+          env.printToStderr(
+            `Validation completed with errors (exit code ${code}). Check the report for details.`
+          )
+        }
+        cleanExit(argv.cleanupDelay, code)
+      })
+      .catch((err) => {
+        console.log(err)
+        env.printToStderr(`Zap validation error: ${err}`)
+        cleanExit(argv.cleanupDelay, 1)
+      })
   } else if (argv._.includes('server')) {
     return startServer(argv, quitFunction)
   } else if (argv._.includes('convert')) {
@@ -1289,6 +1474,7 @@ exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
 exports.startConvert = startConvert
 exports.startAnalyze = startAnalyze
+exports.startValidate = startValidate
 exports.startUpMainInstance = startUpMainInstance
 exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown

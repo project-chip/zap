@@ -37,6 +37,7 @@ const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
 const asyncValidation = require('../validation/async-validation.js')
 const validation = require('../validation/validation.js')
+const validateAll = require('../validation/validate-all.js')
 const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -1137,6 +1138,28 @@ function httpGetConformDataExists(db) {
 }
 
 /**
+ * HTTP GET: validate entire session (all endpoints, attribute defaults, conformance).
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetValidateAll(db) {
+  return async (request, response) => {
+    try {
+      const report = await validateAll.validateAll(db, request.zapSessionId, {
+        persistConformanceNotifications: false
+      })
+      response.status(StatusCodes.OK).json(report)
+    } catch (err) {
+      env.logError(err)
+      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        error: err.message || String(err)
+      })
+    }
+  }
+}
+
+/**
  * Set warning for the required element, and delete its existing warning if any.
  *
  * @param {*} db
@@ -1331,6 +1354,10 @@ exports.get = [
   {
     uri: restApi.uri.conformDataExists,
     callback: httpGetConformDataExists
+  },
+  {
+    uri: restApi.uri.validate,
+    callback: httpGetValidateAll
   },
   {
     uri: restApi.uri.featureMapAttribute,

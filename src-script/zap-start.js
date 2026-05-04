@@ -45,6 +45,11 @@ scriptUtil
         executable = 'node'
         main = scriptUtil.mainPath(false)
         break
+      case 'validate':
+        executable = 'node'
+        main = scriptUtil.mainPath(false)
+        extraArgs = ['--noUi', '--noServer']
+        break
       case 'convert':
         executable = 'node'
         main = scriptUtil.mainPath(false)

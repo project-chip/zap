@@ -64,6 +64,41 @@ test(
 )
 
 test(
+  'validate: --logToStdout is boolean and does not consume the .zap path',
+  () => {
+    let a = args.processCommandLineArguments([
+      'node',
+      'main.js',
+      '--noUi',
+      '--noServer',
+      'validate',
+      '--logToStdout',
+      '/tmp/test.zap'
+    ])
+    expect(a.logToStdout).toBe(true)
+    expect(a.zapFiles).toEqual(['/tmp/test.zap'])
+  },
+  timeout.short()
+)
+
+test(
+  'validate: -i a,b is split into two zap paths',
+  () => {
+    let a = args.processCommandLineArguments([
+      'node',
+      'main.js',
+      '--noUi',
+      '--noServer',
+      'validate',
+      '-i',
+      '/tmp/one.zap,/tmp/two.zap'
+    ])
+    expect(a.zapFiles).toEqual(['/tmp/one.zap', '/tmp/two.zap'])
+  },
+  timeout.short()
+)
+
+test(
   'Verify how yargs works',
   () => {
     let argv = yargs(['a', '--x', 1, 'b', '--y', 2, '--tst', 42]).parse()

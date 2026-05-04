@@ -323,6 +323,10 @@ and generate warnings for non-conformance.</p>
 <dt><a href="#module_Validation API_ Parse conformance data from XML">Validation API: Parse conformance data from XML</a></dt>
 <dd><p>This module provides utilities for parsing conformance data from XML into expressions.</p>
 </dd>
+<dt><a href="#module_Validation API_ validate all session elements">Validation API: validate all session elements</a></dt>
+<dd><p>Runs existing ZCL / data-model validators across an entire session (all endpoints,
+endpoint types, included attributes, and per-cluster conformance).</p>
+</dd>
 <dt><a href="#module_Validation API_ Validation APIs">Validation API: Validation APIs</a></dt>
 <dd><p>This module provides the APIs for validating inputs to the database, and returning flags indicating if
 things were successful or not.</p>
@@ -15750,6 +15754,7 @@ This module provides the API to access zcl specific information.
     * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
     * [~httpPatchUpdateBitOfFeatureMapAttribute(db)](#module_REST API_ user data..httpPatchUpdateBitOfFeatureMapAttribute) ⇒
     * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
+    * [~httpGetValidateAll(db)](#module_REST API_ user data..httpGetValidateAll) ⇒
     * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
@@ -16206,6 +16211,18 @@ Check if conformance data exists in the database
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: boolean value of data exist or not  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpGetValidateAll"></a>
+
+### REST API: user data~httpGetValidateAll(db) ⇒
+HTTP GET: validate entire session (all endpoints, attribute defaults, conformance).
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: callback for the express uri registration  
 
 | Param | Type |
 | --- | --- |
@@ -17102,6 +17119,7 @@ This module provides the REST API to the user specific data.
     * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
     * [~httpPatchUpdateBitOfFeatureMapAttribute(db)](#module_REST API_ user data..httpPatchUpdateBitOfFeatureMapAttribute) ⇒
     * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
+    * [~httpGetValidateAll(db)](#module_REST API_ user data..httpGetValidateAll) ⇒
     * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
@@ -17558,6 +17576,18 @@ Check if conformance data exists in the database
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: boolean value of data exist or not  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpGetValidateAll"></a>
+
+### REST API: user data~httpGetValidateAll(db) ⇒
+HTTP GET: validate entire session (all endpoints, attribute defaults, conformance).
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: callback for the express uri registration  
 
 | Param | Type |
 | --- | --- |
@@ -18453,6 +18483,7 @@ Arguments for ZAP
         * [.processCommandLineArguments(argv)](#module_JS API_ Arguments for ZAP.processCommandLineArguments) ⇒
     * _inner_
         * [~environmentVariablesDescription()](#module_JS API_ Arguments for ZAP..environmentVariablesDescription) ⇒
+        * [~expandCommaSeparatedZapPaths(tokens)](#module_JS API_ Arguments for ZAP..expandCommaSeparatedZapPaths) ⇒ <code>Array.&lt;string&gt;</code>
 
 <a name="module_JS API_ Arguments for ZAP.processCommandLineArguments"></a>
 
@@ -18474,6 +18505,19 @@ Get environment variable details.
 
 **Kind**: inner method of [<code>JS API: Arguments for ZAP</code>](#module_JS API_ Arguments for ZAP)  
 **Returns**: environment varibale details  
+<a name="module_JS API_ Arguments for ZAP..expandCommaSeparatedZapPaths"></a>
+
+### JS API: Arguments for ZAP~expandCommaSeparatedZapPaths(tokens) ⇒ <code>Array.&lt;string&gt;</code>
+Split comma-separated path lists (for `validate` only). Shells already pass
+space-separated paths as separate argv tokens; this lets you use a single
+`-i a.zap,b.zap` as well.
+
+**Kind**: inner method of [<code>JS API: Arguments for ZAP</code>](#module_JS API_ Arguments for ZAP)  
+
+| Param | Type |
+| --- | --- |
+| tokens | <code>Array.&lt;string&gt;</code> | 
+
 <a name="module_JS API_ async reporting"></a>
 
 ## JS API: async reporting
@@ -20613,14 +20657,17 @@ things were successful or not.
         * [~validateAttribute(db, endpointTypeId, attributeRef, clusterRef, zapSessionId)](#module_Validation API_ Validation APIs..validateAttribute) ⇒
         * [~validateEndpoint(db, endpointId)](#module_Validation API_ Validation APIs..validateEndpoint) ⇒
         * [~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef)](#module_Validation API_ Validation APIs..validateNoDuplicateEndpoints) ⇒
+        * [~isMatterSession(db, sessionId)](#module_Validation API_ Validation APIs..isMatterSession) ⇒
         * [~validateXmlAttributeDefault(db, attribute, packageId)](#module_Validation API_ Validation APIs..validateXmlAttributeDefault) ⇒ <code>Promise.&lt;void&gt;</code>
         * [~validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)](#module_Validation API_ Validation APIs..validateSpecificAttribute) ⇒
         * [~validateSpecificEndpoint(endpoint)](#module_Validation API_ Validation APIs..validateSpecificEndpoint) ⇒
         * [~isValidNumberString(value)](#module_Validation API_ Validation APIs..isValidNumberString) ⇒
         * [~isValidHexString(value)](#module_Validation API_ Validation APIs..isValidHexString) ⇒
         * [~isValidDecimalString(value)](#module_Validation API_ Validation APIs..isValidDecimalString) ⇒
-        * [~isValidFloat(value)](#module_Validation API_ Validation APIs..isValidFloat) ⇒
+        * [~isValidFloat(value, typeSize)](#module_Validation API_ Validation APIs..isValidFloat) ⇒
         * [~extractFloatValue(value)](#module_Validation API_ Validation APIs..extractFloatValue) ⇒
+        * [~decodeFloat16(bits)](#module_Validation API_ Validation APIs..decodeFloat16) ⇒
+        * [~getFloatFromAttribute(attribute, typeSize)](#module_Validation API_ Validation APIs..getFloatFromAttribute) ⇒
         * [~extractIntegerValue(value)](#module_Validation API_ Validation APIs..extractIntegerValue) ⇒
         * [~extractBigIntegerValue(value)](#module_Validation API_ Validation APIs..extractBigIntegerValue) ⇒
         * [~isBigInteger(bits)](#module_Validation API_ Validation APIs..isBigInteger) ⇒
@@ -20631,8 +20678,10 @@ things were successful or not.
         * [~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
         * [~checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsInteger) ⇒
         * [~checkBoundsInteger(defaultValue, min, max)](#module_Validation API_ Validation APIs..checkBoundsInteger) ⇒
-        * [~checkAttributeBoundsFloat(attribute, endpointAttribute)](#module_Validation API_ Validation APIs..checkAttributeBoundsFloat) ⇒
-        * [~getBoundsFloat(attribute)](#module_Validation API_ Validation APIs..getBoundsFloat) ⇒
+        * [~getFloatAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getFloatAttributeSize) ⇒ <code>\*</code>
+        * [~getFloatTypeRange(typeSize, isMin)](#module_Validation API_ Validation APIs..getFloatTypeRange) ⇒
+        * [~checkAttributeBoundsFloat(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsFloat) ⇒
+        * [~getBoundsFloat(attribute, typeSize)](#module_Validation API_ Validation APIs..getBoundsFloat) ⇒
         * [~checkBoundsFloat(defaultValue, min, max)](#module_Validation API_ Validation APIs..checkBoundsFloat) ⇒
 
 <a name="module_Validation API_ Validation APIs.initAsyncValidation"></a>
@@ -20698,7 +20747,12 @@ Get issues in an endpoint.
 <a name="module_Validation API_ Validation APIs..validateNoDuplicateEndpoints"></a>
 
 ### Validation API: Validation APIs~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef) ⇒
-Check if there are no duplicate endpoints.
+Returns true when this endpoint identifier is unique within the session.
+
+The schema enforces UNIQUE(ENDPOINT_TYPE_REF, ENDPOINT_IDENTIFIER), but for the
+user-visible "duplicate endpoint" check we want session-wide uniqueness: two
+endpoints with the same identifier are wrong on a real device regardless of
+which endpoint type they belong to.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
@@ -20708,6 +20762,21 @@ Check if there are no duplicate endpoints.
 | db | <code>\*</code> | 
 | endpointIdentifier | <code>\*</code> | 
 | sessionRef | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..isMatterSession"></a>
+
+### Validation API: Validation APIs~isMatterSession(db, sessionId) ⇒
+True when the session uses Matter ZCL packages (CATEGORY = 'matter').
+Used to relax Zigbee-only rules (e.g. endpoint 0 is reserved in Zigbee but is
+the root node in Matter).
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Promise<boolean>  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..validateXmlAttributeDefault"></a>
 
@@ -20789,27 +20858,73 @@ Check if value is a valid decimal string.
 
 <a name="module_Validation API_ Validation APIs..isValidFloat"></a>
 
-### Validation API: Validation APIs~isValidFloat(value) ⇒
+### Validation API: Validation APIs~isValidFloat(value, typeSize) ⇒
 Check if value is a valid float value.
+
+Decimal literals (e.g. "1.5", "-0.25", "1e40") are always accepted.
+When a typeSize is supplied, hex IEEE 754 bit-pattern literals are
+also accepted as long as they fit within the type's nibble width
+(e.g. "0x3F800000" for `float_single` decodes to 1.0). This mirrors
+the ZCL/Matter XML convention used for float min/max bounds.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
 
-| Param | Type |
-| --- | --- |
-| value | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>\*</code> |  |
+| typeSize | <code>\*</code> | Optional bit width of the float type (16, 32, or 64). When omitted, hex strings are rejected (legacy decimal-only behavior). |
 
 <a name="module_Validation API_ Validation APIs..extractFloatValue"></a>
 
 ### Validation API: Validation APIs~extractFloatValue(value) ⇒
 Get float value from the given value.
+Hex strings (e.g. "0x42C80000") cannot be reliably decoded without knowing
+the bit-width, so they are returned as NaN and treated as unconstrained.
+Use [getFloatFromAttribute](getFloatFromAttribute) when the float type's bit width is known
+and IEEE 754 hex bit patterns should be decoded.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
-**Returns**: float value  
+**Returns**: float value, or NaN if value is null/undefined/hex  
 
 | Param | Type |
 | --- | --- |
 | value | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..decodeFloat16"></a>
+
+### Validation API: Validation APIs~decodeFloat16(bits) ⇒
+Decodes a 16-bit IEEE 754 half-precision bit pattern into a Number.
+Implemented manually because Float16Array is not yet available across
+all supported Node versions. Counterpart of `convertFloatToBigEndian`
+for sizes the 32/64-bit DataView path cannot handle.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| bits | <code>\*</code> | Unsigned 16-bit integer (0..0xFFFF) |
+
+<a name="module_Validation API_ Validation APIs..getFloatFromAttribute"></a>
+
+### Validation API: Validation APIs~getFloatFromAttribute(attribute, typeSize) ⇒
+Converts a float attribute string into a Number, honoring the IEEE 754
+bit-pattern hex convention used by ZCL/Matter XML for float min/max
+bounds and defaults (e.g. "0x3F800000" => 1.0 for `float_single`).
+
+Mirrors `getIntegerFromAttribute` on the integer side: the type's bit
+width drives how the string is decoded. Decimal literals fall through
+to `parseFloat`. Hex literals wider than the type can encode (more
+than `typeSize / 4` nibbles) return NaN so the caller can flag them.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Number, or NaN if the value cannot be decoded for typeSize  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>\*</code> | string representation of a float |
+| typeSize | <code>\*</code> | bit width of the float type (16, 32, or 64) |
 
 <a name="module_Validation API_ Validation APIs..extractIntegerValue"></a>
 
@@ -20951,10 +21066,49 @@ Check if an integer value is within the bounds.
 | min | <code>\*</code> | 
 | max | <code>\*</code> | 
 
+<a name="module_Validation API_ Validation APIs..getFloatAttributeSize"></a>
+
+### Validation API: Validation APIs~getFloatAttributeSize(db, zapSessionId, attribType, clusterRef) ⇒ <code>\*</code>
+Returns information about a float type by querying the data type
+metadata stored in the database. Mirrors getIntegerAttributeSize so
+the size lookup uses the same source of truth for both integer and
+float types and works for any float type defined in the loaded ZCL
+(e.g. silabs `float_semi`/`float_single`/`float_double` and Matter
+`single`/`double`).
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: <code>\*</code> - { size: bit representation }  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| zapSessionId | <code>\*</code> | 
+| attribType | <code>\*</code> | 
+| clusterRef | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..getFloatTypeRange"></a>
+
+### Validation API: Validation APIs~getFloatTypeRange(typeSize, isMin) ⇒
+Gets the representable range of a float type. Mirrors getTypeRange for
+integer types and is used as the fallback when an attribute does not
+explicitly declare min/max.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: float  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeSize | <code>\*</code> | bit width of the float type |
+| isMin | <code>\*</code> | true to return the minimum, false for the maximum |
+
 <a name="module_Validation API_ Validation APIs..checkAttributeBoundsFloat"></a>
 
-### Validation API: Validation APIs~checkAttributeBoundsFloat(attribute, endpointAttribute) ⇒
-Check if float attribute's value is within the bounds.
+### Validation API: Validation APIs~checkAttributeBoundsFloat(attribute, endpointAttribute, db, zapSessionId) ⇒
+Checks if the incoming float is within its attribute's bounds while
+honoring the representable range of the float type. Mirrors
+checkAttributeBoundsInteger: it first resolves the type metadata
+from the database, bails out if the type is unknown, and then
+compares against the (possibly type-defaulted) min/max bounds.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
@@ -20963,18 +21117,23 @@ Check if float attribute's value is within the bounds.
 | --- | --- |
 | attribute | <code>\*</code> | 
 | endpointAttribute | <code>\*</code> | 
+| db | <code>\*</code> | 
+| zapSessionId | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..getBoundsFloat"></a>
 
-### Validation API: Validation APIs~getBoundsFloat(attribute) ⇒
-Get the bounds on a float attribute's value.
+### Validation API: Validation APIs~getBoundsFloat(attribute, typeSize) ⇒
+Get the bounds on a float attribute's value. When the attribute does
+not declare an explicit min/max, the type's representable range is
+used as the fallback (mirroring getBoundsInteger).
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: object  
 
-| Param | Type |
-| --- | --- |
-| attribute | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>\*</code> |  |
+| typeSize | <code>\*</code> | bit width of the float type. When omitted the 64-bit IEEE 754 range is assumed, which keeps legacy single-argument callers (e.g. XML pre-validation, which has no session) working. |
 
 <a name="module_Validation API_ Validation APIs..checkBoundsFloat"></a>
 
@@ -21006,7 +21165,7 @@ and generate warnings for non-conformance.
         * [~processElements(elementType)](#module_Validation API_ check element conformance..getOutdatedElementWarning..processElements)
     * [~filterRequiredElements(elements, elementMap, featureMap)](#module_Validation API_ check element conformance..filterRequiredElements) ⇒
     * [~getStateOfOperands(expression, elementMap, featureMap)](#module_Validation API_ check element conformance..getStateOfOperands) ⇒
-    * [~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId)](#module_Validation API_ check element conformance..setConformanceWarnings) ⇒
+    * [~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId, options)](#module_Validation API_ check element conformance..setConformanceWarnings) ⇒
     * [~getEndpointTypeClusterIdFromFeatureData(db, featureData, endpointTypeId, clusterRef)](#module_Validation API_ check element conformance..getEndpointTypeClusterIdFromFeatureData) ⇒
 
 <a name="module_Validation API_ check element conformance..generateWarningMessage"></a>
@@ -21135,7 +21294,7 @@ empty string if no operands conform to any element
 
 <a name="module_Validation API_ check element conformance..setConformanceWarnings"></a>
 
-### Validation API: check element conformance~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId) ⇒
+### Validation API: check element conformance~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId, options) ⇒
 Adds warnings to the session notification table during ZAP file imports
 for features, attributes, commands, and events that do not correctly conform
 within a cluster.
@@ -21143,15 +21302,16 @@ within a cluster.
 **Kind**: inner method of [<code>Validation API: check element conformance</code>](#module_Validation API_ check element conformance)  
 **Returns**: list of warning messages if any, otherwise false  
 
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| endpointId | <code>\*</code> | 
-| endpointTypeId | <code>\*</code> | 
-| endpointClusterId | <code>\*</code> | 
-| deviceTypeRefs | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-| sessionId | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| endpointId | <code>\*</code> |  |
+| endpointTypeId | <code>\*</code> |  |
+| endpointClusterId | <code>\*</code> |  |
+| deviceTypeRefs | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| sessionId | <code>\*</code> |  |
+| options | <code>\*</code> | Optional. Set `{ persistNotifications: false }` to skip writing SESSION_NOTICE (e.g. bulk validate). |
 
 <a name="module_Validation API_ check element conformance..getEndpointTypeClusterIdFromFeatureData"></a>
 
@@ -21441,6 +21601,91 @@ Return null when neither source specifies maturity.
 | --- | --- | --- |
 | element | <code>\*</code> | XML element from xml2js |
 
+<a name="module_Validation API_ validate all session elements"></a>
+
+## Validation API: validate all session elements
+Runs existing ZCL / data-model validators across an entire session (all endpoints,
+endpoint types, included attributes, and per-cluster conformance).
+
+
+* [Validation API: validate all session elements](#module_Validation API_ validate all session elements)
+    * [~validateAll(db, sessionId, options)](#module_Validation API_ validate all session elements..validateAll) ⇒ <code>Promise.&lt;object&gt;</code>
+        * [~endpointIdentifiersByEndpointTypeId](#module_Validation API_ validate all session elements..validateAll..endpointIdentifiersByEndpointTypeId) : <code>Map.&lt;number, Array.&lt;number&gt;&gt;</code>
+        * [~conformanceByCluster](#module_Validation API_ validate all session elements..validateAll..conformanceByCluster)
+        * [~endpointTypeMandatoryCache](#module_Validation API_ validate all session elements..validateAll..endpointTypeMandatoryCache)
+    * [~collectMandatoryClusterElements(db, endpointTypeId, packageIds)](#module_Validation API_ validate all session elements..collectMandatoryClusterElements) ⇒ <code>Promise.&lt;{attributes: Array.&lt;object&gt;, commands: Array.&lt;object&gt;}&gt;</code>
+    * [~collectDeviceTypeRequirements(db, endpointTypeId)](#module_Validation API_ validate all session elements..collectDeviceTypeRequirements) ⇒ <code>Promise.&lt;{clusters: Array.&lt;object&gt;, attributes: Array.&lt;object&gt;, commands: Array.&lt;object&gt;}&gt;</code>
+
+<a name="module_Validation API_ validate all session elements..validateAll"></a>
+
+### Validation API: validate all session elements~validateAll(db, sessionId, options) ⇒ <code>Promise.&lt;object&gt;</code>
+**Kind**: inner method of [<code>Validation API: validate all session elements</code>](#module_Validation API_ validate all session elements)  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Aggregated validation report  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| db | <code>\*</code> |  |  |
+| sessionId | <code>\*</code> |  |  |
+| options | <code>\*</code> |  |  |
+| [options.conformance] | <code>boolean</code> | <code>true</code> | Run conformance checks (feature map / mandatory elements). |
+| [options.persistConformanceNotifications] | <code>boolean</code> | <code>false</code> | If true, conformance issues are also written to SESSION_NOTICE. |
+
+
+* [~validateAll(db, sessionId, options)](#module_Validation API_ validate all session elements..validateAll) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [~endpointIdentifiersByEndpointTypeId](#module_Validation API_ validate all session elements..validateAll..endpointIdentifiersByEndpointTypeId) : <code>Map.&lt;number, Array.&lt;number&gt;&gt;</code>
+    * [~conformanceByCluster](#module_Validation API_ validate all session elements..validateAll..conformanceByCluster)
+    * [~endpointTypeMandatoryCache](#module_Validation API_ validate all session elements..validateAll..endpointTypeMandatoryCache)
+
+<a name="module_Validation API_ validate all session elements..validateAll..endpointIdentifiersByEndpointTypeId"></a>
+
+#### validateAll~endpointIdentifiersByEndpointTypeId : <code>Map.&lt;number, Array.&lt;number&gt;&gt;</code>
+endpoint type id -> sorted endpoint identifier numbers
+
+**Kind**: inner constant of [<code>validateAll</code>](#module_Validation API_ validate all session elements..validateAll)  
+<a name="module_Validation API_ validate all session elements..validateAll..conformanceByCluster"></a>
+
+#### validateAll~conformanceByCluster
+Per-endpoint warning bucket: key = `${endpointDbId}:${clusterRef}`.
+
+**Kind**: inner constant of [<code>validateAll</code>](#module_Validation API_ validate all session elements..validateAll)  
+<a name="module_Validation API_ validate all session elements..validateAll..endpointTypeMandatoryCache"></a>
+
+#### validateAll~endpointTypeMandatoryCache
+endpoint type id -> mandatory attribute / command lists across enabled clusters
+
+**Kind**: inner constant of [<code>validateAll</code>](#module_Validation API_ validate all session elements..validateAll)  
+<a name="module_Validation API_ validate all session elements..collectMandatoryClusterElements"></a>
+
+### Validation API: validate all session elements~collectMandatoryClusterElements(db, endpointTypeId, packageIds) ⇒ <code>Promise.&lt;{attributes: Array.&lt;object&gt;, commands: Array.&lt;object&gt;}&gt;</code>
+Collect mandatory (non-optional, non-global) attributes and mandatory commands
+across every enabled cluster on an endpoint type.
+
+Mirrors getMandatoryClusterAttributes / getMandatoryClusterCommands in
+import-json.js, returning a flat list with cluster context attached.
+
+**Kind**: inner method of [<code>Validation API: validate all session elements</code>](#module_Validation API_ validate all session elements)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeId | <code>\*</code> | 
+| packageIds | <code>Array.&lt;number&gt;</code> | 
+
+<a name="module_Validation API_ validate all session elements..collectDeviceTypeRequirements"></a>
+
+### Validation API: validate all session elements~collectDeviceTypeRequirements(db, endpointTypeId) ⇒ <code>Promise.&lt;{clusters: Array.&lt;object&gt;, attributes: Array.&lt;object&gt;, commands: Array.&lt;object&gt;}&gt;</code>
+Collect device-type required clusters / attributes / commands for an endpoint type.
+
+Mirrors deviceTypeClustersAttributesAndCommands in import-json.js and joins in
+names + side flags so the validator can report compliance gaps without re-querying.
+
+**Kind**: inner method of [<code>Validation API: validate all session elements</code>](#module_Validation API_ validate all session elements)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeId | <code>\*</code> | 
+
 <a name="module_Validation API_ Validation APIs"></a>
 
 ## Validation API: Validation APIs
@@ -21457,14 +21702,17 @@ things were successful or not.
         * [~validateAttribute(db, endpointTypeId, attributeRef, clusterRef, zapSessionId)](#module_Validation API_ Validation APIs..validateAttribute) ⇒
         * [~validateEndpoint(db, endpointId)](#module_Validation API_ Validation APIs..validateEndpoint) ⇒
         * [~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef)](#module_Validation API_ Validation APIs..validateNoDuplicateEndpoints) ⇒
+        * [~isMatterSession(db, sessionId)](#module_Validation API_ Validation APIs..isMatterSession) ⇒
         * [~validateXmlAttributeDefault(db, attribute, packageId)](#module_Validation API_ Validation APIs..validateXmlAttributeDefault) ⇒ <code>Promise.&lt;void&gt;</code>
         * [~validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)](#module_Validation API_ Validation APIs..validateSpecificAttribute) ⇒
         * [~validateSpecificEndpoint(endpoint)](#module_Validation API_ Validation APIs..validateSpecificEndpoint) ⇒
         * [~isValidNumberString(value)](#module_Validation API_ Validation APIs..isValidNumberString) ⇒
         * [~isValidHexString(value)](#module_Validation API_ Validation APIs..isValidHexString) ⇒
         * [~isValidDecimalString(value)](#module_Validation API_ Validation APIs..isValidDecimalString) ⇒
-        * [~isValidFloat(value)](#module_Validation API_ Validation APIs..isValidFloat) ⇒
+        * [~isValidFloat(value, typeSize)](#module_Validation API_ Validation APIs..isValidFloat) ⇒
         * [~extractFloatValue(value)](#module_Validation API_ Validation APIs..extractFloatValue) ⇒
+        * [~decodeFloat16(bits)](#module_Validation API_ Validation APIs..decodeFloat16) ⇒
+        * [~getFloatFromAttribute(attribute, typeSize)](#module_Validation API_ Validation APIs..getFloatFromAttribute) ⇒
         * [~extractIntegerValue(value)](#module_Validation API_ Validation APIs..extractIntegerValue) ⇒
         * [~extractBigIntegerValue(value)](#module_Validation API_ Validation APIs..extractBigIntegerValue) ⇒
         * [~isBigInteger(bits)](#module_Validation API_ Validation APIs..isBigInteger) ⇒
@@ -21475,8 +21723,10 @@ things were successful or not.
         * [~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
         * [~checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsInteger) ⇒
         * [~checkBoundsInteger(defaultValue, min, max)](#module_Validation API_ Validation APIs..checkBoundsInteger) ⇒
-        * [~checkAttributeBoundsFloat(attribute, endpointAttribute)](#module_Validation API_ Validation APIs..checkAttributeBoundsFloat) ⇒
-        * [~getBoundsFloat(attribute)](#module_Validation API_ Validation APIs..getBoundsFloat) ⇒
+        * [~getFloatAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getFloatAttributeSize) ⇒ <code>\*</code>
+        * [~getFloatTypeRange(typeSize, isMin)](#module_Validation API_ Validation APIs..getFloatTypeRange) ⇒
+        * [~checkAttributeBoundsFloat(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsFloat) ⇒
+        * [~getBoundsFloat(attribute, typeSize)](#module_Validation API_ Validation APIs..getBoundsFloat) ⇒
         * [~checkBoundsFloat(defaultValue, min, max)](#module_Validation API_ Validation APIs..checkBoundsFloat) ⇒
 
 <a name="module_Validation API_ Validation APIs.initAsyncValidation"></a>
@@ -21542,7 +21792,12 @@ Get issues in an endpoint.
 <a name="module_Validation API_ Validation APIs..validateNoDuplicateEndpoints"></a>
 
 ### Validation API: Validation APIs~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef) ⇒
-Check if there are no duplicate endpoints.
+Returns true when this endpoint identifier is unique within the session.
+
+The schema enforces UNIQUE(ENDPOINT_TYPE_REF, ENDPOINT_IDENTIFIER), but for the
+user-visible "duplicate endpoint" check we want session-wide uniqueness: two
+endpoints with the same identifier are wrong on a real device regardless of
+which endpoint type they belong to.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
@@ -21552,6 +21807,21 @@ Check if there are no duplicate endpoints.
 | db | <code>\*</code> | 
 | endpointIdentifier | <code>\*</code> | 
 | sessionRef | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..isMatterSession"></a>
+
+### Validation API: Validation APIs~isMatterSession(db, sessionId) ⇒
+True when the session uses Matter ZCL packages (CATEGORY = 'matter').
+Used to relax Zigbee-only rules (e.g. endpoint 0 is reserved in Zigbee but is
+the root node in Matter).
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Promise<boolean>  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..validateXmlAttributeDefault"></a>
 
@@ -21633,27 +21903,73 @@ Check if value is a valid decimal string.
 
 <a name="module_Validation API_ Validation APIs..isValidFloat"></a>
 
-### Validation API: Validation APIs~isValidFloat(value) ⇒
+### Validation API: Validation APIs~isValidFloat(value, typeSize) ⇒
 Check if value is a valid float value.
+
+Decimal literals (e.g. "1.5", "-0.25", "1e40") are always accepted.
+When a typeSize is supplied, hex IEEE 754 bit-pattern literals are
+also accepted as long as they fit within the type's nibble width
+(e.g. "0x3F800000" for `float_single` decodes to 1.0). This mirrors
+the ZCL/Matter XML convention used for float min/max bounds.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
 
-| Param | Type |
-| --- | --- |
-| value | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>\*</code> |  |
+| typeSize | <code>\*</code> | Optional bit width of the float type (16, 32, or 64). When omitted, hex strings are rejected (legacy decimal-only behavior). |
 
 <a name="module_Validation API_ Validation APIs..extractFloatValue"></a>
 
 ### Validation API: Validation APIs~extractFloatValue(value) ⇒
 Get float value from the given value.
+Hex strings (e.g. "0x42C80000") cannot be reliably decoded without knowing
+the bit-width, so they are returned as NaN and treated as unconstrained.
+Use [getFloatFromAttribute](getFloatFromAttribute) when the float type's bit width is known
+and IEEE 754 hex bit patterns should be decoded.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
-**Returns**: float value  
+**Returns**: float value, or NaN if value is null/undefined/hex  
 
 | Param | Type |
 | --- | --- |
 | value | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..decodeFloat16"></a>
+
+### Validation API: Validation APIs~decodeFloat16(bits) ⇒
+Decodes a 16-bit IEEE 754 half-precision bit pattern into a Number.
+Implemented manually because Float16Array is not yet available across
+all supported Node versions. Counterpart of `convertFloatToBigEndian`
+for sizes the 32/64-bit DataView path cannot handle.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| bits | <code>\*</code> | Unsigned 16-bit integer (0..0xFFFF) |
+
+<a name="module_Validation API_ Validation APIs..getFloatFromAttribute"></a>
+
+### Validation API: Validation APIs~getFloatFromAttribute(attribute, typeSize) ⇒
+Converts a float attribute string into a Number, honoring the IEEE 754
+bit-pattern hex convention used by ZCL/Matter XML for float min/max
+bounds and defaults (e.g. "0x3F800000" => 1.0 for `float_single`).
+
+Mirrors `getIntegerFromAttribute` on the integer side: the type's bit
+width drives how the string is decoded. Decimal literals fall through
+to `parseFloat`. Hex literals wider than the type can encode (more
+than `typeSize / 4` nibbles) return NaN so the caller can flag them.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Number, or NaN if the value cannot be decoded for typeSize  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>\*</code> | string representation of a float |
+| typeSize | <code>\*</code> | bit width of the float type (16, 32, or 64) |
 
 <a name="module_Validation API_ Validation APIs..extractIntegerValue"></a>
 
@@ -21795,10 +22111,49 @@ Check if an integer value is within the bounds.
 | min | <code>\*</code> | 
 | max | <code>\*</code> | 
 
+<a name="module_Validation API_ Validation APIs..getFloatAttributeSize"></a>
+
+### Validation API: Validation APIs~getFloatAttributeSize(db, zapSessionId, attribType, clusterRef) ⇒ <code>\*</code>
+Returns information about a float type by querying the data type
+metadata stored in the database. Mirrors getIntegerAttributeSize so
+the size lookup uses the same source of truth for both integer and
+float types and works for any float type defined in the loaded ZCL
+(e.g. silabs `float_semi`/`float_single`/`float_double` and Matter
+`single`/`double`).
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: <code>\*</code> - { size: bit representation }  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| zapSessionId | <code>\*</code> | 
+| attribType | <code>\*</code> | 
+| clusterRef | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..getFloatTypeRange"></a>
+
+### Validation API: Validation APIs~getFloatTypeRange(typeSize, isMin) ⇒
+Gets the representable range of a float type. Mirrors getTypeRange for
+integer types and is used as the fallback when an attribute does not
+explicitly declare min/max.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: float  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeSize | <code>\*</code> | bit width of the float type |
+| isMin | <code>\*</code> | true to return the minimum, false for the maximum |
+
 <a name="module_Validation API_ Validation APIs..checkAttributeBoundsFloat"></a>
 
-### Validation API: Validation APIs~checkAttributeBoundsFloat(attribute, endpointAttribute) ⇒
-Check if float attribute's value is within the bounds.
+### Validation API: Validation APIs~checkAttributeBoundsFloat(attribute, endpointAttribute, db, zapSessionId) ⇒
+Checks if the incoming float is within its attribute's bounds while
+honoring the representable range of the float type. Mirrors
+checkAttributeBoundsInteger: it first resolves the type metadata
+from the database, bails out if the type is unknown, and then
+compares against the (possibly type-defaulted) min/max bounds.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
@@ -21807,18 +22162,23 @@ Check if float attribute's value is within the bounds.
 | --- | --- |
 | attribute | <code>\*</code> | 
 | endpointAttribute | <code>\*</code> | 
+| db | <code>\*</code> | 
+| zapSessionId | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..getBoundsFloat"></a>
 
-### Validation API: Validation APIs~getBoundsFloat(attribute) ⇒
-Get the bounds on a float attribute's value.
+### Validation API: Validation APIs~getBoundsFloat(attribute, typeSize) ⇒
+Get the bounds on a float attribute's value. When the attribute does
+not declare an explicit min/max, the type's representable range is
+used as the fallback (mirroring getBoundsInteger).
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: object  
 
-| Param | Type |
-| --- | --- |
-| attribute | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>\*</code> |  |
+| typeSize | <code>\*</code> | bit width of the float type. When omitted the 64-bit IEEE 754 range is assumed, which keeps legacy single-argument callers (e.g. XML pre-validation, which has no session) working. |
 
 <a name="module_Validation API_ Validation APIs..checkBoundsFloat"></a>
 

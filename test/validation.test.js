@@ -33,6 +33,11 @@ const env = require('../src-electron/util/env')
 const types = require('../src-electron/util/types')
 const { timeout } = require('./test-util')
 const queryPackageNotification = require('../src-electron/db/query-package-notification')
+const validateAll = require('../src-electron/validation/validate-all')
+const importJs = require('../src-electron/importexport/import.js')
+const util = require('../src-electron/util/util.js')
+const generatorEngine = require('../src-electron/generator/generation-engine.js')
+const path = require('path')
 
 let db
 let sid
@@ -197,9 +202,9 @@ test(
     expect(validation.checkBoundsInteger(-32, -128, 127)).toBeTruthy()
 
     //Float
-    expect(validation.checkBoundsFloat(35.0, 25, 50.0))
-    expect(!validation.checkBoundsFloat(351.0, 25, 50.0))
-    expect(!validation.checkBoundsFloat(351.0, 355, 5650.0))
+    expect(validation.checkBoundsFloat(35.0, 25, 50.0)).toBeTruthy()
+    expect(validation.checkBoundsFloat(351.0, 25, 50.0)).toBeFalsy()
+    expect(validation.checkBoundsFloat(351.0, 355, 5650.0)).toBeFalsy()
   },
   timeout.medium()
 )
@@ -569,6 +574,206 @@ test(
   timeout.medium()
 )
 
+describe('Float validation', () => {
+  test(
+    'sync helpers (type range, extract, bounds, getBoundsFloat)',
+    () => {
+      const fltMax = 3.4028234663852886e38
+      ;[
+        [16, true, -65504],
+        [16, false, 65504],
+        [32, true, -fltMax],
+        [32, false, fltMax],
+        [64, true, -Number.MAX_VALUE],
+        [64, false, Number.MAX_VALUE]
+      ].forEach(([bits, isMin, exp]) =>
+        expect(validation.getFloatTypeRange(bits, isMin)).toBeCloseTo(exp)
+      )
+      expect(validation.getFloatTypeRange(undefined, true)).toBe(
+        -Number.MAX_VALUE
+      )
+      expect(validation.getFloatTypeRange(99, false)).toBe(Number.MAX_VALUE)
+
+      expect(Number.isNaN(validation.extractFloatValue(null))).toBeTruthy()
+      expect(
+        Number.isNaN(validation.extractFloatValue('0x42C80000'))
+      ).toBeTruthy()
+      expect(validation.extractFloatValue('1.5')).toBe(1.5)
+
+      expect(validation.checkBoundsFloat(0, NaN, NaN)).toBeTruthy()
+      expect(validation.checkBoundsFloat(0, null, null)).toBeTruthy()
+      expect(validation.checkBoundsFloat(NaN, 0, 10)).toBeFalsy()
+
+      const b = validation.getBoundsFloat({ min: '0.5', max: '2.5' }, 32)
+      expect(b.min).toBe(0.5)
+      expect(b.max).toBe(2.5)
+      const s = validation.getBoundsFloat({}, 32)
+      expect(s.min).toBeCloseTo(-fltMax)
+      expect(s.max).toBeCloseTo(fltMax)
+      const h = validation.getBoundsFloat({}, 16)
+      expect(h.min).toBeCloseTo(-65504)
+      expect(h.max).toBeCloseTo(65504)
+      const ns = validation.getBoundsFloat({})
+      expect(ns.min).toBe(-Number.MAX_VALUE)
+      expect(ns.max).toBe(Number.MAX_VALUE)
+      const om = validation.getBoundsFloat({ min: '-1' }, 32)
+      expect(om.min).toBe(-1)
+      expect(om.max).toBeCloseTo(fltMax)
+      const ox = validation.getBoundsFloat(
+        { min: '0x00000000', max: '0x3F800000' },
+        32
+      )
+      expect(ox.min).toBe(0)
+      expect(ox.max).toBeCloseTo(1.0)
+      const oxNs = validation.getBoundsFloat({
+        min: '0x00000000',
+        max: '0x3F800000'
+      })
+      expect(Number.isNaN(oxNs.min)).toBeTruthy()
+      expect(Number.isNaN(oxNs.max)).toBeTruthy()
+    },
+    timeout.short()
+  )
+
+  test(
+    'getFloatFromAttribute / isValidFloat (IEEE hex + rejections)',
+    () => {
+      const g = validation.getFloatFromAttribute
+      const close = [
+        ['0x3C00', 16, 1],
+        ['0x4000', 16, 2],
+        ['0xBC00', 16, -1],
+        ['0xFBFF', 16, -65504],
+        ['0x3F800000', 32, 1],
+        ['0x40000000', 32, 2],
+        ['0xBF800000', 32, -1],
+        ['0x7F7FFFFF', 32, 3.4028234663852886e38],
+        ['0x3FF0000000000000', 64, 1],
+        ['0xBFF0000000000000', 64, -1]
+      ]
+      close.forEach(([hex, bits, exp]) => expect(g(hex, bits)).toBeCloseTo(exp))
+      expect(g('0x0000', 16)).toBe(0)
+      expect(g('0x00000000', 32)).toBe(0)
+      expect(g('0x0000000000000000', 64)).toBe(0)
+      expect(g('0x7C00', 16)).toBe(Infinity)
+      expect(g('0xFC00', 16)).toBe(-Infinity)
+      expect(Number.isNaN(g('0x7E00', 16))).toBeTruthy()
+      expect(g('0x7FEFFFFFFFFFFFFF', 64)).toBe(Number.MAX_VALUE)
+      expect(g('1.5', 32)).toBe(1.5)
+      expect(g('0', undefined)).toBe(0)
+      ;[
+        ['0x3F800000', undefined],
+        ['0x3F800000', 16],
+        ['0x3FF0000000000000', 32],
+        ['0x3C00', 24],
+        ['0x12GH', 16],
+        [null, 32]
+      ].forEach(([h, b]) => expect(Number.isNaN(g(h, b))).toBeTruthy())
+
+      expect(validation.isValidFloat('0x3F800000')).toBeFalsy()
+      expect(validation.isValidFloat('0x3F800000', 32)).toBeTruthy()
+      expect(validation.isValidFloat('0x3F800000', 16)).toBeFalsy()
+      expect(validation.isValidFloat('0x000G', 32)).toBeFalsy()
+    },
+    timeout.short()
+  )
+
+  test(
+    'getFloatAttributeSize and validateSpecificAttribute (float)',
+    async () => {
+      const sz = (t) => validation.getFloatAttributeSize(db, sid, t, null)
+      expect((await sz('float_semi')).size).toBe(16)
+      expect((await sz('float_single')).size).toBe(32)
+      expect((await sz('float_double')).size).toBe(64)
+      expect(
+        (await sz('definitely_not_a_real_float_type')).size
+      ).toBeUndefined()
+
+      const run = async (dv, attr) =>
+        (
+          await validation.validateSpecificAttribute(
+            { defaultValue: dv },
+            attr,
+            db,
+            sid
+          )
+        ).defaultValue
+
+      const cases = [
+        ['1.5', { type: 'float_single', min: '0.5', max: '2.5' }, 'ok'],
+        [
+          '0.25',
+          { type: 'float_single', min: '0.5', max: '2.5' },
+          'Out of range'
+        ],
+        [
+          '4.5',
+          { type: 'float_single', min: '0.5', max: '2.5' },
+          'Out of range'
+        ],
+        ['-1.0', { type: 'float_single', min: '-2.0', max: '2.0' }, 'ok'],
+        [
+          'not a number',
+          { type: 'float_single', min: '0', max: '10' },
+          'Invalid Float'
+        ],
+        [
+          '1.2.3',
+          { type: 'float_single', min: '0', max: '10' },
+          'Invalid Float'
+        ],
+        [
+          '0x3F8000GG',
+          { type: 'float_single', min: '0', max: '10' },
+          'Invalid Float'
+        ],
+        [
+          '0x3F8000000000',
+          { type: 'float_single', min: '0', max: '10' },
+          'Invalid Float'
+        ],
+        ['1e40', { type: 'float_single' }, 'Out of range'],
+        ['1e40', { type: 'float_double' }, 'ok'],
+        ['70000', { type: 'float_semi' }, 'Out of range'],
+        ['65504', { type: 'float_semi' }, 'ok'],
+        [
+          null,
+          { type: 'float_single', isNullable: true, min: '0', max: '1' },
+          'ok'
+        ],
+        ['0x3F800000', { type: 'float_single', min: '0', max: '2' }, 'ok'],
+        [
+          '0xC0000000',
+          { type: 'float_single', min: '0', max: '2' },
+          'Out of range'
+        ],
+        ['0x3C00', { type: 'float_semi', min: '0', max: '2' }, 'ok'],
+        [
+          '0x3FF0000000000000',
+          { type: 'float_double', min: '0', max: '2' },
+          'ok'
+        ],
+        [
+          '0.5',
+          { type: 'float_single', min: '0x00000000', max: '0x3F800000' },
+          'ok'
+        ],
+        [
+          '1.5',
+          { type: 'float_single', min: '0x00000000', max: '0x3F800000' },
+          'Out of range'
+        ]
+      ]
+      for (const [dv, attr, want] of cases) {
+        const issues = await run(dv, attr)
+        if (want === 'ok') expect(issues.length).toBe(0)
+        else expect(issues).toContain(want)
+      }
+    },
+    timeout.medium()
+  )
+})
+
 describe('Validate endpoint for duplicate endpointIds', () => {
   let endpointTypeIdOnOff
   let endpointTypeReference
@@ -609,6 +814,23 @@ describe('Validate endpoint for duplicate endpointIds', () => {
     )
     endpointTypeIdOnOff = rowId
     let endpointType = await queryEndpointType.selectEndpointType(db, rowId)
+    // The schema's UNIQUE(ENDPOINT_TYPE_REF, ENDPOINT_IDENTIFIER) plus
+    // INSERT OR REPLACE in queryEndpoint.insertEndpoint means the only way
+    // to actually have two endpoints sharing an identifier is to put them
+    // on different endpoint types, so create a second endpoint type here.
+    let secondEndpointTypeRowId = await queryConfig.insertEndpointType(
+      db,
+      sessionPartitionInfo[0],
+      'testEndpointTypeDup',
+      deviceTypeId,
+      haOnOffDeviceType.code,
+      0,
+      true
+    )
+    let secondEndpointType = await queryEndpointType.selectEndpointType(
+      db,
+      secondEndpointTypeRowId
+    )
     await queryEndpoint.insertEndpoint(
       db,
       sid,
@@ -621,7 +843,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       db,
       sid,
       1,
-      endpointType.endpointTypeId,
+      secondEndpointType.endpointTypeId,
       1,
       23
     )
@@ -631,10 +853,143 @@ describe('Validate endpoint for duplicate endpointIds', () => {
     () =>
       validation
         .validateEndpoint(db, eptId)
-        .then((data) => validation.validateNoDuplicateEndpoints(db, eptId, sid))
+        .then((data) => validation.validateNoDuplicateEndpoints(db, 1, sid))
         .then((hasNoDuplicates) => {
           expect(hasNoDuplicates).toBeFalsy()
         }),
+    timeout.medium()
+  )
+})
+
+describe('validateAll', () => {
+  let vdb
+  beforeAll(async () => {
+    let file = env.sqliteTestFile('validate-all')
+    vdb = await dbApi.initDatabaseAndLoadSchema(
+      file,
+      env.schemaFile(),
+      env.zapVersion()
+    )
+    await zclLoader.loadZcl(vdb, env.builtinMatterZclMetafile())
+    let ctx = await generatorEngine.loadTemplates(
+      vdb,
+      env.builtinTemplateMetafile(),
+      {
+        failOnLoadingError: true
+      }
+    )
+    if (ctx.error) {
+      throw ctx.error
+    }
+  }, timeout.long())
+  afterAll(() => dbApi.closeDatabase(vdb), timeout.short())
+
+  test(
+    'full session validation report for matter-test.zap',
+    async () => {
+      const zapPath = path.join(__dirname, 'resource/matter-test.zap')
+      const importResult = await importJs.importDataFromFile(vdb, zapPath, {
+        defaultZclMetafile: env.builtinMatterZclMetafile(),
+        packageMatch: 'fuzzy'
+      })
+      await util.ensurePackagesAndPopulateSessionOptions(
+        vdb,
+        importResult.sessionId,
+        {
+          zcl: env.builtinMatterZclMetafile(),
+          template: env.builtinTemplateMetafile()
+        }
+      )
+      const report = await validateAll.validateAll(vdb, importResult.sessionId)
+      expect(report.summary).toBeDefined()
+      expect(typeof report.summary.errors).toBe('number')
+      expect(typeof report.summary.warnings).toBe('number')
+      expect(report.summary.endpoints).toBeGreaterThan(0)
+      expect(report.summary.attributes).toBeGreaterThan(0)
+      expect(Array.isArray(report.endpoints)).toBe(true)
+      expect(Array.isArray(report.attributes)).toBe(true)
+      expect(Array.isArray(report.conformance)).toBe(true)
+    },
+    timeout.long()
+  )
+})
+
+describe('validateSpecificEndpoint Matter root-node handling', () => {
+  test(
+    'flags endpoint 0 in a non-Matter (Zigbee) session',
+    () => {
+      const issues = validation.validateSpecificEndpoint(
+        { endpointId: '0', networkId: '0' },
+        { isMatter: false }
+      )
+      expect(issues.endpointId).toContain('0 is not a valid endpointId')
+    },
+    timeout.short()
+  )
+
+  test(
+    'allows endpoint 0 in a Matter session (Root Node)',
+    () => {
+      const issues = validation.validateSpecificEndpoint(
+        { endpointId: '0', networkId: '0' },
+        { isMatter: true }
+      )
+      expect(issues.endpointId).not.toContain('0 is not a valid endpointId')
+    },
+    timeout.short()
+  )
+
+  test(
+    'still flags out-of-range endpoint ids in Matter sessions',
+    () => {
+      const issues = validation.validateSpecificEndpoint(
+        { endpointId: '0xFFFFFF', networkId: '0' },
+        { isMatter: true }
+      )
+      expect(issues.endpointId).toContain('EndpointId is out of valid range')
+    },
+    timeout.short()
+  )
+})
+
+describe('validate-all null pre-check', () => {
+  let nvdb
+  let nsid
+  beforeAll(async () => {
+    let file = env.sqliteTestFile('validate-all-null')
+    nvdb = await dbApi.initDatabaseAndLoadSchema(
+      file,
+      env.schemaFile(),
+      env.zapVersion()
+    )
+    await zclLoader.loadZcl(nvdb, env.builtinSilabsZclMetafile())
+    nsid = await testQuery.createSession(
+      nvdb,
+      'USER',
+      'NULL_EP_SESSION',
+      env.builtinSilabsZclMetafile(),
+      env.builtinTemplateMetafile()
+    )
+    await dbApi.dbInsert(
+      nvdb,
+      'INSERT INTO ENDPOINT (SESSION_REF, ENDPOINT_TYPE_REF, ENDPOINT_IDENTIFIER, NETWORK_IDENTIFIER) VALUES (?, NULL, NULL, NULL)',
+      [nsid]
+    )
+  }, timeout.long())
+  afterAll(() => dbApi.closeDatabase(nvdb), timeout.short())
+
+  test(
+    'validateAll flags endpoints with a missing identifier',
+    async () => {
+      const report = await validateAll.validateAll(nvdb, nsid, {
+        conformance: false
+      })
+      expect(report.endpoints.length).toBeGreaterThan(0)
+      const allEndpointIssues = report.endpoints.flatMap(
+        (e) => e.issues.endpointId
+      )
+      expect(allEndpointIssues).toContain('EndpointId is missing')
+    },
     timeout.medium()
   )
 })
