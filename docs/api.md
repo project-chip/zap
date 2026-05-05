@@ -21346,6 +21346,7 @@ This module provides utilities for parsing conformance data from XML into expres
     * [~parseConformanceFromXML(operand)](#module_Validation API_ Parse conformance data from XML..parseConformanceFromXML) ⇒
     * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Validation API_ Parse conformance data from XML..parseConformanceRecursively) ⇒
     * [~getOptionalAttributeFromXML(element, elementType)](#module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML) ⇒
+    * [~getApiMaturityFromXML(element)](#module_Validation API_ Parse conformance data from XML..getApiMaturityFromXML) ⇒ <code>string</code> \| <code>null</code>
 
 <a name="module_Validation API_ Parse conformance data from XML..parseConformanceFromXML"></a>
 
@@ -21423,6 +21424,22 @@ Log warnings to zap.log if both optional attribute and conformance are defined
 | --- | --- |
 | element | <code>\*</code> | 
 | elementType | <code>\*</code> | 
+
+<a name="module_Validation API_ Parse conformance data from XML..getApiMaturityFromXML"></a>
+
+### Validation API: Parse conformance data from XML~getApiMaturityFromXML(element) ⇒ <code>string</code> \| <code>null</code>
+Determine the effective apiMaturity for an Data Model XML element.
+
+If the element has an explicit 'apiMaturity' attribute, return it as-is.
+Otherwise, if the element's conformance contains a <provisionalConform/>
+(including nested conformance tags), return 'provisional'.
+Return null when neither source specifies maturity.
+
+**Kind**: inner method of [<code>Validation API: Parse conformance data from XML</code>](#module_Validation API_ Parse conformance data from XML)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| element | <code>\*</code> | XML element from xml2js |
 
 <a name="module_Validation API_ Validation APIs"></a>
 

@@ -194,5 +194,34 @@ function getOptionalAttributeFromXML(element, elementType) {
   }
 }
 
+/**
+ * Determine the effective apiMaturity for an Data Model XML element.
+ *
+ * If the element has an explicit 'apiMaturity' attribute, return it as-is.
+ * Otherwise, if the element's conformance contains a <provisionalConform/>
+ * (including nested conformance tags), return 'provisional'.
+ * Return null when neither source specifies maturity.
+ *
+ * @param {*} element XML element from xml2js
+ * @returns {string|null}
+ */
+function getApiMaturityFromXML(element) {
+  if (element && element.$ && element.$.apiMaturity) {
+    return element.$.apiMaturity
+  }
+  let conformance = parseConformanceFromXML(element)
+  if (
+    conformance &&
+    conformEvaluator.checkIfExpressionHasOperand(
+      conformance,
+      dbEnum.conformanceTag.provisional
+    )
+  ) {
+    return dbEnum.conformanceVal.provisional
+  }
+  return null
+}
+
 exports.parseConformanceFromXML = parseConformanceFromXML
 exports.getOptionalAttributeFromXML = getOptionalAttributeFromXML
+exports.getApiMaturityFromXML = getApiMaturityFromXML
