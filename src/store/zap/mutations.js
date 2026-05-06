@@ -47,6 +47,18 @@ export const toggleNotificationTab = (state) => {
   state.showNotificationTab = !state.showNotificationTab
 }
 
+export const toggleValidationTab = (state) => {
+  state.showValidationTab = !state.showValidationTab
+}
+
+export const setShowValidationTab = (state, value) => {
+  state.showValidationTab = value
+}
+
+export const setValidationReport = (state, report) => {
+  state.validationReport = report
+}
+
 export const updateShowDevTools = (state) => {
   state.showDevTools = !state.showDevTools
 }

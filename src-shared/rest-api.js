@@ -86,7 +86,8 @@ const uri = {
   reloadSession: '/zcl/reloadSession',
   init: '/init',
   forcedExternal: '/zcl/forcedExternal',
-  loadComposition: '/zcl/loadComposition'
+  loadComposition: '/zcl/loadComposition',
+  validate: '/validate'
 }
 
 const uiMode = {

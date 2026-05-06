@@ -4,7 +4,7 @@
       <ZCLToolbar />
     </q-header>
     <q-drawer
-      v-if="!showPreviewTab && !showNotificationTab"
+      v-if="!showPreviewTab && !showNotificationTab && !showValidationTab"
       class="bg-glass"
       v-model="leftDrawerOpen"
       show-if-above
@@ -89,6 +89,18 @@
       <NotificationPage />
     </q-drawer>
 
+    <q-drawer
+      :width="$q.screen.width * 0.4"
+      bordered
+      v-model="showValidationTab"
+      side="right"
+      :breakpoint="0"
+      class="bg-glass column"
+      id="ValidationPanel"
+    >
+      <ValidationPanelPage class="col" />
+    </q-drawer>
+
     <q-page-container>
       <router-view v-slot="{ Component }">
         <transition mode="out-in" name="slide-down">
@@ -101,13 +113,15 @@
 <script>
 import ZCLToolbar from '../components/ZCLToolbar.vue'
 import NotificationPage from '../pages/NotificationsPage.vue'
+import ValidationPanelPage from '../pages/ValidationPanelPage.vue'
 import { isElectron, isMac } from '../util/platform'
 const restApi = require(`../../src-shared/rest-api.js`)
 
 export default {
   components: {
     ZCLToolbar,
-    NotificationPage
+    NotificationPage,
+    ValidationPanelPage
   },
   name: 'MainLayout',
   data() {
@@ -143,6 +157,14 @@ export default {
       },
       set() {
         return this.$store.dispatch('zap/showNotificationTab')
+      }
+    },
+    showValidationTab: {
+      get() {
+        return this.$store.state.zap.showValidationTab
+      },
+      set(value) {
+        this.$store.commit('zap/setShowValidationTab', value)
       }
     },
     leftDrawerOpen: {

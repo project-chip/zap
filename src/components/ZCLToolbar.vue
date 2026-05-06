@@ -7,7 +7,10 @@
     }"
   >
     <q-toolbar-title
-      :class="{ 'logo-margin': showPreviewTab || showNotificationTab }"
+      :class="{
+        'logo-margin':
+          showPreviewTab || showNotificationTab || showValidationTab
+      }"
       style="width: 180px"
     >
       <Transition mode="out-in" name="slide-up">
@@ -67,6 +70,32 @@
       <div class="text-center">
         <q-icon name="o_save" />
         <div>Save</div>
+      </div>
+    </q-btn>
+    <q-btn
+      id="validate"
+      class="navmenu-item"
+      :class="{ 'navmenu-item--active': showValidationTab }"
+      color="grey"
+      flat
+      no-caps
+      data-cy="btn-validate"
+      title="Validate this configuration, view results in the side panel (click again to close)"
+      @click="toggleValidate"
+    >
+      <div class="text-center">
+        <q-icon name="o_fact_check" />
+        <div>
+          Validate
+          <q-badge
+            v-if="validationIssueBadgeCount > 0"
+            style="top: 5px; right: 5px"
+            color="red"
+            floating
+          >
+            {{ validationIssueBadgeCount }}
+          </q-badge>
+        </div>
       </div>
     </q-btn>
     <q-btn
@@ -289,6 +318,16 @@ export default {
         return this.$store.dispatch('zap/toggleNotificationTab')
       }
     },
+    showValidationTab: {
+      get() {
+        return this.$store.state.zap.showValidationTab
+      }
+    },
+    validationIssueBadgeCount() {
+      const r = this.$store.state.zap.validationReport
+      if (!r?.summary) return 0
+      return r.summary.errors || 0
+    },
     isMultiProtocolTutorialAvailable: {
       get() {
         return this.$store.state.zap.isMultiConfig
@@ -338,13 +377,27 @@ export default {
       if (this.showNotificationTab) {
         this.$store.commit('zap/toggleNotificationTab')
       }
+      if (this.showValidationTab) {
+        this.$store.commit('zap/toggleValidationTab')
+      }
       this.$store.commit('zap/togglePreviewTab')
     },
     toggleNotificationTab() {
       if (this.showPreviewTab) {
         this.$store.commit('zap/togglePreviewTab')
       }
+      if (this.showValidationTab) {
+        this.$store.commit('zap/toggleValidationTab')
+      }
       this.$store.commit('zap/toggleNotificationTab')
+    },
+    /** Opens validation panel: runs checks and shows results; closes panel if already open. */
+    toggleValidate() {
+      if (this.showValidationTab) {
+        this.$store.commit('zap/setShowValidationTab', false)
+        return
+      }
+      this.runValidation()
     },
     generateIntoDirectory(currentPath) {
       window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
@@ -373,6 +426,51 @@ export default {
         })
         .catch((err) => {
           console.log(err)
+        })
+    },
+    runValidation() {
+      if (this.$serverGet == null) return
+      window[rendApi.GLOBAL_SYMBOL_EXECUTE](
+        rendApi.id.progressStart,
+        'Validating configuration...'
+      )
+      this.$serverGet(restApi.uri.validate)
+        .then((resp) => {
+          const body = resp?.data
+          if (body == null) {
+            if (this.$q && this.$q.notify) {
+              this.$q.notify({
+                type: 'negative',
+                message: 'Validation returned no data'
+              })
+            }
+            return
+          }
+          this.$store.commit('zap/setValidationReport', body)
+          if (this.showPreviewTab) {
+            this.$store.commit('zap/togglePreviewTab')
+          }
+          if (this.showNotificationTab) {
+            this.$store.commit('zap/toggleNotificationTab')
+          }
+          this.$store.commit('zap/setShowValidationTab', true)
+        })
+        .catch((err) => {
+          console.error(err)
+          if (this.$q && this.$q.notify) {
+            this.$q.notify({
+              type: 'negative',
+              message:
+                (err.response &&
+                  err.response.data &&
+                  err.response.data.error) ||
+                err.message ||
+                'Validation failed'
+            })
+          }
+        })
+        .finally(() => {
+          window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.progressEnd)
         })
     }
   },

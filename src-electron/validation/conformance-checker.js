@@ -518,6 +518,7 @@ function getStateOfOperands(expression, elementMap, featureMap) {
  * @param {*} deviceTypeRefs
  * @param {*} cluster
  * @param {*} sessionId
+ * @param {*} options Optional. Set `{ persistNotifications: false }` to skip writing SESSION_NOTICE (e.g. bulk validate).
  * @returns list of warning messages if any, otherwise false
  */
 async function setConformanceWarnings(
@@ -527,8 +528,10 @@ async function setConformanceWarnings(
   endpointClusterId,
   deviceTypeRefs,
   cluster,
-  sessionId
+  sessionId,
+  options = {}
 ) {
+  const persistNotifications = options.persistNotifications !== false
   let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
     db,
     deviceTypeRefs,
@@ -624,15 +627,17 @@ async function setConformanceWarnings(
 
     // set warnings in the session notification table
     if (warnings.length > 0) {
-      for (const warning of warnings) {
-        await querySessionNotice.setNotification(
-          db,
-          'WARNING',
-          warning,
-          sessionId,
-          1,
-          0
-        )
+      if (persistNotifications) {
+        for (const warning of warnings) {
+          await querySessionNotice.setNotification(
+            db,
+            'WARNING',
+            warning,
+            sessionId,
+            1,
+            0
+          )
+        }
       }
       return warnings
     }

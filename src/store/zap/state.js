@@ -36,6 +36,8 @@ export default function () {
     showCreateModifyEndpoint: false,
     showPreviewTab: false,
     showNotificationTab: false,
+    showValidationTab: false,
+    validationReport: null,
     isExceptionsExpanded: false,
     exceptions: [],
     showExceptionIcon: false,

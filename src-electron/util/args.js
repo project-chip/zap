@@ -44,6 +44,26 @@ function environmentVariablesDescription() {
 }
 
 /**
+ * Split comma-separated path lists (for `validate` only). Shells already pass
+ * space-separated paths as separate argv tokens; this lets you use a single
+ * `-i a.zap,b.zap` as well.
+ *
+ * @param {string[]} tokens
+ * @returns {string[]}
+ */
+function expandCommaSeparatedZapPaths(tokens) {
+  const out = []
+  for (const t of tokens) {
+    if (typeof t !== 'string') continue
+    for (const part of t.split(',')) {
+      const s = part.trim()
+      if (s) out.push(s)
+    }
+  }
+  return out
+}
+
+/**
  * Process the command line arguments and resets the state in this file
  * to the specified values.
  *
@@ -62,7 +82,8 @@ export function processCommandLineArguments(argv) {
     ['server', 'Run zap in a server mode.'],
     ['stop', 'Stop zap server if one is running.'],
     ['new', 'If in client mode, start a new window on a main instance.'],
-    ['regenerateSdk', 'Perform full SDK regeneration.']
+    ['regenerateSdk', 'Perform full SDK regeneration.'],
+    ['validate', 'Validate ZCL/Data-Model elements in one or more .zap files.']
   ])
   let y = yargs
   for (let cmd of commands.entries()) {
@@ -170,6 +191,11 @@ export function processCommandLineArguments(argv) {
       type: 'boolean',
       default: false
     })
+    .option('logToStdout', {
+      desc: 'Write log output to stdout instead of the log file.',
+      type: 'boolean',
+      default: false
+    })
     .option('cleanupDelay', {
       desc: 'When shutting down zap, this provides a number of millisecons to wait for SQLite to perform cleanup. Default is: 1500',
       type: 'number',
@@ -226,6 +252,11 @@ export function processCommandLineArguments(argv) {
     .option('results', {
       desc: 'Specifying the output YAML file to capture convert results.',
       type: 'string'
+    })
+    .option('validateOutput', {
+      desc: 'Optional file path to write the validation report (.json or .yaml). For the validate command, -o/--output is accepted as an alias when this option is omitted.',
+      type: 'string',
+      default: null
     })
     .option('disableDbCaching', {
       desc: 'Disable query caching when accessing database',
@@ -297,8 +328,26 @@ For more information, see ${commonUrl.projectUrl}`
   let allZapFileExtensions = ret._.filter((arg) => {
     return arg.endsWith('.zapExtension')
   })
-  if (ret.zapFile != null) allFiles.push(ret.zapFile)
-  ret.zapFiles = allFiles
+  if (ret.zapFile != null) {
+    if (Array.isArray(ret.zapFile)) {
+      allFiles.push(...ret.zapFile)
+    } else {
+      allFiles.push(ret.zapFile)
+    }
+  }
+  ret.zapFiles = ret._.includes('validate')
+    ? expandCommaSeparatedZapPaths(allFiles)
+    : allFiles
+
+  // validate: -o/--output normally maps to generation output; reuse as report path
+  if (ret._.includes('validate')) {
+    if (ret.validateOutput == null && ret.output != null) {
+      ret.validateOutput = ret.output
+    }
+    if (ret.validateOutput != null) {
+      ret.output = null
+    }
+  }
 
   if (allZapFileExtensions && allZapFileExtensions.length > 0) {
     ret.zapFileExtensions = allZapFileExtensions
