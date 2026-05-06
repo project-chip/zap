@@ -221,7 +221,7 @@
     "workbox-webpack-plugin": "^7.1.0"
   },
   "engines": {
-    "node": ">=20.9.0",
+    "node": ">=24.0.0",
     "npm": ">= 5.6.0",
     "yarn": ">= 1.6.0"
   },

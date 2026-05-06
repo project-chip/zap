@@ -123,8 +123,7 @@ function createQueryString(
 export function windowCreate(port, args) {
   let webPreferences = {
     nodeIntegration: false,
-    contextIsolation: true,
-    sandbox: false,
+    worldSafeExecuteJavaScript: true,
     preload: path.resolve(__dirname, 'preload.js')
   }
   windowCounter++
@@ -152,10 +151,18 @@ export function windowCreate(port, args) {
   }
   let w = new BrowserWindow(winOptions)
 
-  ipcMain.on('set-title-bar-overlay', (_event, value) => {
-    if (isWin32 && typeof w.setTitleBarOverlay === 'function') {
+  const titleBarOverlayHandler = (event, value) => {
+    if (
+      isWin32 &&
+      typeof w.setTitleBarOverlay === 'function' &&
+      event.sender === w.webContents
+    ) {
       w.setTitleBarOverlay(value)
     }
+  }
+  ipcMain.on('set-title-bar-overlay', titleBarOverlayHandler)
+  w.on('closed', () => {
+    ipcMain.removeListener('set-title-bar-overlay', titleBarOverlayHandler)
   })
 
   let queryString = createQueryString(
