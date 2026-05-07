@@ -138,7 +138,7 @@
     "axios-cookiejar-support": "^5.0.2",
     "bufferutil": "^4.0.9",
     "bytebuffer": "^5.0.1",
-    "crc": "^4.1.0",
+    "crc-32": "^1.2.2",
     "express": "^4.21.2",
     "express-session": "^1.18.2",
     "fast-glob": "^3.2.11",
@@ -217,8 +217,7 @@
     "pretty-quick": "4.2.2",
     "sonar-scanner": "^3.1.0",
     "test-utils": "^1.1.1",
-    "typescript": "4.6",
-    "rollup": "4.20.0",
+    "typescript": "^5.4.5",
     "workbox-webpack-plugin": "^7.1.0"
   },
   "engines": {
@@ -227,7 +226,8 @@
     "yarn": ">= 1.6.0"
   },
   "overrides": {
-    "@types/node": "20.14.15"
+    "@types/node": "20.14.15",
+    "esbuild": "0.27.7"
   },
   "browserslist": [
     "last 1 version, not dead, ie >= 11"

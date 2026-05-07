@@ -23,7 +23,7 @@ const os = require('os')
 const fs = require('fs')
 const fsp = fs.promises
 const env = require('./env')
-const crc = require('crc')
+const CRC32 = require('crc-32')
 const path = require('path')
 const childProcess = require('child_process')
 const queryPackage = require('../db/query-package.js')
@@ -45,7 +45,10 @@ const queryNotification = require('../db/query-session-notification.js')
  * @returns Calculated CRC of a data.
  */
 function checksum(data) {
-  return crc.crc32(data)
+  // Match the historical unsigned 32-bit value produced by the `crc` package
+  // so that CRCs persisted in existing databases continue to compare equal.
+  const signed = Buffer.isBuffer(data) ? CRC32.buf(data) : CRC32.str(data)
+  return signed >>> 0
 }
 
 /**
