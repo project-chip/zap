@@ -19,4 +19,6 @@ WTFPL
 (MIT AND Zlib)
 (AFL-2.1 OR BSD-3-Clause)
 CC-BY-4.0
+BlueOak-1.0.0
+(MIT OR WTFPL)
 
