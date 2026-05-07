@@ -47,8 +47,8 @@ pipeline
                         {
                                     sh 'npm run version-stamp'
                                     sh 'npm run version'
-                                    sh 'npm rebuild canvas --update-binary'
-                                    sh 'npm rebuild libxmljs --update-binary'
+                                    sh 'npm rebuild canvas'
+                                    sh 'npm rebuild libxmljs'
                         }
                     }
                 }

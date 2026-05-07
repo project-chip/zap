@@ -45,7 +45,7 @@
     "test:e2e-multiprotocol": "node src-script/zap-uitest.js open multiprotocol",
     "test:e2e-multiprotocol-ci": "node src-script/zap-uitest.js run multiprotocol",
     "report": "node src-script/zap-combine-reports.js",
-    "postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary && npm run version-stamp",
+    "postinstall": "electron-builder install-app-deps && husky && npm rebuild canvas && npm run version-stamp",
     "buildAndPack:win": "npm run build && npm run pack:win",
     "buildAndPack:mac": "npm run build && npm run pack:mac && cp apack.json dist/mac",
     "buildAndPack:linux": "npm run build && npm run pack:linux",
@@ -231,11 +231,6 @@
   "browserslist": [
     "last 1 version, not dead, ie >= 11"
   ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged && jsdoc src-electron src-shared -r -d ./generated-html/ && eslint ."
-    }
-  },
   "build": {
     "appId": "zap.id",
     "artifactName": "${productName}-${os}-${arch}.${ext}",

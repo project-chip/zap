@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 echo "🚀   > Pretty quick reformat..."
 npx pretty-quick --staged
 

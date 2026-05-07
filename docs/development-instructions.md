@@ -51,7 +51,7 @@ Following is the list of environment variables that zap tool honors:
 
 Zap repo is configured with husky git hooks, that perform some
 pre-commit actions, formatting code, checking the obvious problems and similar. If you properly ran `npm install`, all these hooks should
-be installed. You can make sure they are installed by running `npx husky install`. See `.husky/pre-commit` script to review the actions executed as a pre-commit hook.
+be installed. You can make sure they are installed by running `npx husky`. See `.husky/pre-commit` script to review the actions executed as a pre-commit hook.
 
 **Format the files:**
 

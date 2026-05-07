@@ -51,7 +51,7 @@ npm rebuild sqlite3
 When doing npm install, in post-install, if there is an error on the following command, related to `electron-builder install-app-deps`, `npx electron-rebuild canvas failed` or `node-pre-gyp`, it is because the current `canvas` version is not compatible with Windows, and the installation error will not cause a failure in running ZAP. node-canvas is working on the solution now and the issue will be solved in near future.
 
 ```
-"postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary && npm run version-stamp"
+"postinstall": "electron-builder install-app-deps && husky && npm rebuild canvas --update-binary && npm run version-stamp"
 ```
 
 ## Fix Failed Tests
