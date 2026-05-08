@@ -102,21 +102,13 @@ module.exports = configure(function (ctx) {
             .add(/\.spec\.js$/)
             .add(/cypress/)
             .end()
-            .use('istanbul-instrumenter-loader')
-            .loader('istanbul-instrumenter-loader')
+            .use('coverage-istanbul-loader')
+            .loader('coverage-istanbul-loader')
             .options({
               esModules: true
             })
-
-          // Handle Vue files - target the compiled JavaScript from vue-loader
-          chain.module
-            .rule('vue')
-            .use('istanbul-instrumenter-loader')
-            .loader('istanbul-instrumenter-loader')
-            .options({
-              esModules: true
-            })
-            .before('vue-loader')
+          // Vue SFC scripts are instrumented via babel-plugin-istanbul (see babel.config.js), not a webpack loader,
+          // so we avoid parsing style/template virtual modules as JavaScript.
         }
       }
     },
@@ -202,7 +194,7 @@ module.exports = configure(function (ctx) {
       bundler: 'packager', // 'packager' or 'builder'
 
       packager: {
-        // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
+        // https://github.com/electron/packager/blob/main/docs/api.md
         asar: false,
         // OS X / Mac App Store
         // appBundleId: '',
@@ -220,8 +212,10 @@ module.exports = configure(function (ctx) {
         extraResource: ['src-electron/db/zap-schema.sql', 'src-electron/icons'],
         afterCopy: [
           (buildPath, electronVersion, platform, arch, callback) => {
-            require('electron-rebuild')
-              .rebuild({ buildPath, electronVersion, arch })
+            import('@electron/rebuild')
+              .then(({ rebuild }) =>
+                rebuild({ buildPath, electronVersion, arch })
+              )
               .then(() => callback())
               .catch((error) => callback(error))
           }

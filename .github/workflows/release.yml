@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [24.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -42,8 +42,8 @@ jobs:
       - run: sudo apt-get install --fix-missing xvfb
       - run: npm ci
       - run: npm run version-stamp
-      - run: npm rebuild canvas --update-binary
-      - run: npm rebuild libxmljs --update-binary
+      - run: npm rebuild canvas
+      - run: npm rebuild libxmljs
       - run: npm run build-spa
       - run: npm run test:e2e-ci -- ${{steps.chrome-116.outputs.chrome-path }}
 
@@ -52,7 +52,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [24.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -70,8 +70,8 @@ jobs:
       - run: sudo apt-get install --fix-missing xvfb
       - run: npm ci
       - run: npm run version-stamp
-      - run: npm rebuild canvas --update-binary
-      - run: npm rebuild libxmljs --update-binary
+      - run: npm rebuild canvas
+      - run: npm rebuild libxmljs
       - run: npm run build-spa
       - run: npm run test:e2e-matter-ci -- ${{steps.chrome-116.outputs.chrome-path }}
 
@@ -81,7 +81,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [24.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -98,8 +98,8 @@ jobs:
       - run: npm ci
       - run: npm run metafile-check
       - run: npm run version-stamp
-      - run: npm rebuild canvas --update-binary
-      - run: npm rebuild libxmljs --update-binary
+      - run: npm rebuild canvas
+      - run: npm rebuild libxmljs
       - run: npm run lic
       - run: npm run build-spa
       - run: npm run lint
@@ -120,7 +120,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [24.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -178,7 +178,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: 'npm'
       - name: pip
         run: pip install setuptools
@@ -218,8 +218,8 @@ jobs:
 
       - name: Initialize...
         run: |
-          npm rebuild canvas --update-binary
-          npm rebuild libxmljs --update-binary
+          npm rebuild canvas
+          npm rebuild libxmljs
           npm ci
           npm run version-stamp
 

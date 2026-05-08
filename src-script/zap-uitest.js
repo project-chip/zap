@@ -72,27 +72,43 @@ if (testsType == 'zigbee') {
   printUsage()
 }
 
-let returnCode = 0
-let svr = scriptUtil.executeCmd(null, 'npm', ['run', svrCmd])
+/**
+ * Run the dev server and Cypress UI test flow, then stop the server.
+ */
+async function main() {
+  let returnCode = 0
+  let serverResult
 
-let cyp = scriptUtil.executeCmd(null, 'npx', [
-  'start-test',
-  'quasar dev',
-  'http-get://localhost:9070',
-  `npx cypress ${cypressMode} --browser ${browserToUse} --env mode=${testsType} ${fixturesConfig}`
-])
-
-cyp
-  .then(() => {
-    returnCode = 0
-    scriptUtil.executeCmd(null, 'npm', ['run', 'stop'])
-  })
-  .catch(() => {
+  try {
+    serverResult = scriptUtil.executeCmd(null, 'npm', ['run', svrCmd])
+    await scriptUtil.executeCmd(null, 'npx', [
+      'start-test',
+      'quasar dev',
+      'http-get://localhost:9070',
+      `npx cypress ${cypressMode} --browser ${browserToUse} --env mode=${testsType} ${fixturesConfig}`
+    ])
+  } catch (_err) {
     returnCode = 1
-    scriptUtil.executeCmd(null, 'npm', ['run', 'stop'])
-  })
+  } finally {
+    try {
+      await scriptUtil.executeCmd(null, 'npm', ['run', 'stop'])
+    } catch (_stopErr) {
+      if (returnCode === 0) {
+        returnCode = 1
+      }
+    }
 
-svr.then(() => {
+    if (serverResult != null) {
+      try {
+        await serverResult
+      } catch (_serverErr) {
+        if (returnCode === 0) {
+          returnCode = 1
+        }
+      }
+    }
+  }
+
   if (returnCode == 0) {
     console.log(
       env.formatEmojiMessage(
@@ -118,4 +134,9 @@ svr.then(() => {
     )
     process.exit(returnCode)
   }
+}
+
+main().catch((err) => {
+  console.error(err)
+  process.exit(1)
 })

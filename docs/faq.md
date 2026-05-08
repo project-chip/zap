@@ -138,7 +138,7 @@ References:
 To fix this in most cases, run:
 
 - `npm install`
-- `./node_modules/.bin/electron-rebuild -w sqlite3 -p`
+- `npx electron-rebuild -w sqlite3 -p` (from devDependency `@electron/rebuild`)
 
 If it still doesn't get fixed, do:
 

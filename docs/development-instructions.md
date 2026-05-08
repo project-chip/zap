@@ -2,7 +2,7 @@
 
 This section lists instructions for various things you might need to do in this repo.
 
-This is a node.js application, so you need node environment installed. The best way is to simply download latest install of [node](https://nodejs.org/en/download/) and you will get node and npm. If you have an older version of node installed on your workstation, it may give you trouble, particularly if it's very old. So make sure you have latest node v16.x, v18.x or v20.x version, with the npm that comes with it available. Run `node --version` to check what version is picked up. v20.x is recommended.
+This is a node.js application, so you need node environment installed. The best way is to simply download latest install of [node](https://nodejs.org/en/download/) and you will get node and npm. If you have an older version of node installed on your workstation, it may give you trouble, particularly if it's very old. For building the Electron UI and running the same toolchain as CI, use **Node.js v24.0 or newer** (GitHub Actions uses `24.x`). Older versions may still run parts of the stack but can show `EBADENGINE` warnings for `@electron/rebuild` and related packages. Run `node --version` to check what version is picked up.
 
 Once you have a desired version of node, you can run:
 
@@ -51,7 +51,7 @@ Following is the list of environment variables that zap tool honors:
 
 Zap repo is configured with husky git hooks, that perform some
 pre-commit actions, formatting code, checking the obvious problems and similar. If you properly ran `npm install`, all these hooks should
-be installed. You can make sure they are installed by running `npx husky install`. See `.husky/pre-commit` script to review the actions executed as a pre-commit hook.
+be installed. You can make sure they are installed by running `npx husky`. See `.husky/pre-commit` script to review the actions executed as a pre-commit hook.
 
 **Format the files:**
 

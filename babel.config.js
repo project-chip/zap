@@ -19,10 +19,9 @@ module.exports = (api) => {
       '@babel/preset-typescript'
     ],
     plugins: [
-      // Add Istanbul plugin for code coverage instrumentation when testing
-      process.env.NODE_ENV === 'test' && 'istanbul',
-      // Add coverage plugin for Cypress
-      process.env.CYPRESS_COVERAGE && 'istanbul'
+      // Istanbul once: e2e sets NODE_ENV=test and CYPRESS_COVERAGE together (duplicate plugin breaks Babel)
+      (process.env.NODE_ENV === 'test' || process.env.CYPRESS_COVERAGE) &&
+        'istanbul'
     ].filter(Boolean)
   }
 }
