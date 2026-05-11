@@ -103,6 +103,20 @@ jobs:
           # CSC_LINK: ${{ secrets.api_key_id }}
           # CSC_KEY_PASSWORD: ${{ secrets.api_key_issuer_id }}
 
+      - name: Assert zap-cli is statically linked (no GLIBC)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          set -e
+          unzip -o dist/zap-linux-x64.zip -d /tmp/zap-static-check
+          BIN=/tmp/zap-static-check/zap-cli
+          file "$BIN"
+          file "$BIN" | grep -q 'statically linked' || { echo 'FAIL: zap-cli is not statically linked'; exit 1; }
+          GLIBC_REFS=$(objdump -T "$BIN" 2>/dev/null | grep -oE 'GLIBC_[0-9.]+' | sort -uV || true)
+          echo "GLIBC versioned symbols: ${GLIBC_REFS:-(none)}"
+          if [ -n "$GLIBC_REFS" ]; then echo 'FAIL: zap-cli still imports GLIBC symbols'; exit 1; fi
+          ldd "$BIN" || true
+          rm -rf /tmp/zap-static-check
+
       - name: Verify zap-cli exists in Linux x64 .zip package
         if: startsWith(matrix.os, 'ubuntu')
         run: |
@@ -181,6 +195,73 @@ jobs:
         with:
           name: zap-linux-x64-deb
           path: dist/zap-linux-x64.deb
+
+  linux-portability-test:
+    name: Verify static zap-cli on ${{ matrix.label }}
+    needs: [build-zap]
+    runs-on: ubuntu-22.04
+    container:
+      image: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: 'ubuntu:22.04 (glibc 2.35)'
+            image: 'ubuntu:22.04'
+            installer: 'apt'
+          - label: 'debian:bullseye (glibc 2.31)'
+            image: 'debian:bullseye-slim'
+            installer: 'apt'
+          - label: 'rockylinux:8 (glibc 2.28)'
+            image: 'rockylinux:8'
+            installer: 'dnf'
+    steps:
+      - name: Install minimal tooling
+        run: |
+          if [ "${{ matrix.installer }}" = "apt" ]; then
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+              ca-certificates binutils file unzip
+          else
+            dnf install -y binutils file unzip
+          fi
+      - name: Print baseline OS info
+        run: |
+          cat /etc/os-release || true
+          ldd --version 2>/dev/null | head -n 1 || true
+          uname -a || true
+      - uses: actions/download-artifact@v4
+        with:
+          name: zap-linux-x64-zip
+      - name: Unpack zap-linux-x64.zip
+        run: |
+          mkdir -p zap-release
+          ART_ZIP=zap-linux-x64-zip/zap-linux-x64.zip
+          if [ ! -f "$ART_ZIP" ]; then
+            ART_ZIP=zap-linux-x64.zip
+          fi
+          unzip -o "$ART_ZIP" -d zap-release
+      - name: Inspect zap-cli binary
+        run: |
+          chmod +x zap-release/zap-cli
+          file zap-release/zap-cli
+          objdump -T zap-release/zap-cli 2>/dev/null | grep -oE 'GLIBC_[0-9.]+' | sort -uV || echo '(no GLIBC refs)'
+          ldd zap-release/zap-cli || true
+      - name: Run zap-cli --version (must succeed; proves binary loads with old glibc)
+        run: |
+          set -euo pipefail
+          ./zap-release/zap-cli --version
+      - name: Run zap-cli selfCheck (SQLite-touching path)
+        run: |
+          set -euo pipefail
+          CLI=./zap-release/zap-cli
+          PROP=zap-release/zcl-builtin/silabs/zcl-test.properties
+          GEN=zap-release/test/gen-template/zigbee/gen-templates.json
+          if [[ -f "$PROP" ]] && [[ -f "$GEN" ]]; then
+            "$CLI" selfCheck --zclProperties "$PROP" --genTemplateJson "$GEN"
+          else
+            "$CLI" selfCheck
+          fi
 
   matter-sdk-codegen-master:
     name: Test matter sdk codegen changes (master)
