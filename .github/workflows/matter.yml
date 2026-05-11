@@ -204,6 +204,10 @@ jobs:
     name: Verify static zap-cli on ${{ matrix.label }}
     needs: [build-zap]
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        # Container jobs default to dash; bash provides pipefail and [[ ]] in run scripts
+        shell: bash
     container:
       image: ${{ matrix.image }}
     strategy:
