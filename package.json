@@ -116,7 +116,7 @@
     "pack:cli:win": "node ./src-script/pack-cli.js -p win",
     "pack:cli:mac": "node ./src-script/pack-cli.js -p mac",
     "pkg": "npx pkg --out-path dist/ --compress GZip --options max-old-space-size=4096 .",
-    "pkg:linux": "npx pkg -t node20-linux-x64,node20-linux-arm64 --public --no-bytecode --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
+    "pkg:linux": "npx pkg -t node20-linuxstatic-x64,node20-linuxstatic-arm64 --public --no-bytecode --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
     "pkg-use-local-fork": "node ../pkg/lib-es5/bin.js -t node20-linux-x64 --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
     "pkg:win": "npx pkg -t node20-win-x64,node20-win-arm64 --public --no-bytecode --output dist/zap-win --compress GZip --options max-old-space-size=4096 .",
     "pkg:mac": "npx pkg -t node20-macos-x64,node20-macos-arm64 --output dist/zap-macos --compress GZip --options max-old-space-size=4096 .",
