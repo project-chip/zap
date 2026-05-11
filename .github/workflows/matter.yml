@@ -110,7 +110,11 @@ jobs:
           unzip -o dist/zap-linux-x64.zip -d /tmp/zap-static-check
           BIN=/tmp/zap-static-check/zap-cli
           file "$BIN"
-          file "$BIN" | grep -q 'statically linked' || { echo 'FAIL: zap-cli is not statically linked'; exit 1; }
+          # file(1): classic static says "statically linked"; musl static PIE says "static-pie linked"
+          file "$BIN" | grep -qE 'statically linked|static-pie linked' || {
+            echo 'FAIL: zap-cli is not a static ELF (expected "statically linked" or "static-pie linked")'
+            exit 1
+          }
           GLIBC_REFS=$(objdump -T "$BIN" 2>/dev/null | grep -oE 'GLIBC_[0-9.]+' | sort -uV || true)
           echo "GLIBC versioned symbols: ${GLIBC_REFS:-(none)}"
           if [ -n "$GLIBC_REFS" ]; then echo 'FAIL: zap-cli still imports GLIBC symbols'; exit 1; fi
