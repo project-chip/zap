@@ -535,6 +535,89 @@ jobs:
           name: zap-linux-x64-deb
           path: dist/zap-linux-x64.deb
 
+  test-linux-arm64:
+    name: Test ZAP on Linux arm64 (${{ matrix.os }})
+    needs: [build-zap]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # ubuntu-20.04-arm is not offered by GitHub Actions; Ubuntu 20.04 arm64
+        # is covered below via a native arm64 Docker container step.
+        os: [ubuntu-22.04-arm, ubuntu-24.04-arm]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+      - run: sudo ./src-script/install-packages-ubuntu
+      - run: npm ci
+      - run: npm run version-stamp
+      - run: npm rebuild canvas --update-binary
+      - run: npm rebuild libxmljs --update-binary
+      - run: npm run build-spa
+      - name: Self-check on arm64
+        run: npm run self-check
+
+      - name: Download arm64 zip artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: zap-linux-arm64-zip
+          path: dist/
+      - name: ZAP binary check (Linux arm64) - unzip
+        run: unzip dist/zap-linux-arm64.zip -d dist/zap-linux-arm64
+      - name: ZAP binary check (Linux arm64) - check version is set via CLI
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: ./dist/zap-linux-arm64/zap-cli --version
+          contains: '0.0.0'
+          expected_result: FAILED
+      # Run the same arm64 binary inside an Ubuntu 20.04 arm64 container.
+      # The runner is already arm64 so Docker runs natively — no QEMU needed.
+      # Only do this once (on the 22.04-arm leg) to avoid duplicate pulls.
+      - name: ZAP binary check - Ubuntu 20.04 arm64 (via Docker)
+        if: matrix.os == 'ubuntu-22.04-arm'
+        run: |
+          VERSION=$(docker run --rm \
+            -v ${{ github.workspace }}/dist/zap-linux-arm64:/zap \
+            ubuntu:20.04 /zap/zap-cli --version 2>&1)
+          echo "zap-cli arm64 on Ubuntu 20.04 reported: $VERSION"
+          if echo "$VERSION" | grep -qE '^v?0\.0\.0'; then
+            echo "FAIL: version stamp missing on Ubuntu 20.04 arm64"
+            exit 1
+          fi
+      - name: ZAP binary check (Linux arm64) - unzip cleanup
+        run: rm -rf dist/zap-linux-arm64
+
+  test-linux-x64-compat:
+    name: ZAP x64 binary on ${{ matrix.os }}
+    needs: [build-zap]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+
+    steps:
+      - name: Download x64 zip artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: zap-linux-x64-zip
+          path: dist/
+      - name: Unzip
+        run: unzip dist/zap-linux-x64.zip -d dist/zap-linux-x64
+      - name: ZAP binary check (Linux x64) - check version is set via CLI
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: ./dist/zap-linux-x64/zap-cli --version
+          contains: '0.0.0'
+          expected_result: FAILED
+      - name: Cleanup
+        run: rm -rf dist/zap-linux-x64
+
   release:
     if: startsWith(github.ref, 'refs/tags/')
     needs: [build-zap]
