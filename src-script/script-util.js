@@ -26,6 +26,7 @@ const env = require('../src-electron/util/env')
 const spaDir = path.join(__dirname, '../spa')
 const backendDir = path.join(__dirname, '../dist')
 const spaHashFileName = path.join(spaDir, 'hash.json')
+const spaIndexFileName = path.join(spaDir, 'index.html')
 const backendHashFileName = path.join(backendDir, 'hash.json')
 process.env.PATH = process.env.PATH + ':./node_modules/.bin/'
 
@@ -175,9 +176,20 @@ async function rebuildSpaIfNeeded() {
                 oldHash.srcSharedHash != ctx.hash.srcSharedHash ||
                 oldHash.srcHash != ctx.hash.srcHash
             }
+            // Even if source hashes match, a missing build output means the
+            // previous build was cleaned/deleted and we must rebuild.
+            if (!ctx.needsRebuild && !fs.existsSync(spaIndexFileName)) {
+              console.log(
+                env.formatEmojiMessage(
+                  '👎',
+                  `Built SPA is missing (${spaIndexFileName} not found).`
+                )
+              )
+              ctx.needsRebuild = true
+            }
             if (ctx.needsRebuild) {
               console.log(
-                `🐝 Front-end code changed, so we need to rebuild SPA.`
+                `🐝 Front-end code changed or build output missing, so we need to rebuild SPA.`
               )
             } else {
               console.log(
