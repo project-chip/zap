@@ -1,6 +1,6 @@
 /**
  *
- *    Copyright (c) 2020 Silicon Labs
+ *    Copyright (c) 2026 Silicon Labs
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -201,8 +201,8 @@ async function all_user_cluster_attribute_util(
       )
   }
   if ('removeKeys' in options.hash) {
-    let keys = options.hash.removeKeys.split(',')
-    keys.forEach((k) => endpointAttributes.map((attr) => delete attr[k.trim()]))
+    let keys = options.hash.removeKeys.split(',').map((k) => k.trim())
+    endpointAttributes.forEach((attr) => keys.forEach((k) => delete attr[k]))
   }
 
   let availableAttributes = []
@@ -1177,8 +1177,6 @@ exports.all_user_cluster_manufacturer_specific_attributes =
 exports.all_user_cluster_non_manufacturer_specific_attributes =
   all_user_cluster_non_manufacturer_specific_attributes
 exports.all_user_cluster_attributes_irrespective_of_manufatucuring_specification =
-  enabled_attributes_for_cluster_and_side
-exports.all_user_cluster_attributes_irrespective_of_manufatucuring_specification =
   dep(enabled_attributes_for_cluster_and_side, {
     from: 'all_user_cluster_attributes_irrespective_of_manufatucuring_specification',
     to: 'enabled_attributes_for_cluster_and_side'
@@ -1207,15 +1205,11 @@ exports.all_user_clusters_with_incoming_commands =
   all_user_clusters_with_incoming_commands
 exports.all_user_incoming_commands_for_all_clusters =
   all_user_incoming_commands_for_all_clusters
-exports.all_user_clusters_with_incoming_commands_combined =
-  all_user_clusters_with_incoming_commands_combined
 exports.all_user_clusters_with_incoming_commands_combined = dep(
   all_user_clusters_with_incoming_commands_combined,
   { to: 'all_user_incoming_commands_for_all_clusters' }
 )
 exports.all_incoming_commands_for_cluster = all_incoming_commands_for_cluster
-exports.all_incoming_commands_for_cluster_combined =
-  all_incoming_commands_for_cluster_combined
 exports.all_incoming_commands_for_cluster_combined = dep(
   all_incoming_commands_for_cluster_combined,
   { to: 'all_user_incoming_commands_for_all_clusters' }

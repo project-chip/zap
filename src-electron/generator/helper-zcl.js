@@ -1149,8 +1149,8 @@ async function zcl_attributes_server(options) {
     )
   }
   if ('removeKeys' in options.hash) {
-    let keys = options.hash.removeKeys.split(',')
-    keys.forEach((k) => serverAttributes.map((attr) => delete attr[k.trim()]))
+    let keys = options.hash.removeKeys.split(',').map((k) => k.trim())
+    serverAttributes.forEach((attr) => keys.forEach((k) => delete attr[k]))
   }
   let promise = templateUtil.collectBlocks(serverAttributes, options, this)
   return templateUtil.templatePromise(this.global, promise)
