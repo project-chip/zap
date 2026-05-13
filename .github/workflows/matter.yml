@@ -273,6 +273,15 @@ jobs:
         run: |
           cd chip_repo
           git add .
+          # v1.4.2-branch: ignore regen drift on existing .matter files (vs this LTS baseline).
+          # This was done because there was a provisional conformance update that was added to ZAP
+          # which affected all branches but is the correct change for this/all-old branches.
+          # Use a plain pipe (not bash process substitution) — chip-build runs /bin/sh.
+          git ls-files | awk '/\.matter$/ { print }' | while IFS= read -r f; do
+            if git rev-parse "HEAD:${f}" >/dev/null 2>&1; then
+              git restore --source=HEAD --staged --worktree -- "$f"
+            fi
+          done
           # Show the full diff
           git diff-index -p HEAD --
           # Also show just the files that are different, to make it easy
