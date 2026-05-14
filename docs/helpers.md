@@ -26,7 +26,66 @@
 <dd><p>This module contains the API for accessing SDK extensions.</p>
 </dd>
 <dt><a href="#module_Templating API_ user-data specific helpers">Templating API: user-data specific helpers</a></dt>
-<dd><p>This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}</p>
+<dd><p>This module contains the API for templating helpers that operate on the
+<strong>user-data session</strong> with a <strong>per-endpoint (unshared) configuration</strong>
+lens.</p>
+<p>Classification criterion (objective, based on the underlying SQL):
+a block helper belongs in this module if its underlying SQL query
+includes <code>ENDPOINT.ENDPOINT_IDENTIFIER</code> (or an equivalent endpoint-
+identifying column) in its <code>GROUP BY</code> clause — either unconditionally
+(pure per-endpoint) or conditionally on the <code>SINGLETON</code> flag (singleton-
+aware hybrid). In both cases the result contains at least some rows
+keyed by endpoint, so the iteration body may run once per
+(endpoint, cluster) tuple. Helpers backed by per-endpoint exporters
+(<code>exportClustersFromEndpointType</code>, <code>exportAttributesFromEndpointTypeCluster</code>,
+etc.) also belong here because they take a single <code>endpointTypeId</code> /
+<code>endpointClusterId</code> and are called inside a per-endpoint block.</p>
+<p>Inside such a block, fields like enabled/disabled state, default values,
+reporting configuration and the <code>SINGLETON</code> flag can differ between
+endpoints that share the same cluster code. The body of the iterator
+therefore runs once per (endpoint, cluster) tuple — not once per unique
+cluster.</p>
+<p>This module also hosts session-level utility helpers (manufacturer code,
+default response policy, session keys, endpoint type lookups, etc.) that
+do not iterate but rely on the same per-session user data.</p>
+<p>Counterpart helpers whose underlying SQL <code>GROUP BY</code> does <strong>not</strong> include
+<code>ENDPOINT.ENDPOINT_IDENTIFIER</code> — i.e. helpers that aggregate across all
+endpoints and emit a single shared record per common cluster (for global
+dispatcher tables, generated-defaults arrays, etc.) — live in the
+<code>Templating API: Shared cross-endpoint configuration helpers</code> module
+(<code>src-electron/generator/helper-shared-config.js</code>).</p>
+<p>For more detailed instructions, read {@tutorial template-tutorial}.</p>
+</dd>
+<dt><a href="#module_Templating API_ Shared cross-endpoint configuration helpers">Templating API: Shared cross-endpoint configuration helpers</a></dt>
+<dd><p>This module contains the API for templating block helpers that emit
+<strong>shared configuration across endpoints for common clusters</strong>.</p>
+<p>Classification criterion (objective, based on the underlying SQL):
+a helper belongs in this module if and only if its underlying SQL query
+does <strong>not</strong> include <code>ENDPOINT.ENDPOINT_IDENTIFIER</code> (or any equivalent
+endpoint-identifying column) in its <code>GROUP BY</code> clause. Such queries
+collapse rows across endpoints, so each unique (cluster, side) — or
+(cluster, attribute, side), or (cluster, command) — appears only once
+in the result regardless of how many endpoints declare it.</p>
+<p>In ZAP terminology a &quot;common cluster&quot; is a cluster (identified by code
+and side) that appears on more than one endpoint in the user&#39;s
+configuration. Helpers in this module return the configuration that is
+shared across those instances. The iteration body of a block helper here
+therefore runs once per unique cluster / attribute / command — not once
+per (endpoint, cluster) pair.</p>
+<p>Use these helpers when the generated artifact is global (e.g. a single
+dispatcher table, a generated-defaults array, or a project-wide manifest)
+and does not need to differ between endpoints that share the same cluster.</p>
+<p>Counterpart per-endpoint helpers (whose underlying SQL query groups by
+<code>ENDPOINT.ENDPOINT_IDENTIFIER</code> and whose body therefore executes once per
+(endpoint, cluster) tuple, allowing per-endpoint defaults / reporting /
+enabled state) live in the
+<code>Templating API: user-data specific helpers</code> module
+(<code>src-electron/generator/helper-session.js</code>). Singleton-aware hybrid
+helpers (whose <code>GROUP BY</code> conditionally includes
+<code>ENDPOINT.ENDPOINT_IDENTIFIER</code> based on the <code>SINGLETON</code> flag) also live
+in that module since they emit per-endpoint rows for non-singleton
+attributes.</p>
+<p>For more detailed instructions, read {@tutorial template-tutorial}.</p>
 </dd>
 <dt><a href="#module_Templating API_ Token helpers">Templating API: Token helpers</a></dt>
 <dd><p>This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}</p>
@@ -1926,7 +1985,40 @@ specified by property="propName" attribute.
 <a name="module_Templating API_ user-data specific helpers"></a>
 
 ## Templating API: user-data specific helpers
-This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+This module contains the API for templating helpers that operate on the
+**user-data session** with a **per-endpoint (unshared) configuration**
+lens.
+
+Classification criterion (objective, based on the underlying SQL):
+a block helper belongs in this module if its underlying SQL query
+includes `ENDPOINT.ENDPOINT_IDENTIFIER` (or an equivalent endpoint-
+identifying column) in its `GROUP BY` clause — either unconditionally
+(pure per-endpoint) or conditionally on the `SINGLETON` flag (singleton-
+aware hybrid). In both cases the result contains at least some rows
+keyed by endpoint, so the iteration body may run once per
+(endpoint, cluster) tuple. Helpers backed by per-endpoint exporters
+(`exportClustersFromEndpointType`, `exportAttributesFromEndpointTypeCluster`,
+etc.) also belong here because they take a single `endpointTypeId` /
+`endpointClusterId` and are called inside a per-endpoint block.
+
+Inside such a block, fields like enabled/disabled state, default values,
+reporting configuration and the `SINGLETON` flag can differ between
+endpoints that share the same cluster code. The body of the iterator
+therefore runs once per (endpoint, cluster) tuple — not once per unique
+cluster.
+
+This module also hosts session-level utility helpers (manufacturer code,
+default response policy, session keys, endpoint type lookups, etc.) that
+do not iterate but rely on the same per-session user data.
+
+Counterpart helpers whose underlying SQL `GROUP BY` does **not** include
+`ENDPOINT.ENDPOINT_IDENTIFIER` — i.e. helpers that aggregate across all
+endpoints and emit a single shared record per common cluster (for global
+dispatcher tables, generated-defaults arrays, etc.) — live in the
+`Templating API: Shared cross-endpoint configuration helpers` module
+(`src-electron/generator/helper-shared-config.js`).
+
+For more detailed instructions, read {@tutorial template-tutorial}.
 
 
 * [Templating API: user-data specific helpers](#module_Templating API_ user-data specific helpers)
@@ -1941,24 +2033,10 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~user_endpoint_type_count()](#module_Templating API_ user-data specific helpers..user_endpoint_type_count) ⇒
     * [~user_endpoint_count_by_cluster(clusterTypeId)](#module_Templating API_ user-data specific helpers..user_endpoint_count_by_cluster) ⇒
     * [~user_all_attributes(options)](#module_Templating API_ user-data specific helpers..user_all_attributes) ⇒
-    * [~all_user_cluster_commands(options)](#module_Templating API_ user-data specific helpers..all_user_cluster_commands) ⇒
-    * [~all_user_cluster_command_util(name, side, options, currentContext, isManufacturingSpecific, isIrrespectiveOfManufacturingSpecification)](#module_Templating API_ user-data specific helpers..all_user_cluster_command_util)
-    * [~all_user_cluster_attribute_util(name, side, options, currentContext, isManufacturingSpecific, isIrrespectiveOfManufacturingSpecification)](#module_Templating API_ user-data specific helpers..all_user_cluster_attribute_util) ⇒
-    * [~all_user_cluster_manufacturer_specific_commands(options)](#module_Templating API_ user-data specific helpers..all_user_cluster_manufacturer_specific_commands) ⇒
-    * [~all_user_cluster_non_manufacturer_specific_commands(options)](#module_Templating API_ user-data specific helpers..all_user_cluster_non_manufacturer_specific_commands) ⇒
-    * [~all_user_cluster_manufacturer_specific_attributes(options)](#module_Templating API_ user-data specific helpers..all_user_cluster_manufacturer_specific_attributes) ⇒
-    * [~all_user_cluster_non_manufacturer_specific_attributes(options)](#module_Templating API_ user-data specific helpers..all_user_cluster_non_manufacturer_specific_attributes) ⇒
-    * [~all_commands_for_user_enabled_clusters(options)](#module_Templating API_ user-data specific helpers..all_commands_for_user_enabled_clusters) ⇒
-    * [~all_cli_commands_for_user_enabled_clusters(options)](#module_Templating API_ user-data specific helpers..all_cli_commands_for_user_enabled_clusters) ⇒
-    * [~all_user_clusters(options)](#module_Templating API_ user-data specific helpers..all_user_clusters) ⇒
-    * [~all_user_clusters_irrespective_of_side(options)](#module_Templating API_ user-data specific helpers..all_user_clusters_irrespective_of_side) ⇒
-    * [~all_user_clusters_names(options)](#module_Templating API_ user-data specific helpers..all_user_clusters_names) ⇒
     * [~user_cluster_command_count_with_cli()](#module_Templating API_ user-data specific helpers..user_cluster_command_count_with_cli)
     * [~user_cluster_commands_with_cli()](#module_Templating API_ user-data specific helpers..user_cluster_commands_with_cli)
     * [~user_cluster_commands_all_endpoints(options)](#module_Templating API_ user-data specific helpers..user_cluster_commands_all_endpoints)
     * [~user_cluster_has_enabled_command(name, side)](#module_Templating API_ user-data specific helpers..user_cluster_has_enabled_command) ⇒
-    * [~all_user_cluster_commands_irrespective_of_manufaturing_specification(options)](#module_Templating API_ user-data specific helpers..all_user_cluster_commands_irrespective_of_manufaturing_specification) ⇒
-    * [~enabled_attributes_for_cluster_and_side(name, side, options)](#module_Templating API_ user-data specific helpers..enabled_attributes_for_cluster_and_side) ⇒
     * [~user_session_key(options)](#module_Templating API_ user-data specific helpers..user_session_key) ⇒
     * [~if_command_discovery_enabled()](#module_Templating API_ user-data specific helpers..if_command_discovery_enabled)
     * [~user_manufacturer_code(options)](#module_Templating API_ user-data specific helpers..user_manufacturer_code) ⇒
@@ -1967,31 +2045,9 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~is_command_default_response_disabled(command, options)](#module_Templating API_ user-data specific helpers..is_command_default_response_disabled) ⇒
     * [~endpoint_type_identifier(endpointTypeId)](#module_Templating API_ user-data specific helpers..endpoint_type_identifier) ⇒
     * [~endpoint_type_index(endpointTypeId)](#module_Templating API_ user-data specific helpers..endpoint_type_index) ⇒
-    * [~all_user_cluster_attributes_for_generated_defaults(name, side, options)](#module_Templating API_ user-data specific helpers..all_user_cluster_attributes_for_generated_defaults) ⇒
-    * [~all_user_cluster_generated_attributes(options)](#module_Templating API_ user-data specific helpers..all_user_cluster_generated_attributes) ⇒
-    * [~all_user_reportable_attributes(options)](#module_Templating API_ user-data specific helpers..all_user_reportable_attributes) ⇒
-    * [~all_user_cluster_generated_commands(options)](#module_Templating API_ user-data specific helpers..all_user_cluster_generated_commands) ⇒
-    * [~all_user_clusters_with_incoming_or_outgoing_commands(options, is_incoming)](#module_Templating API_ user-data specific helpers..all_user_clusters_with_incoming_or_outgoing_commands) ⇒
-    * [~all_user_clusters_with_incoming_commands(options)](#module_Templating API_ user-data specific helpers..all_user_clusters_with_incoming_commands) ⇒
-    * [~all_user_clusters_with_outgoing_commands(options)](#module_Templating API_ user-data specific helpers..all_user_clusters_with_outgoing_commands) ⇒
-    * [~manufacturing_clusters_with_incoming_commands(clusterCode, options)](#module_Templating API_ user-data specific helpers..manufacturing_clusters_with_incoming_commands) ⇒
-    * [~all_user_clusters_with_incoming_commands_combined(options)](#module_Templating API_ user-data specific helpers..all_user_clusters_with_incoming_commands_combined) ⇒
-    * [~all_incoming_commands_for_cluster_combined(clusterName, clientSide, serverSide, options)](#module_Templating API_ user-data specific helpers..all_incoming_commands_for_cluster_combined) ⇒
-    * [~all_user_incoming_commands_for_all_clusters(options)](#module_Templating API_ user-data specific helpers..all_user_incoming_commands_for_all_clusters) ⇒
-    * [~all_incoming_or_outgoing_commands_for_cluster(clusterName, clusterSide, isIncoming, options)](#module_Templating API_ user-data specific helpers..all_incoming_or_outgoing_commands_for_cluster) ⇒
-    * [~all_incoming_commands_for_cluster(clusterName, options)](#module_Templating API_ user-data specific helpers..all_incoming_commands_for_cluster) ⇒
-    * [~all_outgoing_commands_for_cluster(clusterName, options)](#module_Templating API_ user-data specific helpers..all_outgoing_commands_for_cluster) ⇒
     * [~generated_clustes_details(options)](#module_Templating API_ user-data specific helpers..generated_clustes_details) ⇒
     * [~generated_endpoint_type_details(options)](#module_Templating API_ user-data specific helpers..generated_endpoint_type_details) ⇒
-    * [~all_user_cluster_attributes_min_max_defaults(name, side, options)](#module_Templating API_ user-data specific helpers..all_user_cluster_attributes_min_max_defaults) ⇒
-    * [~checkAttributeMatch(clusterName, attributeName, attributeSide, attributeValue, attributeValueType, endpointAttributes)](#module_Templating API_ user-data specific helpers..checkAttributeMatch) ⇒
-    * [~generated_defaults_index(clusterName, attributeName, attributeValueType, attributeValue, prefixReturn, postFixReturn)](#module_Templating API_ user-data specific helpers..generated_defaults_index) ⇒
-    * [~generated_default_index(clusterName, attributeName, attributeSide, attributeValueType, attributeValue, prefixReturn, postFixReturn)](#module_Templating API_ user-data specific helpers..generated_default_index) ⇒
-    * [~generated_attributes_min_max_index(name, side, options)](#module_Templating API_ user-data specific helpers..generated_attributes_min_max_index) ⇒
-    * [~generated_attribute_min_max_index(clusterName, attributeName, attributeSide, options)](#module_Templating API_ user-data specific helpers..generated_attribute_min_max_index) ⇒
-    * [~if_enabled_clusters(options)](#module_Templating API_ user-data specific helpers..if_enabled_clusters) ⇒
-    * [~if_multi_protocol_attributes_enabled(options)](#module_Templating API_ user-data specific helpers..if_multi_protocol_attributes_enabled) ⇒
-    * [~all_multi_protocol_attributes(options)](#module_Templating API_ user-data specific helpers..all_multi_protocol_attributes) ⇒
+    * [~all_user_reportable_attributes(options)](#module_Templating API_ user-data specific helpers..all_user_reportable_attributes) ⇒
 
 <a name="module_Templating API_ user-data specific helpers..user_endpoints"></a>
 
@@ -2161,169 +2217,6 @@ Iterates over all attributes required by the user configuration.
 | --- | --- |
 | options | <code>\*</code> | 
 
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_commands"></a>
-
-### Templating API: user-data specific helpers~all\_user\_cluster\_commands(options) ⇒
-Creates endpoint type cluster command iterator. This fetches all
-commands which have been enabled on added endpoints
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over cluster commands.  
-
-| Param | Type |
-| --- | --- |
-| options | <code>\*</code> | 
-
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_command_util"></a>
-
-### Templating API: user-data specific helpers~all\_user\_cluster\_command\_util(name, side, options, currentContext, isManufacturingSpecific, isIrrespectiveOfManufacturingSpecification)
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-
-| Param | Default | Description |
-| --- | --- | --- |
-| name |  |  |
-| side |  |  |
-| options |  |  |
-| currentContext |  |  |
-| isManufacturingSpecific |  |  |
-| isIrrespectiveOfManufacturingSpecification | <code>false</code> | Returns: Promise of the resolved blocks iterating over manufacturing specific, non-manufacturing specific or both of the cluster commands. |
-
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_attribute_util"></a>
-
-### Templating API: user-data specific helpers~all\_user\_cluster\_attribute\_util(name, side, options, currentContext, isManufacturingSpecific, isIrrespectiveOfManufacturingSpecification) ⇒
-Get attribute details based on given arguments.
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Attribute details  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| name | <code>\*</code> |  | 
-| side | <code>\*</code> |  | 
-| options | <code>\*</code> |  | 
-| currentContext | <code>\*</code> |  | 
-| isManufacturingSpecific | <code>\*</code> |  | 
-| isIrrespectiveOfManufacturingSpecification | <code>\*</code> | <code>false</code> | 
-
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_manufacturer_specific_commands"></a>
-
-### Templating API: user-data specific helpers~all\_user\_cluster\_manufacturer\_specific\_commands(options) ⇒
-Creates endpoint type cluster command iterator. This fetches all
-manufacturing specific commands which have been enabled on added endpoints
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over manufacturing specific
-cluster commands.  
-
-| Param |
-| --- |
-| options | 
-
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_non_manufacturer_specific_commands"></a>
-
-### Templating API: user-data specific helpers~all\_user\_cluster\_non\_manufacturer\_specific\_commands(options) ⇒
-Creates endpoint type cluster command iterator. This fetches all
-non-manufacturing specific commands which have been enabled on added endpoints
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over non-manufacturing specific
-cluster commands.  
-
-| Param |
-| --- |
-| options | 
-
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_manufacturer_specific_attributes"></a>
-
-### Templating API: user-data specific helpers~all\_user\_cluster\_manufacturer\_specific\_attributes(options) ⇒
-Creates endpoint type cluster command iterator. This fetches all
-manufacturing specific commands which have been enabled on added endpoints
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over manufacturing specific
-cluster commands.  
-
-| Param |
-| --- |
-| options | 
-
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_non_manufacturer_specific_attributes"></a>
-
-### Templating API: user-data specific helpers~all\_user\_cluster\_non\_manufacturer\_specific\_attributes(options) ⇒
-Creates endpoint type cluster command iterator. This fetches all
-non-manufacturing specific commands which have been enabled on added endpoints
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over non-manufacturing specific
-cluster commands.  
-
-| Param |
-| --- |
-| options | 
-
-<a name="module_Templating API_ user-data specific helpers..all_commands_for_user_enabled_clusters"></a>
-
-### Templating API: user-data specific helpers~all\_commands\_for\_user\_enabled\_clusters(options) ⇒
-Creates endpoint type cluster command iterator. This fetches all
-commands which have been enabled on added endpoints
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over cluster commands.  
-
-| Param | Type |
-| --- | --- |
-| options | <code>\*</code> | 
-
-<a name="module_Templating API_ user-data specific helpers..all_cli_commands_for_user_enabled_clusters"></a>
-
-### Templating API: user-data specific helpers~all\_cli\_commands\_for\_user\_enabled\_clusters(options) ⇒
-This helper returns all commands which have cli within the list of enabled
-clusters.
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: all commands with cli from the list of enabled clusters  
-
-| Param |
-| --- |
-| options | 
-
-<a name="module_Templating API_ user-data specific helpers..all_user_clusters"></a>
-
-### Templating API: user-data specific helpers~all\_user\_clusters(options) ⇒
-Creates cluster iterator for all endpoints.
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over cluster commands.  
-
-| Param | Type |
-| --- | --- |
-| options | <code>\*</code> | 
-
-<a name="module_Templating API_ user-data specific helpers..all_user_clusters_irrespective_of_side"></a>
-
-### Templating API: user-data specific helpers~all\_user\_clusters\_irrespective\_of\_side(options) ⇒
-Creates cluster command iterator for all endpoints.
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over cluster commands.  
-
-| Param | Type |
-| --- | --- |
-| options | <code>\*</code> | 
-
-<a name="module_Templating API_ user-data specific helpers..all_user_clusters_names"></a>
-
-### Templating API: user-data specific helpers~all\_user\_clusters\_names(options) ⇒
-Creates cluster command iterator for all endpoints whitout any duplicates
-cause by cluster side
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over cluster commands.  
-
-| Param | Type |
-| --- | --- |
-| options | <code>\*</code> | 
-
 <a name="module_Templating API_ user-data specific helpers..user_cluster_command_count_with_cli"></a>
 
 ### Templating API: user-data specific helpers~user\_cluster\_command\_count\_with\_cli()
@@ -2372,44 +2265,6 @@ cluster block helpers.
 | --- | --- | --- |
 | name | <code>\*</code> | : Cluster name |
 | side | <code>\*</code> | : Cluster side |
-
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_commands_irrespective_of_manufaturing_specification"></a>
-
-### Templating API: user-data specific helpers~all\_user\_cluster\_commands\_irrespective\_of\_manufaturing\_specification(options) ⇒
-Creates endpoint type cluster command iterator. This fetches all
-manufacturing and non-manufaturing specific commands which have been enabled
-on added endpoints
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over manufacturing specific
-and non-manufacturing specific cluster commands.  
-
-| Param |
-| --- |
-| options | 
-
-<a name="module_Templating API_ user-data specific helpers..enabled_attributes_for_cluster_and_side"></a>
-
-### Templating API: user-data specific helpers~enabled\_attributes\_for\_cluster\_and\_side(name, side, options) ⇒
-Creates endpoint type cluster attribute iterator. This fetches all
-manufacturer-specific and standard attributes which have been enabled on
-added endpoints based on the name and side of the cluster. When side
-is not mentioned then client and server attributes are returned.
-Available Options:
-- removeKeys: Removes one or more keys from the map(for eg keys in db-mapping.js)
-for eg:(#enabled_attributes_for_cluster_and_side
-         [cluster-name], [cluster-side], removeKeys='isOptional, isNullable')
-will remove 'isOptional' and 'isNullable' from the results
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Promise of the resolved blocks iterating over manufacturing specific
-and standard cluster attributes.  
-
-| Param |
-| --- |
-| name | 
-| side | 
-| options | 
 
 <a name="module_Templating API_ user-data specific helpers..user_session_key"></a>
 
@@ -2515,31 +2370,34 @@ Will return -1 if the given endpoint type is not present.
 | --- | --- |
 | endpointTypeId | <code>\*</code> | 
 
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_attributes_for_generated_defaults"></a>
+<a name="module_Templating API_ user-data specific helpers..generated_clustes_details"></a>
 
-### Templating API: user-data specific helpers~all\_user\_cluster\_attributes\_for\_generated\_defaults(name, side, options) ⇒
-Default values for the attributes longer than a pointer.
-All attribute values with size greater than 2 bytes.
-Excluding 0 values and externally saved values
+### Templating API: user-data specific helpers~generated\_clustes\_details(options) ⇒
+Entails the Cluster details per endpoint.
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Attribute values greater than 2 bytes and not 0 nor externally saved.  
-
-| Param |
-| --- |
-| name | 
-| side | 
-| options | 
-
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_generated_attributes"></a>
-
-### Templating API: user-data specific helpers~all\_user\_cluster\_generated\_attributes(options) ⇒
-Entails the list of all attributes which have been enabled. Given the
-cluster is enabled as well. The helper retrieves the attributes across
-all endpoints.
+Per-endpoint helper: the underlying SQL query
+(`selectClusterDetailsFromEnabledClusters`) groups by
+`ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE,
+ATTRIBUTE.NAME`, so it returns one row per (endpoint, cluster, side).
 
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: enabled attributes  
+**Returns**: Cluster Details per endpoint with attribute summaries within the clusters  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ user-data specific helpers..generated_endpoint_type_details"></a>
+
+### Templating API: user-data specific helpers~generated\_endpoint\_type\_details(options) ⇒
+Entails Endpoint type details along with their cluster summaries.
+
+Per-endpoint helper: the underlying SQL query
+(`selectEndpointDetailsFromAddedEndpoints`) groups by
+`ENDPOINT.ENDPOINT_IDENTIFIER, ...`, so it returns one row per endpoint.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Returns**: Endpoint type details along with their cluster summaries  
 
 | Param |
 | --- |
@@ -2552,6 +2410,13 @@ Entails the list of reportable attributes which have been enabled. Given the
 cluster is enabled as well. The helper retrieves the reportable attributes
 per endpoint per cluster.
 
+Per-endpoint helper (singleton-aware hybrid): the underlying SQL query
+(`selectReportableAttributeDetailsFromEnabledClustersAndEndpoints`) groups
+by `CASE WHEN SINGLETON=0 THEN ENDPOINT.ENDPOINT_IDENTIFIER END,
+CLUSTER..., ATTRIBUTE...`, so non-singleton attributes get one row per
+endpoint while singleton attributes (shared across endpoints with the same
+cluster) get a single row.
+
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
 **Returns**: Reportable attributes  
 
@@ -2559,25 +2424,333 @@ per endpoint per cluster.
 | --- |
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_generated_commands"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers"></a>
 
-### Templating API: user-data specific helpers~all\_user\_cluster\_generated\_commands(options) ⇒
+## Templating API: Shared cross-endpoint configuration helpers
+This module contains the API for templating block helpers that emit
+**shared configuration across endpoints for common clusters**.
+
+Classification criterion (objective, based on the underlying SQL):
+a helper belongs in this module if and only if its underlying SQL query
+does **not** include `ENDPOINT.ENDPOINT_IDENTIFIER` (or any equivalent
+endpoint-identifying column) in its `GROUP BY` clause. Such queries
+collapse rows across endpoints, so each unique (cluster, side) — or
+(cluster, attribute, side), or (cluster, command) — appears only once
+in the result regardless of how many endpoints declare it.
+
+In ZAP terminology a "common cluster" is a cluster (identified by code
+and side) that appears on more than one endpoint in the user's
+configuration. Helpers in this module return the configuration that is
+shared across those instances. The iteration body of a block helper here
+therefore runs once per unique cluster / attribute / command — not once
+per (endpoint, cluster) pair.
+
+Use these helpers when the generated artifact is global (e.g. a single
+dispatcher table, a generated-defaults array, or a project-wide manifest)
+and does not need to differ between endpoints that share the same cluster.
+
+Counterpart per-endpoint helpers (whose underlying SQL query groups by
+`ENDPOINT.ENDPOINT_IDENTIFIER` and whose body therefore executes once per
+(endpoint, cluster) tuple, allowing per-endpoint defaults / reporting /
+enabled state) live in the
+`Templating API: user-data specific helpers` module
+(`src-electron/generator/helper-session.js`). Singleton-aware hybrid
+helpers (whose `GROUP BY` conditionally includes
+`ENDPOINT.ENDPOINT_IDENTIFIER` based on the `SINGLETON` flag) also live
+in that module since they emit per-endpoint rows for non-singleton
+attributes.
+
+For more detailed instructions, read {@tutorial template-tutorial}.
+
+
+* [Templating API: Shared cross-endpoint configuration helpers](#module_Templating API_ Shared cross-endpoint configuration helpers)
+    * [~all_user_cluster_commands(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_commands) ⇒
+    * [~all_user_cluster_command_util(name, side, options, currentContext, isManufacturingSpecific, isIrrespectiveOfManufacturingSpecification)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_command_util)
+    * [~all_user_cluster_attribute_util(name, side, options, currentContext, isManufacturingSpecific, isIrrespectiveOfManufacturingSpecification)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_attribute_util) ⇒
+    * [~all_user_cluster_manufacturer_specific_commands(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_manufacturer_specific_commands) ⇒
+    * [~all_user_cluster_non_manufacturer_specific_commands(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_non_manufacturer_specific_commands) ⇒
+    * [~all_user_cluster_manufacturer_specific_attributes(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_manufacturer_specific_attributes) ⇒
+    * [~all_user_cluster_non_manufacturer_specific_attributes(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_non_manufacturer_specific_attributes) ⇒
+    * [~all_commands_for_user_enabled_clusters(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_commands_for_user_enabled_clusters) ⇒
+    * [~all_cli_commands_for_user_enabled_clusters(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_cli_commands_for_user_enabled_clusters) ⇒
+    * [~all_user_clusters(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters) ⇒
+    * [~all_user_clusters_irrespective_of_side(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_irrespective_of_side) ⇒
+    * [~all_user_clusters_names(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_names) ⇒
+    * [~all_user_cluster_commands_irrespective_of_manufaturing_specification(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_commands_irrespective_of_manufaturing_specification) ⇒
+    * [~enabled_attributes_for_cluster_and_side(name, side, options)](#module_Templating API_ Shared cross-endpoint configuration helpers..enabled_attributes_for_cluster_and_side) ⇒
+    * [~all_user_cluster_attributes_for_generated_defaults(name, side, options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_attributes_for_generated_defaults) ⇒
+    * [~all_user_cluster_generated_attributes(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_generated_attributes) ⇒
+    * [~all_user_cluster_generated_commands(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_generated_commands) ⇒
+    * [~all_user_clusters_with_incoming_or_outgoing_commands(options, is_incoming)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_with_incoming_or_outgoing_commands) ⇒
+    * [~all_user_clusters_with_incoming_commands(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_with_incoming_commands) ⇒
+    * [~all_user_clusters_with_outgoing_commands(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_with_outgoing_commands) ⇒
+    * [~manufacturing_clusters_with_incoming_commands(clusterCode, options)](#module_Templating API_ Shared cross-endpoint configuration helpers..manufacturing_clusters_with_incoming_commands) ⇒
+    * [~all_user_clusters_with_incoming_commands_combined(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_with_incoming_commands_combined) ⇒
+    * [~all_incoming_commands_for_cluster_combined(clusterName, clientSide, serverSide, options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_incoming_commands_for_cluster_combined) ⇒
+    * [~all_user_incoming_commands_for_all_clusters(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_incoming_commands_for_all_clusters) ⇒
+    * [~all_incoming_or_outgoing_commands_for_cluster(clusterName, clusterSide, isIncoming, options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_incoming_or_outgoing_commands_for_cluster) ⇒
+    * [~all_incoming_commands_for_cluster(clusterName, options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_incoming_commands_for_cluster) ⇒
+    * [~all_outgoing_commands_for_cluster(clusterName, options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_outgoing_commands_for_cluster) ⇒
+    * [~all_user_cluster_attributes_min_max_defaults(name, side, options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_attributes_min_max_defaults) ⇒
+    * [~checkAttributeMatch(clusterName, attributeName, attributeSide, attributeValue, attributeValueType, endpointAttributes)](#module_Templating API_ Shared cross-endpoint configuration helpers..checkAttributeMatch) ⇒
+    * [~generated_defaults_index(clusterName, attributeName, attributeValueType, attributeValue, prefixReturn, postFixReturn)](#module_Templating API_ Shared cross-endpoint configuration helpers..generated_defaults_index) ⇒
+    * [~generated_default_index(clusterName, attributeName, attributeSide, attributeValueType, attributeValue, prefixReturn, postFixReturn)](#module_Templating API_ Shared cross-endpoint configuration helpers..generated_default_index) ⇒
+    * [~generated_attributes_min_max_index(name, side, options)](#module_Templating API_ Shared cross-endpoint configuration helpers..generated_attributes_min_max_index) ⇒
+    * [~generated_attribute_min_max_index(clusterName, attributeName, attributeSide, options)](#module_Templating API_ Shared cross-endpoint configuration helpers..generated_attribute_min_max_index) ⇒
+    * [~if_enabled_clusters(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..if_enabled_clusters) ⇒
+    * [~if_multi_protocol_attributes_enabled(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..if_multi_protocol_attributes_enabled) ⇒
+    * [~all_multi_protocol_attributes(options)](#module_Templating API_ Shared cross-endpoint configuration helpers..all_multi_protocol_attributes) ⇒
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_commands"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_commands(options) ⇒
+Creates endpoint type cluster command iterator. This fetches all
+commands which have been enabled on added endpoints
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over cluster commands.  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_command_util"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_command\_util(name, side, options, currentContext, isManufacturingSpecific, isIrrespectiveOfManufacturingSpecification)
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+
+| Param | Default | Description |
+| --- | --- | --- |
+| name |  |  |
+| side |  |  |
+| options |  |  |
+| currentContext |  |  |
+| isManufacturingSpecific |  |  |
+| isIrrespectiveOfManufacturingSpecification | <code>false</code> | Returns: Promise of the resolved blocks iterating over manufacturing specific, non-manufacturing specific or both of the cluster commands. |
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_attribute_util"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_attribute\_util(name, side, options, currentContext, isManufacturingSpecific, isIrrespectiveOfManufacturingSpecification) ⇒
+Get attribute details based on given arguments.
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Attribute details  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| name | <code>\*</code> |  | 
+| side | <code>\*</code> |  | 
+| options | <code>\*</code> |  | 
+| currentContext | <code>\*</code> |  | 
+| isManufacturingSpecific | <code>\*</code> |  | 
+| isIrrespectiveOfManufacturingSpecification | <code>\*</code> | <code>false</code> | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_manufacturer_specific_commands"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_manufacturer\_specific\_commands(options) ⇒
+Creates endpoint type cluster command iterator. This fetches all
+manufacturing specific commands which have been enabled on added endpoints
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over manufacturing specific
+cluster commands.  
+
+| Param |
+| --- |
+| options | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_non_manufacturer_specific_commands"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_non\_manufacturer\_specific\_commands(options) ⇒
+Creates endpoint type cluster command iterator. This fetches all
+non-manufacturing specific commands which have been enabled on added endpoints
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over non-manufacturing specific
+cluster commands.  
+
+| Param |
+| --- |
+| options | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_manufacturer_specific_attributes"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_manufacturer\_specific\_attributes(options) ⇒
+Creates endpoint type cluster command iterator. This fetches all
+manufacturing specific commands which have been enabled on added endpoints
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over manufacturing specific
+cluster commands.  
+
+| Param |
+| --- |
+| options | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_non_manufacturer_specific_attributes"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_non\_manufacturer\_specific\_attributes(options) ⇒
+Creates endpoint type cluster command iterator. This fetches all
+non-manufacturing specific commands which have been enabled on added endpoints
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over non-manufacturing specific
+cluster commands.  
+
+| Param |
+| --- |
+| options | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_commands_for_user_enabled_clusters"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_commands\_for\_user\_enabled\_clusters(options) ⇒
+Creates endpoint type cluster command iterator. This fetches all
+commands which have been enabled on added endpoints
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over cluster commands.  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_cli_commands_for_user_enabled_clusters"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_cli\_commands\_for\_user\_enabled\_clusters(options) ⇒
+This helper returns all commands which have cli within the list of enabled
+clusters.
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: all commands with cli from the list of enabled clusters  
+
+| Param |
+| --- |
+| options | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_clusters(options) ⇒
+Creates cluster iterator for all endpoints.
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over cluster commands.  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_irrespective_of_side"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_clusters\_irrespective\_of\_side(options) ⇒
+Creates cluster command iterator for all endpoints.
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over cluster commands.  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_names"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_clusters\_names(options) ⇒
+Creates cluster command iterator for all endpoints whitout any duplicates
+cause by cluster side
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over cluster commands.  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_commands_irrespective_of_manufaturing_specification"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_commands\_irrespective\_of\_manufaturing\_specification(options) ⇒
+Creates endpoint type cluster command iterator. This fetches all
+manufacturing and non-manufaturing specific commands which have been enabled
+on added endpoints
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over manufacturing specific
+and non-manufacturing specific cluster commands.  
+
+| Param |
+| --- |
+| options | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..enabled_attributes_for_cluster_and_side"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~enabled\_attributes\_for\_cluster\_and\_side(name, side, options) ⇒
+Creates endpoint type cluster attribute iterator. This fetches all
+manufacturer-specific and standard attributes which have been enabled on
+added endpoints based on the name and side of the cluster. When side
+is not mentioned then client and server attributes are returned.
+Available Options:
+- removeKeys: Removes one or more keys from the map(for eg keys in db-mapping.js)
+for eg:(#enabled_attributes_for_cluster_and_side
+         [cluster-name], [cluster-side], removeKeys='isOptional, isNullable')
+will remove 'isOptional' and 'isNullable' from the results
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Promise of the resolved blocks iterating over manufacturing specific
+and standard cluster attributes.  
+
+| Param |
+| --- |
+| name | 
+| side | 
+| options | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_attributes_for_generated_defaults"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_attributes\_for\_generated\_defaults(name, side, options) ⇒
+Default values for the attributes longer than a pointer.
+All attribute values with size greater than 2 bytes.
+Excluding 0 values and externally saved values
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: Attribute values greater than 2 bytes and not 0 nor externally saved.  
+
+| Param |
+| --- |
+| name | 
+| side | 
+| options | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_generated_attributes"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_generated\_attributes(options) ⇒
+Entails the list of all attributes which have been enabled. Given the
+cluster is enabled as well. The helper retrieves the attributes across
+all endpoints.
+
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
+**Returns**: enabled attributes  
+
+| Param |
+| --- |
+| options | 
+
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_generated_commands"></a>
+
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_generated\_commands(options) ⇒
 All available cluster commands across all endpoints and clusters.
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: All available cluster commands across all endpoints and clusters  
 
 | Param |
 | --- |
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..all_user_clusters_with_incoming_or_outgoing_commands"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_with_incoming_or_outgoing_commands"></a>
 
-### Templating API: user-data specific helpers~all\_user\_clusters\_with\_incoming\_or\_outgoing\_commands(options, is_incoming) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_clusters\_with\_incoming\_or\_outgoing\_commands(options, is_incoming) ⇒
 Util function for all clusters with side that have available incoming or
 outgiong commands across all endpoints.
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: All clusters with side that have available incoming or outgiong
 commands across all endpoints.  
 
@@ -2586,12 +2759,12 @@ commands across all endpoints.
 | options |  |
 | is_incoming | boolean to check if commands are incoming or outgoing |
 
-<a name="module_Templating API_ user-data specific helpers..all_user_clusters_with_incoming_commands"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_with_incoming_commands"></a>
 
-### Templating API: user-data specific helpers~all\_user\_clusters\_with\_incoming\_commands(options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_clusters\_with\_incoming\_commands(options) ⇒
 All clusters with side that have available incoming commands
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: All clusters with side that have available incoming commands across
 all endpoints.  
 
@@ -2599,12 +2772,12 @@ all endpoints.
 | --- |
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..all_user_clusters_with_outgoing_commands"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_with_outgoing_commands"></a>
 
-### Templating API: user-data specific helpers~all\_user\_clusters\_with\_outgoing\_commands(options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_clusters\_with\_outgoing\_commands(options) ⇒
 All clusters with side that have available outgoing commands
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: All clusters with side that have available outgoing commands across
 all endpoints.  
 
@@ -2612,13 +2785,13 @@ all endpoints.
 | --- |
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..manufacturing_clusters_with_incoming_commands"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..manufacturing_clusters_with_incoming_commands"></a>
 
-### Templating API: user-data specific helpers~manufacturing\_clusters\_with\_incoming\_commands(clusterCode, options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~manufacturing\_clusters\_with\_incoming\_commands(clusterCode, options) ⇒
 Provide all manufacturing specific clusters that have incoming commands with
 the given cluster code.
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: Details of manufacturing specific clusters that have incoming
 commands with the given cluster code  
 
@@ -2627,14 +2800,14 @@ commands with the given cluster code
 | clusterCode | 
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..all_user_clusters_with_incoming_commands_combined"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_clusters_with_incoming_commands_combined"></a>
 
-### Templating API: user-data specific helpers~all\_user\_clusters\_with\_incoming\_commands\_combined(options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_clusters\_with\_incoming\_commands\_combined(options) ⇒
 All clusters that have available incoming commands.
 If there is a client and server enabled on the endpoint, this combines them
 into a single entry.
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: All clusters that have available incoming commands across
 all endpoints.  
 
@@ -2642,13 +2815,13 @@ all endpoints.
 | --- |
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..all_incoming_commands_for_cluster_combined"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_incoming_commands_for_cluster_combined"></a>
 
-### Templating API: user-data specific helpers~all\_incoming\_commands\_for\_cluster\_combined(clusterName, clientSide, serverSide, options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_incoming\_commands\_for\_cluster\_combined(clusterName, clientSide, serverSide, options) ⇒
 All commands that need to be parsed for a given cluster. This takes in booleans
 for if the client and or server are included.
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: all commands that need to be parsed for a given cluster  
 
 | Param |
@@ -2658,25 +2831,25 @@ for if the client and or server are included.
 | serverSide | 
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..all_user_incoming_commands_for_all_clusters"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_incoming_commands_for_all_clusters"></a>
 
-### Templating API: user-data specific helpers~all\_user\_incoming\_commands\_for\_all\_clusters(options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_incoming\_commands\_for\_all\_clusters(options) ⇒
 Get all incoming commands in the user configuration.
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: all incoming commands enabled by the user.  
 
 | Param | Type |
 | --- | --- |
 | options | <code>\*</code> | 
 
-<a name="module_Templating API_ user-data specific helpers..all_incoming_or_outgoing_commands_for_cluster"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_incoming_or_outgoing_commands_for_cluster"></a>
 
-### Templating API: user-data specific helpers~all\_incoming\_or\_outgoing\_commands\_for\_cluster(clusterName, clusterSide, isIncoming, options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_incoming\_or\_outgoing\_commands\_for\_cluster(clusterName, clusterSide, isIncoming, options) ⇒
 A util function for all incoming or outgoing commands that need to be parsed
 for a given cluster
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: All incoming or outgoing commands that need to be parsed for a given
  cluster  
 
@@ -2687,12 +2860,12 @@ for a given cluster
 | isIncoming | 
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..all_incoming_commands_for_cluster"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_incoming_commands_for_cluster"></a>
 
-### Templating API: user-data specific helpers~all\_incoming\_commands\_for\_cluster(clusterName, options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_incoming\_commands\_for\_cluster(clusterName, options) ⇒
 All incoming commands that need to be parsed for a given cluster
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: all incoming commands that need to be parsed for a given cluster  
 
 | Param |
@@ -2700,12 +2873,12 @@ All incoming commands that need to be parsed for a given cluster
 | clusterName | 
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..all_outgoing_commands_for_cluster"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_outgoing_commands_for_cluster"></a>
 
-### Templating API: user-data specific helpers~all\_outgoing\_commands\_for\_cluster(clusterName, options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_outgoing\_commands\_for\_cluster(clusterName, options) ⇒
 All outgoing commands that need to be parsed for a given cluster
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: all outgoing commands that need to be parsed for a given cluster  
 
 | Param |
@@ -2713,37 +2886,13 @@ All outgoing commands that need to be parsed for a given cluster
 | clusterName | 
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..generated_clustes_details"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_user_cluster_attributes_min_max_defaults"></a>
 
-### Templating API: user-data specific helpers~generated\_clustes\_details(options) ⇒
-Entails the Cluster details per endpoint
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Cluster Details per endpoint with attribute summaries within the clusters  
-
-| Param | Type |
-| --- | --- |
-| options | <code>\*</code> | 
-
-<a name="module_Templating API_ user-data specific helpers..generated_endpoint_type_details"></a>
-
-### Templating API: user-data specific helpers~generated\_endpoint\_type\_details(options) ⇒
-Entails Endpoint type details along with their cluster summaries
-
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
-**Returns**: Endpoint type details along with their cluster summaries  
-
-| Param |
-| --- |
-| options | 
-
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_attributes_min_max_defaults"></a>
-
-### Templating API: user-data specific helpers~all\_user\_cluster\_attributes\_min\_max\_defaults(name, side, options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_user\_cluster\_attributes\_min\_max\_defaults(name, side, options) ⇒
 Returns attributes inside an endpoint type that either have a default or a
 bounded attribute.
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: endpoints with bounds or defaults  
 
 | Param |
@@ -2752,10 +2901,10 @@ bounded attribute.
 | side | 
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..checkAttributeMatch"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..checkAttributeMatch"></a>
 
-### Templating API: user-data specific helpers~checkAttributeMatch(clusterName, attributeName, attributeSide, attributeValue, attributeValueType, endpointAttributes) ⇒
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+### Templating API: Shared cross-endpoint configuration helpers~checkAttributeMatch(clusterName, attributeName, attributeSide, attributeValue, attributeValueType, endpointAttributes) ⇒
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: arrayIndex  
 
 | Param |
@@ -2767,13 +2916,13 @@ bounded attribute.
 | attributeValueType | 
 | endpointAttributes | 
 
-<a name="module_Templating API_ user-data specific helpers..generated_defaults_index"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..generated_defaults_index"></a>
 
-### Templating API: user-data specific helpers~generated\_defaults\_index(clusterName, attributeName, attributeValueType, attributeValue, prefixReturn, postFixReturn) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~generated\_defaults\_index(clusterName, attributeName, attributeValueType, attributeValue, prefixReturn, postFixReturn) ⇒
 Extracts the index of generated defaults array which come from
 all_user_cluster_attributes_for_generated_defaults
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: index of the generated default array  
 
 | Param |
@@ -2785,13 +2934,13 @@ all_user_cluster_attributes_for_generated_defaults
 | prefixReturn | 
 | postFixReturn | 
 
-<a name="module_Templating API_ user-data specific helpers..generated_default_index"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..generated_default_index"></a>
 
-### Templating API: user-data specific helpers~generated\_default\_index(clusterName, attributeName, attributeSide, attributeValueType, attributeValue, prefixReturn, postFixReturn) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~generated\_default\_index(clusterName, attributeName, attributeSide, attributeValueType, attributeValue, prefixReturn, postFixReturn) ⇒
 Extracts the index of generated defaults array which come from
 all_user_cluster_attributes_for_generated_defaults
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: deafult value's index in the generated default array  
 
 | Param |
@@ -2804,13 +2953,13 @@ all_user_cluster_attributes_for_generated_defaults
 | prefixReturn | 
 | postFixReturn | 
 
-<a name="module_Templating API_ user-data specific helpers..generated_attributes_min_max_index"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..generated_attributes_min_max_index"></a>
 
-### Templating API: user-data specific helpers~generated\_attributes\_min\_max\_index(name, side, options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~generated\_attributes\_min\_max\_index(name, side, options) ⇒
 Extracts the index of generated min max defaults array which come from
 all_user_cluster_attributes_min_max_defaults
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: index of the generated min max default array  
 
 | Param |
@@ -2819,13 +2968,13 @@ all_user_cluster_attributes_min_max_defaults
 | side | 
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..generated_attribute_min_max_index"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..generated_attribute_min_max_index"></a>
 
-### Templating API: user-data specific helpers~generated\_attribute\_min\_max\_index(clusterName, attributeName, attributeSide, options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~generated\_attribute\_min\_max\_index(clusterName, attributeName, attributeSide, options) ⇒
 Extracts the index of generated min max defaults array which come from
 all_user_cluster_attributes_min_max_defaults
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: index of the generated min max default in the array  
 
 | Param |
@@ -2835,36 +2984,36 @@ all_user_cluster_attributes_min_max_defaults
 | attributeSide | 
 | options | 
 
-<a name="module_Templating API_ user-data specific helpers..if_enabled_clusters"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..if_enabled_clusters"></a>
 
-### Templating API: user-data specific helpers~if\_enabled\_clusters(options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~if\_enabled\_clusters(options) ⇒
 If helper that checks if there are clusters enabled
 Available options:
 - side: side="client/server" can be used to check if there are client or
 server side clusters are available
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: Promise of content.  
 
 | Param | Type |
 | --- | --- |
 | options | <code>\*</code> | 
 
-<a name="module_Templating API_ user-data specific helpers..if_multi_protocol_attributes_enabled"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..if_multi_protocol_attributes_enabled"></a>
 
-### Templating API: user-data specific helpers~if\_multi\_protocol\_attributes\_enabled(options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~if\_multi\_protocol\_attributes\_enabled(options) ⇒
 Check if multi-protocol is enabled for the application.
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: boolean based on existence of attribute-attribute associations.  
 
 | Param | Type |
 | --- | --- |
 | options | <code>\*</code> | 
 
-<a name="module_Templating API_ user-data specific helpers..all_multi_protocol_attributes"></a>
+<a name="module_Templating API_ Shared cross-endpoint configuration helpers..all_multi_protocol_attributes"></a>
 
-### Templating API: user-data specific helpers~all\_multi\_protocol\_attributes(options) ⇒
+### Templating API: Shared cross-endpoint configuration helpers~all\_multi\_protocol\_attributes(options) ⇒
 Retrieve all the attribute-attribute associations for the current session.
 From `exports.map.attributeMapping` in `src-electron/db/db-mapping.js`:
 - attributeCode1
@@ -2886,7 +3035,7 @@ From `exports.map.attributeMapping` in `src-electron/db/db-mapping.js`:
 - isLastPartition
 - totalClusterMappedAttributes
 
-**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
+**Kind**: inner method of [<code>Templating API: Shared cross-endpoint configuration helpers</code>](#module_Templating API_ Shared cross-endpoint configuration helpers)  
 **Returns**: attribute-attribute mapping entries  
 
 | Param | Type |
