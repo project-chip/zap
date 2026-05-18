@@ -122,12 +122,42 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
 }
 
 /**
+ * Whether Studio marks this component tree node as present in the project.
+ * Field names vary by Studio / CLIC version; ZAP previously only checked isSelected.
+ *
+ * @param {*} x component tree node
+ * @returns {boolean}
+ */
+export function isUcComponentEffectivelyInstalled(x) {
+  if (x == null) return false
+  if (x.isSelected === true || x.selected === true) return true
+  if (x.isInstalled === true || x.installed === true) return true
+  if (x.componentInstalled === true) return true
+  if (x.present === true || x.inProject === true) return true
+  const lc = (v) => String(v == null ? '' : v).toLowerCase()
+  const life = lc(x.lifecycle)
+  if (life === 'installed' || life === 'active') return true
+  const stateStr = lc(x.state)
+  if (
+    stateStr &&
+    (stateStr.includes('installed') ||
+      stateStr === 'present' ||
+      stateStr === 'enabled') &&
+    !stateStr.includes('notinstalled') &&
+    !stateStr.includes('not_installed')
+  ) {
+    return true
+  }
+  return false
+}
+
+/**
  * Get all selected UC components
  * @param {*} ucComponentList
  * @returns Returns list of selected UC components
  */
 export function getSelectedUcComponents(ucComponentList) {
-  return ucComponentList.filter((x) => x.isSelected)
+  return ucComponentList.filter((x) => isUcComponentEffectivelyInstalled(x))
 }
 
 /**
@@ -144,7 +174,13 @@ export function getUcComponents(ucComponentTreeResponse) {
         e.children.filter(f, this)
       }
 
-      if (e.id && (e.id.includes('zigbee_') || e.id.includes('extension-'))) {
+      const id = e.id == null ? '' : String(e.id).toLowerCase()
+      if (
+        e.id &&
+        (id.includes('zigbee_') ||
+          id.includes('zigbee-') ||
+          id.includes('extension-'))
+      ) {
         this.push(e)
       }
     }, selectedComponents)
@@ -162,15 +198,38 @@ export function getUcComponents(ucComponentTreeResponse) {
  * @param {*} ucComponentIds - an array of ids
  */
 export function getClusterIdsByUcComponents(ucComponents) {
+  if (!Array.isArray(ucComponents)) return []
   return ucComponents
-    .map((component) => component.id)
+    .map((component) => component?.id)
+    .filter((id) => id != null && String(id).length > 0)
     .map((id) => {
-      if (id.includes('zigbee')) {
-        return id.substr(id.lastIndexOf('-') + 1)
-      } else if (id.includes('%extension-')) {
-        return id.substr(id.lastIndexOf('%extension-'))
+      id = String(id)
+      const lower = id.toLowerCase()
+      if (lower.includes('zigbee')) {
+        return id.substring(id.lastIndexOf('-') + 1)
       }
+      const pct = id.lastIndexOf('%extension-')
+      if (pct >= 0) {
+        return id.substring(pct)
+      }
+      const ext = lower.lastIndexOf('extension-')
+      if (ext >= 0) {
+        return id.substring(ext)
+      }
+      return id
     })
+    .filter((id) => id != null && id !== '')
+}
+
+/**
+ * Normalize UC dependency id for comparing ZCL extension values to Studio node ids.
+ * @param {string} id
+ * @returns {string}
+ */
+export function normalizeUcDependencyId(id) {
+  return String(id || '')
+    .toLowerCase()
+    .replace(/^%+/, '')
 }
 
 /**

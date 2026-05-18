@@ -1297,6 +1297,7 @@ export function updateSelectedUcComponentState(context, projectInfo) {
   let ucComponents = Util.getUcComponents(projectInfo)
   let selectedUcComponents = Util.getSelectedUcComponents(ucComponents)
   context.commit('updateSelectedUcComponentState', {
+    ucComponents,
     selectedUcComponents
   })
 }

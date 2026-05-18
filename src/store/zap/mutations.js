@@ -978,6 +978,9 @@ export function updateUcComponentState(state, data) {
 export function updateSelectedUcComponentState(state, data) {
   if (data != null) {
     vue3Set(state.studio, 'selectedUcComponents', data.selectedUcComponents)
+    if (data.ucComponents != null) {
+      vue3Set(state.studio, 'ucComponents', data.ucComponents)
+    }
   }
 }
 
