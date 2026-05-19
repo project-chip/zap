@@ -292,28 +292,43 @@ export function updateSelectedEvents(context, selectionContext) {
 export function updateSelectedComponent(context, payload) {
   let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
   return axiosRequests.$serverPost(op, payload).then((response) => {
-    // Studio often sends a follow-up tree snapshot after a successful add that
-    // briefly omits the just-installed component. Track success ids optimistically
-    // so the warning UI stays cleared until the tree settles.
-    const items = Array.isArray(response?.data) ? response.data : []
-    const okIds = items
+    // ZAP owns the install/remove decision locally. Studio's follow-up "tree"
+    // WS messages can spuriously mark just-installed components as
+    // isSelected:false during settle, which used to make the missing-component
+    // warning flicker back. We trust two things:
+    //   1. The component ids Studio returned 2xx for (mirrored into
+    //      selectedUcComponents).
+    //   2. The cluster id we just acted on -- recorded here directly so the
+    //      missing-component check can short-circuit regardless of any
+    //      id-format mismatches between POST responses and Studio's tree.
+    const list = Array.isArray(response?.data) ? response.data : []
+    const httpOk =
+      Number(response?.status) >= 200 && Number(response?.status) < 300
+    const successIds = list
       .filter((r) => {
-        if (!r || r.id == null) return false
-        const s = Number(r.status)
-        return Number.isFinite(s) && s >= 200 && s < 300
+        const s = Number(r?.status)
+        const ok = s >= 200 && s < 300
+        const fakeOk =
+          (payload.added === true && r?.data?.componentAdded === true) ||
+          (payload.added !== true && r?.data?.componentRemoved === true)
+        return ok || fakeOk
       })
-      .map((r) => String(r.id))
-    if (okIds.length) {
-      if (payload.added) {
-        context.commit('addRecentlyInstalledUcIds', okIds)
-        // Trigger a re-evaluation after the optimistic window so the warning
-        // re-asserts itself if Studio truly never marked the component installed.
-        setTimeout(() => {
-          context.commit('removeRecentlyInstalledUcIds', [])
-        }, 10500)
-      } else {
-        context.commit('removeRecentlyInstalledUcIds', okIds)
-      }
+      .map((r) => r?.id)
+      .filter((id) => id != null && String(id).length > 0)
+    if (successIds.length) {
+      context.commit('locallyMarkUcComponents', {
+        added: payload.added === true,
+        ids: successIds
+      })
+    }
+    // Cluster-level bookkeeping for the warning gate. Use the clusterId the
+    // user (or UI) targeted. successIds may be empty when Studio fast-paths
+    // an "already installed" reply, so we don't predicate this on them.
+    if (payload?.clusterId != null && (httpOk || successIds.length)) {
+      context.commit('markClusterInstallRequested', {
+        clusterId: payload.clusterId,
+        added: payload.added === true
+      })
     }
     return response
   })
@@ -1318,13 +1333,18 @@ export function updateUcComponentState(context, projectInfo) {
  * @param {*} context
  * @param {*} projectInfo
  */
-export function updateSelectedUcComponentState(context, projectInfo) {
-  let ucComponents = Util.getUcComponents(projectInfo)
-  let selectedUcComponents = Util.getSelectedUcComponents(ucComponents)
-  context.commit('updateSelectedUcComponentState', {
-    ucComponents,
-    selectedUcComponents
-  })
+export function updateSelectedUcComponentState(context, payload) {
+  // Backward compat: older backends sent the raw tree as the payload.
+  let tree = null
+  let delta = null
+  if (Array.isArray(payload)) {
+    tree = payload
+  } else if (payload && typeof payload === 'object') {
+    tree = payload.tree == null ? null : payload.tree
+    delta = payload.delta == null ? null : payload.delta
+  }
+  const treeLeaves = tree ? Util.getUcComponents(tree) : []
+  context.commit('applyUcComponentUpdate', { treeLeaves, delta })
 }
 
 /**

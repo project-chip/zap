@@ -298,25 +298,22 @@ export default {
         )
       }
 
-      const studio = this.$store.state.zap.studio
-      const selectedIds = Util.getClusterIdsByUcComponents(
-        studio.selectedUcComponents || []
-      )
+      // If ZAP has already successfully asked Studio to install for this
+      // cluster, suppress the missing-component warning regardless of how
+      // Studio's tree currently labels things. This is the authoritative
+      // signal -- it bypasses any id-format mismatch between what Studio
+      // echoes back over the WebSocket and what our extension map uses.
+      const installRequested =
+        this.$store.state.zap.studio.installRequestedClusterIds || []
+      if (cluster && installRequested.includes(cluster.id)) {
+        return []
+      }
 
-      // Studio sends a follow-up tree snapshot post-install that can briefly omit
-      // the freshly-installed component; trust optimistic install records inside a
-      // short window so the warning does not flicker back.
-      const RECENT_WINDOW_MS = 10000
-      const now = Date.now()
-      const recentNodes = (studio.recentlyInstalledUcIds || [])
-        .filter((x) => x && now - Number(x.ts) < RECENT_WINDOW_MS)
-        .map((x) => ({ id: x.id }))
-      const recentIds = Util.getClusterIdsByUcComponents(recentNodes)
-
+      const rawSelected =
+        this.$store.state.zap.studio.selectedUcComponents || []
+      const selectedIds = Util.getClusterIdsByUcComponents(rawSelected)
       const installedNorm = new Set(
-        [...selectedIds, ...recentIds].map((id) =>
-          Util.normalizeUcDependencyId(id)
-        )
+        selectedIds.map((id) => Util.normalizeUcDependencyId(id))
       )
 
       return requiredComponentIdList.filter(

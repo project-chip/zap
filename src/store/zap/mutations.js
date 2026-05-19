@@ -972,6 +972,8 @@ export function updateUcComponentState(state, data) {
 
 /**
  * Update Simplicity Studio's selected UC components in the state.
+ * Kept for backward compatibility (legacy callers / tests). Prefer
+ * applyUcComponentUpdate for the WebSocket path.
  * @param {*} state
  * @param {*} data
  */
@@ -984,55 +986,185 @@ export function updateSelectedUcComponentState(state, data) {
   }
 }
 
-// How long after a successful component add POST we trust the optimistic
-// install record over a Studio tree snapshot that may briefly omit the
-// freshly-installed component.
-export const RECENTLY_INSTALLED_UC_WINDOW_MS = 10000
-
-function pruneRecentlyInstalled(list) {
-  if (!Array.isArray(list)) return []
-  const now = Date.now()
-  return list.filter(
-    (x) => x && (now - Number(x.ts)) < RECENTLY_INSTALLED_UC_WINDOW_MS
-  )
-}
-
 /**
- * Record successful component add ids as optimistically installed.
+ * Apply a Studio WebSocket UC component update.
+ *
+ * Studio's "updateComponents" notification carries both a full `tree` snapshot
+ * and a `delta` of what just changed. After a successful install, Studio has
+ * been observed to emit a follow-up snapshot that re-marks the just-installed
+ * leaf with isSelected:false, which previously caused the missing-component
+ * warning to flicker back.
+ *
+ * ZAP is therefore the authoritative source for its own selection set:
+ *   - tree/delta leaves with isSelected:true  -> upserted (Studio can ADD)
+ *   - tree/delta leaves with isSelected:false -> ignored (Studio cannot remove)
+ *   - leaves not mentioned at all             -> left alone (no wipe)
+ *
+ * Removals happen only via applyLocalUcComponentChange when ZAP itself issues
+ * a remove POST and Studio responds 2xx. ucComponents (the catalog used for
+ * labels / metadata) is always merged so we keep accumulating entries.
+ *
  * @param {*} state
- * @param {string[]} ids
+ * @param {{ treeLeaves: any[], delta: any }} payload
  */
-export function addRecentlyInstalledUcIds(state, ids) {
-  if (!Array.isArray(ids) || ids.length === 0) return
-  const existing = pruneRecentlyInstalled(state.studio.recentlyInstalledUcIds)
-  const now = Date.now()
-  const byId = new Map(existing.map((x) => [x.id, x]))
-  for (const id of ids) {
-    if (id == null) continue
+export function applyUcComponentUpdate(state, payload) {
+  if (!payload) return
+  const treeLeaves = Array.isArray(payload.treeLeaves) ? payload.treeLeaves : []
+  const delta = payload.delta
+
+  const prevSelected = Array.isArray(state.studio.selectedUcComponents)
+    ? state.studio.selectedUcComponents
+    : []
+  const selectedById = new Map(
+    prevSelected.filter((x) => x && x.id != null).map((x) => [String(x.id), x])
+  )
+
+  const prevAll = Array.isArray(state.studio.ucComponents)
+    ? state.studio.ucComponents
+    : []
+  const allById = new Map(
+    prevAll.filter((x) => x && x.id != null).map((x) => [String(x.id), x])
+  )
+
+  function applyAdded(id, node) {
+    if (id == null) return
     const key = String(id)
-    if (!key) continue
-    byId.set(key, { id: key, ts: now })
+    selectedById.set(key, node || { id: key, isSelected: true })
+    if (node) allById.set(key, node)
   }
-  vue3Set(state.studio, 'recentlyInstalledUcIds', [...byId.values()])
+
+  // Studio's WebSocket updates are ADD-ONLY for selectedUcComponents.
+  //
+  // Background: after we POST a component install, Studio sometimes emits a
+  // follow-up "updateComponents" tree where the freshly-installed leaf has
+  // isSelected:false. We don't know whether that's a bona-fide Studio bug or
+  // a settle artifact (a recomputed snapshot from a stale internal source);
+  // either way the result is the missing-component warning flickering back.
+  //
+  // To make ZAP authoritative for its own POST results we accept Studio's
+  // tree/delta as evidence that a component IS selected, but we never let it
+  // unselect a component. Removals happen only via locallyMarkUcComponents
+  // when ZAP itself POSTs a remove and gets a 2xx back.
+  if (delta) {
+    if (Array.isArray(delta)) {
+      for (const entry of delta) {
+        if (!entry) continue
+        if (typeof entry === 'string') {
+          applyAdded(entry, null)
+        } else if (typeof entry === 'object') {
+          const id = entry.id != null ? entry.id : entry.componentId
+          const sel =
+            entry.isSelected != null
+              ? entry.isSelected
+              : entry.selected != null
+                ? entry.selected
+                : entry.installed != null
+                  ? entry.installed
+                  : null
+          if (sel === true) applyAdded(id, entry)
+          else if (entry.action === 'add' || entry.action === 'added')
+            applyAdded(id, entry)
+        }
+      }
+    } else if (typeof delta === 'object') {
+      const added = [].concat(
+        delta.added || [],
+        delta.installed || [],
+        delta.selected || []
+      )
+      for (const item of added) {
+        if (item == null) continue
+        if (typeof item === 'string') applyAdded(item, null)
+        else if (typeof item === 'object')
+          applyAdded(item.id != null ? item.id : item.componentId, item)
+      }
+    }
+  }
+
+  // Tree merge: add isSelected:true leaves, ignore isSelected:false. Always
+  // merge into the ucComponents catalog so labels/metadata stay fresh.
+  for (const node of treeLeaves) {
+    if (!node || node.id == null) continue
+    const key = String(node.id)
+    allById.set(key, node)
+    if (node.isSelected === true) {
+      selectedById.set(key, node)
+    }
+  }
+
+  vue3Set(state.studio, 'selectedUcComponents', [...selectedById.values()])
+  vue3Set(state.studio, 'ucComponents', [...allById.values()])
 }
 
 /**
- * Drop optimistic install entries when the user explicitly removes a component.
+ * Apply the result of a locally-issued component install/uninstall POST.
+ *
+ * ZAP is the local source of truth for what it has asked Studio to install or
+ * remove. A 2xx response from the POST means Studio acknowledged the change,
+ * so we mirror that result into selectedUcComponents immediately. Any later
+ * Studio WebSocket tree that contradicts this (see applyUcComponentUpdate)
+ * is ignored for the unselect direction.
+ *
  * @param {*} state
- * @param {string[]} ids
+ * @param {{ ids: string[], added: boolean }} payload
  */
-export function removeRecentlyInstalledUcIds(state, ids) {
-  const existing = pruneRecentlyInstalled(state.studio.recentlyInstalledUcIds)
-  if (!Array.isArray(ids) || ids.length === 0) {
-    vue3Set(state.studio, 'recentlyInstalledUcIds', existing)
+export function applyLocalUcComponentChange(state, payload) {
+  if (!payload || !Array.isArray(payload.ids) || payload.ids.length === 0)
     return
-  }
-  const drop = new Set(ids.filter((x) => x != null).map((x) => String(x)))
-  vue3Set(
-    state.studio,
-    'recentlyInstalledUcIds',
-    existing.filter((x) => !drop.has(x.id))
+  const added = payload.added === true
+  const prevSelected = Array.isArray(state.studio.selectedUcComponents)
+    ? state.studio.selectedUcComponents
+    : []
+  const selectedById = new Map(
+    prevSelected.filter((x) => x && x.id != null).map((x) => [String(x.id), x])
   )
+  for (const rawId of payload.ids) {
+    if (rawId == null) continue
+    const key = String(rawId)
+    if (added) {
+      if (!selectedById.has(key)) {
+        selectedById.set(key, { id: key, isSelected: true })
+      }
+    } else {
+      selectedById.delete(key)
+    }
+  }
+  vue3Set(state.studio, 'selectedUcComponents', [...selectedById.values()])
+}
+
+/**
+ * Backward-compat alias for the action's commit name. Kept thin so call sites
+ * can use either name interchangeably.
+ * @param {*} state
+ * @param {*} payload
+ */
+export function locallyMarkUcComponents(state, payload) {
+  applyLocalUcComponentChange(state, payload)
+}
+
+/**
+ * Track which cluster ids ZAP has successfully asked Studio to install (or
+ * uninstall) components for. The missing-component warning is gated by this
+ * list: if ZAP just told Studio to install for a cluster and got a 2xx back,
+ * later Studio WebSocket noise cannot flicker the warning back on for that
+ * cluster.
+ *
+ * @param {*} state
+ * @param {{ clusterId: any, added: boolean }} payload
+ */
+export function markClusterInstallRequested(state, payload) {
+  if (!payload || payload.clusterId == null) return
+  const list = Array.isArray(state.studio.installRequestedClusterIds)
+    ? [...state.studio.installRequestedClusterIds]
+    : []
+  const key = payload.clusterId
+  const idx = list.indexOf(key)
+  if (payload.added === true) {
+    if (idx === -1) list.push(key)
+  } else {
+    if (idx !== -1) list.splice(idx, 1)
+  }
+  vue3Set(state.studio, 'installRequestedClusterIds', list)
 }
 
 /**

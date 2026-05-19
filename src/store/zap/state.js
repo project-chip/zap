@@ -193,10 +193,11 @@ export default function () {
     studio: {
       ucComponents: [], // Studio uc component states
       selectedUcComponents: [], // [] of 'studio..' prefixed Studio internal component ids
-      // optimistic { id, ts } entries from successful component add POSTs; used to
-      // suppress missing-component warnings during the brief window where Studio
-      // sends a follow-up tree snapshot that omits the freshly-installed component.
-      recentlyInstalledUcIds: [],
+      // Cluster ids (the local cluster id, not Studio's component id) that ZAP
+      // has successfully asked Studio to install components for. Used to gate
+      // the missing-component warning so subsequent Studio tree updates can't
+      // flicker it back on for components ZAP itself just installed.
+      installRequestedClusterIds: [],
       // a list of dict: { "clusterCode": "$zcl_cluster-$zcl_role", "value": ["$uc_component_id"] }
       zclSdkExtClusterToUcComponentMap: []
     },
