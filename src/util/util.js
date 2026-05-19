@@ -176,7 +176,7 @@ export function getUcComponents(ucComponentTreeResponse) {
 
       const id = e.id == null ? '' : String(e.id).toLowerCase()
       if (
-        e.id &&
+        id &&
         (id.includes('zigbee_') ||
           id.includes('zigbee-') ||
           id.includes('extension-'))
