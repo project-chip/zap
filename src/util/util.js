@@ -122,42 +122,12 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
 }
 
 /**
- * Whether Studio marks this component tree node as present in the project.
- * Field names vary by Studio / CLIC version; ZAP previously only checked isSelected.
- *
- * @param {*} x component tree node
- * @returns {boolean}
- */
-export function isUcComponentEffectivelyInstalled(x) {
-  if (x == null) return false
-  if (x.isSelected === true || x.selected === true) return true
-  if (x.isInstalled === true || x.installed === true) return true
-  if (x.componentInstalled === true) return true
-  if (x.present === true || x.inProject === true) return true
-  const lc = (v) => String(v == null ? '' : v).toLowerCase()
-  const life = lc(x.lifecycle)
-  if (life === 'installed' || life === 'active') return true
-  const stateStr = lc(x.state)
-  if (
-    stateStr &&
-    (stateStr.includes('installed') ||
-      stateStr === 'present' ||
-      stateStr === 'enabled') &&
-    !stateStr.includes('notinstalled') &&
-    !stateStr.includes('not_installed')
-  ) {
-    return true
-  }
-  return false
-}
-
-/**
  * Get all selected UC components
  * @param {*} ucComponentList
  * @returns Returns list of selected UC components
  */
 export function getSelectedUcComponents(ucComponentList) {
-  return ucComponentList.filter((x) => isUcComponentEffectivelyInstalled(x))
+  return ucComponentList.filter((x) => x && x.isSelected)
 }
 
 /**
@@ -174,13 +144,7 @@ export function getUcComponents(ucComponentTreeResponse) {
         e.children.filter(f, this)
       }
 
-      const id = e.id == null ? '' : String(e.id).toLowerCase()
-      if (
-        id &&
-        (id.includes('zigbee_') ||
-          id.includes('zigbee-') ||
-          id.includes('extension-'))
-      ) {
+      if (e.id && (e.id.includes('zigbee_') || e.id.includes('extension-'))) {
         this.push(e)
       }
     }, selectedComponents)

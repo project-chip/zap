@@ -298,23 +298,15 @@ export default {
         )
       }
 
-      const studio = this.$store.state.zap.studio
-      const fromTree = Util.getClusterIdsByUcComponents(
-        (studio.ucComponents || []).filter((x) =>
-          Util.isUcComponentEffectivelyInstalled(x)
-        )
+      const selectedIds = Util.getClusterIdsByUcComponents(
+        this.$store.state.zap.studio.selectedUcComponents || []
       )
-      const fromSelected = Util.getClusterIdsByUcComponents(
-        studio.selectedUcComponents || []
-      )
-      const installedNorm = new Set(
-        [...fromTree, ...fromSelected].map((id) =>
-          Util.normalizeUcDependencyId(id)
-        )
+      const selectedNorm = new Set(
+        selectedIds.map((id) => Util.normalizeUcDependencyId(id))
       )
 
       return requiredComponentIdList.filter(
-        (id) => !installedNorm.has(Util.normalizeUcDependencyId(id))
+        (id) => !selectedNorm.has(Util.normalizeUcDependencyId(id))
       )
     },
 
