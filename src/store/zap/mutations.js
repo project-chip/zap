@@ -984,6 +984,57 @@ export function updateSelectedUcComponentState(state, data) {
   }
 }
 
+// How long after a successful component add POST we trust the optimistic
+// install record over a Studio tree snapshot that may briefly omit the
+// freshly-installed component.
+export const RECENTLY_INSTALLED_UC_WINDOW_MS = 10000
+
+function pruneRecentlyInstalled(list) {
+  if (!Array.isArray(list)) return []
+  const now = Date.now()
+  return list.filter(
+    (x) => x && (now - Number(x.ts)) < RECENTLY_INSTALLED_UC_WINDOW_MS
+  )
+}
+
+/**
+ * Record successful component add ids as optimistically installed.
+ * @param {*} state
+ * @param {string[]} ids
+ */
+export function addRecentlyInstalledUcIds(state, ids) {
+  if (!Array.isArray(ids) || ids.length === 0) return
+  const existing = pruneRecentlyInstalled(state.studio.recentlyInstalledUcIds)
+  const now = Date.now()
+  const byId = new Map(existing.map((x) => [x.id, x]))
+  for (const id of ids) {
+    if (id == null) continue
+    const key = String(id)
+    if (!key) continue
+    byId.set(key, { id: key, ts: now })
+  }
+  vue3Set(state.studio, 'recentlyInstalledUcIds', [...byId.values()])
+}
+
+/**
+ * Drop optimistic install entries when the user explicitly removes a component.
+ * @param {*} state
+ * @param {string[]} ids
+ */
+export function removeRecentlyInstalledUcIds(state, ids) {
+  const existing = pruneRecentlyInstalled(state.studio.recentlyInstalledUcIds)
+  if (!Array.isArray(ids) || ids.length === 0) {
+    vue3Set(state.studio, 'recentlyInstalledUcIds', existing)
+    return
+  }
+  const drop = new Set(ids.filter((x) => x != null).map((x) => String(x)))
+  vue3Set(
+    state.studio,
+    'recentlyInstalledUcIds',
+    existing.filter((x) => !drop.has(x.id))
+  )
+}
+
 /**
  * Load Simplicity Studio's cluster to UC component mapping.
  * @param {*} state

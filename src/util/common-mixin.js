@@ -298,15 +298,29 @@ export default {
         )
       }
 
+      const studio = this.$store.state.zap.studio
       const selectedIds = Util.getClusterIdsByUcComponents(
-        this.$store.state.zap.studio.selectedUcComponents || []
+        studio.selectedUcComponents || []
       )
-      const selectedNorm = new Set(
-        selectedIds.map((id) => Util.normalizeUcDependencyId(id))
+
+      // Studio sends a follow-up tree snapshot post-install that can briefly omit
+      // the freshly-installed component; trust optimistic install records inside a
+      // short window so the warning does not flicker back.
+      const RECENT_WINDOW_MS = 10000
+      const now = Date.now()
+      const recentNodes = (studio.recentlyInstalledUcIds || [])
+        .filter((x) => x && now - Number(x.ts) < RECENT_WINDOW_MS)
+        .map((x) => ({ id: x.id }))
+      const recentIds = Util.getClusterIdsByUcComponents(recentNodes)
+
+      const installedNorm = new Set(
+        [...selectedIds, ...recentIds].map((id) =>
+          Util.normalizeUcDependencyId(id)
+        )
       )
 
       return requiredComponentIdList.filter(
-        (id) => !selectedNorm.has(Util.normalizeUcDependencyId(id))
+        (id) => !installedNorm.has(Util.normalizeUcDependencyId(id))
       )
     },
 

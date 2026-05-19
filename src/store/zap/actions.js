@@ -291,7 +291,32 @@ export function updateSelectedEvents(context, selectionContext) {
  */
 export function updateSelectedComponent(context, payload) {
   let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
-  return axiosRequests.$serverPost(op, payload)
+  return axiosRequests.$serverPost(op, payload).then((response) => {
+    // Studio often sends a follow-up tree snapshot after a successful add that
+    // briefly omits the just-installed component. Track success ids optimistically
+    // so the warning UI stays cleared until the tree settles.
+    const items = Array.isArray(response?.data) ? response.data : []
+    const okIds = items
+      .filter((r) => {
+        if (!r || r.id == null) return false
+        const s = Number(r.status)
+        return Number.isFinite(s) && s >= 200 && s < 300
+      })
+      .map((r) => String(r.id))
+    if (okIds.length) {
+      if (payload.added) {
+        context.commit('addRecentlyInstalledUcIds', okIds)
+        // Trigger a re-evaluation after the optimistic window so the warning
+        // re-asserts itself if Studio truly never marked the component installed.
+        setTimeout(() => {
+          context.commit('removeRecentlyInstalledUcIds', [])
+        }, 10500)
+      } else {
+        context.commit('removeRecentlyInstalledUcIds', okIds)
+      }
+    }
+    return response
+  })
 }
 
 /**

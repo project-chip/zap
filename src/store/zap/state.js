@@ -193,6 +193,10 @@ export default function () {
     studio: {
       ucComponents: [], // Studio uc component states
       selectedUcComponents: [], // [] of 'studio..' prefixed Studio internal component ids
+      // optimistic { id, ts } entries from successful component add POSTs; used to
+      // suppress missing-component warnings during the brief window where Studio
+      // sends a follow-up tree snapshot that omits the freshly-installed component.
+      recentlyInstalledUcIds: [],
       // a list of dict: { "clusterCode": "$zcl_cluster-$zcl_role", "value": ["$uc_component_id"] }
       zclSdkExtClusterToUcComponentMap: []
     },
