@@ -989,28 +989,26 @@ export function updateSelectedUcComponentState(state, data) {
 /**
  * Apply a Studio WebSocket UC component update.
  *
- * Studio's "updateComponents" notification carries both a full `tree` snapshot
- * and a `delta` of what just changed. After a successful install, Studio has
- * been observed to emit a follow-up snapshot that re-marks the just-installed
- * leaf with isSelected:false, which previously caused the missing-component
- * warning to flicker back.
+ * Studio's "updateComponents" notification carries a full tree snapshot. After
+ * a successful install, Studio has been observed to emit a follow-up snapshot
+ * that re-marks the just-installed leaf with isSelected:false, which used to
+ * make the missing-component warning flicker back.
  *
- * ZAP is therefore the authoritative source for its own selection set:
- *   - tree/delta leaves with isSelected:true  -> upserted (Studio can ADD)
- *   - tree/delta leaves with isSelected:false -> ignored (Studio cannot remove)
- *   - leaves not mentioned at all             -> left alone (no wipe)
+ * The fix is to treat Studio's WS updates as ADD-ONLY for the local selection
+ * set:
+ *   - leaves with isSelected:true  -> upserted (Studio can ADD)
+ *   - leaves with isSelected:false -> ignored  (Studio cannot remove)
+ *   - leaves not mentioned at all  -> left alone (no wipe)
  *
- * Removals happen only via applyLocalUcComponentChange when ZAP itself issues
- * a remove POST and Studio responds 2xx. ucComponents (the catalog used for
+ * Removals happen only via locallyMarkUcComponents when ZAP itself issues a
+ * remove POST and Studio responds 2xx. ucComponents (the catalog used for
  * labels / metadata) is always merged so we keep accumulating entries.
  *
  * @param {*} state
- * @param {{ treeLeaves: any[], delta: any }} payload
+ * @param {any[]} treeLeaves Flattened list of leaf nodes from Studio's tree.
  */
-export function applyUcComponentUpdate(state, payload) {
-  if (!payload) return
-  const treeLeaves = Array.isArray(payload.treeLeaves) ? payload.treeLeaves : []
-  const delta = payload.delta
+export function applyUcComponentUpdate(state, treeLeaves) {
+  const leaves = Array.isArray(treeLeaves) ? treeLeaves : []
 
   const prevSelected = Array.isArray(state.studio.selectedUcComponents)
     ? state.studio.selectedUcComponents
@@ -1026,69 +1024,7 @@ export function applyUcComponentUpdate(state, payload) {
     prevAll.filter((x) => x && x.id != null).map((x) => [String(x.id), x])
   )
 
-  /**
-   * Upsert a component into the selected and catalog maps for this mutation.
-   * @param {*} id Component id to add.
-   * @param {*} node Optional node payload to store; falls back to a stub.
-   */
-  function applyAdded(id, node) {
-    if (id == null) return
-    const key = String(id)
-    selectedById.set(key, node || { id: key, isSelected: true })
-    if (node) allById.set(key, node)
-  }
-
-  // Studio's WebSocket updates are ADD-ONLY for selectedUcComponents.
-  //
-  // Background: after we POST a component install, Studio sometimes emits a
-  // follow-up "updateComponents" tree where the freshly-installed leaf has
-  // isSelected:false. We don't know whether that's a bona-fide Studio bug or
-  // a settle artifact (a recomputed snapshot from a stale internal source);
-  // either way the result is the missing-component warning flickering back.
-  //
-  // To make ZAP authoritative for its own POST results we accept Studio's
-  // tree/delta as evidence that a component IS selected, but we never let it
-  // unselect a component. Removals happen only via locallyMarkUcComponents
-  // when ZAP itself POSTs a remove and gets a 2xx back.
-  if (delta) {
-    if (Array.isArray(delta)) {
-      for (const entry of delta) {
-        if (!entry) continue
-        if (typeof entry === 'string') {
-          applyAdded(entry, null)
-        } else if (typeof entry === 'object') {
-          const id = entry.id != null ? entry.id : entry.componentId
-          const sel =
-            entry.isSelected != null
-              ? entry.isSelected
-              : entry.selected != null
-                ? entry.selected
-                : entry.installed != null
-                  ? entry.installed
-                  : null
-          if (sel === true) applyAdded(id, entry)
-          else if (entry.action === 'add' || entry.action === 'added')
-            applyAdded(id, entry)
-        }
-      }
-    } else if (typeof delta === 'object') {
-      const added = [].concat(
-        delta.added || [],
-        delta.installed || [],
-        delta.selected || []
-      )
-      for (const item of added) {
-        if (item == null) continue
-        if (typeof item === 'string') applyAdded(item, null)
-        else if (typeof item === 'object')
-          applyAdded(item.id != null ? item.id : item.componentId, item)
-      }
-    }
-  }
-
-  // Tree merge: add isSelected:true leaves, ignore isSelected:false. Always
-  // merge into the ucComponents catalog so labels/metadata stay fresh.
-  for (const node of treeLeaves) {
+  for (const node of leaves) {
     if (!node || node.id == null) continue
     const key = String(node.id)
     allById.set(key, node)

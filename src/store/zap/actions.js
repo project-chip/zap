@@ -296,14 +296,13 @@ export function updateSelectedComponent(context, payload) {
     // WS messages can spuriously mark just-installed components as
     // isSelected:false during settle, which used to make the missing-component
     // warning flicker back. We trust two things:
-    //   1. The component ids Studio returned 2xx for (mirrored into
-    //      selectedUcComponents).
+    //   1. The component ids Studio returned 2xx (or its "fake-ok" 4xx with
+    //      componentAdded/componentRemoved) for, mirrored into
+    //      selectedUcComponents.
     //   2. The cluster id we just acted on -- recorded here directly so the
     //      missing-component check can short-circuit regardless of any
     //      id-format mismatches between POST responses and Studio's tree.
     const list = Array.isArray(response?.data) ? response.data : []
-    const httpOk =
-      Number(response?.status) >= 200 && Number(response?.status) < 300
     const successIds = list
       .filter((r) => {
         const s = Number(r?.status)
@@ -320,15 +319,12 @@ export function updateSelectedComponent(context, payload) {
         added: payload.added === true,
         ids: successIds
       })
-    }
-    // Cluster-level bookkeeping for the warning gate. Use the clusterId the
-    // user (or UI) targeted. successIds may be empty when Studio fast-paths
-    // an "already installed" reply, so we don't predicate this on them.
-    if (payload?.clusterId != null && (httpOk || successIds.length)) {
-      context.commit('markClusterInstallRequested', {
-        clusterId: payload.clusterId,
-        added: payload.added === true
-      })
+      if (payload?.clusterId != null) {
+        context.commit('markClusterInstallRequested', {
+          clusterId: payload.clusterId,
+          added: payload.added === true
+        })
+      }
     }
     return response
   })
@@ -1330,21 +1326,17 @@ export function updateUcComponentState(context, projectInfo) {
 
 /**
  * Update the selected UC component state for Simplicity Studio.
+ *
+ * Driven by Studio's "updateComponents" WebSocket notification. The backend
+ * forwards the parsed component tree; we flatten it to leaves and let the
+ * mutation merge them into our local state.
+ *
  * @param {*} context
- * @param {*} projectInfo
+ * @param {*} tree Parsed Studio component tree.
  */
-export function updateSelectedUcComponentState(context, payload) {
-  // Backward compat: older backends sent the raw tree as the payload.
-  let tree = null
-  let delta = null
-  if (Array.isArray(payload)) {
-    tree = payload
-  } else if (payload && typeof payload === 'object') {
-    tree = payload.tree == null ? null : payload.tree
-    delta = payload.delta == null ? null : payload.delta
-  }
+export function updateSelectedUcComponentState(context, tree) {
   const treeLeaves = tree ? Util.getUcComponents(tree) : []
-  context.commit('applyUcComponentUpdate', { treeLeaves, delta })
+  context.commit('applyUcComponentUpdate', treeLeaves)
 }
 
 /**
