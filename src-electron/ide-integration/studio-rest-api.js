@@ -363,13 +363,7 @@ async function wsMessageHandler(db, session, message) {
           resp.delta
         )}`
       )
-      let parsedTree = null
-      try {
-        parsedTree = JSON.parse(resp.tree)
-      } catch (e) {
-        parsedTree = null
-      }
-      sendSelectedUcComponents(db, session, parsedTree)
+      sendSelectedUcComponents(db, session, JSON.parse(resp.tree))
     }
   } catch (error) {
     env.logError(

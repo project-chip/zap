@@ -127,7 +127,7 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
  * @returns Returns list of selected UC components
  */
 export function getSelectedUcComponents(ucComponentList) {
-  return ucComponentList.filter((x) => x && x.isSelected)
+  return ucComponentList.filter((x) => x.isSelected)
 }
 
 /**
@@ -153,62 +153,32 @@ export function getUcComponents(ucComponentTreeResponse) {
 }
 
 /**
- * Reduce any UC component id (Studio tree leaf, %extension-...%component, raw
- * short code) to its lowercase short cluster code form, so both sides of the
- * missing-component comparison line up regardless of which delimiter Studio
- * happens to use.
- *
- * Examples:
- *   "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"  -> "zigbee_basic"
- *   "matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control"
- *                                                               -> "matter_level_control"
- *   "%extension-zigbee%zigbee_basic"                             -> "zigbee_basic"
- *   "zigbee_basic"                                               -> "zigbee_basic"
+ * Reduce a UC component id to its short cluster-code form, so the two id
+ * formats Studio uses (`studiocomproot-...-zigbee_basic` and
+ * `%extension-zigbee%zigbee_basic`) and the ZCL extension's own
+ * `%extension-...%name` form all collapse to the same canonical value.
  *
  * @param {*} id
  * @returns {string}
  */
 export function extractUcClusterCode(id) {
   if (id == null) return ''
-  let s = String(id).toLowerCase().replace(/^%+/, '')
+  let s = String(id).toLowerCase()
   const lastPct = s.lastIndexOf('%')
-  if (lastPct >= 0 && lastPct < s.length - 1) {
-    s = s.substring(lastPct + 1)
-  }
+  if (lastPct >= 0 && lastPct < s.length - 1) s = s.substring(lastPct + 1)
   const lastDash = s.lastIndexOf('-')
-  if (lastDash >= 0 && lastDash < s.length - 1) {
-    s = s.substring(lastDash + 1)
-  }
+  if (lastDash >= 0 && lastDash < s.length - 1) s = s.substring(lastDash + 1)
   return s
 }
 
 /**
- * Extract a list of cluster id from a list of Uc component id
- *
- * return: a list of ids in their short cluster-code form (see extractUcClusterCode).
+ * Extract a list of cluster ids (in short cluster-code form) from a list of
+ * UC component objects.
  *
  * @param {*} ucComponents - an array of UC component objects with `id`
  */
 export function getClusterIdsByUcComponents(ucComponents) {
-  if (!Array.isArray(ucComponents)) return []
-  return ucComponents
-    .map((component) => component?.id)
-    .filter((id) => id != null && String(id).length > 0)
-    .map((id) => extractUcClusterCode(id))
-    .filter((id) => id != null && id !== '')
-}
-
-/**
- * Normalize an id from the ZCL extension's `value` so it can be compared
- * against entries produced by getClusterIdsByUcComponents. Applies the same
- * delimiter-aware extraction so e.g. "%extension-zigbee%zigbee_basic" reduces
- * to "zigbee_basic" instead of leaving the prefix intact.
- *
- * @param {string} id
- * @returns {string}
- */
-export function normalizeUcDependencyId(id) {
-  return extractUcClusterCode(id)
+  return ucComponents.map((c) => extractUcClusterCode(c.id))
 }
 
 /**

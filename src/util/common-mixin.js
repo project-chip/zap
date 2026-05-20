@@ -298,22 +298,11 @@ export default {
         )
       }
 
-      // If ZAP just installed components for this cluster, skip the check.
-      const installRequested =
-        this.$store.state.zap.studio.installRequestedClusterIds || []
-      if (cluster && installRequested.includes(cluster.id)) {
-        return []
-      }
-
-      const rawSelected =
-        this.$store.state.zap.studio.selectedUcComponents || []
-      const selectedIds = Util.getClusterIdsByUcComponents(rawSelected)
-      const installedNorm = new Set(
-        selectedIds.map((id) => Util.normalizeUcDependencyId(id))
+      const selectedIds = Util.getClusterIdsByUcComponents(
+        this.$store.state.zap.studio.selectedUcComponents
       )
-
       return requiredComponentIdList.filter(
-        (id) => !installedNorm.has(Util.normalizeUcDependencyId(id))
+        (id) => !selectedIds.includes(Util.extractUcClusterCode(id))
       )
     },
 

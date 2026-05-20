@@ -291,24 +291,7 @@ export function updateSelectedEvents(context, selectionContext) {
  */
 export function updateSelectedComponent(context, payload) {
   let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
-  return axiosRequests.$serverPost(op, payload).then((response) => {
-    const list = Array.isArray(response?.data) ? response.data : []
-    const anySuccess = list.some((r) => {
-      const s = Number(r?.status)
-      return (
-        (s >= 200 && s < 300) ||
-        (payload.added && r?.data?.componentAdded === true) ||
-        (!payload.added && r?.data?.componentRemoved === true)
-      )
-    })
-    if (anySuccess && payload?.clusterId != null) {
-      context.commit('markClusterInstallRequested', {
-        clusterId: payload.clusterId,
-        added: payload.added === true
-      })
-    }
-    return response
-  })
+  return axiosRequests.$serverPost(op, payload)
 }
 
 /**
@@ -1307,17 +1290,15 @@ export function updateUcComponentState(context, projectInfo) {
 
 /**
  * Update the selected UC component state for Simplicity Studio.
- *
- * Driven by Studio's "updateComponents" WebSocket notification. The backend
- * forwards the parsed component tree; we flatten it to leaves and let the
- * mutation merge them into our local state.
- *
  * @param {*} context
- * @param {*} tree Parsed Studio component tree.
+ * @param {*} projectInfo
  */
-export function updateSelectedUcComponentState(context, tree) {
-  const treeLeaves = tree ? Util.getUcComponents(tree) : []
-  context.commit('applyUcComponentUpdate', treeLeaves)
+export function updateSelectedUcComponentState(context, projectInfo) {
+  let ucComponents = Util.getUcComponents(projectInfo)
+  let selectedUcComponents = Util.getSelectedUcComponents(ucComponents)
+  context.commit('updateSelectedUcComponentState', {
+    selectedUcComponents
+  })
 }
 
 /**

@@ -972,80 +972,13 @@ export function updateUcComponentState(state, data) {
 
 /**
  * Update Simplicity Studio's selected UC components in the state.
- * Kept for backward compatibility (legacy callers / tests). Prefer
- * applyUcComponentUpdate for the WebSocket path.
  * @param {*} state
  * @param {*} data
  */
 export function updateSelectedUcComponentState(state, data) {
   if (data != null) {
     vue3Set(state.studio, 'selectedUcComponents', data.selectedUcComponents)
-    if (data.ucComponents != null) {
-      vue3Set(state.studio, 'ucComponents', data.ucComponents)
-    }
   }
-}
-
-/**
- * Merge a Studio component tree snapshot into local state.
- *
- * Add-only for selectedUcComponents: leaves with isSelected:true are upserted,
- * isSelected:false is ignored. ucComponents (the catalog) is always merged.
- *
- * @param {*} state
- * @param {any[]} treeLeaves Flattened list of leaf nodes from Studio's tree.
- */
-export function applyUcComponentUpdate(state, treeLeaves) {
-  const leaves = Array.isArray(treeLeaves) ? treeLeaves : []
-
-  const prevSelected = Array.isArray(state.studio.selectedUcComponents)
-    ? state.studio.selectedUcComponents
-    : []
-  const selectedById = new Map(
-    prevSelected.filter((x) => x && x.id != null).map((x) => [String(x.id), x])
-  )
-
-  const prevAll = Array.isArray(state.studio.ucComponents)
-    ? state.studio.ucComponents
-    : []
-  const allById = new Map(
-    prevAll.filter((x) => x && x.id != null).map((x) => [String(x.id), x])
-  )
-
-  for (const node of leaves) {
-    if (!node || node.id == null) continue
-    const key = String(node.id)
-    allById.set(key, node)
-    if (node.isSelected === true) {
-      selectedById.set(key, node)
-    }
-  }
-
-  vue3Set(state.studio, 'selectedUcComponents', [...selectedById.values()])
-  vue3Set(state.studio, 'ucComponents', [...allById.values()])
-}
-
-/**
- * Track which cluster ids ZAP has successfully asked Studio to install (or
- * uninstall) components for. Consumed by the missing-component warning gate
- * in common-mixin.js.
- *
- * @param {*} state
- * @param {{ clusterId: any, added: boolean }} payload
- */
-export function markClusterInstallRequested(state, payload) {
-  if (!payload || payload.clusterId == null) return
-  const list = Array.isArray(state.studio.installRequestedClusterIds)
-    ? [...state.studio.installRequestedClusterIds]
-    : []
-  const key = payload.clusterId
-  const idx = list.indexOf(key)
-  if (payload.added === true) {
-    if (idx === -1) list.push(key)
-  } else {
-    if (idx !== -1) list.splice(idx, 1)
-  }
-  vue3Set(state.studio, 'installRequestedClusterIds', list)
 }
 
 /**
