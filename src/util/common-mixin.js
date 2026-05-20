@@ -298,11 +298,7 @@ export default {
         )
       }
 
-      // If ZAP has already successfully asked Studio to install for this
-      // cluster, suppress the missing-component warning regardless of how
-      // Studio's tree currently labels things. This is the authoritative
-      // signal -- it bypasses any id-format mismatch between what Studio
-      // echoes back over the WebSocket and what our extension map uses.
+      // If ZAP just installed components for this cluster, skip the check.
       const installRequested =
         this.$store.state.zap.studio.installRequestedClusterIds || []
       if (cluster && installRequested.includes(cluster.id)) {

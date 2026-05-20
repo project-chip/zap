@@ -987,21 +987,10 @@ export function updateSelectedUcComponentState(state, data) {
 }
 
 /**
- * Apply a Studio WebSocket UC component update.
+ * Merge a Studio component tree snapshot into local state.
  *
- * Studio's "updateComponents" notification carries a full tree snapshot. After
- * a successful install, Studio has been observed to emit a follow-up snapshot
- * that re-marks the just-installed leaf with isSelected:false, which used to
- * make the missing-component warning flicker back.
- *
- * The fix is to treat Studio's WS updates as ADD-ONLY for the local selection
- * set:
- *   - leaves with isSelected:true  -> upserted (Studio can ADD)
- *   - leaves with isSelected:false -> ignored  (Studio cannot remove)
- *   - leaves not mentioned at all  -> left alone (no wipe)
- *
- * ucComponents (the catalog used for labels / metadata) is always merged so
- * we keep accumulating entries.
+ * Add-only for selectedUcComponents: leaves with isSelected:true are upserted,
+ * isSelected:false is ignored. ucComponents (the catalog) is always merged.
  *
  * @param {*} state
  * @param {any[]} treeLeaves Flattened list of leaf nodes from Studio's tree.
@@ -1038,10 +1027,8 @@ export function applyUcComponentUpdate(state, treeLeaves) {
 
 /**
  * Track which cluster ids ZAP has successfully asked Studio to install (or
- * uninstall) components for. The missing-component warning is gated by this
- * list: if ZAP just told Studio to install for a cluster and got a 2xx back,
- * later Studio WebSocket noise cannot flicker the warning back on for that
- * cluster.
+ * uninstall) components for. Consumed by the missing-component warning gate
+ * in common-mixin.js.
  *
  * @param {*} state
  * @param {{ clusterId: any, added: boolean }} payload

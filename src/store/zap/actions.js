@@ -292,8 +292,6 @@ export function updateSelectedEvents(context, selectionContext) {
 export function updateSelectedComponent(context, payload) {
   let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
   return axiosRequests.$serverPost(op, payload).then((response) => {
-    // Record the cluster as install-requested so the missing-component warning
-    // gate short-circuits regardless of any contradictory Studio WS updates.
     const list = Array.isArray(response?.data) ? response.data : []
     const anySuccess = list.some((r) => {
       const s = Number(r?.status)
