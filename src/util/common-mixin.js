@@ -298,11 +298,12 @@ export default {
         )
       }
 
-      const selectedIds = Util.getClusterIdsByUcComponents(
+      let selectedUcComponentIds = Util.getClusterIdsByUcComponents(
         this.$store.state.zap.studio.selectedUcComponents
       )
+
       return requiredComponentIdList.filter(
-        (id) => !selectedIds.includes(Util.extractUcClusterCode(id))
+        (id) => !selectedUcComponentIds.includes(Util.extractUcClusterCode(id))
       )
     },
 
