@@ -292,39 +292,22 @@ export function updateSelectedEvents(context, selectionContext) {
 export function updateSelectedComponent(context, payload) {
   let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
   return axiosRequests.$serverPost(op, payload).then((response) => {
-    // ZAP owns the install/remove decision locally. Studio's follow-up "tree"
-    // WS messages can spuriously mark just-installed components as
-    // isSelected:false during settle, which used to make the missing-component
-    // warning flicker back. We trust two things:
-    //   1. The component ids Studio returned 2xx (or its "fake-ok" 4xx with
-    //      componentAdded/componentRemoved) for, mirrored into
-    //      selectedUcComponents.
-    //   2. The cluster id we just acted on -- recorded here directly so the
-    //      missing-component check can short-circuit regardless of any
-    //      id-format mismatches between POST responses and Studio's tree.
+    // Record the cluster as install-requested so the missing-component warning
+    // gate short-circuits regardless of any contradictory Studio WS updates.
     const list = Array.isArray(response?.data) ? response.data : []
-    const successIds = list
-      .filter((r) => {
-        const s = Number(r?.status)
-        const ok = s >= 200 && s < 300
-        const fakeOk =
-          (payload.added === true && r?.data?.componentAdded === true) ||
-          (payload.added !== true && r?.data?.componentRemoved === true)
-        return ok || fakeOk
+    const anySuccess = list.some((r) => {
+      const s = Number(r?.status)
+      return (
+        (s >= 200 && s < 300) ||
+        (payload.added && r?.data?.componentAdded === true) ||
+        (!payload.added && r?.data?.componentRemoved === true)
+      )
+    })
+    if (anySuccess && payload?.clusterId != null) {
+      context.commit('markClusterInstallRequested', {
+        clusterId: payload.clusterId,
+        added: payload.added === true
       })
-      .map((r) => r?.id)
-      .filter((id) => id != null && String(id).length > 0)
-    if (successIds.length) {
-      context.commit('locallyMarkUcComponents', {
-        added: payload.added === true,
-        ids: successIds
-      })
-      if (payload?.clusterId != null) {
-        context.commit('markClusterInstallRequested', {
-          clusterId: payload.clusterId,
-          added: payload.added === true
-        })
-      }
     }
     return response
   })

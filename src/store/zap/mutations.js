@@ -1000,9 +1000,8 @@ export function updateSelectedUcComponentState(state, data) {
  *   - leaves with isSelected:false -> ignored  (Studio cannot remove)
  *   - leaves not mentioned at all  -> left alone (no wipe)
  *
- * Removals happen only via locallyMarkUcComponents when ZAP itself issues a
- * remove POST and Studio responds 2xx. ucComponents (the catalog used for
- * labels / metadata) is always merged so we keep accumulating entries.
+ * ucComponents (the catalog used for labels / metadata) is always merged so
+ * we keep accumulating entries.
  *
  * @param {*} state
  * @param {any[]} treeLeaves Flattened list of leaf nodes from Studio's tree.
@@ -1035,52 +1034,6 @@ export function applyUcComponentUpdate(state, treeLeaves) {
 
   vue3Set(state.studio, 'selectedUcComponents', [...selectedById.values()])
   vue3Set(state.studio, 'ucComponents', [...allById.values()])
-}
-
-/**
- * Apply the result of a locally-issued component install/uninstall POST.
- *
- * ZAP is the local source of truth for what it has asked Studio to install or
- * remove. A 2xx response from the POST means Studio acknowledged the change,
- * so we mirror that result into selectedUcComponents immediately. Any later
- * Studio WebSocket tree that contradicts this (see applyUcComponentUpdate)
- * is ignored for the unselect direction.
- *
- * @param {*} state
- * @param {{ ids: string[], added: boolean }} payload
- */
-export function applyLocalUcComponentChange(state, payload) {
-  if (!payload || !Array.isArray(payload.ids) || payload.ids.length === 0)
-    return
-  const added = payload.added === true
-  const prevSelected = Array.isArray(state.studio.selectedUcComponents)
-    ? state.studio.selectedUcComponents
-    : []
-  const selectedById = new Map(
-    prevSelected.filter((x) => x && x.id != null).map((x) => [String(x.id), x])
-  )
-  for (const rawId of payload.ids) {
-    if (rawId == null) continue
-    const key = String(rawId)
-    if (added) {
-      if (!selectedById.has(key)) {
-        selectedById.set(key, { id: key, isSelected: true })
-      }
-    } else {
-      selectedById.delete(key)
-    }
-  }
-  vue3Set(state.studio, 'selectedUcComponents', [...selectedById.values()])
-}
-
-/**
- * Backward-compat alias for the action's commit name. Kept thin so call sites
- * can use either name interchangeably.
- * @param {*} state
- * @param {*} payload
- */
-export function locallyMarkUcComponents(state, payload) {
-  applyLocalUcComponentChange(state, payload)
 }
 
 /**
