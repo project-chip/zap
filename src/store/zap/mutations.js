@@ -1026,6 +1026,11 @@ export function applyUcComponentUpdate(state, payload) {
     prevAll.filter((x) => x && x.id != null).map((x) => [String(x.id), x])
   )
 
+  /**
+   * Upsert a component into the selected and catalog maps for this mutation.
+   * @param {*} id Component id to add.
+   * @param {*} node Optional node payload to store; falls back to a stub.
+   */
   function applyAdded(id, node) {
     if (id == null) return
     const key = String(id)
