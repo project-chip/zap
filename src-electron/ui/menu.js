@@ -108,13 +108,23 @@ const template = (httpPort) => [
       {
         label: 'Navigate back ...',
         click(menuItem, browserWindow, event) {
-          browserWindow.webContents.goBack()
+          const nav = browserWindow.webContents.navigationHistory
+          if (nav) {
+            nav.goBack()
+          } else {
+            browserWindow.webContents.goBack()
+          }
         }
       },
       {
         label: 'Navigate forward ...',
         click(menuItem, browserWindow, event) {
-          browserWindow.webContents.goForward()
+          const nav = browserWindow.webContents.navigationHistory
+          if (nav) {
+            nav.goForward()
+          } else {
+            browserWindow.webContents.goForward()
+          }
         }
       },
       { role: 'reload' },

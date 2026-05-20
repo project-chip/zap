@@ -9,4 +9,30 @@ Cluster: {{label}}
     {{index}}: Bit {{bit}} is assigned to tag {{tag}} => value = {{value}}
 {{/feature_bits}}
 {{/global_attribute_default}}
+{{#if_cluster_has_feature_bitmap}}
+- {{label}} has Feature bitmap
+{{else}}
+- {{label}} has no Feature bitmap
+{{/if_cluster_has_feature_bitmap}}
 {{/zcl_clusters}}
+
+// cluster_feature_items helper:
+// Level Control (code 0x0008) -- features defined inline in level-control-cluster.xml:
+{{#cluster_feature_items 8}}
+    LevelControl feature: {{label}} mask={{asHex mask 2}}
+{{/cluster_feature_items}}
+// Color Control (code 0x0300) -- features defined inline in color-control-cluster.xml:
+{{#cluster_feature_items 768}}
+    ColorControl feature: {{label}} mask={{asHex mask 2}}
+{{/cluster_feature_items}}
+// Unknown cluster code (no output expected, no Feature bitmap defined):
+{{#cluster_feature_items 65535}}
+    UnknownCluster feature: {{label}} mask={{asHex mask 2}}
+{{/cluster_feature_items}}
+
+// if_feature_bit_enabled helper:
+- value=3 mask=1 => {{#if_feature_bit_enabled "3" "1"}}enabled{{else}}disabled{{/if_feature_bit_enabled}}
+- value=3 mask=2 => {{#if_feature_bit_enabled "3" "2"}}enabled{{else}}disabled{{/if_feature_bit_enabled}}
+- value=3 mask=4 => {{#if_feature_bit_enabled "3" "4"}}enabled{{else}}disabled{{/if_feature_bit_enabled}}
+- value=0x1F mask=0x10 => {{#if_feature_bit_enabled "0x1F" "0x10"}}enabled{{else}}disabled{{/if_feature_bit_enabled}}
+- value=notanumber mask=1 => {{#if_feature_bit_enabled "notanumber" "1"}}enabled{{else}}disabled{{/if_feature_bit_enabled}}

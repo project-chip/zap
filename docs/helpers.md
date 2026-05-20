@@ -221,6 +221,10 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~featureBits(options)](#module_Templating API_ Attribute helpers..featureBits) ⇒
     * [~attributeDefault()](#module_Templating API_ Attribute helpers..attributeDefault) ⇒
     * [~as_underlying_atomic_identifier_for_attribute_id(attributeId)](#module_Templating API_ Attribute helpers..as_underlying_atomic_identifier_for_attribute_id)
+    * [~selectFeatureBitmapForCluster(db, packageIds, clusterId)](#module_Templating API_ Attribute helpers..selectFeatureBitmapForCluster) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
+    * [~if_cluster_has_feature_bitmap(options)](#module_Templating API_ Attribute helpers..if_cluster_has_feature_bitmap) ⇒ <code>Promise.&lt;string&gt;</code>
+    * [~if_feature_bit_enabled(options)](#module_Templating API_ Attribute helpers..if_feature_bit_enabled) ⇒ <code>string</code>
+    * [~cluster_feature_items(options)](#module_Templating API_ Attribute helpers..cluster_feature_items) ⇒ <code>Promise.&lt;string&gt;</code>
 
 <a name="module_Templating API_ Attribute helpers..count_mandatory_matter_attributes"></a>
 
@@ -261,6 +265,139 @@ atomic table.
 | --- | --- |
 | attributeId | <code>\*</code> | 
 
+<a name="module_Templating API_ Attribute helpers..selectFeatureBitmapForCluster"></a>
+
+### Templating API: Attribute helpers~selectFeatureBitmapForCluster(db, packageIds, clusterId) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
+Returns the cluster-scoped 'Feature' bitmap, or null when the cluster does not
+define one. Uses selectBitmapByNameAndClusterId for a targeted lookup, then
+confirms the bitmap is associated with clusterId (the DB helper may return a
+package-wide singleton when only one bitmap with that name exists).
+
+**Kind**: inner method of [<code>Templating API: Attribute helpers</code>](#module_Templating API_ Attribute helpers)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>Array.&lt;number&gt;</code> | 
+| clusterId | <code>number</code> | 
+
+<a name="module_Templating API_ Attribute helpers..if_cluster_has_feature_bitmap"></a>
+
+### Templating API: Attribute helpers~if\_cluster\_has\_feature\_bitmap(options) ⇒ <code>Promise.&lt;string&gt;</code>
+Block helper that renders its body when the cluster in the current context
+defines a bitmap named 'Feature', and its inverse ({{else}}) when it does
+not. Intended for choosing between `using FeatureBitmapType = Feature;` and
+`using FeatureBitmapType = Clusters::StaticApplicationConfig::NoFeatureFlagsDefined;`
+in static-cluster-config headers.
+
+Must be used inside a context that exposes a cluster `id` field, such as
+`zcl_clusters`, `selectedServerCluster`, or any block helper whose context
+object carries the ZCL cluster database ID as `id`.
+
+**Kind**: inner method of [<code>Templating API: Attribute helpers</code>](#module_Templating API_ Attribute helpers)  
+**Returns**: <code>Promise.&lt;string&gt;</code> - Rendered `fn` block when the cluster has a
+  bitmap named 'Feature'; rendered `inverse` block otherwise.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>\*</code> | Handlebars options object (fn / inverse blocks). |
+
+**Example**  
+```js
+// Inside a selectedServerCluster or zcl_clusters block:
+{{#if_cluster_has_feature_bitmap}}
+using FeatureBitmapType = Feature;
+{{else}}
+using FeatureBitmapType = Clusters::StaticApplicationConfig::NoFeatureFlagsDefined;
+{{/if_cluster_has_feature_bitmap}}
+```
+<a name="module_Templating API_ Attribute helpers..if_feature_bit_enabled"></a>
+
+### Templating API: Attribute helpers~if\_feature\_bit\_enabled(options) ⇒ <code>string</code>
+Block helper that renders its body when the bitwise AND of `featureMapValue`
+and `mask` is non-zero (i.e. the specific feature bit is set), and its
+inverse ({{else}}) when the bit is clear.
+
+Both arguments are parsed as integers so decimal strings (e.g. `"3"`) and
+hex strings (e.g. `"0x3"`) are accepted.
+
+Combine with `cluster_feature_items` when you want to iterate over feature
+fields and selectively render only those that are enabled:
+{{#cluster_feature_items clusterCode}}
+  {{#if_feature_bit_enabled featureMapValue mask}}...{{/if_feature_bit_enabled}}
+{{/cluster_feature_items}}
+
+**Kind**: inner method of [<code>Templating API: Attribute helpers</code>](#module_Templating API_ Attribute helpers)  
+**Returns**: <code>string</code> - Rendered `fn` block when `(featureMapValue & mask) !== 0`;
+  rendered `inverse` block otherwise.  
+**Given**: <code>string\|number</code> featureMapValue - The raw FeatureMap attribute default
+  value for the current endpoint cluster (e.g. `"3"`).  
+**Given**: <code>string\|number</code> mask - The bitmask of the feature field being tested
+  (e.g. `1`).  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>\*</code> | Handlebars options object (fn / inverse blocks). |
+
+**Example**  
+```js
+// LevelControl, featureMap default = 3 (kOnOff | kLighting):
+{{#if_feature_bit_enabled "3" "1"}}enabled{{else}}disabled{{/if_feature_bit_enabled}}
+// → "enabled"
+{{#if_feature_bit_enabled "3" "4"}}enabled{{else}}disabled{{/if_feature_bit_enabled}}
+// → "disabled"  (kFrequency bit 0x4 is not set)
+```
+<a name="module_Templating API_ Attribute helpers..cluster_feature_items"></a>
+
+### Templating API: Attribute helpers~cluster\_feature\_items(options) ⇒ <code>Promise.&lt;string&gt;</code>
+Block helper that iterates over all fields of the Feature bitmap for a
+cluster identified by its ZCL cluster code, regardless of which bits are
+currently enabled. Use `if_feature_bit_enabled` inside the body to act on
+only those fields whose bit is set in a given FeatureMap value.
+
+This is the preferred way to access Feature bitmap fields inside
+`user_cluster_attributes` because `zcl_bitmaps` requires a cluster database
+`id` in context that is not available there. This helper performs the cluster
+lookup by ZCL code (not name) for robustness.
+
+Each iteration context exposes:
+  - `name`  {string}  field name as stored in the ZCL database (e.g. `"kOnOff"`)
+  - `label` {string}  same as `name`
+  - `mask`  {number}  the field's bitmask (e.g. `1`)
+
+If the cluster has no bitmap named 'Feature' the body is never rendered.
+
+**Kind**: inner method of [<code>Templating API: Attribute helpers</code>](#module_Templating API_ Attribute helpers)  
+**Returns**: <code>Promise.&lt;string&gt;</code> - Concatenated rendered blocks for each feature field.  
+**Given**: <code>string\|number</code> clusterCode - The ZCL cluster code (e.g. `8` for
+  LevelControl). Inside `user_cluster_attributes` pass `../code` to
+  reference the enclosing `user_clusters` cluster code.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>\*</code> | Handlebars options object. |
+
+**Example**  
+```js
+// List only enabled feature bits for LevelControl (featureMap default = 3):
+{{#if (is_str_equal name "FeatureMap")}}
+{{#cluster_feature_items ../code}}
+{{#if_feature_bit_enabled ../defaultValue mask}}
+    FeatureBitmapType::k{{asUpperCamelCase label preserveAcronyms=true}}, // feature bit {{as_hex mask}}
+{{/if_feature_bit_enabled}}
+{{/cluster_feature_items}}
+{{/if}}
+// Emits: FeatureBitmapType::kOnOff,     // feature bit 0x1
+//        FeatureBitmapType::kLighting,   // feature bit 0x2
+// Skips kFrequency (mask 0x4 not set in value 3)
+```
+**Example**  
+```js
+// List ALL defined feature bits regardless of enabled state:
+{{#cluster_feature_items clusterCode}}
+    {{label}}: {{as_hex mask}}
+{{/cluster_feature_items}}
+```
 <a name="module_Templating API_ C formatting helpers"></a>
 
 ## Templating API: C formatting helpers

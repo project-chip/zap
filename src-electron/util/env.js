@@ -596,7 +596,8 @@ function versionsCheck() {
     '18.x.x',
     '24.x.x',
     '27.x.x',
-    '31.x.x'
+    '31.x.x',
+    '41.x.x'
   ]
   let nodeVersion = process.version
   let electronVersion = process.versions.electron
