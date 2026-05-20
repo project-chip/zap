@@ -153,10 +153,9 @@ export function getUcComponents(ucComponentTreeResponse) {
 }
 
 /**
- * Reduce a UC component id to its short cluster-code form, so the two id
- * formats Studio uses (`studiocomproot-...-zigbee_basic` and
- * `%extension-zigbee%zigbee_basic`) and the ZCL extension's own
- * `%extension-...%name` form all collapse to the same canonical value.
+ * Returns the short cluster code from a UC component id, regardless of
+ * which prefix format the id uses. Use this when you need to compare ids
+ * that came from different sources.
  *
  * @param {*} id
  * @returns {string}
