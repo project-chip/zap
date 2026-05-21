@@ -153,9 +153,20 @@ export function getUcComponents(ucComponentTreeResponse) {
 }
 
 /**
- * Returns the short cluster code from a UC component id, regardless of
- * which prefix format the id uses. Use this when you need to compare ids
- * that came from different sources.
+ * Returns the short cluster code from a UC component id, regardless of which
+ * prefix format the id uses. Strips everything up to the last '%' and then
+ * everything up to the last '-', and lowercases the result. Use this when
+ * you need to compare ids that came from different sources.
+ *
+ * Examples:
+ *   "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
+ *     -> "zigbee_basic"
+ *   "matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control"
+ *     -> "matter_level_control"
+ *   "%extension-zigbee%zigbee_basic"
+ *     -> "zigbee_basic"
+ *   "zigbee_basic"
+ *     -> "zigbee_basic"
  *
  * @param {*} id
  * @returns {string}
@@ -171,10 +182,18 @@ export function extractUcClusterCode(id) {
 }
 
 /**
- * Extract a list of cluster ids (in short cluster-code form) from a list of
- * UC component objects.
+ * Returns the short cluster codes (see extractUcClusterCode) for a list of UC
+ * component objects.
+ *
+ * Example:
+ *   input:  [
+ *     { id: "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic" },
+ *     { id: "matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control" }
+ *   ]
+ *   output: ["zigbee_basic", "matter_level_control"]
  *
  * @param {*} ucComponents - an array of UC component objects with `id`
+ * @returns {string[]}
  */
 export function getClusterIdsByUcComponents(ucComponents) {
   return ucComponents.map((c) => extractUcClusterCode(c.id))
