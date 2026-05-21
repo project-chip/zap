@@ -324,6 +324,49 @@ test(
       '> Field: 0 SoftwareVersion  default_value=0x00000000'
     )
     expect(eventOut).not.toContain('> Field: ProductID  default_value=')
+
+    // Testing the FeatureMap template helpers added in helper-attribute.js:
+    //   if_cluster_has_feature_bitmap, cluster_feature_items, if_feature_bit_enabled
+    // The feature-map.zapt template exercises these helpers; assertions below
+    // verify that the generated feature-map.h reflects the Feature bitmap
+    // information loaded from cluster XMLs (e.g. level-control-cluster.xml and
+    // color-control-cluster.xml).
+    let featureMap = genResult.content['feature-map.h']
+    expect(featureMap).not.toBeNull()
+
+    // if_cluster_has_feature_bitmap: clusters defining <features> in their XML
+    // (Level Control / Color Control) must render the affirmative branch.
+    expect(featureMap).toContain('- Level Control has Feature bitmap')
+    expect(featureMap).toContain('- Color Control has Feature bitmap')
+    // A cluster with no Feature bitmap defined must render the {{else}} branch.
+    expect(featureMap).toContain('- Descriptor has no Feature bitmap')
+
+    // cluster_feature_items: iterates all fields of the Feature bitmap for the
+    // given cluster code. Level Control (0x0008) defines OO/LT/FQ feature bits;
+    // Color Control (0x0300) defines HS/EHUE/CL/XY/CT feature bits. The helper
+    // exposes each field's name as `label` and bit-position as `mask`.
+    expect(featureMap).toContain('LevelControl feature: OnOff mask=0x01')
+    expect(featureMap).toContain('LevelControl feature: Lighting mask=0x02')
+    expect(featureMap).toContain('LevelControl feature: Frequency mask=0x04')
+    expect(featureMap).toContain(
+      'ColorControl feature: Hue/Saturation mask=0x01'
+    )
+    expect(featureMap).toContain('ColorControl feature: Enhanced Hue mask=0x02')
+    expect(featureMap).toContain('ColorControl feature: Color loop mask=0x04')
+    expect(featureMap).toContain('ColorControl feature: XY mask=0x08')
+    expect(featureMap).toContain(
+      'ColorControl feature: Color temperature mask=0x10'
+    )
+    // Unknown cluster code: helper renders an empty inner block.
+    expect(featureMap).not.toContain('UnknownCluster feature:')
+
+    // if_feature_bit_enabled: bitwise-AND check accepting both decimal and hex
+    // string inputs; non-numeric input renders the {{else}} branch.
+    expect(featureMap).toContain('- value=3 mask=1 => enabled')
+    expect(featureMap).toContain('- value=3 mask=2 => enabled')
+    expect(featureMap).toContain('- value=3 mask=4 => disabled')
+    expect(featureMap).toContain('- value=0x1F mask=0x10 => enabled')
+    expect(featureMap).toContain('- value=notanumber mask=1 => disabled')
   },
   testUtil.timeout.long()
 )

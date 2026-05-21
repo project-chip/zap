@@ -187,14 +187,15 @@ export function windowCreate(port, args) {
     }
   }) // EO close
 
-  w.webContents.on(
-    'console-message',
-    (event, level, message, line, sourceId) => {
-      if (!browserApi.processRendererNotify(w, message)) {
-        env.logBrowser(message)
-      }
+  w.webContents.on('console-message', (event, ...legacyArgs) => {
+    // Electron 41+ passes a single WebContentsConsoleMessageEventParams object;
+    // older versions passed (level, message, line, sourceId) positional args.
+    const message =
+      typeof event.message === 'string' ? event.message : (legacyArgs[1] ?? '')
+    if (!browserApi.processRendererNotify(w, message)) {
+      env.logBrowser(message)
     }
-  )
+  })
   w.webContents.on('before-input-event', (e, input) => {
     if (input.type === 'keyUp' && input.key.toLowerCase() === 'alt') {
       menu.toggleMenu(port)
