@@ -303,7 +303,7 @@ export default {
       )
 
       return requiredComponentIdList.filter(
-        (id) => !selectedUcComponentIds.includes(id)
+        (id) => !selectedUcComponentIds.includes(Util.extractUcClusterCode(id))
       )
     },
 

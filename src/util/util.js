@@ -153,24 +153,50 @@ export function getUcComponents(ucComponentTreeResponse) {
 }
 
 /**
- * Extract a list of cluster id from a list of Uc component id
+ * Returns the short cluster code from a UC component id, regardless of which
+ * prefix format the id uses. Strips everything up to the last '%' and then
+ * everything up to the last '-', and lowercases the result. Use this when
+ * you need to compare ids that came from different sources.
  *
- * return: a list of ids
- *   id value example:
- *     "zigbee_basic" from "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
-       "%extension-matter%matter_level_control" from "matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control"
- * @param {*} ucComponentIds - an array of ids
+ * Examples:
+ *   "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
+ *     -> "zigbee_basic"
+ *   "matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control"
+ *     -> "matter_level_control"
+ *   "%extension-zigbee%zigbee_basic"
+ *     -> "zigbee_basic"
+ *   "zigbee_basic"
+ *     -> "zigbee_basic"
+ *
+ * @param {*} id
+ * @returns {string}
+ */
+export function extractUcClusterCode(id) {
+  if (id == null) return ''
+  let s = String(id).toLowerCase()
+  const lastPct = s.lastIndexOf('%')
+  if (lastPct >= 0 && lastPct < s.length - 1) s = s.substring(lastPct + 1)
+  const lastDash = s.lastIndexOf('-')
+  if (lastDash >= 0 && lastDash < s.length - 1) s = s.substring(lastDash + 1)
+  return s
+}
+
+/**
+ * Returns the short cluster codes (see extractUcClusterCode) for a list of UC
+ * component objects.
+ *
+ * Example:
+ *   input:  [
+ *     { id: "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic" },
+ *     { id: "matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control" }
+ *   ]
+ *   output: ["zigbee_basic", "matter_level_control"]
+ *
+ * @param {*} ucComponents - an array of UC component objects with `id`
+ * @returns {string[]}
  */
 export function getClusterIdsByUcComponents(ucComponents) {
-  return ucComponents
-    .map((component) => component.id)
-    .map((id) => {
-      if (id.includes('zigbee')) {
-        return id.substr(id.lastIndexOf('-') + 1)
-      } else if (id.includes('%extension-')) {
-        return id.substr(id.lastIndexOf('%extension-'))
-      }
-    })
+  return ucComponents.map((c) => extractUcClusterCode(c.id))
 }
 
 /**

@@ -61,3 +61,109 @@ test(
   },
   timeout.short()
 )
+
+// extractUcClusterCode and getClusterIdsByUcComponents together back the
+// "Required SLC Component not installed" warning. They reduce UC component
+// ids to a canonical short cluster code so selected ids (from Studio's tree)
+// and required ids (from the ZCL extension's component map) can be compared
+// regardless of which prefix format the source happens to use.
+test(
+  'extractUcClusterCode: collapses all known id formats to the short code',
+  () => {
+    // Studio tree leaf, zigbee
+    expect(
+      util.extractUcClusterCode(
+        'studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic'
+      )
+    ).toEqual('zigbee_basic')
+
+    // Studio tree leaf, matter
+    expect(
+      util.extractUcClusterCode(
+        'studiocomproot-Matter-Clusters-Common-matter_basic'
+      )
+    ).toEqual('matter_basic')
+
+    // %extension form used by the ZCL extension required-component map
+    expect(util.extractUcClusterCode('%extension-zigbee%zigbee_basic')).toEqual(
+      'zigbee_basic'
+    )
+    expect(
+      util.extractUcClusterCode('%extension-matter%matter_level_control')
+    ).toEqual('matter_level_control')
+
+    // Composite path with %extension inside (what Studio sends for matter)
+    expect(
+      util.extractUcClusterCode(
+        'matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control'
+      )
+    ).toEqual('matter_level_control')
+
+    // Bare short code passes through
+    expect(util.extractUcClusterCode('zigbee_basic')).toEqual('zigbee_basic')
+
+    // Defensive cases
+    expect(util.extractUcClusterCode(null)).toEqual('')
+    expect(util.extractUcClusterCode(undefined)).toEqual('')
+    expect(util.extractUcClusterCode('')).toEqual('')
+  },
+  timeout.short()
+)
+
+test(
+  'getClusterIdsByUcComponents: maps mixed zigbee+matter components to short codes',
+  () => {
+    const components = [
+      { id: 'studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic' },
+      { id: 'studiocomproot-Zigbee-Cluster_Library-HA-zigbee_on_off' },
+      {
+        id: 'matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control'
+      },
+      { id: '%extension-matter%matter_basic' }
+    ]
+    expect(util.getClusterIdsByUcComponents(components)).toEqual([
+      'zigbee_basic',
+      'zigbee_on_off',
+      'matter_level_control',
+      'matter_basic'
+    ])
+  },
+  timeout.short()
+)
+
+test(
+  'getClusterIdsByUcComponents + extractUcClusterCode: matter and zigbee required ids both match',
+  () => {
+    // Mirrors the comparison in common-mixin's missingUcComponentDependencies:
+    //   selectedIds = getClusterIdsByUcComponents(selected)
+    //   missing    = required.filter(r => !selectedIds.includes(extractUcClusterCode(r)))
+    const selected = [
+      { id: 'studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic' },
+      {
+        id: 'matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control'
+      }
+    ]
+    const selectedIds = util.getClusterIdsByUcComponents(selected)
+
+    // Required ids come from the ZCL extension in %extension-...%name form.
+    const required = [
+      '%extension-zigbee%zigbee_basic',
+      '%extension-matter%matter_level_control'
+    ]
+    const missing = required.filter(
+      (id) => !selectedIds.includes(util.extractUcClusterCode(id))
+    )
+    expect(missing).toEqual([])
+
+    // Anything genuinely not in selected stays in the missing list.
+    const requiredWithGap = [
+      '%extension-zigbee%zigbee_basic',
+      '%extension-zigbee%zigbee_on_off' // not selected
+    ]
+    const missingWithGap = requiredWithGap.filter(
+      (id) => !selectedIds.includes(util.extractUcClusterCode(id))
+    )
+    expect(missingWithGap).toEqual(['%extension-zigbee%zigbee_on_off'])
+  },
+  timeout.short()
+)
