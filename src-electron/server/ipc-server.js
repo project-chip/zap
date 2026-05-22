@@ -111,14 +111,16 @@ function handlerConvert(context, data) {
  * @param {*} data
  */
 function handlerStop(context, data) {
-  console.log('Shutting down because of remote client request.')
+  env.logInfo('Shutting down because of remote client request.')
   server.ipc.server.emit(
     context.socket,
     eventType.overAndOut,
     'Shutting down server.'
   )
-  startup.shutdown()
-  util.waitFor(1000).then(() => startup.quit())
+  startup
+    .shutdown()
+    .catch((err) => env.logError(`Error during shutdown: ${err}`))
+    .finally(() => util.waitFor(1000).then(() => startup.quit()))
 }
 
 /**

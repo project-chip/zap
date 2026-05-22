@@ -1198,21 +1198,31 @@ function clearDatabaseFile(dbPath) {
 }
 
 /**
- * Shuts down any servers that might be running.
+ * Shuts down any servers that might be running, and closes the database.
+ *
+ * NOTE: node-sqlite3's Database.close() is always asynchronous, even when the
+ * wrapper is called "sync". If the close work completes after Electron has
+ * begun tearing down the Node environment, node-sqlite3 will try to invoke its
+ * JS completion callback into a dying isolate and trigger napi_fatal_error
+ * (SIGABRT). To avoid that, this function returns a promise that resolves
+ * only after the database close callback has actually fired. Callers in
+ * Electron's 'will-quit' must preventDefault(), await this, and then app.exit().
+ *
+ * @returns Promise that resolves when shutdown is complete.
  */
-function shutdown() {
+async function shutdown() {
   env.logInfo('Shutting down HTTP and IPC servers...')
   ipcServer.shutdownServerSync()
   httpServer.shutdownHttpServerSync()
 
   if (mainDatabase != null) {
-    // Use a sync call, because you can't have promises in the 'quit' event.
+    let dbToClose = mainDatabase
+    mainDatabase = null
     try {
-      dbApi.closeDatabaseSync(mainDatabase)
-      mainDatabase = null
+      await dbApi.closeDatabase(dbToClose)
       env.logInfo('Database closed, shutting down.')
     } catch (err) {
-      env.logError('Failed to close database.')
+      env.logError(`Failed to close database: ${err}`)
     }
   }
 }
