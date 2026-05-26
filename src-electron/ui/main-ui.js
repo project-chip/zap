@@ -77,8 +77,23 @@ function hookMainInstanceEvents(argv) {
     })
   }
 
-  app.on('will-quit', () => {
-    startup.shutdown()
+  let isCleanShutdownDone = false
+  app.on('will-quit', (event) => {
+    // node-sqlite3 closes asynchronously. If we let Electron tear down the
+    // Node environment before the close callback fires, node-sqlite3 will
+    // try to invoke a JS callback in a destroyed isolate and abort() (see
+    // https://github.com/TryGhost/node-sqlite3 Database::Work_AfterClose).
+    // Defer the actual quit until the async shutdown finishes, then use
+    // app.exit() which does NOT re-fire 'will-quit'.
+    if (isCleanShutdownDone) return
+    event.preventDefault()
+    startup
+      .shutdown()
+      .catch((err) => env.logError(`Error during shutdown: ${err}`))
+      .finally(() => {
+        isCleanShutdownDone = true
+        app.exit(0)
+      })
   })
 
   app.on('second-instance', (event, commandLine, workingDirectory) => {
