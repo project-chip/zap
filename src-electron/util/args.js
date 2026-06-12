@@ -253,6 +253,11 @@ export function processCommandLineArguments(argv) {
       desc: 'Specifying the output YAML file to capture convert results.',
       type: 'string'
     })
+    .option('upgradeOutputSubdirectory', {
+      desc: 'When upgrading .zap files, write each upgraded file into this named subdirectory relative to the original file location.',
+      type: 'string',
+      default: null
+    })
     .option('validateOutput', {
       desc: 'Optional file path to write the validation report (.json or .yaml). For the validate command, -o/--output is accepted as an alias when this option is omitted.',
       type: 'string',

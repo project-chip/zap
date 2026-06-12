@@ -196,27 +196,30 @@ async function noopConvert(resultsFile, logger) {
 }
 
 /**
- * Find all zap files in a given directory
- * @param {*} dir
- * @returns all .zap files in the given directory
+ * Find all zap files in a given directory, optionally skipping a named
+ * subdirectory (e.g. the output subdirectory used by upgradeZapFile so that
+ * re-runs don't pick up previously upgraded files).
+ *
+ * @param {string} dir - Directory to search.
+ * @param {string|null} skipSubdirectory - Name of a directory to exclude at
+ *   every level of the recursive search (e.g. the upgrade output directory so
+ *   that re-runs don't pick up already-upgraded files).
+ * @returns {string[]} Paths of all .zap files found.
  */
-function findZapFiles(dir) {
+function findZapFiles(dir, skipSubdirectory = null) {
   let zapFiles = []
 
-  // Read all items in the directory
   const items = fs.readdirSync(dir)
 
-  // Loop through each item
   items.forEach((item) => {
     const itemPath = path.join(dir, item)
     const stats = fs.statSync(itemPath)
 
-    // If it's a directory, search recursively
     if (stats.isDirectory()) {
-      zapFiles = zapFiles.concat(findZapFiles(itemPath))
+      if (skipSubdirectory && item === skipSubdirectory) return
+      zapFiles = zapFiles.concat(findZapFiles(itemPath, skipSubdirectory))
     }
 
-    // If it's a file and has .zap extension, add to the list
     if (stats.isFile() && path.extname(item) === '.zap') {
       zapFiles.push(itemPath)
     }
@@ -233,7 +236,7 @@ function findZapFiles(dir) {
  * @param {*} options
  */
 async function upgradeZapFile(argv, options) {
-  let zapFiles = findZapFiles(argv.d)
+  let zapFiles = findZapFiles(argv.d, argv.upgradeOutputSubdirectory)
   let upgrade_results = argv.results
   for (let i = 0; i < zapFiles.length; i++) {
     let zapFile = zapFiles[i]
@@ -309,7 +312,13 @@ async function upgradeZapFile(argv, options) {
       upgradeTemplatePackages: upgradeTemplatePackages
     })
     options.logger(env.formatEmojiMessage('👈', `read in: ${zapFile}`))
-    let of = outputFile(zapFile, zapFile)
+    let of = argv.upgradeOutputSubdirectory
+      ? path.join(
+          path.dirname(zapFile),
+          argv.upgradeOutputSubdirectory,
+          path.basename(zapFile)
+        )
+      : outputFile(zapFile, zapFile)
     let parent = path.dirname(of)
     if (!fs.existsSync(parent)) {
       fs.mkdirSync(parent, { recursive: true })
