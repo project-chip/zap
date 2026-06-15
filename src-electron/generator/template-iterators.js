@@ -22,6 +22,7 @@
 const dbEnums = require('../../src-shared/db-enum')
 const querySessionZcl = require('../db/query-session-zcl')
 const queryEndpointType = require('../db/query-endpoint-type')
+const templateUtil = require('./template-util')
 
 // this structure links the names of iterators with the function.
 const iterators = {}
@@ -36,9 +37,17 @@ iterators[dbEnums.iteratorValues.selectedClientCluster] =
  * Get all clusters available for a given session
  * @param {*} db
  * @param {*} sessionId
+ * @param {*} packageCategory - ZCL package category to filter clusters by.
  * @returns promise of all clusters available for a given session
  */
-async function availableClusterIterator(db, sessionId) {
+async function availableClusterIterator(db, sessionId, packageCategory) {
+  if (packageCategory) {
+    return querySessionZcl.selectAllSessionClustersByCategory(
+      db,
+      sessionId,
+      packageCategory
+    )
+  }
   return querySessionZcl.selectAllSessionClusters(db, sessionId)
 }
 
@@ -47,10 +56,16 @@ async function availableClusterIterator(db, sessionId) {
  *
  * @param {*} db
  * @param {*} sessionId
- * @returns Promise of all clusters in the endpoint types.
+ * @param {*} packageCategory - ZCL package category to filter endpoints by.
+ * @returns Promise of all clusters in the (filtered) endpoint types.
  */
-async function selectedClusterIterator(db, sessionId) {
+async function selectedClusterIterator(db, sessionId, packageCategory) {
   let epts = await queryEndpointType.selectEndpointTypeIds(db, sessionId)
+  epts = await templateUtil.filterEndpointTypeIdsByCategory(
+    db,
+    epts,
+    packageCategory
+  )
   return queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, epts)
 }
 
@@ -59,10 +74,16 @@ async function selectedClusterIterator(db, sessionId) {
  *
  * @param {*} db
  * @param {*} sessionId
- * @returns Promise of all client clusters in the endpoint types.
+ * @param {*} packageCategory - ZCL package category to filter endpoints by.
+ * @returns Promise of all client clusters in the (filtered) endpoint types.
  */
-async function selectedClientClusterIterator(db, sessionId) {
+async function selectedClientClusterIterator(db, sessionId, packageCategory) {
   let epts = await queryEndpointType.selectEndpointTypeIds(db, sessionId)
+  epts = await templateUtil.filterEndpointTypeIdsByCategory(
+    db,
+    epts,
+    packageCategory
+  )
   return queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
     db,
     epts,
@@ -75,10 +96,16 @@ async function selectedClientClusterIterator(db, sessionId) {
  *
  * @param {*} db
  * @param {*} sessionId
- * @returns Promise of all server clusters in the endpoint types.
+ * @param {*} packageCategory - ZCL package category to filter endpoints by.
+ * @returns Promise of all server clusters in the (filtered) endpoint types.
  */
-async function selectedServerClusterIterator(db, sessionId) {
+async function selectedServerClusterIterator(db, sessionId, packageCategory) {
   let epts = await queryEndpointType.selectEndpointTypeIds(db, sessionId)
+  epts = await templateUtil.filterEndpointTypeIdsByCategory(
+    db,
+    epts,
+    packageCategory
+  )
   return queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
     db,
     epts,
@@ -92,12 +119,19 @@ async function selectedServerClusterIterator(db, sessionId) {
  * @param {*} iteratorName
  * @param {*} db
  * @param {*} sessionId
+ * @param {*} packageCategory - e.g. "matter" or "zigbee"; passed to iterators
+ *   that filter by ZCL package category. Null for single-protocol sessions.
  * @returns Iterator array
  */
-async function getIterativeObject(iteratorName, db, sessionId) {
+async function getIterativeObject(
+  iteratorName,
+  db,
+  sessionId,
+  packageCategory
+) {
   let fn = iterators[iteratorName]
   if (fn != null) {
-    return fn(db, sessionId)
+    return fn(db, sessionId, packageCategory)
   } else {
     let validValues = Object.keys(iterators).join(', ')
     throw new Error(

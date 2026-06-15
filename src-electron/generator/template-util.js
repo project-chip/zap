@@ -251,6 +251,56 @@ async function ensureTemplatePackageId(context) {
 }
 
 /**
+ * Filters a list of endpoint type id objects to only those whose device type
+ * belongs to a ZCL package with the given category.  When packageCategory is
+ * null (single-protocol session) the original list is returned unchanged.
+ *
+ * Each element of eptIds must have an `endpointTypeId` property (the shape
+ * returned by selectEndpointTypeIds).
+ *
+ * @param {*} db
+ * @param {*} eptIds - array of { endpointTypeId } objects
+ * @param {*} packageCategory - e.g. "matter" or "zigbee", or null
+ * @returns Promise that resolves with the filtered array.
+ */
+async function filterEndpointTypeIdsByCategory(db, eptIds, packageCategory) {
+  if (!packageCategory) return eptIds
+  let resEptIds = []
+  for (let i = 0; i < eptIds.length; i++) {
+    let deviceTypes = await queryDeviceType.selectDeviceTypesByEndpointTypeId(
+      db,
+      eptIds[i].endpointTypeId
+    )
+    // If no device type is found we cannot determine the category
+    // return the original list to preserve existing behaviour.
+    if (deviceTypes.length == 0) {
+      return eptIds
+    }
+    for (let j = 0; j < deviceTypes.length; j++) {
+      let deviceType = await queryDeviceType.selectDeviceTypeById(
+        db,
+        deviceTypes[j].deviceTypeRef
+      )
+      if (!deviceType) continue
+      let packageInfo = await queryPackage.getPackageByPackageId(
+        db,
+        deviceType.packageRef
+      )
+      if (!packageInfo) continue
+      if (
+        packageInfo.category == packageCategory ||
+        (!packageInfo.category &&
+          packageInfo.type === dbEnum.packageType.zclXmlStandalone)
+      ) {
+        resEptIds.push(eptIds[i])
+        break
+      }
+    }
+  }
+  return resEptIds
+}
+
+/**
  * Populate the endpoint type ids into the global context.
  * @param {*} context
  * @returns endpoint type ids
@@ -260,93 +310,23 @@ async function ensureEndpointTypeIds(context) {
   if (context.global.genTemplatePackage != null) {
     packageCategory = context.global.genTemplatePackage.category
   }
-  let resEptIds = []
 
-  if ('endpointTypeIds' in context.global) {
-    let eptIds = context.global.endpointTypeIds
-    if (!packageCategory) {
-      return eptIds
-    } else {
-      for (let i = 0; i < eptIds.length; i++) {
-        // Get endpoint type device info
-        let deviceTypes =
-          await queryDeviceType.selectDeviceTypesByEndpointTypeId(
-            context.global.db,
-            eptIds[i].endpointTypeId
-          )
-        // Sometimes a device type cannot be found for an endpoint type(undefined)
-        if (deviceTypes.length == 0) {
-          return context.global.endpointTypeIds
-        }
-        for (let j = 0; j < deviceTypes.length; j++) {
-          // Get device info
-          let deviceType = await queryDeviceType.selectDeviceTypeById(
-            context.global.db,
-            deviceTypes[j].deviceTypeRef
-          )
-          // Get package information to see the category of the device type
-          let packageInfo = await queryPackage.getPackageByPackageId(
-            context.global.db,
-            deviceType.packageRef
-          )
-          // Check for package category match based on gen template category and add it to relevant endpoint types
-          if (
-            packageInfo.category == packageCategory ||
-            !packageCategory ||
-            (!packageInfo.category &&
-              packageInfo.type === dbEnum.packageType.zclXmlStandalone)
-          ) {
-            resEptIds.push(eptIds[i])
-            break
-          }
-        }
-      }
-      return resEptIds
-    }
-  } else {
-    let eptIds = await queryEndpointType.selectEndpointTypeIds(
-      context.global.db,
-      context.global.sessionId
-    )
-    if (!packageCategory) {
-      context.global.endpointTypeIds = eptIds
-      return eptIds
-    } else {
-      for (let i = 0; i < eptIds.length; i++) {
-        let deviceTypes =
-          await queryDeviceType.selectDeviceTypesByEndpointTypeId(
-            context.global.db,
-            eptIds[i].endpointTypeId
-          )
-        // Sometimes a device type cannot be found for an endpoint type(undefined)
-        if (deviceTypes.length == 0) {
-          context.global.endpointTypeIds = eptIds
-          return eptIds
-        }
-        for (let j = 0; j < deviceTypes.length; j++) {
-          let deviceType = await queryDeviceType.selectDeviceTypeById(
-            context.global.db,
-            deviceTypes[j].deviceTypeRef
-          )
-          let packageInfo = await queryPackage.getPackageByPackageId(
-            context.global.db,
-            deviceType.packageRef
-          )
-          if (
-            packageInfo.category == packageCategory ||
-            (!packageInfo.category &&
-              packageInfo.type === dbEnum.packageType.zclXmlStandalone)
-          ) {
-            resEptIds.push(eptIds[i])
-            break
-          }
-        }
-      }
+  let eptIds =
+    'endpointTypeIds' in context.global
+      ? context.global.endpointTypeIds
+      : await queryEndpointType.selectEndpointTypeIds(
+          context.global.db,
+          context.global.sessionId
+        )
 
-      context.global.endpointTypeIds = eptIds
-      return resEptIds
-    }
-  }
+  // Always cache the full unfiltered list so subsequent helpers don't re-query.
+  context.global.endpointTypeIds = eptIds
+
+  return filterEndpointTypeIdsByCategory(
+    context.global.db,
+    eptIds,
+    packageCategory
+  )
 }
 
 /**
@@ -553,6 +533,7 @@ exports.ensureZclAttributeTypeSdkExtensions =
 exports.ensureZclCommandSdkExtensions = ensureZclCommandSdkExtensions
 exports.ensureZclEventSdkExtensions = ensureZclEventSdkExtensions
 exports.ensureZclDeviceTypeSdkExtensions = ensureZclDeviceTypeSdkExtensions
+exports.filterEndpointTypeIdsByCategory = filterEndpointTypeIdsByCategory
 exports.ensureEndpointTypeIds = ensureEndpointTypeIds
 exports.makeSynchronizablePromise = makeSynchronizablePromise
 exports.templatePromise = templatePromise

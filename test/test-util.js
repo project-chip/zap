@@ -85,7 +85,7 @@ exports.testTemplate = {
   zigbee2Count: 13,
   matter: './test/gen-template/matter/gen-test.json',
   matterNoStatic: './test/gen-template/matter/gen-test-no-static.json',
-  matterCount: 8,
+  matterCount: 10,
   matter2: './test/gen-template/matter2/templates.json',
   matter2Count: 1,
   matter3: './test/gen-template/matter3/t.json',

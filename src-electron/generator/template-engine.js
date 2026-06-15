@@ -124,7 +124,8 @@ async function produceIterativeContent(
   let iterationArray = await templateIterators.getIterativeObject(
     singleTemplatePkg.iterator,
     db,
-    sessionId
+    sessionId,
+    genTemplateJsonPackage?.category
   )
 
   const pool = options.iterationPool

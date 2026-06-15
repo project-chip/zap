@@ -1,0 +1,4 @@
+{{! Iterates over every cluster available in the session's ZCL packages.
+    In a multi-protocol session this must only yield clusters from the
+    template's own package category (matter). }}
+// Available cluster: {{name}} ({{code}})

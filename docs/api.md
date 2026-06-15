@@ -962,6 +962,7 @@ This module provides cache for commonly used static database queries.
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
+    * [~selectAllSessionClustersByCategory(db, sessionId, packageCategory)](#module_DB API_ zcl database access..selectAllSessionClustersByCategory) ⇒
     * [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module_DB API_ zcl database access..selectSessionAttributeByCode) ⇒
     * [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module_DB API_ zcl database access..selectSessionCommandByCode) ⇒
     * [~selectAllStructs(db, packageId)](#module_DB API_ zcl database access..selectAllStructs) ⇒
@@ -1233,6 +1234,28 @@ Returns all the clusters visible for a given session.
 | --- | --- |
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectAllSessionClustersByCategory"></a>
+
+### DB API: zcl database access~selectAllSessionClustersByCategory(db, sessionId, packageCategory) ⇒
+Returns all the clusters visible for a given session that belong to a ZCL
+package with the given category.
+
+This is required for multi-protocol sessions where multiple ZCL packages
+(e.g. "matter" and "zigbee") are loaded under the same session and a template
+should only iterate over clusters belonging to its own protocol.
+
+Clusters from custom XML packages (category NULL, type 'zcl-xml-standalone')
+are always included alongside the category-matched clusters.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: the cluster objects for the session matching the given category.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| sessionId | <code>\*</code> |  |
+| packageCategory | <code>\*</code> | ZCL package category to filter by, e.g. "matter". |
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
@@ -1819,6 +1842,7 @@ This module provides queries for atomic type queries.
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
+    * [~selectAllSessionClustersByCategory(db, sessionId, packageCategory)](#module_DB API_ zcl database access..selectAllSessionClustersByCategory) ⇒
     * [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module_DB API_ zcl database access..selectSessionAttributeByCode) ⇒
     * [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module_DB API_ zcl database access..selectSessionCommandByCode) ⇒
     * [~selectAllStructs(db, packageId)](#module_DB API_ zcl database access..selectAllStructs) ⇒
@@ -2090,6 +2114,28 @@ Returns all the clusters visible for a given session.
 | --- | --- |
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectAllSessionClustersByCategory"></a>
+
+### DB API: zcl database access~selectAllSessionClustersByCategory(db, sessionId, packageCategory) ⇒
+Returns all the clusters visible for a given session that belong to a ZCL
+package with the given category.
+
+This is required for multi-protocol sessions where multiple ZCL packages
+(e.g. "matter" and "zigbee") are loaded under the same session and a template
+should only iterate over clusters belonging to its own protocol.
+
+Clusters from custom XML packages (category NULL, type 'zcl-xml-standalone')
+are always included alongside the category-matched clusters.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: the cluster objects for the session matching the given category.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| sessionId | <code>\*</code> |  |
+| packageCategory | <code>\*</code> | ZCL package category to filter by, e.g. "matter". |
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
@@ -2671,6 +2717,7 @@ This module provides queries for bitmaps.
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
+    * [~selectAllSessionClustersByCategory(db, sessionId, packageCategory)](#module_DB API_ zcl database access..selectAllSessionClustersByCategory) ⇒
     * [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module_DB API_ zcl database access..selectSessionAttributeByCode) ⇒
     * [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module_DB API_ zcl database access..selectSessionCommandByCode) ⇒
     * [~selectAllStructs(db, packageId)](#module_DB API_ zcl database access..selectAllStructs) ⇒
@@ -2942,6 +2989,28 @@ Returns all the clusters visible for a given session.
 | --- | --- |
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectAllSessionClustersByCategory"></a>
+
+### DB API: zcl database access~selectAllSessionClustersByCategory(db, sessionId, packageCategory) ⇒
+Returns all the clusters visible for a given session that belong to a ZCL
+package with the given category.
+
+This is required for multi-protocol sessions where multiple ZCL packages
+(e.g. "matter" and "zigbee") are loaded under the same session and a template
+should only iterate over clusters belonging to its own protocol.
+
+Clusters from custom XML packages (category NULL, type 'zcl-xml-standalone')
+are always included alongside the category-matched clusters.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: the cluster objects for the session matching the given category.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| sessionId | <code>\*</code> |  |
+| packageCategory | <code>\*</code> | ZCL package category to filter by, e.g. "matter". |
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
@@ -4925,6 +4994,7 @@ inside a single session. Things like:
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
+    * [~selectAllSessionClustersByCategory(db, sessionId, packageCategory)](#module_DB API_ zcl database access..selectAllSessionClustersByCategory) ⇒
     * [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module_DB API_ zcl database access..selectSessionAttributeByCode) ⇒
     * [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module_DB API_ zcl database access..selectSessionCommandByCode) ⇒
     * [~selectAllStructs(db, packageId)](#module_DB API_ zcl database access..selectAllStructs) ⇒
@@ -5196,6 +5266,28 @@ Returns all the clusters visible for a given session.
 | --- | --- |
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectAllSessionClustersByCategory"></a>
+
+### DB API: zcl database access~selectAllSessionClustersByCategory(db, sessionId, packageCategory) ⇒
+Returns all the clusters visible for a given session that belong to a ZCL
+package with the given category.
+
+This is required for multi-protocol sessions where multiple ZCL packages
+(e.g. "matter" and "zigbee") are loaded under the same session and a template
+should only iterate over clusters belonging to its own protocol.
+
+Clusters from custom XML packages (category NULL, type 'zcl-xml-standalone')
+are always included alongside the category-matched clusters.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: the cluster objects for the session matching the given category.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| sessionId | <code>\*</code> |  |
+| packageCategory | <code>\*</code> | ZCL package category to filter by, e.g. "matter". |
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
@@ -5828,6 +5920,7 @@ This module provides queries for enums.
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
+    * [~selectAllSessionClustersByCategory(db, sessionId, packageCategory)](#module_DB API_ zcl database access..selectAllSessionClustersByCategory) ⇒
     * [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module_DB API_ zcl database access..selectSessionAttributeByCode) ⇒
     * [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module_DB API_ zcl database access..selectSessionCommandByCode) ⇒
     * [~selectAllStructs(db, packageId)](#module_DB API_ zcl database access..selectAllStructs) ⇒
@@ -6099,6 +6192,28 @@ Returns all the clusters visible for a given session.
 | --- | --- |
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectAllSessionClustersByCategory"></a>
+
+### DB API: zcl database access~selectAllSessionClustersByCategory(db, sessionId, packageCategory) ⇒
+Returns all the clusters visible for a given session that belong to a ZCL
+package with the given category.
+
+This is required for multi-protocol sessions where multiple ZCL packages
+(e.g. "matter" and "zigbee") are loaded under the same session and a template
+should only iterate over clusters belonging to its own protocol.
+
+Clusters from custom XML packages (category NULL, type 'zcl-xml-standalone')
+are always included alongside the category-matched clusters.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: the cluster objects for the session matching the given category.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| sessionId | <code>\*</code> |  |
+| packageCategory | <code>\*</code> | ZCL package category to filter by, e.g. "matter". |
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
@@ -6676,6 +6791,7 @@ across different query files.
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
+    * [~selectAllSessionClustersByCategory(db, sessionId, packageCategory)](#module_DB API_ zcl database access..selectAllSessionClustersByCategory) ⇒
     * [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module_DB API_ zcl database access..selectSessionAttributeByCode) ⇒
     * [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module_DB API_ zcl database access..selectSessionCommandByCode) ⇒
     * [~selectAllStructs(db, packageId)](#module_DB API_ zcl database access..selectAllStructs) ⇒
@@ -6947,6 +7063,28 @@ Returns all the clusters visible for a given session.
 | --- | --- |
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectAllSessionClustersByCategory"></a>
+
+### DB API: zcl database access~selectAllSessionClustersByCategory(db, sessionId, packageCategory) ⇒
+Returns all the clusters visible for a given session that belong to a ZCL
+package with the given category.
+
+This is required for multi-protocol sessions where multiple ZCL packages
+(e.g. "matter" and "zigbee") are loaded under the same session and a template
+should only iterate over clusters belonging to its own protocol.
+
+Clusters from custom XML packages (category NULL, type 'zcl-xml-standalone')
+are always included alongside the category-matched clusters.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: the cluster objects for the session matching the given category.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| sessionId | <code>\*</code> |  |
+| packageCategory | <code>\*</code> | ZCL package category to filter by, e.g. "matter". |
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
@@ -7523,6 +7661,7 @@ This module provides queries for ZCL static queries.
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
+    * [~selectAllSessionClustersByCategory(db, sessionId, packageCategory)](#module_DB API_ zcl database access..selectAllSessionClustersByCategory) ⇒
     * [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module_DB API_ zcl database access..selectSessionAttributeByCode) ⇒
     * [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module_DB API_ zcl database access..selectSessionCommandByCode) ⇒
     * [~selectAllStructs(db, packageId)](#module_DB API_ zcl database access..selectAllStructs) ⇒
@@ -7794,6 +7933,28 @@ Returns all the clusters visible for a given session.
 | --- | --- |
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectAllSessionClustersByCategory"></a>
+
+### DB API: zcl database access~selectAllSessionClustersByCategory(db, sessionId, packageCategory) ⇒
+Returns all the clusters visible for a given session that belong to a ZCL
+package with the given category.
+
+This is required for multi-protocol sessions where multiple ZCL packages
+(e.g. "matter" and "zigbee") are loaded under the same session and a template
+should only iterate over clusters belonging to its own protocol.
+
+Clusters from custom XML packages (category NULL, type 'zcl-xml-standalone')
+are always included alongside the category-matched clusters.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: the cluster objects for the session matching the given category.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| sessionId | <code>\*</code> |  |
+| packageCategory | <code>\*</code> | ZCL package category to filter by, e.g. "matter". |
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
@@ -8390,6 +8551,7 @@ Get endpoint type events from the given endpoint type ID.
     * [~ensureZclPackageIds(context)](#module_JS API_ generator logic..ensureZclPackageIds) ⇒
     * [~ensureTemplatePackageCategory(context)](#module_JS API_ generator logic..ensureTemplatePackageCategory) ⇒
     * [~ensureTemplatePackageId(context)](#module_JS API_ generator logic..ensureTemplatePackageId) ⇒
+    * [~filterEndpointTypeIdsByCategory(db, eptIds, packageCategory)](#module_JS API_ generator logic..filterEndpointTypeIdsByCategory) ⇒
     * [~ensureEndpointTypeIds(context)](#module_JS API_ generator logic..ensureEndpointTypeIds) ⇒
     * [~ensureZclClusterSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclClusterSdkExtensions) ⇒
     * [~ensureZclDeviceTypeSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclDeviceTypeSdkExtensions) ⇒
@@ -8949,6 +9111,25 @@ Returns the promise that resolves with the ZCL properties package id.
 | Param | Type |
 | --- | --- |
 | context | <code>\*</code> | 
+
+<a name="module_JS API_ generator logic..filterEndpointTypeIdsByCategory"></a>
+
+### JS API: generator logic~filterEndpointTypeIdsByCategory(db, eptIds, packageCategory) ⇒
+Filters a list of endpoint type id objects to only those whose device type
+belongs to a ZCL package with the given category.  When packageCategory is
+null (single-protocol session) the original list is returned unchanged.
+
+Each element of eptIds must have an `endpointTypeId` property (the shape
+returned by selectEndpointTypeIds).
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: Promise that resolves with the filtered array.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| eptIds | <code>\*</code> | array of { endpointTypeId } objects |
+| packageCategory | <code>\*</code> | e.g. "matter" or "zigbee", or null |
 
 <a name="module_JS API_ generator logic..ensureEndpointTypeIds"></a>
 
@@ -14548,6 +14729,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~ensureZclPackageIds(context)](#module_JS API_ generator logic..ensureZclPackageIds) ⇒
     * [~ensureTemplatePackageCategory(context)](#module_JS API_ generator logic..ensureTemplatePackageCategory) ⇒
     * [~ensureTemplatePackageId(context)](#module_JS API_ generator logic..ensureTemplatePackageId) ⇒
+    * [~filterEndpointTypeIdsByCategory(db, eptIds, packageCategory)](#module_JS API_ generator logic..filterEndpointTypeIdsByCategory) ⇒
     * [~ensureEndpointTypeIds(context)](#module_JS API_ generator logic..ensureEndpointTypeIds) ⇒
     * [~ensureZclClusterSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclClusterSdkExtensions) ⇒
     * [~ensureZclDeviceTypeSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclDeviceTypeSdkExtensions) ⇒
@@ -15107,6 +15289,25 @@ Returns the promise that resolves with the ZCL properties package id.
 | Param | Type |
 | --- | --- |
 | context | <code>\*</code> | 
+
+<a name="module_JS API_ generator logic..filterEndpointTypeIdsByCategory"></a>
+
+### JS API: generator logic~filterEndpointTypeIdsByCategory(db, eptIds, packageCategory) ⇒
+Filters a list of endpoint type id objects to only those whose device type
+belongs to a ZCL package with the given category.  When packageCategory is
+null (single-protocol session) the original list is returned unchanged.
+
+Each element of eptIds must have an `endpointTypeId` property (the shape
+returned by selectEndpointTypeIds).
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: Promise that resolves with the filtered array.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| eptIds | <code>\*</code> | array of { endpointTypeId } objects |
+| packageCategory | <code>\*</code> | e.g. "matter" or "zigbee", or null |
 
 <a name="module_JS API_ generator logic..ensureEndpointTypeIds"></a>
 
@@ -15304,6 +15505,7 @@ await initAsync(); const hb = templateEngine.hbInstance();
     * [~ensureZclPackageIds(context)](#module_JS API_ generator logic..ensureZclPackageIds) ⇒
     * [~ensureTemplatePackageCategory(context)](#module_JS API_ generator logic..ensureTemplatePackageCategory) ⇒
     * [~ensureTemplatePackageId(context)](#module_JS API_ generator logic..ensureTemplatePackageId) ⇒
+    * [~filterEndpointTypeIdsByCategory(db, eptIds, packageCategory)](#module_JS API_ generator logic..filterEndpointTypeIdsByCategory) ⇒
     * [~ensureEndpointTypeIds(context)](#module_JS API_ generator logic..ensureEndpointTypeIds) ⇒
     * [~ensureZclClusterSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclClusterSdkExtensions) ⇒
     * [~ensureZclDeviceTypeSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclDeviceTypeSdkExtensions) ⇒
@@ -15863,6 +16065,25 @@ Returns the promise that resolves with the ZCL properties package id.
 | Param | Type |
 | --- | --- |
 | context | <code>\*</code> | 
+
+<a name="module_JS API_ generator logic..filterEndpointTypeIdsByCategory"></a>
+
+### JS API: generator logic~filterEndpointTypeIdsByCategory(db, eptIds, packageCategory) ⇒
+Filters a list of endpoint type id objects to only those whose device type
+belongs to a ZCL package with the given category.  When packageCategory is
+null (single-protocol session) the original list is returned unchanged.
+
+Each element of eptIds must have an `endpointTypeId` property (the shape
+returned by selectEndpointTypeIds).
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: Promise that resolves with the filtered array.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| eptIds | <code>\*</code> | array of { endpointTypeId } objects |
+| packageCategory | <code>\*</code> | e.g. "matter" or "zigbee", or null |
 
 <a name="module_JS API_ generator logic..ensureEndpointTypeIds"></a>
 
