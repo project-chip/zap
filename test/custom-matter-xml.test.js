@@ -787,6 +787,14 @@ test(
     expect(endpointConfig).toContain(
       ' /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\'
     )
+
+    // Iterator templates must include clusters from custom XML packages
+    // (category NULL, type zcl-xml-standalone) alongside the main ZCL package.
+    const contentKeys = Object.keys(genResult.content)
+    expect(contentKeys).toContain('available-cluster-Sample Custom Cluster.out')
+    expect(contentKeys).toContain(
+      'selected-server-cluster-Sample Custom Cluster.out'
+    )
   },
   testUtil.timeout.medium()
 )
