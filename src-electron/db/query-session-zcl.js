@@ -119,6 +119,65 @@ WHERE
 }
 
 /**
+ * Returns all the clusters visible for a given session that belong to a ZCL
+ * package with the given category.
+ *
+ * This is required for multi-protocol sessions where multiple ZCL packages
+ * (e.g. "matter" and "zigbee") are loaded under the same session and a template
+ * should only iterate over clusters belonging to its own protocol.
+ *
+ * Clusters from custom XML packages (category NULL, type 'zcl-xml-standalone')
+ * are always included alongside the category-matched clusters.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageCategory - ZCL package category to filter by, e.g. "matter".
+ * @returns the cluster objects for the session matching the given category.
+ */
+async function selectAllSessionClustersByCategory(
+  db,
+  sessionId,
+  packageCategory
+) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  C.CLUSTER_ID,
+  C.PACKAGE_REF,
+  C.CODE,
+  C.MANUFACTURER_CODE,
+  C.NAME,
+  C.DESCRIPTION,
+  C.DEFINE,
+  C.DOMAIN_NAME,
+  C.IS_SINGLETON,
+  C.REVISION
+FROM
+  CLUSTER AS C
+INNER JOIN
+  SESSION_PACKAGE AS SP
+ON
+  C.PACKAGE_REF = SP.PACKAGE_REF
+INNER JOIN
+  SESSION_PARTITION
+ON
+  SESSION_PARTITION.SESSION_PARTITION_ID = SP.SESSION_PARTITION_REF
+INNER JOIN
+  PACKAGE AS P
+ON
+  SP.PACKAGE_REF = P.PACKAGE_ID
+WHERE
+  SESSION_PARTITION.SESSION_REF = ?
+  AND (P.CATEGORY = ? OR (P.CATEGORY IS NULL AND P.TYPE = ?))
+`,
+      [sessionId, packageCategory, dbEnum.packageType.zclXmlStandalone]
+    )
+    .then((rows) => rows.map(dbMapping.map.cluster))
+}
+
+/**
  * Returns the attribute available to this session by the code.
  *
  * @param {*} db
@@ -244,6 +303,7 @@ WHERE
 }
 
 exports.selectAllSessionClusters = selectAllSessionClusters
+exports.selectAllSessionClustersByCategory = selectAllSessionClustersByCategory
 exports.selectSessionClusterByCode = selectSessionClusterByCode
 exports.selectSessionAttributeByCode = selectSessionAttributeByCode
 exports.selectSessionCommandByCode = selectSessionCommandByCode

@@ -98,7 +98,11 @@ test(
       importRes.templateIds[0],
       {},
       {
-        generateOnly: 'endpoint-config.c',
+        generateOnly: [
+          'endpoint-config.c',
+          'available-cluster-{name}.out',
+          'selected-server-cluster-{name}.out'
+        ],
         disableDeprecationWarnings: true
       }
     )
@@ -172,6 +176,29 @@ test(
     )
     expect(zigbeeEndpointConfigGen).toContain(
       '{ 6, 0, 6, 0, 16387, 0, 48, 16387, 0, 48 },'
+    )
+
+    // Iterator templates must only yield clusters from the matter package
+    // category, not the zigbee clusters also present in the session.
+    // Each iteration produces a content key of the form
+    // 'available-cluster-{name}.out' / 'selected-server-cluster-{name}.out'.
+    let availableClusterKeys = Object.keys(genResultMatter.content).filter(
+      (k) => k.startsWith('available-cluster-')
+    )
+    let selectedServerClusterKeys = Object.keys(genResultMatter.content).filter(
+      (k) => k.startsWith('selected-server-cluster-')
+    )
+
+    // Matter-only cluster is present, zigbee-only cluster is absent.
+    expect(availableClusterKeys).toContain('available-cluster-Descriptor.out')
+    expect(availableClusterKeys).not.toContain(
+      'available-cluster-ZLL Commissioning.out'
+    )
+    expect(selectedServerClusterKeys).toContain(
+      'selected-server-cluster-Descriptor.out'
+    )
+    expect(selectedServerClusterKeys).not.toContain(
+      'selected-server-cluster-ZLL Commissioning.out'
     )
 
     // Notifications test when opening multi-protocol zap file

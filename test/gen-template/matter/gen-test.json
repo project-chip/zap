@@ -81,6 +81,19 @@
       "name": "Helpers in chip-tool",
       "output": "chip-tool-helpers.txt",
       "static": "true"
+    },
+    {
+      "path": "available-clusters.zapt",
+      "name": "Available clusters iterator",
+      "output": "available-cluster-{name}.out",
+      "iterator": "availableCluster",
+      "static": "true"
+    },
+    {
+      "path": "selected-server-clusters.zapt",
+      "name": "Selected server clusters iterator",
+      "output": "selected-server-cluster-{name}.out",
+      "iterator": "selectedServerCluster"
     }
   ]
 }

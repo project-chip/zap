@@ -437,7 +437,7 @@ test(
 
     // Verify that only non-static templates are generated
     let contentKeys = Object.keys(genResult.content)
-    expect(contentKeys).toHaveLength(2)
+    expect(contentKeys).toHaveLength(14)
     expect(contentKeys).toContain('endpoints.out')
     expect(contentKeys).toContain('endpoint-config.c')
   },
@@ -479,7 +479,7 @@ test(
 
     // Verify that all templates are generated
     let contentKeys = Object.keys(genResult.content)
-    expect(contentKeys).toHaveLength(8)
+    expect(contentKeys).toHaveLength(85)
   },
   testUtil.timeout.long()
 )

@@ -1,0 +1,4 @@
+{{! Iterates over server clusters selected on the session's endpoints.
+    In a multi-protocol session this must only yield clusters from the
+    template's own package category (matter). }}
+// Selected server cluster: {{name}} ({{code}})
