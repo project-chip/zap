@@ -187,7 +187,9 @@ export default defineComponent({
     },
 
     routePage() {
-      if (window.location.hash == '#/preferences/about') {
+      if (window.location.hash == '#/about') {
+        this.$router.push({ path: '/about' })
+      } else if (window.location.hash == '#/preferences/about') {
         this.$router.push({ path: '/preferences/about' })
       } else if (this.isZapConfigSelected != true) {
         this.$router.push({ path: '/config' })
@@ -348,7 +350,9 @@ export default defineComponent({
   },
   watch: {
     isZapConfigSelected(val) {
-      if (window.location.hash == '#/preferences/about') {
+      if (window.location.hash == '#/about') {
+        this.$router.push({ path: '/about' })
+      } else if (window.location.hash == '#/preferences/about') {
         this.$router.push({ path: '/preferences/about' })
       } else if (val != true) {
         this.$router.push({ path: '/config' })
