@@ -68,6 +68,12 @@ test('Validate loading', async () => {
     null
   )
   expect(attr).not.toBe(null)
+  // Safeguard: attributes whose XML carries no <quality> (or none of these
+  // quality attributes) must load with the qualities defaulting to false
+  // rather than failing or returning undefined.
+  expect(attr.isQuieterReporting).toBe(false)
+  expect(attr.isSourceAttribution).toBe(false)
+  expect(attr.isAtomic).toBe(false)
 
   let cluster = await queryZcl.selectClusterByCode(
     db,
@@ -273,9 +279,9 @@ test(
     // Testing attribute qualities loading
     expect(
       sdkExt.includes(
-        "// attribute: 0x0300 / 0x4001 => EnhancedColorMode, extensions: '', '', scene: true, isChangeOmitted: true, persistence: nonVolatile"
+        "// attribute: 0x0300 / 0x4001 => EnhancedColorMode, extensions: '', '', scene: true, isChangeOmitted: true, persistence: nonVolatile, isQuieterReporting: true, isSourceAttribution: true, isAtomic: true, quieterReportingHelper: yes"
       )
-    )
+    ).toBe(true)
 
     // Testing isLargeMessage quality for commands
     expect(
