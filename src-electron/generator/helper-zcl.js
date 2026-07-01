@@ -1010,10 +1010,13 @@ function zcl_global_commands(options) {
  * - entryTypeElseType
  * - id
  * - isArray
+ * - isAtomic
  * - isChangeOmitted
  * - isFabricSensitive
  * - isNullable
  * - isOptional
+ * - isQuieterReporting
+ * - isSourceAttribution
  * - isReadable
  * - isReadableAttribute
  * - isReportable
@@ -1941,6 +1944,70 @@ async function if_is_atomic(type, options) {
   } else {
     return options.inverse(this)
   }
+}
+
+/**
+ * Block helper that renders its body when the current attribute carries a
+ * given quality (Matter spec section 7.7), and the inverse (`{{else}}`) block
+ * otherwise. Meant to be used inside an attribute iteration context (e.g.
+ * `{{#zcl_attributes}}`) where `this` is an attribute object.
+ *
+ * Supported quality names:
+ * - 'fixed'             : attribute value is fixed (persistence === 'fixed')
+ * - 'nonVolatile'       : attribute is stored in non-volatile memory
+ * - 'changeOmitted'     : attribute omits change reporting (C)
+ * - 'quieterReporting'  : attribute uses quieter reporting (Q)
+ * - 'sourceAttribution' : attribute carries source attribution (A)
+ * - 'atomic'            : attribute must be written atomically (T)
+ * - 'nullable'          : attribute is nullable (X)
+ * - 'scene'             : attribute is scene required (S)
+ *
+ * example:
+ * {{#zcl_attributes}}
+ *   {{#if_attribute_quality "quieterReporting"}}
+ *     {{label}} uses quieter reporting
+ *   {{else}}
+ *     {{label}} does not use quieter reporting
+ *   {{/if_attribute_quality}}
+ * {{/zcl_attributes}}
+ *
+ * @param {*} quality name of the quality to check for
+ * @param {*} options
+ * @returns rendered block content.
+ */
+function if_attribute_quality(quality, options) {
+  let hasQuality = false
+  switch (quality) {
+    case 'fixed':
+      hasQuality = this.persistence === dbEnum.persistence.fixed
+      break
+    case 'nonVolatile':
+      hasQuality = this.persistence === dbEnum.persistence.nonVolatile
+      break
+    case 'changeOmitted':
+      hasQuality = !!this.isChangeOmitted
+      break
+    case 'quieterReporting':
+      hasQuality = !!this.isQuieterReporting
+      break
+    case 'sourceAttribution':
+      hasQuality = !!this.isSourceAttribution
+      break
+    case 'atomic':
+    case 'atomicWrite':
+      hasQuality = !!this.isAtomic
+      break
+    case 'nullable':
+      hasQuality = !!this.isNullable
+      break
+    case 'scene':
+      hasQuality = !!this.isSceneRequired
+      break
+    default:
+      hasQuality = false
+      break
+  }
+  return hasQuality ? options.fn(this) : options.inverse(this)
 }
 
 /**
@@ -3374,6 +3441,7 @@ exports.asUnderlyingZclType = dep(asUnderlyingZclType, {
   to: 'as_underlying_zcl_type'
 })
 
+exports.if_attribute_quality = if_attribute_quality
 exports.if_is_bitmap = if_is_bitmap
 
 exports.if_is_enum = if_is_enum

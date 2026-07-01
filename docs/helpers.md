@@ -3857,6 +3857,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~if_is_short_string(type)](#module_Templating API_ static zcl helpers..if_is_short_string) ⇒
     * [~if_is_long_string(type)](#module_Templating API_ static zcl helpers..if_is_long_string) ⇒
     * [~if_is_atomic(type:)](#module_Templating API_ static zcl helpers..if_is_atomic) ⇒
+    * [~if_attribute_quality(quality, options)](#module_Templating API_ static zcl helpers..if_attribute_quality) ⇒
     * [~if_is_bitmap(type)](#module_Templating API_ static zcl helpers..if_is_bitmap) ⇒
     * [~if_is_enum(type)](#module_Templating API_ static zcl helpers..if_is_enum) ⇒
     * [~if_is_struct(type)](#module_Templating API_ static zcl helpers..if_is_struct) ⇒
@@ -4443,10 +4444,13 @@ From `exports.map.attribute` in `src-electron/db/db-mapping.js`:
 - entryTypeElseType
 - id
 - isArray
+- isAtomic
 - isChangeOmitted
 - isFabricSensitive
 - isNullable
 - isOptional
+- isQuieterReporting
+- isSourceAttribution
 - isReadable
 - isReadableAttribute
 - isReportable
@@ -4868,6 +4872,41 @@ type is not atomic
 | Param | Type | Description |
 | --- | --- | --- |
 | type: | <code>\*</code> | string |
+
+<a name="module_Templating API_ static zcl helpers..if_attribute_quality"></a>
+
+### Templating API: static zcl helpers~if\_attribute\_quality(quality, options) ⇒
+Block helper that renders its body when the current attribute carries a
+given quality (Matter spec section 7.7), and the inverse (`{{else}}`) block
+otherwise. Meant to be used inside an attribute iteration context (e.g.
+`{{#zcl_attributes}}`) where `this` is an attribute object.
+
+Supported quality names:
+- 'fixed'             : attribute value is fixed (persistence === 'fixed')
+- 'nonVolatile'       : attribute is stored in non-volatile memory
+- 'changeOmitted'     : attribute omits change reporting (C)
+- 'quieterReporting'  : attribute uses quieter reporting (Q)
+- 'sourceAttribution' : attribute carries source attribution (A)
+- 'atomic'            : attribute must be written atomically (T)
+- 'nullable'          : attribute is nullable (X)
+- 'scene'             : attribute is scene required (S)
+
+example:
+{{#zcl_attributes}}
+  {{#if_attribute_quality "quieterReporting"}}
+    {{label}} uses quieter reporting
+  {{else}}
+    {{label}} does not use quieter reporting
+  {{/if_attribute_quality}}
+{{/zcl_attributes}}
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: rendered block content.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| quality | <code>\*</code> | name of the quality to check for |
+| options | <code>\*</code> |  |
 
 <a name="module_Templating API_ static zcl helpers..if_is_bitmap"></a>
 

@@ -728,7 +728,14 @@ function prepareCluster(cluster, context, isExtension = false) {
         mustUseTimedWrite: attribute.$.mustUseTimedWrite == 'true',
         apiMaturity: conformParser.getApiMaturityFromXML(attribute),
         isChangeOmitted: quality ? quality.changeOmitted == 'true' : false,
-        persistence: quality ? quality.persistence : null
+        persistence: quality ? quality.persistence : null,
+        isQuieterReporting: quality
+          ? quality.quieterReporting == 'true'
+          : false,
+        isSourceAttribution: quality
+          ? quality.sourceAttribution == 'true'
+          : false,
+        isAtomic: quality ? quality.atomicWrite == 'true' : false
       }
       att.access = extractAccessIntoArray(attribute)
       if (att.manufacturerCode == null) {
