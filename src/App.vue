@@ -349,17 +349,8 @@ export default defineComponent({
     document.body.classList.remove('matter', 'zigbee', 'multiprotocol')
   },
   watch: {
-    isZapConfigSelected(val) {
-      if (window.location.hash == '#/about') {
-        this.$router.push({ path: '/about' })
-      } else if (window.location.hash == '#/preferences/about') {
-        this.$router.push({ path: '/preferences/about' })
-      } else if (val != true) {
-        this.$router.push({ path: '/config' })
-      } else {
-        this.$router.push({ path: '/' })
-        this.getAppData()
-      }
+    isZapConfigSelected() {
+      this.routePage()
     },
     uiThemeCategory() {
       this.addClassToBody()
