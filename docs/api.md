@@ -19277,6 +19277,7 @@ Environment utilities for ZAP
     * [~logDebug(msg, err)](#module_JS API_ Environment utilities..logDebug)
     * [~logWarningToFile(msg)](#module_JS API_ Environment utilities..logWarningToFile)
     * [~isMatchingVersion(versionsArray, providedVersion)](#module_JS API_ Environment utilities..isMatchingVersion) ⇒
+    * [~isPackagedElectronApp()](#module_JS API_ Environment utilities..isPackagedElectronApp) ⇒ <code>boolean</code>
     * [~versionsCheck()](#module_JS API_ Environment utilities..versionsCheck) ⇒
     * [~httpStaticContent()](#module_JS API_ Environment utilities..httpStaticContent) ⇒
     * [~formatEmojiMessage(emoji, message)](#module_JS API_ Environment utilities..formatEmojiMessage) ⇒ <code>string</code>
@@ -19620,12 +19621,21 @@ Returns true if major or minor component of versions is different.
 | versionsArray | <code>\*</code> | 
 | providedVersion | <code>\*</code> | 
 
+<a name="module_JS API_ Environment utilities..isPackagedElectronApp"></a>
+
+### JS API: Environment utilities~isPackagedElectronApp() ⇒ <code>boolean</code>
+True when running inside a packaged Electron binary.
+Node/Electron versions are fixed at build time there, so version
+warnings are not actionable for the user.
+
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 <a name="module_JS API_ Environment utilities..versionsCheck"></a>
 
 ### JS API: Environment utilities~versionsCheck() ⇒
 Returns true if versions of node and electron are matching.
 If versions are not matching, it  prints out a warhing
 and returns false.
+Skipped for packaged Electron binaries (runtime is fixed at build time).
 
 **Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: true or false, depending on match  

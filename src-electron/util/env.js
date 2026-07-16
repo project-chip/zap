@@ -583,14 +583,53 @@ function isMatchingVersion(versionsArray, providedVersion) {
 }
 
 /**
+ * True when running inside a packaged Electron binary.
+ * Node/Electron versions are fixed at build time there, so version
+ * warnings are not actionable for the user.
+ *
+ * @returns {boolean}
+ */
+function isPackagedElectronApp() {
+  if (process.versions.electron == null) {
+    return false
+  }
+  try {
+    // Under Electron this is the API object; under plain Node the electron
+    // package exports a path string to the binary.
+    const electron = require('electron')
+    if (
+      electron == null ||
+      typeof electron === 'string' ||
+      electron.app == null
+    ) {
+      return false
+    }
+    return electron.app.isPackaged === true
+  } catch (e) {
+    return false
+  }
+}
+
+/**
  * Returns true if versions of node and electron are matching.
  * If versions are not matching, it  prints out a warhing
  * and returns false.
+ * Skipped for packaged Electron binaries (runtime is fixed at build time).
  *
  * @returns true or false, depending on match
  */
 function versionsCheck() {
-  let expectedNodeVersion = ['v14.x.x', 'v16.x.x', 'v18.x.x', 'v20.x.x']
+  if (isPackagedElectronApp()) {
+    return true
+  }
+  let expectedNodeVersion = [
+    'v14.x.x',
+    'v16.x.x',
+    'v18.x.x',
+    'v20.x.x',
+    'v22.x.x',
+    'v24.x.x'
+  ]
   let expectedElectronVersion = [
     '17.4.x',
     '18.x.x',
