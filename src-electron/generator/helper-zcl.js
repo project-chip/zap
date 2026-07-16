@@ -1977,35 +1977,37 @@ async function if_is_atomic(type, options) {
  */
 function if_attribute_quality(quality, options) {
   let hasQuality = false
-  switch (quality) {
-    case 'fixed':
-      hasQuality = this.persistence === dbEnum.persistence.fixed
-      break
-    case 'nonVolatile':
-      hasQuality = this.persistence === dbEnum.persistence.nonVolatile
-      break
-    case 'changeOmitted':
-      hasQuality = !!this.isChangeOmitted
-      break
-    case 'quieterReporting':
-      hasQuality = !!this.isQuieterReporting
-      break
-    case 'sourceAttribution':
-      hasQuality = !!this.isSourceAttribution
-      break
-    case 'atomic':
-    case 'atomicWrite':
-      hasQuality = !!this.isAtomic
-      break
-    case 'nullable':
-      hasQuality = !!this.isNullable
-      break
-    case 'scene':
-      hasQuality = !!this.isSceneRequired
-      break
-    default:
-      hasQuality = false
-      break
+  if (this != null) {
+    switch (quality) {
+      case 'fixed':
+        hasQuality = this.persistence === dbEnum.persistence.fixed
+        break
+      case 'nonVolatile':
+        hasQuality = this.persistence === dbEnum.persistence.nonVolatile
+        break
+      case 'changeOmitted':
+        hasQuality = !!this.isChangeOmitted
+        break
+      case 'quieterReporting':
+        hasQuality = !!this.isQuieterReporting
+        break
+      case 'sourceAttribution':
+        hasQuality = !!this.isSourceAttribution
+        break
+      case 'atomic':
+      case 'atomicWrite':
+        hasQuality = !!this.isAtomic
+        break
+      case 'nullable':
+        hasQuality = !!this.isNullable
+        break
+      case 'scene':
+        hasQuality = !!this.isSceneRequired
+        break
+      default:
+        hasQuality = false
+        break
+    }
   }
   return hasQuality ? options.fn(this) : options.inverse(this)
 }
