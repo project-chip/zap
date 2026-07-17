@@ -104,6 +104,20 @@ const routes = [
     ]
   },
   {
+    // Standalone About window (opened from Help -> About). Uses a chrome-less
+    // layout so it does not render the main toolbar/back button, which would
+    // otherwise navigate this window into a full copy of the app.
+    path: '/about',
+    name: 'about-standalone',
+    component: () => import('../layouts/AboutLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('../pages/preferences/AboutPage.vue')
+      }
+    ]
+  },
+  {
     path: '/preferences/devtools/information-setup',
     component: () => import('../layouts/MainLayout.vue'),
     children: [

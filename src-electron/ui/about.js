@@ -51,7 +51,7 @@ function createAboutWindow(parentWindow, port) {
     webPreferences: webPreferences
   })
   window.setMenu(null)
-  window.loadURL(`http://localhost:${port}/#/preferences/about`)
+  window.loadURL(`http://localhost:${port}/#/about`)
   window.on('close', (e) => {
     window = null
   })
