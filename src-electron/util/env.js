@@ -25,6 +25,7 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const pino = require('pino')
+const electron = require('electron')
 const emojiUtil = require('./emoji-util')
 const zapBaseUrl = 'http://localhost:'
 
@@ -593,14 +594,9 @@ function isPackagedElectronApp() {
   if (process.versions.electron == null) {
     return false
   }
-  try {
-    // Under Electron this is the API object; under plain Node the electron
-    // package exports a path string to the binary.
-    const electron = require('electron')
-    return electron?.app?.isPackaged === true
-  } catch (e) {
-    return false
-  }
+  // Under Electron this is the API object; under plain Node the electron
+  // package exports a path string to the binary.
+  return electron?.app?.isPackaged === true
 }
 
 /**
