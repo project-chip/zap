@@ -19633,7 +19633,7 @@ warnings are not actionable for the user.
 
 ### JS API: Environment utilities~versionsCheck() ⇒
 Returns true if versions of node and electron are matching.
-If versions are not matching, it  prints out a warhing
+If versions are not matching, it  prints out a warning
 and returns false.
 Skipped for packaged Electron binaries (runtime is fixed at build time).
 

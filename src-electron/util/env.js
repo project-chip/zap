@@ -597,14 +597,7 @@ function isPackagedElectronApp() {
     // Under Electron this is the API object; under plain Node the electron
     // package exports a path string to the binary.
     const electron = require('electron')
-    if (
-      electron == null ||
-      typeof electron === 'string' ||
-      electron.app == null
-    ) {
-      return false
-    }
-    return electron.app.isPackaged === true
+    return electron?.app?.isPackaged === true
   } catch (e) {
     return false
   }
