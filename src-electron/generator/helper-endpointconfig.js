@@ -396,10 +396,17 @@ function formatAttributeDefaultValue(at, options) {
   }
   let defaultValue = at.defaultValue
   if (!littleEndian) {
-    defaultValue = Number(defaultValue)
-      .toString(16)
-      .padStart(6, '0x0000')
-      .padEnd(2 + 2 * pointerSize, '0')
+    let num = Number(defaultValue)
+    if (!Number.isNaN(num)) {
+      // Convert negatives to unsigned within the attribute width, then
+      // left-align in a pointer-sized field so the MSB is the first byte read.
+      let size = at.size || 2
+      let unsignedNum = num < 0 ? num + Math.pow(2, 8 * size) : num
+      let shift = 8 * (pointerSize - size)
+      let alignedNum = (unsignedNum << shift) >>> 0
+      defaultValue =
+        '0x' + alignedNum.toString(16).padStart(2 * pointerSize, '0')
+    }
   }
   return `ZAP_SIMPLE_DEFAULT(${defaultValue})`
 }
@@ -1512,11 +1519,14 @@ function clusterOmitsAttributeMetadata(cl, omitSet) {
   if (Number.isNaN(codeNum)) {
     return false
   }
-  return (
-    omitSet.has(String(codeNum)) ||
-    omitSet.has('0x' + codeNum.toString(16)) ||
-    omitSet.has('0x' + codeNum.toString(16).padStart(4, '0'))
-  )
+  // Numeric compare so "0x6", "0x06", "0x0006", "6", "06" all match code 6.
+  for (let item of omitSet) {
+    let itemNum = Number(item)
+    if (!Number.isNaN(itemNum) && itemNum === codeNum) {
+      return true
+    }
+  }
+  return false
 }
 
 /**
