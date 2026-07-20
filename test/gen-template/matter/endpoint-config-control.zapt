@@ -1,0 +1,25 @@
+// Template-side control over endpoint_config attribute metadata.
+// Demonstrates endpoint_attributes / endpoint_clusters iterators and
+// omitAttributeMetadataClusters for code-driven clusters.
+
+{{#endpoint_config allowUnknownStorageOption="false" spaceForDefaultValue=4}}
+=== ALL ATTRIBUTES ({{endpoint_attribute_count}}) ===
+{{#endpoint_attributes}}
+ATTR {{clusterName}}/{{name}} id={{id}} size={{size}} type={{type}} mask={{endpoint_attribute_mask}} default={{endpoint_attribute_default}}
+{{/endpoint_attributes}}
+=== ALL CLUSTERS ({{endpoint_cluster_count}}) ===
+{{#endpoint_clusters}}
+CLUSTER {{clusterName}} attrs={{attributeCount}} index={{attributeIndex}}
+{{/endpoint_clusters}}
+{{/endpoint_config}}
+
+{{#endpoint_config allowUnknownStorageOption="false" spaceForDefaultValue=4 omitAttributeMetadataClusters="Level Control"}}
+=== OMIT Level Control ATTRIBUTES ({{endpoint_attribute_count}}) ===
+{{#endpoint_attributes}}
+ATTR {{clusterName}}/{{name}}
+{{/endpoint_attributes}}
+=== OMIT Level Control CLUSTERS ===
+{{#endpoint_clusters}}
+CLUSTER {{clusterName}} attrs={{attributeCount}}
+{{/endpoint_clusters}}
+{{/endpoint_config}}

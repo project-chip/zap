@@ -105,6 +105,45 @@ For example, in your SDK code, you can call the helpers like this:
 <p>Attributes Count: {{ get_total_attributes_helper }}</p>
 The api object, provided by ZAP, contains the data and methods required for these helpers to work.
 
+## Overriding built-in helpers (e.g. endpoint_config)
+
+Helpers listed under `"helpers"` in `gen-templates.json` are loaded **after** ZAP’s built-ins. If an export uses the same name as a built-in helper, it replaces that helper for generation.
+
+That already covers the “override javascript logic” path from issues like [#1684](https://github.com/project-chip/zap/issues/1684): CHIP can ship a file that reimplements `endpoint_attribute_list` (or any other helper) and list it in `helpers`.
+
+For template-side control without replacing the string emitter, prefer the iterators inside `{{#endpoint_config}}`:
+
+- `{{#endpoint_attributes}}` … `{{/endpoint_attributes}}` — one block per attribute (`id`, `type`, `size`, `mask`, `defaultValue`, `name`, `clusterName`, `clusterId`, `endpointId`, …)
+- `{{endpoint_attribute_mask}}` / `{{endpoint_attribute_default}}` — format C tokens for the current attribute
+- `{{#endpoint_clusters}}` … `{{/endpoint_clusters}}` — one block per cluster
+- `omitAttributeMetadataClusters="ClusterA,0x0006"` on `{{#endpoint_config}}` — drop attribute metadata for named clusters (or codes) while keeping the cluster entries (`attributeCount` becomes 0). Use this for code-driven clusters that own their own tables. Prefer hex/decimal codes when a cluster name contains `/` (e.g. On/Off), because Handlebars treats `/` inside `{{#...}}` as a block closer.
+
+Example CHIP-style template fragment:
+
+```handlebars
+{{#endpoint_config
+  allowUnknownStorageOption='false'
+  spaceForDefaultValue=4
+  omitAttributeMetadataClusters='Descriptor'
+}}
+  #define GENERATED_ATTRIBUTE_COUNT
+  {{endpoint_attribute_count}}
+  #define GENERATED_ATTRIBUTES { \
+  {{#endpoint_attributes}}
+    {
+    {{endpoint_attribute_default}},
+    {{id}},
+    {{size}},
+    {{type}},
+    {{endpoint_attribute_mask}}
+    }, /*
+    {{clusterName}}.{{name}}
+    */ \
+  {{/endpoint_attributes}}
+  }
+{{/endpoint_config}}
+```
+
 ## Conclusion
 
 This design pattern allows SDK developers to create externalized helpers. By leveraging the gen-template.json configuration file and the API object, SDK developers can interact with ZAP without needing direct access to ZAP’s internal source code. The approach abstracts method and query name changes in ZAP, ensuring that SDK code remains resilient to changes in the ZAP API.

@@ -270,6 +270,20 @@ test(
       '0,UINT0_MAX// actual type: ThermostatScheduleTransition'
     )
 
+    // Template-side endpoint_config control (#1684): iterators + omit option
+    let eptControl = genResult.content['endpoint-config-control.out']
+    expect(eptControl).toContain('=== ALL ATTRIBUTES')
+    expect(eptControl).toMatch(/ATTR Level Control\//)
+    expect(eptControl).toMatch(/CLUSTER Level Control attrs=[1-9]/)
+    // omitAttributeMetadataClusters drops Level Control attrs but keeps the cluster
+    expect(eptControl).toContain('=== OMIT Level Control ATTRIBUTES')
+    expect(eptControl).not.toMatch(
+      /=== OMIT Level Control ATTRIBUTES[\s\S]*ATTR Level Control\//
+    )
+    expect(eptControl).toMatch(
+      /=== OMIT Level Control CLUSTERS[\s\S]*CLUSTER Level Control attrs=0/
+    )
+
     // Testing attribute qualities loading
     expect(
       sdkExt.includes(
@@ -479,7 +493,7 @@ test(
 
     // Verify that all templates are generated
     let contentKeys = Object.keys(genResult.content)
-    expect(contentKeys).toHaveLength(85)
+    expect(contentKeys).toHaveLength(86)
   },
   testUtil.timeout.long()
 )

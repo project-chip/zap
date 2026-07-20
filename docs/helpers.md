@@ -1093,7 +1093,13 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~endpoint_cluster_list(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_cluster_list) ⇒
     * [~endpoint_command_list(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_command_list) ⇒
     * [~endpoint_attribute_count(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attribute_count) ⇒
+    * [~formatAttributeMask(maskTokens)](#module_Templating API_ Matter endpoint config helpers..formatAttributeMask) ⇒ <code>string</code>
+    * [~formatAttributeDefaultValue(at, options)](#module_Templating API_ Matter endpoint config helpers..formatAttributeDefaultValue) ⇒ <code>string</code>
     * [~endpoint_attribute_list(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attribute_list) ⇒
+    * [~endpoint_attributes(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attributes) ⇒
+    * [~endpoint_clusters(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_clusters) ⇒
+    * [~endpoint_attribute_mask(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attribute_mask) ⇒ <code>string</code>
+    * [~endpoint_attribute_default(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attribute_default) ⇒ <code>string</code>
     * [~device_list(context, options)](#module_Templating API_ Matter endpoint config helpers..device_list) ⇒
     * [~endpoint_fixed_device_type_array(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_fixed_device_type_array) ⇒
     * [~endpoint_fixed_device_type_array_offsets(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_fixed_device_type_array_offsets) ⇒
@@ -1110,6 +1116,8 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~collectAttributeSizes(db, zclPackageIds, endpointTypes)](#module_Templating API_ Matter endpoint config helpers..collectAttributeSizes) ⇒
     * [~collectAttributeTypeInfo(db, zclPackageIds, endpointTypes)](#module_Templating API_ Matter endpoint config helpers..collectAttributeTypeInfo) ⇒
     * [~isGlobalAttrExcludedFromMetadata(attr)](#module_Templating API_ Matter endpoint config helpers..isGlobalAttrExcludedFromMetadata) ⇒
+    * [~parseCommaSeparatedSet(value)](#module_Templating API_ Matter endpoint config helpers..parseCommaSeparatedSet) ⇒ <code>Set.&lt;string&gt;</code>
+    * [~clusterOmitsAttributeMetadata(cl, omitSet)](#module_Templating API_ Matter endpoint config helpers..clusterOmitsAttributeMetadata) ⇒ <code>boolean</code>
     * [~endpoint_config(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_config) ⇒
 
 <a name="module_Templating API_ Matter endpoint config helpers..endpoint_type_count"></a>
@@ -1395,13 +1403,97 @@ Get count of endpoint type attributes.
 | --- | --- |
 | options | <code>\*</code> | 
 
+<a name="module_Templating API_ Matter endpoint config helpers..formatAttributeMask"></a>
+
+### Templating API: Matter endpoint config helpers~formatAttributeMask(maskTokens) ⇒ <code>string</code>
+Formats attribute mask tokens as a C expression of ZAP_ATTRIBUTE_MASK()s.
+
+**Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
+
+| Param | Type |
+| --- | --- |
+| maskTokens | <code>Array.&lt;string&gt;</code> | 
+
+<a name="module_Templating API_ Matter endpoint config helpers..formatAttributeDefaultValue"></a>
+
+### Templating API: Matter endpoint config helpers~formatAttributeDefaultValue(at, options) ⇒ <code>string</code>
+Formats an attribute default value for EmberAfAttributeMetadata.
+
+**Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| at | <code>\*</code> | attribute list item (from endpoint_config context) |
+| options | <code>\*</code> | hash may include endian / pointer |
+
 <a name="module_Templating API_ Matter endpoint config helpers..endpoint_attribute_list"></a>
 
 ### Templating API: Matter endpoint config helpers~endpoint\_attribute\_list(options) ⇒
-Get endpoint type attribute information.
+Get endpoint type attribute information as a single C initializer blob.
+Prefer {{#endpoint_attributes}} when templates need per-attribute control.
 
 **Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
 **Returns**: endpoint type attribute information  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Matter endpoint config helpers..endpoint_attributes"></a>
+
+### Templating API: Matter endpoint config helpers~endpoint\_attributes(options) ⇒
+Block helper that iterates over `attributeList` from `{{#endpoint_config}}`.
+Each item exposes the fields built by collectAttributes (id, type, size,
+mask array, defaultValue, name, comment, endpointId, clusterId, clusterName,
+clusterSide, ...) plus first/last/index/count from collectBlocks.
+
+Use with {{endpoint_attribute_mask}} / {{endpoint_attribute_default}} to
+format C tokens, or override those helpers from gen-templates.json.
+
+example:
+{{#endpoint_config}}
+{{#endpoint_attributes}}
+  { {{endpoint_attribute_default}}, {{id}}, {{size}}, {{type}}, {{endpoint_attribute_mask}} },
+{{/endpoint_attributes}}
+{{/endpoint_config}}
+
+**Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
+**Returns**: Promise of rendered blocks  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Matter endpoint config helpers..endpoint_clusters"></a>
+
+### Templating API: Matter endpoint config helpers~endpoint\_clusters(options) ⇒
+Block helper that iterates over `clusterList` from `{{#endpoint_config}}`.
+
+**Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
+**Returns**: Promise of rendered blocks  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Matter endpoint config helpers..endpoint_attribute_mask"></a>
+
+### Templating API: Matter endpoint config helpers~endpoint\_attribute\_mask(options) ⇒ <code>string</code>
+Formats the current attribute's mask tokens (use inside endpoint_attributes).
+
+**Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Matter endpoint config helpers..endpoint_attribute_default"></a>
+
+### Templating API: Matter endpoint config helpers~endpoint\_attribute\_default(options) ⇒ <code>string</code>
+Formats the current attribute's default value (use inside endpoint_attributes).
+Supports hash.endian / hash.pointer like endpoint_attribute_list.
+
+**Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
 
 | Param | Type |
 | --- | --- |
@@ -1610,11 +1702,47 @@ Checks if global attribute is excluded from the meta data.
 | --- | --- |
 | attr | <code>\*</code> | 
 
+<a name="module_Templating API_ Matter endpoint config helpers..parseCommaSeparatedSet"></a>
+
+### Templating API: Matter endpoint config helpers~parseCommaSeparatedSet(value) ⇒ <code>Set.&lt;string&gt;</code>
+Parse a comma-separated hash option into a lower-cased Set.
+
+**Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
+
+| Param | Type |
+| --- | --- |
+| value | <code>string</code> \| <code>undefined</code> | 
+
+<a name="module_Templating API_ Matter endpoint config helpers..clusterOmitsAttributeMetadata"></a>
+
+### Templating API: Matter endpoint config helpers~clusterOmitsAttributeMetadata(cl, omitSet) ⇒ <code>boolean</code>
+True when this cluster's attributes should be omitted from endpoint_config
+metadata. Matches by cluster name or by decimal/hex code (e.g. "6", "0x6",
+"0x0006"). Prefer codes for names that contain '/' (Handlebars treats '/'
+inside {{#...}} as a closer).
+
+**Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| cl | <code>\*</code> | endpoint cluster row |
+| omitSet | <code>Set.&lt;string&gt;</code> |  |
+
 <a name="module_Templating API_ Matter endpoint config helpers..endpoint_config"></a>
 
 ### Templating API: Matter endpoint config helpers~endpoint\_config(options) ⇒
-Starts the endpoint configuration block.,
-longDefaults: longDefaults
+Starts the endpoint configuration block.
+
+Optional hash arguments:
+- allowUnknownStorageOption
+- spaceForDefaultValue
+- isReadableMaskGenerationEnabled
+- omitAttributeMetadataClusters: comma-separated cluster names or codes
+  (e.g. "Level Control,0x0006") whose attributes are dropped from
+  GENERATED_ATTRIBUTES / related lists while the clusters themselves remain
+  (attributeCount becomes 0). Use this for code-driven clusters that own
+  their own attribute metadata. Prefer codes when a name contains '/'
+  (Handlebars would treat '/' inside {{#...}} as a block closer).
 
 **Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
 **Returns**: a promise of a rendered block  
