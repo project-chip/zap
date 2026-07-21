@@ -494,6 +494,37 @@ async function deleteEndpoint(db, id) {
 }
 
 /**
+ * Retrieves endpoint identifiers for a session and endpoint type.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves into an array of endpoint identifiers.
+ */
+async function selectEndpointIdentifiersBySessionAndEndpointType(
+  db,
+  sessionId,
+  endpointTypeId
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  ENDPOINT_IDENTIFIER
+FROM
+  ENDPOINT
+WHERE
+  SESSION_REF = ?
+  AND ENDPOINT_TYPE_REF = ?
+ORDER BY
+  ENDPOINT_IDENTIFIER
+`,
+    [sessionId, endpointTypeId]
+  )
+  return rows.map((r) => r.ENDPOINT_IDENTIFIER)
+}
+
+/**
  * Returns ENDPOINT_ID of the Endpoint's Parent Endpoint
  *
  * @export
@@ -669,3 +700,5 @@ exports.getParentEndpointIdentifier = getParentEndpointIdentifier
 exports.selectAllEndpointsBasedOnTemplateCategory =
   selectAllEndpointsBasedOnTemplateCategory
 exports.getRootNode = getRootNode
+exports.selectEndpointIdentifiersBySessionAndEndpointType =
+  selectEndpointIdentifiersBySessionAndEndpointType

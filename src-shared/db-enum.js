@@ -292,3 +292,9 @@ exports.logicalOperators = {
   or: 'or',
   not: 'not'
 }
+
+/** Text fragments shared by warning messages */
+exports.warnings = {
+  externalStorageControl:
+    'external storage and ZAP does not have control over it.'
+}

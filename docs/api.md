@@ -428,6 +428,12 @@ This module provides common external URLs.
 ## DB API: DB types and enums.
 This module provides mappings between database columns and JS keys.
 
+<a name="module_DB API_ DB types and enums..warnings"></a>
+
+### DB API: DB types and enums..warnings
+Text fragments shared by warning messages
+
+**Kind**: static property of [<code>DB API: DB types and enums.</code>](#module_DB API_ DB types and enums.)  
 <a name="module_Renderer API_ Renderer API."></a>
 
 ## Renderer API: Renderer API.
@@ -16240,6 +16246,7 @@ This module provides the API to access zcl specific information.
     * [~httpPostSaveSessionKeyValue(db)](#module_REST API_ user data..httpPostSaveSessionKeyValue) ⇒
     * [~httpPostCluster(db)](#module_REST API_ user data..httpPostCluster) ⇒
     * [~httpPostForcedExternal(db)](#module_REST API_ user data..httpPostForcedExternal) ⇒ <code>function</code>
+    * [~handleAttributeStorageNotification(db, sessionId, endpointTypeId, clusterRef, attributeId, storageValue)](#module_REST API_ user data..handleAttributeStorageNotification)
     * [~httpPostAttributeUpdate(db)](#module_REST API_ user data..httpPostAttributeUpdate) ⇒
     * [~httpPostCommandUpdate(db)](#module_REST API_ user data..httpPostCommandUpdate) ⇒
     * [~httpPostEventUpdate(db)](#module_REST API_ user data..httpPostEventUpdate) ⇒
@@ -16476,6 +16483,22 @@ options for the identified package. The results are sent back to the client as a
 | Param | Type | Description |
 | --- | --- | --- |
 | db | <code>Object</code> | The database connection object. |
+
+<a name="module_REST API_ user data..handleAttributeStorageNotification"></a>
+
+### REST API: user data~handleAttributeStorageNotification(db, sessionId, endpointTypeId, clusterRef, attributeId, storageValue)
+Set or delete external storage warnings when the user changes attribute storage.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+| endpointTypeId | <code>\*</code> | 
+| clusterRef | <code>\*</code> | 
+| attributeId | <code>\*</code> | 
+| storageValue | <code>\*</code> | 
 
 <a name="module_REST API_ user data..httpPostAttributeUpdate"></a>
 
@@ -17605,6 +17628,7 @@ This module provides the REST API to the user specific data.
     * [~httpPostSaveSessionKeyValue(db)](#module_REST API_ user data..httpPostSaveSessionKeyValue) ⇒
     * [~httpPostCluster(db)](#module_REST API_ user data..httpPostCluster) ⇒
     * [~httpPostForcedExternal(db)](#module_REST API_ user data..httpPostForcedExternal) ⇒ <code>function</code>
+    * [~handleAttributeStorageNotification(db, sessionId, endpointTypeId, clusterRef, attributeId, storageValue)](#module_REST API_ user data..handleAttributeStorageNotification)
     * [~httpPostAttributeUpdate(db)](#module_REST API_ user data..httpPostAttributeUpdate) ⇒
     * [~httpPostCommandUpdate(db)](#module_REST API_ user data..httpPostCommandUpdate) ⇒
     * [~httpPostEventUpdate(db)](#module_REST API_ user data..httpPostEventUpdate) ⇒
@@ -17841,6 +17865,22 @@ options for the identified package. The results are sent back to the client as a
 | Param | Type | Description |
 | --- | --- | --- |
 | db | <code>Object</code> | The database connection object. |
+
+<a name="module_REST API_ user data..handleAttributeStorageNotification"></a>
+
+### REST API: user data~handleAttributeStorageNotification(db, sessionId, endpointTypeId, clusterRef, attributeId, storageValue)
+Set or delete external storage warnings when the user changes attribute storage.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+| endpointTypeId | <code>\*</code> | 
+| clusterRef | <code>\*</code> | 
+| attributeId | <code>\*</code> | 
+| storageValue | <code>\*</code> | 
 
 <a name="module_REST API_ user data..httpPostAttributeUpdate"></a>
 

@@ -26,6 +26,7 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+
 /**
  * Sets a notification in the SESSION_NOTICE table
  *
@@ -212,10 +213,12 @@ async function setNotificationOnFeatureChange(db, sessionId, result) {
     }
   } else {
     await deleteNotificationWithPatterns(db, sessionId, outdatedWarningPatterns)
-    if (displayWarning) {
-      await setNotification(db, 'WARNING', warningMessage, sessionId, 2, 0)
-    } else {
-      await searchNotificationByMessageAndDelete(db, sessionId, warningMessage)
+    for (const message of warningMessage) {
+      if (displayWarning) {
+        await setNotification(db, 'WARNING', message, sessionId, 2, 0)
+      } else {
+        await searchNotificationByMessageAndDelete(db, sessionId, message)
+      }
     }
   }
 }
@@ -306,6 +309,77 @@ async function getNotificationMessagesWithPattern(db, sessionId, pattern) {
   return rows.reverse().map((row) => row.NOTICE_MESSAGE)
 }
 
+/**
+ * True if the notice mentions this endpoint, cluster, attribute, and the external-storage warning phrase.
+ *
+ * @param {string} message
+ * @param {string} endpointDisplay
+ * @param {string} clusterName
+ * @param {string} attributeName
+ * @returns {boolean}
+ */
+function messageIsExternalAttributeStorageNoticeForAttribute(
+  message,
+  endpointDisplay,
+  clusterName,
+  attributeName
+) {
+  let phrase = dbEnum.warnings.externalStorageControl
+  let endpointStr = String(endpointDisplay)
+  let clusterStr = String(clusterName)
+  let attrStr = String(attributeName)
+  return (
+    message.includes(phrase) &&
+    message.includes(`endpoint: ${endpointStr},`) &&
+    message.includes(`cluster: ${clusterStr},`) &&
+    message.includes(attrStr)
+  )
+}
+
+/**
+ * Remove external-attribute-storage session notices for a given attribute.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} endpointDisplay
+ * @param {*} clusterName
+ * @param {*} attributeName
+ * @returns {Promise<boolean|Promise[]>}
+ */
+async function deleteExternalAttributeStorageNotificationsForAttribute(
+  db,
+  sessionId,
+  endpointDisplay,
+  clusterName,
+  attributeName
+) {
+  let likePattern = `%${dbEnum.warnings.externalStorageControl}%`
+  let rows = await dbApi.dbAll(
+    db,
+    `SELECT NOTICE_ID, NOTICE_MESSAGE FROM SESSION_NOTICE
+     WHERE SESSION_REF = ? AND NOTICE_MESSAGE LIKE ?`,
+    [sessionId, likePattern]
+  )
+  let endpointStr = String(endpointDisplay)
+  let clusterStr = String(clusterName)
+  let attrStr = String(attributeName)
+  let ids = []
+  for (let row of rows) {
+    if (
+      messageIsExternalAttributeStorageNoticeForAttribute(
+        row.NOTICE_MESSAGE,
+        endpointStr,
+        clusterStr,
+        attrStr
+      )
+    ) {
+      ids.push(row.NOTICE_ID)
+    }
+  }
+  if (ids.length === 0) return false
+  return Promise.all(ids.map((id) => deleteNotification(db, id)))
+}
+
 // exports
 exports.setNotification = setNotification
 exports.deleteNotification = deleteNotification
@@ -319,3 +393,7 @@ exports.setNotificationOnFeatureChange = setNotificationOnFeatureChange
 exports.setRequiredElementWarning = setRequiredElementWarning
 exports.deleteNotificationWithPatterns = deleteNotificationWithPatterns
 exports.getNotificationMessagesWithPattern = getNotificationMessagesWithPattern
+exports.deleteExternalAttributeStorageNotificationsForAttribute =
+  deleteExternalAttributeStorageNotificationsForAttribute
+exports.messageIsExternalAttributeStorageNoticeForAttribute =
+  messageIsExternalAttributeStorageNoticeForAttribute
