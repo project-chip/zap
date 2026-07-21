@@ -66,6 +66,12 @@
       "output": "endpoint-config.c"
     },
     {
+      "path": "endpoint-config-control.zapt",
+      "name": "Endpoint Configuration template control",
+      "output": "endpoint-config-control.out",
+      "static": "true"
+    },
+    {
       "path": "events.zapt",
       "name": "Events",
       "output": "events.out",

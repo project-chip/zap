@@ -359,7 +359,61 @@ function endpoint_attribute_count(options) {
 }
 
 /**
- * Get endpoint type attribute information.
+ * Formats attribute mask tokens as a C expression of ZAP_ATTRIBUTE_MASK()s.
+ * @param {string[]} maskTokens
+ * @returns {string}
+ */
+function formatAttributeMask(maskTokens) {
+  if (maskTokens == null || maskTokens.length == 0) {
+    return '0'
+  }
+  return maskTokens
+    .map((m) => `ZAP_ATTRIBUTE_MASK(${m.toUpperCase()})`)
+    .join(' | ')
+}
+
+/**
+ * Formats an attribute default value for EmberAfAttributeMetadata.
+ * @param {*} at attribute list item (from endpoint_config context)
+ * @param {*} options hash may include endian / pointer
+ * @returns {string}
+ */
+function formatAttributeDefaultValue(at, options) {
+  let littleEndian = true
+  let pointerSize = 4
+  if (options != null && options.hash != null && options.hash.endian == 'big') {
+    littleEndian = false
+    if (typeof options.hash.pointer != 'undefined') {
+      pointerSize = options.hash.pointer
+    }
+  }
+
+  if (!at.defaultValue) {
+    return `ZAP_EMPTY_DEFAULT()`
+  }
+  if (at.isMacro) {
+    return at.defaultValue
+  }
+  let defaultValue = at.defaultValue
+  if (!littleEndian) {
+    let num = Number(defaultValue)
+    if (!Number.isNaN(num)) {
+      // Convert negatives to unsigned within the attribute width, then
+      // left-align in a pointer-sized field so the MSB is the first byte read.
+      let size = at.size || 2
+      let unsignedNum = num < 0 ? num + Math.pow(2, 8 * size) : num
+      let shift = 8 * (pointerSize - size)
+      let alignedNum = (unsignedNum << shift) >>> 0
+      defaultValue =
+        '0x' + alignedNum.toString(16).padStart(2 * pointerSize, '0')
+    }
+  }
+  return `ZAP_SIMPLE_DEFAULT(${defaultValue})`
+}
+
+/**
+ * Get endpoint type attribute information as a single C initializer blob.
+ * Prefer {{#endpoint_attributes}} when templates need per-attribute control.
  *
  * @param {*} options
  * @returns endpoint type attribute information
@@ -372,15 +426,6 @@ function endpoint_attribute_list(options) {
   }
   let comment = null
 
-  let littleEndian = true
-  let pointerSize = 4
-  if (options.hash.endian == 'big') {
-    littleEndian = false
-    if (typeof options.hash.pointer != 'undefined') {
-      pointerSize = options.hash.pointer
-    }
-  }
-
   let ret = '{ \\\n'
   this.attributeList.forEach((at) => {
     if (at.comment != comment) {
@@ -388,30 +433,8 @@ function endpoint_attribute_list(options) {
       comment = at.comment
     }
 
-    let mask = ''
-    if (at.mask.length == 0) {
-      mask = '0'
-    } else {
-      mask = at.mask
-        .map((m) => `ZAP_ATTRIBUTE_MASK(${m.toUpperCase()})`)
-        .join(' | ')
-    }
-    // If no default value is found, default to 0
-    let finalDefaultValue
-    if (!at.defaultValue) {
-      finalDefaultValue = `ZAP_EMPTY_DEFAULT()`
-    } else if (at.isMacro) {
-      finalDefaultValue = at.defaultValue
-    } else {
-      let defaultValue = at.defaultValue
-      if (!littleEndian) {
-        defaultValue = Number(defaultValue)
-          .toString(16)
-          .padStart(6, '0x0000')
-          .padEnd(2 + 2 * pointerSize, '0')
-      }
-      finalDefaultValue = `ZAP_SIMPLE_DEFAULT(${defaultValue})`
-    }
+    let mask = formatAttributeMask(at.mask)
+    let finalDefaultValue = formatAttributeDefaultValue(at, options)
     let orderTokens = order.split(',').map((x) => (x ? x.trim() : ''))
     let items = []
     orderTokens.forEach((tok) => {
@@ -441,6 +464,60 @@ function endpoint_attribute_list(options) {
   ret += '}\n'
 
   return ret
+}
+
+/**
+ * Block helper that iterates over `attributeList` from `{{#endpoint_config}}`.
+ * Each item exposes the fields built by collectAttributes (id, type, size,
+ * mask array, defaultValue, name, comment, endpointId, clusterId, clusterName,
+ * clusterSide, ...) plus first/last/index/count from collectBlocks.
+ *
+ * Use with {{endpoint_attribute_mask}} / {{endpoint_attribute_default}} to
+ * format C tokens, or override those helpers from gen-templates.json.
+ *
+ * example:
+ * {{#endpoint_config}}
+ * {{#endpoint_attributes}}
+ *   { {{endpoint_attribute_default}}, {{id}}, {{size}}, {{type}}, {{endpoint_attribute_mask}} },
+ * {{/endpoint_attributes}}
+ * {{/endpoint_config}}
+ *
+ * @param {*} options
+ * @returns Promise of rendered blocks
+ */
+function endpoint_attributes(options) {
+  return templateUtil.collectBlocks(this.attributeList || [], options, this)
+}
+
+/**
+ * Block helper that iterates over `clusterList` from `{{#endpoint_config}}`.
+ *
+ * @param {*} options
+ * @returns Promise of rendered blocks
+ */
+function endpoint_clusters(options) {
+  return templateUtil.collectBlocks(this.clusterList || [], options, this)
+}
+
+/**
+ * Formats the current attribute's mask tokens (use inside endpoint_attributes).
+ *
+ * @param {*} options
+ * @returns {string}
+ */
+function endpoint_attribute_mask(options) {
+  return formatAttributeMask(this.mask)
+}
+
+/**
+ * Formats the current attribute's default value (use inside endpoint_attributes).
+ * Supports hash.endian / hash.pointer like endpoint_attribute_list.
+ *
+ * @param {*} options
+ * @returns {string}
+ */
+function endpoint_attribute_default(options) {
+  return formatAttributeDefaultValue(this, options)
 }
 
 /**
@@ -1190,7 +1267,21 @@ async function collectAttributes(
           defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
           isMacro: defaultValueIsMacro,
           name: a.name,
-          comment: cluster.comment
+          comment: cluster.comment,
+          // Structured fields for template-side filtering / formatting
+          // (see endpoint_attributes / omitAttributeMetadataClusters).
+          endpointId: ept.endpointId,
+          clusterId: asMEI(c.manufacturerCode, c.code),
+          clusterName: c.name,
+          clusterSide: c.side,
+          code: a.code,
+          manufacturerCode: a.manufacturerCode,
+          storage: a.storage,
+          isSingleton: a.isSingleton,
+          isWritable: a.isWritable,
+          isReadable: a.isReadable,
+          isNullable: a.isNullable,
+          mustUseTimedWrite: a.mustUseTimedWrite
         }
         attributeList.push(attr)
 
@@ -1387,8 +1478,70 @@ function isGlobalAttrExcludedFromMetadata(attr) {
 }
 
 /**
- * Starts the endpoint configuration block.,
- * longDefaults: longDefaults
+ * Parse a comma-separated hash option into a lower-cased Set.
+ * @param {string|undefined} value
+ * @returns {Set<string>}
+ */
+function parseCommaSeparatedSet(value) {
+  let result = new Set()
+  if (value == null || value === '') {
+    return result
+  }
+  String(value)
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => s.length > 0)
+    .forEach((s) => result.add(s))
+  return result
+}
+
+/**
+ * True when this cluster's attributes should be omitted from endpoint_config
+ * metadata. Matches by cluster name or by decimal/hex code (e.g. "6", "0x6",
+ * "0x0006"). Prefer codes for names that contain '/' (Handlebars treats '/'
+ * inside {{#...}} as a closer).
+ *
+ * @param {*} cl endpoint cluster row
+ * @param {Set<string>} omitSet
+ * @returns {boolean}
+ */
+function clusterOmitsAttributeMetadata(cl, omitSet) {
+  if (omitSet == null || omitSet.size == 0) {
+    return false
+  }
+  if (omitSet.has((cl.name || '').toLowerCase())) {
+    return true
+  }
+  if (cl.code == null) {
+    return false
+  }
+  let codeNum = Number(cl.code)
+  if (Number.isNaN(codeNum)) {
+    return false
+  }
+  // Numeric compare so "0x6", "0x06", "0x0006", "6", "06" all match code 6.
+  for (let item of omitSet) {
+    let itemNum = Number(item)
+    if (!Number.isNaN(itemNum) && itemNum === codeNum) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Starts the endpoint configuration block.
+ *
+ * Optional hash arguments:
+ * - allowUnknownStorageOption
+ * - spaceForDefaultValue
+ * - isReadableMaskGenerationEnabled
+ * - omitAttributeMetadataClusters: comma-separated cluster names or codes
+ *   (e.g. "Level Control,0x0006") whose attributes are dropped from
+ *   GENERATED_ATTRIBUTES / related lists while the clusters themselves remain
+ *   (attributeCount becomes 0). Use this for code-driven clusters that own
+ *   their own attribute metadata. Prefer codes when a name contains '/'
+ *   (Handlebars would treat '/' inside {{#...}} as a block closer).
  *
  * @param {*} options
  * @returns a promise of a rendered block
@@ -1400,6 +1553,9 @@ function endpoint_config(options) {
   }
   let db = this.global.db
   let sessionId = this.global.sessionId
+  let omitAttributeMetadataClusters = parseCommaSeparatedSet(
+    options.hash.omitAttributeMetadataClusters
+  )
   let collectAttributesOptions = {
     allowUnknownStorageOption:
       options.hash.allowUnknownStorageOption !== 'false',
@@ -1485,6 +1641,16 @@ function endpoint_config(options) {
                       (a) =>
                         a.isIncluded && !isGlobalAttrExcludedFromMetadata(a)
                     )
+                    // Code-driven clusters can omit attribute metadata entirely
+                    // so implementations own their tables (saves flash).
+                    if (
+                      clusterOmitsAttributeMetadata(
+                        cl,
+                        omitAttributeMetadataClusters
+                      )
+                    ) {
+                      cl.attributes = []
+                    }
                   })
               )
               ps.push(
@@ -1546,8 +1712,12 @@ exports.endpoint_config = endpoint_config
 exports.endpoint_attribute_min_max_list = endpoint_attribute_min_max_list
 exports.endpoint_attribute_min_max_count = endpoint_attribute_min_max_count
 exports.endpoint_attribute_list = endpoint_attribute_list
+exports.endpoint_attributes = endpoint_attributes
+exports.endpoint_attribute_mask = endpoint_attribute_mask
+exports.endpoint_attribute_default = endpoint_attribute_default
 exports.endpoint_attribute_count = endpoint_attribute_count
 exports.endpoint_cluster_list = endpoint_cluster_list
+exports.endpoint_clusters = endpoint_clusters
 exports.endpoint_cluster_count = endpoint_cluster_count
 exports.endpoint_types_list = endpoint_types_list
 exports.endpoint_type_count = endpoint_type_count
