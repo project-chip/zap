@@ -199,6 +199,16 @@ const storagePolicy = {
 
 exports.storagePolicy = storagePolicy
 
+// Attribute persistence quality (Matter spec section 7.7).
+// Encodes both the "Fixed" (F) and "Non-Volatile" (N) qualities.
+const persistence = {
+  volatile: 'volatile',
+  nonVolatile: 'nonVolatile',
+  fixed: 'fixed'
+}
+
+exports.persistence = persistence
+
 // When SDK supports a custom device, these are the default values for it.
 exports.customDevice = {
   domain: 'Custom',
