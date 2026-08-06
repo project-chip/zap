@@ -70,6 +70,8 @@
     "zapmeta": "node src-script/zap-start.js --logToStdout --zcl ./test/resource/meta/zcl.json --gen ./test/resource/meta/gen-test.json --in ./test/resource/test-meta.zap",
     "zaphelp": "node src-script/zap-start.js --help",
     "zap-validate": "node src-script/zap-start.js validate",
+    "zap-edit": "node src-script/zap-start.js edit",
+    "zap-edit-help": "node src-script/zap-start.js edit --help",
     "zap-dotdot": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/dotdot/library.xml -g ./test/gen-template/dotdot/dotdot-templates.json",
     "zap-devserver": "node src-script/zap-start.js server --stateDirectory ~/.zap/zigbee-server/ --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
     "zigbeezap-devserver": "node src-script/zap-start.js server --stateDirectory ~/.zap/zigbee-server/ --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
@@ -115,6 +117,9 @@
     "pack:cli:linux": "node ./src-script/pack-cli.js -p linux",
     "pack:cli:win": "node ./src-script/pack-cli.js -p win",
     "pack:cli:mac": "node ./src-script/pack-cli.js -p mac",
+    "smoke:cli": "node ./src-script/smoke-test-cli.js",
+    "smoke:cli:linux": "node ./src-script/smoke-test-cli.js --binary ./dist/zap-linux-x64/zap-cli",
+    "smoke:cli:mac": "node ./src-script/smoke-test-cli.js --binary ./dist/zap-mac/zap-cli",
     "pkg": "npx pkg --out-path dist/ --compress GZip --options max-old-space-size=4096 .",
     "pkg:linux": "npx pkg -t node20-linux-x64,node20-linux-arm64 --public --no-bytecode --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
     "pkg-use-local-fork": "node ../pkg/lib-es5/bin.js -t node20-linux-x64 --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
@@ -353,6 +358,7 @@
   },
   "pkg": {
     "scripts": [
+      "dist/src-electron/cli/*.js",
       "dist/src-electron/client/*.js",
       "dist/src-electron/db/*.js",
       "dist/src-electron/generator/*.js",
@@ -381,6 +387,8 @@
       "dist/src-electron/icons/*",
       "dist/src-electron/db/zap-schema.sql",
       "zcl-builtin/**/*",
+      "test/gen-template/**/*",
+      "examples/**/*",
       "spa/**/*",
       "**/node_sqlite3.node"
     ]

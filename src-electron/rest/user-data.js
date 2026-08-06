@@ -25,7 +25,6 @@ const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryCommand = require('../db/query-command.js')
-const queryEvent = require('../db/query-event.js')
 const queryFeature = require('../db/query-feature')
 const queryConfig = require('../db/query-config.js')
 const upgrade = require('../sdk/matter.js')
@@ -35,6 +34,7 @@ const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
+const sharedClusterState = require('../util/shared-cluster-state.js')
 const asyncValidation = require('../validation/async-validation.js')
 const validation = require('../validation/validation.js')
 const validateAll = require('../validation/validate-all.js')
@@ -745,294 +745,14 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
       return response.status(StatusCodes.BAD_REQUEST).send()
     }
 
-    // Get a list of clusters enabled by multiple (>1) endpoints
-    let sharedClusterList = await queryEndpointType
-      .selectAllClustersDetailsFromEndpointTypes(
-        db,
-        endpointTypeIdList.map((id) => {
-          return { endpointTypeId: id }
-        })
-      )
-      .then((list) => list.filter((entry) => entry.endpointCount > 1))
-
-    let attrDefaults = await attributeDefaults(
+    let result = await sharedClusterState.shareClusterStatesAcrossEndpoints(
       db,
       endpointTypeIdList,
-      sharedClusterList,
-      packageIds
-    )
-    await writeAttributeDefaults(db, attrDefaults)
-
-    let cmdDefaults = await commandDefaults(
-      db,
-      endpointTypeIdList,
-      sharedClusterList,
-      packageIds
-    )
-    await writeCommandDefaults(db, cmdDefaults)
-
-    return response.status(StatusCodes.OK).json({
-      sharedClusterList,
-      sharedAttributeDefaults: attrDefaults
-    })
-  }
-}
-
-/**
- * Get shared command defaults across endpoints.
- *
- * @param {*} db
- * @param {*} endpointTypeIdList
- * @param {*} sharedClusterList
- * @param {*} packageIds
- * @returns sharedCmdDefaults
- */
-async function commandDefaults(
-  db,
-  endpointTypeIdList,
-  sharedClusterList,
-  packageIds
-) {
-  let sharedCmdDefaults = {}
-  let clusCmdToCmdObj = {}
-  let sharedCommandList =
-    await queryCommand.selectAllCommandDetailsFromEnabledClusters(
-      db,
-      sharedClusterList.map((c) => {
-        return { endpointTypeClusterRef: c.endpointClusterId }
-      }),
       packageIds
     )
 
-  for (const endpointTypeId of endpointTypeIdList) {
-    for (const sharedCmd of sharedCommandList) {
-      let clusCmdKey = JSON.stringify({
-        clusterId: sharedCmd.clusterId,
-        clusterSide: sharedCmd.clusterSide,
-        id: sharedCmd.id, // command id
-        code: sharedCmd.code,
-        mfgCode: sharedCmd.mfgCode
-      })
-
-      if (!(endpointTypeId in sharedCmdDefaults)) {
-        sharedCmdDefaults[endpointTypeId] = []
-      }
-
-      if (clusCmdKey in clusCmdToCmdObj) {
-        sharedCmdDefaults[endpointTypeId].push(clusCmdToCmdObj[clusCmdKey])
-      } else {
-        let cmds = await queryEndpoint.selectEndpointClusterCommands(
-          db,
-          sharedCmd.clusterId,
-          endpointTypeId
-        )
-
-        // find attr
-        let matched = cmds.filter((cmd) => commandEquals(cmd, sharedCmd))
-        if (matched.length) {
-          let m = matched.shift()
-
-          sharedCmdDefaults[endpointTypeId].push(m)
-          clusCmdToCmdObj[clusCmdKey] = m
-        }
-      }
-    }
+    return response.status(StatusCodes.OK).json(result)
   }
-  return sharedCmdDefaults
-}
-
-/**
- * Insert command defaults into the database.
- *
- * @param {*} db
- * @param {*} defaults
- */
-async function writeCommandDefaults(db, defaults) {
-  let promises = []
-  for (const [endpointTypeId, commandList] of Object.entries(defaults)) {
-    for (const cmd of commandList) {
-      promises.push(
-        queryConfig.insertOrUpdateCommandState(
-          db,
-          endpointTypeId,
-          cmd.clusterId,
-          cmd.source,
-          cmd.id,
-          cmd.isIncoming,
-          true
-        )
-      )
-
-      promises.push(
-        queryConfig.insertOrUpdateCommandState(
-          db,
-          endpointTypeId,
-          cmd.clusterId,
-          cmd.source,
-          cmd.id,
-          cmd.isOutgoing,
-          false
-        )
-      )
-    }
-  }
-  await Promise.all(promises)
-}
-
-/**
- * Shared attribute defaults across endpoints.
- *
- * @param {*} db
- * @param {*} endpointTypeIdList
- * @param {*} sharedClusterList
- * @param {*} packageIds
- * @returns sharedAttributeDefaults
- */
-async function attributeDefaults(
-  db,
-  endpointTypeIdList,
-  sharedClusterList,
-  packageIds
-) {
-  let sharedAttributeDefaults = {}
-  let clusterIdnSideToAttrCache = {}
-  let sharedAttributeList =
-    await queryAttribute.selectAttributeDetailsFromEnabledClusters(
-      db,
-      sharedClusterList,
-      packageIds
-    )
-
-  for (const endpointTypeId of endpointTypeIdList) {
-    for (const sharedAttr of sharedAttributeList) {
-      let clusAttrCacheKey = JSON.stringify({
-        clusterId: sharedAttr.clusterId,
-        side: sharedAttr.side,
-        id: sharedAttr.id, // attr id
-        code: sharedAttr.code,
-        name: sharedAttr.name,
-        type: sharedAttr.type,
-        mfgCode: sharedAttr.mfgCode,
-        define: sharedAttr.define
-      })
-
-      if (clusAttrCacheKey in clusterIdnSideToAttrCache) {
-        !(endpointTypeId in sharedAttributeDefaults) &&
-          (sharedAttributeDefaults[endpointTypeId] = [])
-        sharedAttributeDefaults[endpointTypeId].push(
-          clusterIdnSideToAttrCache[clusAttrCacheKey]
-        )
-      } else {
-        let attributes = await queryEndpoint.selectEndpointClusterAttributes(
-          db,
-          sharedAttr.clusterId,
-          sharedAttr.side,
-          endpointTypeId
-        )
-
-        // find attr
-        let matched = attributes.filter((attr) =>
-          attributeEquals(attr, sharedAttr)
-        )
-        if (matched.length) {
-          let m = matched.shift()
-
-          !(endpointTypeId in sharedAttributeDefaults) &&
-            (sharedAttributeDefaults[endpointTypeId] = [])
-          sharedAttributeDefaults[endpointTypeId].push(m)
-          clusterIdnSideToAttrCache[clusAttrCacheKey] = m
-        }
-      }
-    }
-  }
-  return sharedAttributeDefaults
-}
-
-/**
- * Write attribute defaults.
- *
- * @param {*} db
- * @param {*} defaults
- */
-async function writeAttributeDefaults(db, defaults) {
-  let promises = []
-  for (const [endpointTypeId, attributeList] of Object.entries(defaults)) {
-    for (const attr of attributeList) {
-      promises.push(
-        queryConfig.insertOrUpdateAttributeState(
-          db,
-          endpointTypeId,
-          attr.clusterId,
-          attr.side,
-          attr.id,
-          [
-            { key: restApi.updateKey.attributeSelected, value: 1 },
-            {
-              key: restApi.updateKey.attributeStorage,
-              value: `"${attr.storage}"`
-            },
-            {
-              key: restApi.updateKey.attributeSingleton,
-              value: attr.isSingleton
-            },
-            {
-              key: restApi.updateKey.attributeBounded,
-              value: attr.isBounded
-            },
-            {
-              key: restApi.updateKey.attributeDefault,
-              value: attr.defaultValue
-            },
-            {
-              key: restApi.updateKey.attributeReporting,
-              value: attr.includedReportable
-            }
-          ],
-          attr.min,
-          attr.max,
-          attr.reportableChange
-        )
-      )
-    }
-  }
-
-  await Promise.all(promises)
-}
-
-/**
- * Compares 2 commands for equality.
- *
- * @param {*} a
- * @param {*} b
- * @returns boolean
- */
-function commandEquals(a, b) {
-  return (
-    a.id === b.id &&
-    a.name === b.name &&
-    a.code === b.code &&
-    a.source === b.source &&
-    a.manufacturerCode === b.mfgCode
-  )
-}
-
-/**
- * Compares 2 attributes for equality.
- *
- * @param {*} a
- * @param {*} b
- * @returns boolean
- */
-function attributeEquals(a, b) {
-  return (
-    a.id === b.id &&
-    a.code === b.code &&
-    a.name === b.name &&
-    a.side === b.side &&
-    a.type === b.type &&
-    a.manufacturerCode === b.mfgCode &&
-    a.define === b.define
-  )
 }
 
 /**
@@ -1096,7 +816,7 @@ function httpPostDuplicateEndpointType(db) {
     let { endpointTypeId } = request.body
     let newId = await queryConfig.duplicateEndpointType(db, endpointTypeId)
 
-    duplicateEndpointTypeClusters(db, endpointTypeId, newId)
+    await queryConfig.duplicateEndpointTypeClusters(db, endpointTypeId, newId)
 
     response.status(StatusCodes.OK).json({
       id: newId
@@ -1174,73 +894,6 @@ function httpPostRequiredElementWarning(db) {
     )
     response.status(StatusCodes.OK).json(resp)
   }
-}
-
-/**
- * duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
- *
- * @param {*} db
- * @param {*} oldEndpointTypeId
- * @param {*} newEndpointTypeId
- */
-async function duplicateEndpointTypeClusters(
-  db,
-  oldEndpointTypeId,
-  newEndpointTypeId
-) {
-  let oldEndpointTypeClusters = await queryConfig.selectEndpointClusters(
-    db,
-    oldEndpointTypeId
-  )
-  oldEndpointTypeClusters.forEach(async (endpointTypeCluster) => {
-    let newEndpointTypeClusterId =
-      await queryConfig.insertOrReplaceClusterState(
-        db,
-        newEndpointTypeId,
-        endpointTypeCluster.clusterRef,
-        endpointTypeCluster.side,
-        endpointTypeCluster.enabled
-      )
-    let oldAttributes =
-      await queryAttribute.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
-        db,
-        oldEndpointTypeId,
-        endpointTypeCluster.endpointTypeClusterId
-      )
-    oldAttributes.forEach(async (attrubute) => {
-      await queryAttribute.duplicateEndpointTypeAttribute(
-        db,
-        newEndpointTypeClusterId,
-        attrubute
-      )
-    })
-    let oldCommands =
-      await queryCommand.selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef(
-        db,
-        oldEndpointTypeId,
-        endpointTypeCluster.endpointTypeClusterId
-      )
-    oldCommands.forEach(async (command) => {
-      await queryCommand.duplicateEndpointTypeCommand(
-        db,
-        newEndpointTypeClusterId,
-        command
-      )
-    })
-    let oldEvents =
-      await queryEvent.selectEndpointTypeEventsByEndpointTypeRefAndClusterRef(
-        db,
-        oldEndpointTypeId,
-        endpointTypeCluster.endpointTypeClusterId
-      )
-    oldEvents.forEach(async (event) => {
-      await queryEvent.duplicateEndpointTypeEvent(
-        db,
-        newEndpointTypeClusterId,
-        event
-      )
-    })
-  })
 }
 
 exports.post = [

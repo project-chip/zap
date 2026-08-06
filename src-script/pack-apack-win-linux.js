@@ -12,6 +12,9 @@ exports.default = async function (context) {
       '-f',
       path.resolve(context.outDir, '../apack.json'),
       path.resolve(context.outDir, '../src/assets/zap.png'),
+      // SKILL.md tells an agent that .zap files are edited with zap-cli. The
+      // SDK collects these from the packages it ships.
+      path.resolve(context.outDir, '../SKILL.md'),
       context.appOutDir
     ])
     console.log('Files copied successfully.')

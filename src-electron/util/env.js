@@ -134,11 +134,122 @@ function builtinMatterZclMetafile2() {
 }
 
 /**
- * No builtin meta template file.
+ * No builtin meta template file for callers that still expect "no templates".
+ * The CLI fills a test template in when `--gen` is left unset; see
+ * `defaultGenTemplatesForZcl`.
+ *
  * @returns null
  */
 function builtinTemplateMetafile() {
-  return null // No default.
+  return null
+}
+
+/**
+ * Short names for the data models that ship inside the binary.
+ *
+ * A packaged zap-cli carries zcl-builtin/ inside its own snapshot, at a path
+ * nobody can reasonably type. These names are how a command line asks for a
+ * bundled data model without knowing where it lives.
+ */
+const builtinZclMetafileNames = {
+  matter: './zcl-builtin/matter/zcl.json',
+  zigbee: './zcl-builtin/silabs/zcl.json',
+  silabs: './zcl-builtin/silabs/zcl.json',
+  dotdot: './zcl-builtin/dotdot/library.xml'
+}
+
+/**
+ * Short names for the generation templates that ship with this build for
+ * testing and for the packaged CLI. Same idea as the ZCL short names.
+ */
+const builtinGenTemplateMetafileNames = {
+  matter: './test/gen-template/matter/gen-test.json',
+  zigbee: './test/gen-template/zigbee/gen-templates.json',
+  silabs: './test/gen-template/zigbee/gen-templates.json'
+}
+
+/**
+ * Resolves a bundled data model short name such as 'matter' or 'zigbee' to the
+ * metafile that ships with this build. Returns null for anything that is not a
+ * known name, which is how callers tell a name from a file path.
+ *
+ * @param {*} name
+ * @returns {string|null} path to the bundled metafile, or null
+ */
+function builtinZclMetafileByName(name) {
+  if (typeof name !== 'string') return null
+  let key = name.trim().toLowerCase()
+  if (!Object.prototype.hasOwnProperty.call(builtinZclMetafileNames, key)) {
+    return null
+  }
+  return locateProjectResource(builtinZclMetafileNames[key])
+}
+
+/**
+ * Resolves a bundled generation-template short name such as 'matter' or
+ * 'zigbee' to the test template metafile that ships with this build.
+ *
+ * @param {*} name
+ * @returns {string|null} path to the bundled metafile, or null
+ */
+function builtinGenTemplateMetafileByName(name) {
+  if (typeof name !== 'string') return null
+  let key = name.trim().toLowerCase()
+  if (
+    !Object.prototype.hasOwnProperty.call(builtinGenTemplateMetafileNames, key)
+  ) {
+    return null
+  }
+  return locateProjectResource(builtinGenTemplateMetafileNames[key])
+}
+
+/**
+ * The bundled data model short names, for help text and error messages.
+ *
+ * @returns {string[]} sorted unique names
+ */
+function builtinZclMetafileNameList() {
+  return [...new Set(Object.keys(builtinZclMetafileNames))].sort()
+}
+
+/**
+ * The bundled generation-template short names, for help text and error messages.
+ *
+ * @returns {string[]} sorted unique names
+ */
+function builtinGenTemplateMetafileNameList() {
+  return [...new Set(Object.keys(builtinGenTemplateMetafileNames))].sort()
+}
+
+/**
+ * Picks the test generation template(s) that go with the given ZCL metafile(s)
+ * when the caller did not set `--gen`. Matter ZCL gets the Matter test
+ * templates; everything else gets the Zigbee ones. Multiprotocol gets both.
+ *
+ * @param {*} zclProperties One path/name, or an array of them.
+ * @returns {string[]} absolute paths to generation template metafiles
+ */
+function defaultGenTemplatesForZcl(zclProperties) {
+  let zcls = Array.isArray(zclProperties)
+    ? zclProperties
+    : zclProperties != null
+      ? [zclProperties]
+      : []
+  let paths = new Set()
+  for (let zcl of zcls) {
+    if (zcl == null) continue
+    let normalized = String(zcl).toLowerCase().replace(/\\/g, '/')
+    let isMatter =
+      normalized.includes('/matter/') ||
+      normalized.endsWith('/matter') ||
+      normalized === 'matter' ||
+      /matter\/zcl[^/]*\.json$/.test(normalized)
+    paths.add(builtinGenTemplateMetafileByName(isMatter ? 'matter' : 'zigbee'))
+  }
+  if (paths.size === 0) {
+    paths.add(builtinGenTemplateMetafileByName('zigbee'))
+  }
+  return [...paths]
 }
 
 const environmentVariable = {
@@ -630,11 +741,13 @@ function versionsCheck() {
   let nodeVersion = process.version
   let electronVersion = process.versions.electron
   let ret = true
+  // These are warnings, so they go to stderr: commands that print a machine
+  // readable result on stdout have to stay pipe-friendly.
   if (!isMatchingVersion(expectedNodeVersion, nodeVersion)) {
     ret = false
-    console.log(`Expected node versions: ${expectedNodeVersion}`)
-    console.log(`Provided node version: ${nodeVersion}`)
-    console.log(
+    printToStderr(`Expected node versions: ${expectedNodeVersion}`)
+    printToStderr(`Provided node version: ${nodeVersion}`)
+    printToStderr(
       'WARNING: you are using different node version than recommended.'
     )
   }
@@ -643,9 +756,9 @@ function versionsCheck() {
     !isMatchingVersion(expectedElectronVersion, electronVersion)
   ) {
     ret = false
-    console.log(`Expected electron version: ${expectedElectronVersion}`)
-    console.log(`Provided electron version: ${electronVersion}`)
-    console.log(
+    printToStderr(`Expected electron version: ${expectedElectronVersion}`)
+    printToStderr(`Provided electron version: ${electronVersion}`)
+    printToStderr(
       'WARNING: you are using different electron version that recommended.'
     )
   }
@@ -688,6 +801,11 @@ exports.builtinNewMatterZclMetafile = builtinNewMatterZclMetafile
 exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile
 exports.builtinMatterZclMetafile2 = builtinMatterZclMetafile2
 exports.builtinTemplateMetafile = builtinTemplateMetafile
+exports.builtinZclMetafileByName = builtinZclMetafileByName
+exports.builtinZclMetafileNameList = builtinZclMetafileNameList
+exports.builtinGenTemplateMetafileByName = builtinGenTemplateMetafileByName
+exports.builtinGenTemplateMetafileNameList = builtinGenTemplateMetafileNameList
+exports.defaultGenTemplatesForZcl = defaultGenTemplatesForZcl
 exports.builtinSilabsTemplatesMetaFile = builtinSilabsTemplatesMetaFile
 exports.builtinMatterTemplatesMetaFile = builtinMatterTemplatesMetaFile
 exports.setDevelopmentEnv = setDevelopmentEnv

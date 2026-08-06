@@ -30,6 +30,8 @@ const queryUpgrade = require('../sdk/matter.js')
 const queryDeviceType = require('./query-device-type')
 const querySession = require('./query-session')
 const queryCommand = require('./query-command.js')
+const queryAttribute = require('./query-attribute.js')
+const queryEvent = require('./query-event.js')
 const restApi = require('../../src-shared/rest-api.js')
 const _ = require('lodash')
 const notification = require('../db/query-session-notification.js')
@@ -783,6 +785,74 @@ async function duplicateEndpointType(db, endpointTypeId) {
   }
 
   return newEndpointTypeId
+}
+
+/**
+ * Copies the cluster state, and all of the attribute, command and event state
+ * underneath it, from one endpoint type onto another.
+ *
+ * @param {*} db
+ * @param {*} oldEndpointTypeId
+ * @param {*} newEndpointTypeId
+ * @returns Promise that resolves once every element has been copied.
+ */
+async function duplicateEndpointTypeClusters(
+  db,
+  oldEndpointTypeId,
+  newEndpointTypeId
+) {
+  let oldEndpointTypeClusters = await selectEndpointClusters(
+    db,
+    oldEndpointTypeId
+  )
+  for (const endpointTypeCluster of oldEndpointTypeClusters) {
+    let newEndpointTypeClusterId = await insertOrReplaceClusterState(
+      db,
+      newEndpointTypeId,
+      endpointTypeCluster.clusterRef,
+      endpointTypeCluster.side,
+      endpointTypeCluster.enabled
+    )
+    let oldAttributes =
+      await queryAttribute.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
+        db,
+        oldEndpointTypeId,
+        endpointTypeCluster.endpointTypeClusterId
+      )
+    for (const attribute of oldAttributes) {
+      await queryAttribute.duplicateEndpointTypeAttribute(
+        db,
+        newEndpointTypeClusterId,
+        attribute
+      )
+    }
+    let oldCommands =
+      await queryCommand.selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef(
+        db,
+        oldEndpointTypeId,
+        endpointTypeCluster.endpointTypeClusterId
+      )
+    for (const command of oldCommands) {
+      await queryCommand.duplicateEndpointTypeCommand(
+        db,
+        newEndpointTypeClusterId,
+        command
+      )
+    }
+    let oldEvents =
+      await queryEvent.selectEndpointTypeEventsByEndpointTypeRefAndClusterRef(
+        db,
+        oldEndpointTypeId,
+        endpointTypeCluster.endpointTypeClusterId
+      )
+    for (const event of oldEvents) {
+      await queryEvent.duplicateEndpointTypeEvent(
+        db,
+        newEndpointTypeClusterId,
+        event
+      )
+    }
+  }
 }
 
 /**
@@ -1628,6 +1698,7 @@ exports.insertOrUpdateCommandState = insertOrUpdateCommandState
 exports.insertOrUpdateEventState = insertOrUpdateEventState
 exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn
 exports.duplicateEndpointType = duplicateEndpointType
+exports.duplicateEndpointTypeClusters = duplicateEndpointTypeClusters
 exports.selectEndpointClusters = selectEndpointClusters
 
 exports.updateEndpoint = updateEndpoint
