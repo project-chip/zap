@@ -346,7 +346,7 @@ function checkElementConformance(
 function filterElementsToUpdate(elements, elementMap, featureCode) {
   let elementsToUpdate = []
   elements
-    .filter((element) => element.conformance.includes(featureCode))
+    .filter((element) => `${element.conformance || ''}`.includes(featureCode))
     .forEach((element) => {
       let conformance = conformEvaluator.evaluateConformanceExpression(
         element.conformance,
@@ -387,7 +387,7 @@ function getOutdatedElementWarning(featureCode, elements, elementMap) {
    */
   function processElements(elementType) {
     elements[elementType].forEach((element) => {
-      if (element.conformance.includes(featureCode)) {
+      if (`${element.conformance || ''}`.includes(featureCode)) {
         let newConform = conformEvaluator.evaluateConformanceExpression(
           element.conformance,
           elementMap
