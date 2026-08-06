@@ -33,6 +33,9 @@ const OPERAND_REGEX = /[A-Za-z]\w*/g
  * Expression containing comma means otherwise conformance. See spec for details.
  * Examples of conformance expression: 'A & (!B | C)', 'A & B, [!C]'
  *
+ * An expression that is absent altogether is optional: it neither requires the
+ * element nor rules it out.
+ *
  * @export
  * @param {*} expression
  * @param {*} elementMap
@@ -68,6 +71,11 @@ function evaluateConformanceExpression(expression, elementMap) {
     }
     return evaluateBooleanExpression(expr)
   }
+
+  // An element or feature can be declared without any conformance at all, as
+  // much of the newer Matter data model is. Nothing is then required and
+  // nothing is forbidden, which is what optional says.
+  if (!expression) return dbEnum.conformanceVal.optional
 
   // Check ',' for otherwise conformance first.
   // Split the expression by ',' and evaluate each part in sequence

@@ -50,6 +50,13 @@ scriptUtil
         main = scriptUtil.mainPath(false)
         extraArgs = ['--noUi', '--noServer']
         break
+      case 'edit':
+        // No extraArgs here on purpose: they are prepended ahead of the
+        // command, and `edit` has to stay the first argument for the edit
+        // parser to recognize it. It runs headless regardless.
+        executable = 'node'
+        main = scriptUtil.mainPath(false)
+        break
       case 'convert':
         executable = 'node'
         main = scriptUtil.mainPath(false)

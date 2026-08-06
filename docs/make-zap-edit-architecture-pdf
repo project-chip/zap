@@ -1,0 +1,135 @@
+#!/bin/bash
+#
+# Renders docs/zap-edit-architecture.md, with its mermaid diagrams, into
+# docs/zap-edit-architecture.pdf.
+#
+# The markdown is the source of truth and is what lives in git. The PDF is a
+# local convenience for reading away from GitHub (which renders the diagrams
+# itself) and is not committed. Regenerate it whenever the document changes.
+#
+# Requirements:
+#   - Google Chrome or Chromium on PATH, used headless to lay out and print.
+#   - Network access on the first run: marked and mermaid are fetched from a CDN.
+#
+# It has only ever been tested on Linux.
+
+set -u
+
+DOC=zap-edit-architecture
+HERE=$(cd "$(dirname "$0")" && pwd)
+SOURCE=${HERE}/${DOC}.md
+PDF=${HERE}/${DOC}.pdf
+WORK=$(mktemp -d)
+trap 'rm -rf "${WORK}"' EXIT
+
+CHROME=""
+for candidate in google-chrome chromium chromium-browser google-chrome-stable; do
+  if command -v ${candidate} >/dev/null 2>&1; then
+    CHROME=${candidate}
+    break
+  fi
+done
+
+if [ -z "${CHROME}" ]; then
+  echo "Can't find Chrome or Chromium on PATH."
+  echo "One of them is needed to lay out the document and print it to PDF."
+  exit 1
+fi
+
+if [ ! -s "${SOURCE}" ]; then
+  echo "Can't find ${SOURCE}."
+  exit 1
+fi
+
+echo "Building ${PDF} from ${SOURCE} using ${CHROME} ..."
+
+# The markdown is inlined into the page rather than fetched, so that the render
+# does not depend on how the browser treats local files.
+node -e '
+const fs = require("fs")
+const markdown = fs.readFileSync(process.argv[1], "utf8")
+const css = `
+  :root { --ink:#1a1a1a; --muted:#5b6472; --rule:#d7dce3; --accent:#0b5cad; }
+  * { box-sizing: border-box }
+  body { margin:0 auto; max-width:190mm; color:var(--ink); background:#fff;
+         font-family:Charter,Georgia,"DejaVu Serif",serif; font-size:10.2pt; line-height:1.5 }
+  h1 { font-family:"Helvetica Neue",Helvetica,"DejaVu Sans",sans-serif; font-size:24pt;
+       line-height:1.15; letter-spacing:-0.01em; margin:0 0 4mm; padding-bottom:3mm;
+       border-bottom:2px solid var(--ink) }
+  h2 { font-family:"Helvetica Neue",Helvetica,"DejaVu Sans",sans-serif; font-size:14pt;
+       margin:9mm 0 3mm; padding-bottom:1.5mm; border-bottom:1px solid var(--rule); break-after:avoid }
+  h3 { font-family:"Helvetica Neue",Helvetica,"DejaVu Sans",sans-serif; font-size:11.5pt;
+       margin:6mm 0 2mm; break-after:avoid }
+  h4 { font-family:"Helvetica Neue",Helvetica,"DejaVu Sans",sans-serif; font-size:10.2pt;
+       margin:5mm 0 1.5mm; color:var(--muted); break-after:avoid }
+  p { margin:0 0 3mm }
+  ul, ol { margin:0 0 3mm; padding-left:6mm } li { margin-bottom:1mm }
+  a { color:var(--accent); text-decoration:none }
+  code, kbd { font-family:"DejaVu Sans Mono","Liberation Mono",monospace; font-size:8.8pt;
+              background:#f4f6f8; padding:0.4mm 1mm; border-radius:2px }
+  pre { background:#f7f8fa; border:1px solid var(--rule); border-left:3px solid var(--accent);
+        padding:3mm 4mm; margin:0 0 4mm; break-inside:avoid; border-radius:3px }
+  pre code { background:none; padding:0; font-size:8.4pt; line-height:1.45; white-space:pre-wrap }
+  table { border-collapse:collapse; width:100%; margin:0 0 4mm; font-size:8.9pt; break-inside:avoid }
+  th, td { border:1px solid var(--rule); padding:1.6mm 2.2mm; text-align:left; vertical-align:top }
+  th { background:#eef1f5; font-family:"Helvetica Neue",Helvetica,"DejaVu Sans",sans-serif;
+       font-size:8.4pt; text-transform:uppercase; letter-spacing:0.03em; color:var(--muted) }
+  tr:nth-child(even) td { background:#fafbfc }
+  hr { border:0; border-top:1px solid var(--rule); margin:7mm 0 }
+  .mermaid { text-align:center; margin:0 0 5mm; break-inside:avoid; background:#fbfcfd;
+             border:1px solid var(--rule); border-radius:3px; padding:3mm }
+  .mermaid svg { max-width:100%; height:auto }
+  em { color:var(--muted) }
+  @page { size:A4; margin:16mm 12mm }
+  @media print { body { max-width:none } h1 { break-after:avoid } }
+`
+const page = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>The zap edit CLI: architecture</title><style>${css}</style></head>
+<body><div id="doc"></div>
+<script src="https://cdn.jsdelivr.net/npm/marked@14.1.2/marked.min.js"></script>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs"
+const markdown = ${JSON.stringify(markdown)}
+const renderer = new marked.Renderer()
+const code = renderer.code.bind(renderer)
+renderer.code = (token) =>
+  token.lang === "mermaid"
+    ? "<pre class=\\"mermaid\\">" + token.text + "</pre>"
+    : code(token)
+document.getElementById("doc").innerHTML = marked.parse(markdown, { renderer })
+mermaid.initialize({
+  startOnLoad: false, theme: "base",
+  themeVariables: {
+    background: "#fbfcfd", primaryColor: "#eef4fb", primaryBorderColor: "#0b5cad",
+    primaryTextColor: "#1a1a1a", lineColor: "#5b6472", secondaryColor: "#f2f4f7",
+    tertiaryColor: "#ffffff",
+    fontFamily: "Helvetica Neue, Helvetica, DejaVu Sans, sans-serif", fontSize: "13px"
+  },
+  flowchart: { curve: "basis", useMaxWidth: true, htmlLabels: true },
+  sequence: { useMaxWidth: true, mirrorActors: false }
+})
+await mermaid.run({ querySelector: ".mermaid" })
+</script></body></html>`
+fs.writeFileSync(process.argv[2], page)
+' "${SOURCE}" "${WORK}/${DOC}.html"
+
+if [ ! -s "${WORK}/${DOC}.html" ]; then
+  echo "Failed to build the intermediate page."
+  exit 1
+fi
+
+# The virtual time budget gives the fetched libraries and the diagrams time to
+# finish before the page is printed. Headless Chrome has been seen to write the
+# file and then not exit, so it is given a deadline and judged by its output.
+rm -f "${PDF}"
+timeout 240 ${CHROME} --headless=new --disable-gpu --no-sandbox \
+  --no-pdf-header-footer --virtual-time-budget=30000 \
+  --print-to-pdf="${PDF}" "${WORK}/${DOC}.html" 2>/dev/null
+
+if [ ! -s "${PDF}" ]; then
+  echo "Chrome did not produce ${PDF}."
+  echo "If this machine has no network access, the diagram library cannot be fetched."
+  exit 1
+fi
+
+echo "Wrote ${PDF} ($(du -h "${PDF}" | cut -f1))"

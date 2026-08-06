@@ -72,7 +72,7 @@ async function ensurePackagesAndPopulateSessionOptions(
   // the first one, if we pass multiple ones.
   let zclFile
   if (options) {
-    zclFile = options.zcl
+    zclFile = Array.isArray(options.zcl) ? options.zcl[0] : options.zcl
   } else {
     zclFile = selectedZclPropertyPackage.path
       ? selectedZclPropertyPackage.path
