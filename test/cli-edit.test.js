@@ -3683,3 +3683,99 @@ test(
   },
   testUtil.timeout.long()
 )
+
+// The cluster-to-component mapping is a package extension the generation
+// templates carry, so these need a --gen that declares one.
+const componentPackages = {
+  zclProperties: [env.builtinSilabsZclMetafile()],
+  generationTemplate: [env.locateProjectResource(testUtil.testTemplate.zigbee2)]
+}
+
+test(
+  'cli edit: names the UC components an enabled cluster needs',
+  async () => {
+    let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'components.zap')
+
+    let enabled = await edit({
+      ...componentPackages,
+      editOperation: 'cluster.enable',
+      zapFile: file,
+      endpoint: 1,
+      cluster: 'Level Control',
+      side: 'server'
+    })
+    expect(enabled.code).toBe(0)
+    // Only Studio writes the project file, so the edit cannot install it. It
+    // can say what is now missing, which is the part a caller cannot work out.
+    expect(enabled.output).toContain('UC component(s) not installed')
+    expect(enabled.output).toContain('zigbee_zll_level_control_server')
+
+    // Switching it back off is not a reason to talk about components: removal
+    // is Studio's decision and the data model has to ask for it.
+    let disabled = await edit({
+      ...componentPackages,
+      editOperation: 'cluster.disable',
+      zapFile: file,
+      endpoint: 1,
+      cluster: 'Level Control',
+      side: 'server'
+    })
+    expect(disabled.code).toBe(0)
+    expect(disabled.output).not.toContain('UC component(s)')
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'cli edit: reports the components of a whole device type once',
+  async () => {
+    let file = path.join(workDir, 'component-endpoint.zap')
+    let created = await edit({
+      ...componentPackages,
+      editOperation: 'new',
+      zapFile: file
+    })
+    expect(created.code).toBe(0)
+
+    let added = await edit({
+      ...componentPackages,
+      editOperation: 'endpoint.create',
+      zapFile: file,
+      endpoint: 1,
+      deviceType: ['ZLL-onofflight']
+    })
+    expect(added.code).toBe(0)
+    // A device type switches on a handful of clusters at once. One line for the
+    // lot, not one per cluster.
+    expect(added.output).toContain('UC component(s) not installed')
+    expect(added.output.match(/UC component\(s\) not installed/g)).toHaveLength(
+      1
+    )
+    expect(added.output).toContain('zigbee_on_off')
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'cli edit: refuses when Studio integration was asked for but is not there',
+  async () => {
+    let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'no-studio.zap')
+
+    // Nothing listens on port 1. Before, this saved the edit and quietly
+    // installed nothing, which looks exactly like success.
+    let attempted = await edit({
+      ...componentPackages,
+      editOperation: 'cluster.enable',
+      zapFile: file,
+      endpoint: 1,
+      cluster: 'Level Control',
+      side: 'server',
+      studioHttpPort: 1,
+      ideProjectPath: path.join(workDir, 'nowhere.slcp')
+    })
+    expect(attempted.code).toBe(1)
+    expect(attempted.errors).toContain('Studio integration was requested')
+    expect(attempted.errors).toContain('nothing is answering on port 1')
+  },
+  testUtil.timeout.long()
+)

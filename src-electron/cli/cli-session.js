@@ -134,6 +134,16 @@ async function open(argv, options = {}) {
       argv.ideProjectPath
     )
     studioIntegration = await studio.integrationEnabled(db, sessionId)
+    // Asking for the integration and silently not getting it is the worst
+    // outcome: the edit saves, the components are never installed, and the
+    // project looks configured. Refuse instead.
+    let problem = await studio.integrationProblem(argv.ideProjectPath)
+    if (problem != null) {
+      throw new CliError(`Studio integration was requested, but ${problem}`, [
+        `Studio must be running with this project for --studioHttpPort to work.`,
+        `Drop both options to edit the file without installing UC components.`
+      ])
+    }
     logger(
       env.formatEmojiMessage(
         '🔧',
