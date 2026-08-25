@@ -602,6 +602,53 @@ elements that are not selected are not written out, and mandatory elements the
 loaded ZCL metadata requires are added. This is existing ZAP behaviour and
 applies to any tool that loads and saves a `.zap` file.
 
+## UC components
+
+Configuring a cluster is half of what ticking its checkbox in the GUI does. The
+other half is installing the Simplicity Studio component that implements it,
+without which the configuration describes something the project has no code
+for. The mapping from cluster to component is a package extension the
+generation templates carry, so `--gen` is what makes it known.
+
+Only Studio writes the project file, and the GUI asks it to over HTTP rather
+than doing it itself. Given the port of that server and the project the
+configuration belongs to, an edit here asks the same way:
+
+```bash
+zap edit cluster enable light.zap --endpoint 1 --cluster "Color Control" \
+  --gen gen-templates.json --studioHttpPort 8080 --ideProjectPath light.slcp
+```
+
+```
+Enabled cluster Color Control (0x0300) server on endpoint 1
+Studio component zigbee_color_control_server: installed
+```
+
+Creating an endpoint installs the components of every cluster its device types
+switched on, since hooking cluster enable alone would miss most of what a
+device type brings. Removal is more cautious than installation, and follows the
+GUI: only when the data model asked for it, and only once no endpoint is left
+using the cluster.
+
+Asking for this and not getting it is refused rather than reported afterwards,
+because the edit would otherwise save, install nothing, and look like it
+worked:
+
+```
+⛔ Studio integration was requested, but nothing is answering on port 8080 (ECONNREFUSED)
+Studio must be running with this project for --studioHttpPort to work.
+Drop both options to edit the file without installing UC components.
+```
+
+Without those options there is nothing to install through, so an edit names
+what it would have installed and leaves it at that:
+
+```
+Enabled cluster Color Control (0x0300) server on endpoint 1
+UC component(s) not installed: zigbee_color_control_server
+Add them with slc, or pass --studioHttpPort with --ideProjectPath to have Studio install them.
+```
+
 ## Custom XML
 
 A configuration can define clusters of its own in a ZCL XML file. In the GUI
