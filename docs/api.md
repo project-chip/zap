@@ -1102,6 +1102,7 @@ commands that are the natural thing to run afterwards.
     * [~componentRemovalEnabled(ctx)](#module_CLI API_ operations..componentRemovalEnabled) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [~clusterStillInUse(ctx, clusterRef, side)](#module_CLI API_ operations..clusterStillInUse) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [~callStudioComponents(ctx, cluster, sides, add)](#module_CLI API_ operations..callStudioComponents) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+    * [~reportUninstalledComponents(ctx, wanted)](#module_CLI API_ operations..reportUninstalledComponents) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
     * [~updateStudioComponents(ctx, cluster, sides, enabled)](#module_CLI API_ operations..updateStudioComponents) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
     * [~installStudioComponentsForClusters(ctx, clusterStates)](#module_CLI API_ operations..installStudioComponentsForClusters) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
     * [~clusterSetEnabled(ctx, params, enabled)](#module_CLI API_ operations..clusterSetEnabled) ⇒ <code>Promise.&lt;\*&gt;</code>
@@ -1555,6 +1556,27 @@ describes what came back.
 | sides | <code>Array.&lt;string&gt;</code> | 
 | add | <code>boolean</code> | 
 
+<a name="module_CLI API_ operations..reportUninstalledComponents"></a>
+
+### CLI API: operations~reportUninstalledComponents(ctx, wanted) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+Names the UC components a set of clusters needs, without installing them.
+The mapping is a package extension carried by the generation templates, so
+it is known locally even with no Studio to talk to. Only Studio writes the
+project file, so naming what is missing is as far as an edit can get on its
+own, and it is a good deal better than leaving the caller to find out that
+the cluster has nothing implementing it.
+
+Silent when the templates were not loaded, since that is where the mapping
+lives and there is nothing to report.
+
+**Kind**: inner method of [<code>CLI API: operations</code>](#module_CLI API_ operations)  
+**Returns**: <code>Promise.&lt;Array.&lt;string&gt;&gt;</code> - messages naming the components  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| wanted | <code>Array</code> | `{ clusterId, sides }` entries |
+
 <a name="module_CLI API_ operations..updateStudioComponents"></a>
 
 ### CLI API: operations~updateStudioComponents(ctx, cluster, sides, enabled) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
@@ -1568,8 +1590,8 @@ Removal is deliberately more cautious than installation, and mirrors what
 `ZclDomainClusterView` does: only when the data model asked for it, and only
 once no endpoint is left using the cluster.
 
-Does nothing unless --studioHttpPort and --ideProjectPath were both given, so
-an ordinary edit outside Studio stays silent.
+Without --studioHttpPort and --ideProjectPath there is nothing to install
+through, so an enable reports the components it would have installed.
 
 **Kind**: inner method of [<code>CLI API: operations</code>](#module_CLI API_ operations)  
 **Returns**: <code>Promise.&lt;Array.&lt;string&gt;&gt;</code> - messages describing what Studio did  
@@ -1588,6 +1610,9 @@ Installs the UC components for every cluster an endpoint has enabled. A
 device type switches on a set of clusters at once, and the interface installs
 the components for all of them right after the endpoint is created, so
 hooking cluster enable alone would miss everything a device type brings.
+
+Without Studio to install through, the whole set is reported at once rather
+than one line per cluster.
 
 **Kind**: inner method of [<code>CLI API: operations</code>](#module_CLI API_ operations)  
 **Returns**: <code>Promise.&lt;Array.&lt;string&gt;&gt;</code> - messages describing what Studio did  

@@ -47,6 +47,7 @@ const validation = require('../validation/validation.js')
 const conformChecker = require('../validation/conformance-checker.js')
 const sharedClusterState = require('../util/shared-cluster-state.js')
 const studio = require('../ide-integration/studio-rest-api.js')
+const zclComponents = require('../ide-integration/zcl-components.js')
 const { StatusCodes } = require('http-status-codes')
 const resolver = require('./cli-resolver.js')
 const cliError = require('./cli-error.js')
@@ -1099,6 +1100,41 @@ async function callStudioComponents(ctx, cluster, sides, add) {
 }
 
 /**
+ * Names the UC components a set of clusters needs, without installing them.
+ * The mapping is a package extension carried by the generation templates, so
+ * it is known locally even with no Studio to talk to. Only Studio writes the
+ * project file, so naming what is missing is as far as an edit can get on its
+ * own, and it is a good deal better than leaving the caller to find out that
+ * the cluster has nothing implementing it.
+ *
+ * Silent when the templates were not loaded, since that is where the mapping
+ * lives and there is nothing to report.
+ *
+ * @param {*} ctx
+ * @param {Array} wanted `{ clusterId, sides }` entries
+ * @returns {Promise<string[]>} messages naming the components
+ */
+async function reportUninstalledComponents(ctx, wanted) {
+  let ids = []
+  for (const entry of wanted) {
+    let found = await zclComponents.getComponentIdsByCluster(
+      ctx.db,
+      ctx.sessionId,
+      entry.clusterId,
+      entry.sides
+    )
+    found.forEach((id) => {
+      if (!ids.includes(id)) ids.push(id)
+    })
+  }
+  if (ids.length === 0) return []
+  return [
+    `UC component(s) not installed: ${ids.join(', ')}`,
+    `Add them with slc, or pass --studioHttpPort with --ideProjectPath to have Studio install them.`
+  ]
+}
+
+/**
  * Installs or removes the Simplicity Studio UC components that a cluster needs,
  * which is the other half of what ticking the checkbox in the interface does.
  * The interface sends this from the front end, so a command line edit has to
@@ -1109,8 +1145,8 @@ async function callStudioComponents(ctx, cluster, sides, add) {
  * `ZclDomainClusterView` does: only when the data model asked for it, and only
  * once no endpoint is left using the cluster.
  *
- * Does nothing unless --studioHttpPort and --ideProjectPath were both given, so
- * an ordinary edit outside Studio stays silent.
+ * Without --studioHttpPort and --ideProjectPath there is nothing to install
+ * through, so an enable reports the components it would have installed.
  *
  * @param {*} ctx
  * @param {*} cluster
@@ -1119,7 +1155,13 @@ async function callStudioComponents(ctx, cluster, sides, add) {
  * @returns {Promise<string[]>} messages describing what Studio did
  */
 async function updateStudioComponents(ctx, cluster, sides, enabled) {
-  if (!ctx.studioIntegration) return []
+  if (!ctx.studioIntegration) {
+    return enabled
+      ? reportUninstalledComponents(ctx, [
+          { clusterId: cluster.id, sides: sides }
+        ])
+      : []
+  }
 
   if (enabled) return callStudioComponents(ctx, cluster, sides, true)
 
@@ -1138,14 +1180,23 @@ async function updateStudioComponents(ctx, cluster, sides, enabled) {
  * the components for all of them right after the endpoint is created, so
  * hooking cluster enable alone would miss everything a device type brings.
  *
+ * Without Studio to install through, the whole set is reported at once rather
+ * than one line per cluster.
+ *
  * @param {*} ctx
  * @param {Array} clusterStates Rows as returned for the endpoint type.
  * @returns {Promise<string[]>} messages describing what Studio did
  */
 async function installStudioComponentsForClusters(ctx, clusterStates) {
-  if (!ctx.studioIntegration) return []
+  let enabled = clusterStates.filter((s) => s.enabled)
+  if (!ctx.studioIntegration) {
+    return reportUninstalledComponents(
+      ctx,
+      enabled.map((s) => ({ clusterId: s.clusterRef, sides: [s.side] }))
+    )
+  }
   let messages = []
-  for (const state of clusterStates.filter((s) => s.enabled)) {
+  for (const state of enabled) {
     let cluster = await queryZcl.selectClusterById(ctx.db, state.clusterRef)
     if (cluster == null) continue
     messages.push(

@@ -491,12 +491,48 @@ async function isProjectActive(path) {
     })
     .catch((err) => {
       let { response } = err
+      // Nothing listening at all: no response to read a reason out of.
+      if (!response) return false
       if (response.status == StatusCodes.BAD_REQUEST && response.data) {
         return !response.data.includes('Project does not exists')
       }
 
       return false
     })
+}
+
+/**
+ * Explains why Studio integration would not work, for a caller that asked for
+ * it explicitly. A command line run has no toolbar to show a broken connection
+ * in, and component installation reports its failures one component at a time,
+ * long after the mistake was made. Asking the same endpoint `isProjectActive`
+ * uses turns that into one message up front.
+ *
+ * @param {*} path project path
+ * @returns {Promise<string|null>} the problem, or null when usable
+ */
+async function integrationProblem(path) {
+  let url = restApiUrl(StudioRestAPI.DependsComponent, path)
+  try {
+    await axios.get(url)
+    return null
+  } catch (err) {
+    let { response } = err
+    if (!response) {
+      return `nothing is answering on port ${studioHttpPort} (${
+        err.code || err.message
+      })`
+    }
+    if (
+      response.status == StatusCodes.BAD_REQUEST &&
+      `${response.data}`.includes('Project does not exists')
+    ) {
+      return `Studio on port ${studioHttpPort} does not know the project ${path}`
+    }
+    // Any other answer means Studio is there and recognised the project. The
+    // expected one is a 400 saying the component was not found in it.
+    return null
+  }
 }
 
 /**
@@ -579,6 +615,7 @@ exports.updateComponentByClusterIdAndComponentId =
   updateComponentByClusterIdAndComponentId
 exports.projectName = projectName
 exports.integrationEnabled = integrationEnabled
+exports.integrationProblem = integrationProblem
 exports.initIdeIntegration = initIdeIntegration
 exports.deinitIdeIntegration = deinitIdeIntegration
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
