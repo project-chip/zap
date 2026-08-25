@@ -129,8 +129,9 @@ ZAP defaults; keep demo `..._PRODUCT_ID` inside ExampleDAC ranges
    nothing implementing it does nothing. `zap-cli` does this exactly as the GUI
    does — by asking a running Simplicity Studio — so it needs
    `--studioHttpPort` **and** `--ideProjectPath` **and** `--gen` (the mapping
-   lives in the gen-templates package). Without all three it stays silent, and
-   the components must be added with `slc` instead.
+   lives in the gen-templates package). Requesting Studio when it is not
+   answering is refused outright. Without those options the edit names the
+   components it did not install; add them with `slc`.
 2. **Regenerate and rebuild.** `slc generate`, then build, so
    `autogen/zap-generated` matches the `.zap`.
 
