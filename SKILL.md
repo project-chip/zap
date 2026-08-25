@@ -37,36 +37,61 @@ zap-cli edit help --format json    # whole surface as a machine readable schema
 
 Most commands print a `Next:` section with ready-to-run follow-ups.
 
-## Always pass `--zcl`, from the SDK
+## Always pass `--zcl` **and** `--gen`, from the SDK
 
-`--zcl` defaults to Zigbee regardless of file contents, and does **not** fall
-back to what the file was built against. Omit it on a Matter file and nothing
-errors: endpoints vanish from listings and device types come back blank.
+Both flags are required on **every** `zap-cli edit` (reads and writes). Defaults
+are wrong for SDK projects:
 
-The value comes from the SDK, which populates `uc.sdkProvidedProperties`
-(`zcl.matterZclJsonFile`, `zcl.zigbeeZclJsonFile`, and the matching
-`*TemplateJsonFile`). Prefer those properties; SLT/Conan layouts differ from
-plain SDK installs. Fallbacks:
+- `--zcl` defaults to Zigbee regardless of the file. Omit it on Matter and
+  nothing errors: endpoints vanish and device types come back blank.
+- `--gen` defaults to ZAP's **bundled test** templates. Omit it and
+  `--packageMatch fuzzy` (the edit default) can remap a missing Matter
+  `app-templates.json` onto Zigbee test `gen-templates.json`, then **save that
+  into the `.zap`**. Later `slc generate` still exits 0 but only emits Zigbee
+  `zap-*` stubs — Matter `autogen/zap-generated/` (`gen_config.h`, etc.) is
+  empty and the firmware build fails.
 
-|        | ZCL                                                                        | Templates                                                                        |
+Also pass **`--packageMatch strict`** so a bad or unresolved package path fails
+the edit instead of silently rewriting packages. Never "fix" a strict failure
+by dropping back to `fuzzy`.
+
+Resolve paths from the SDK / project (`uc.sdkProvidedProperties`:
+`zcl.matterZclJsonFile`, `zcl.zigbeeZclJsonFile`, and the matching
+`*TemplateJsonFile`), or from `slc_args.json`. Prefer those over guessed
+`${sdkRoot}/…` layouts; SLT/Conan trees differ. Fallbacks when properties are
+unavailable:
+
+|        | ZCL                                                                        | Templates (`--gen`)                                                              |
 | ------ | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | Zigbee | `${sdkRoot}/app/zcl/zcl-zap.json`                                          | `${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json`       |
 | Matter | `${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json` | `${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json` |
 
-Never substitute ZAP's bundled copies (`--zcl matter` / `--zcl zigbee`) when an
-SDK exists — they are a different version of the data model than the SDK
-generates against. Sanity check after any edit: `endpoint list` must show the
-endpoints and device types you expect.
+Never substitute ZAP builtins (`--zcl matter` / `--zcl zigbee`, or bundled
+`--gen`) when an SDK exists — different data model than the project generates
+against.
+
+Canonical invocation shape:
+
+```bash
+zap-cli edit <op> app.zap … \
+  --zcl "$ZCL" --gen "$GEN" --packageMatch strict \
+  --stateDirectory /tmp/zap-state-$$
+```
+
+### Sanity checks after every write
+
+1. `endpoint list` — endpoints and device types still look right.
+2. `package list` (or `info`) — `gen-templates-json` **category must match the
+   protocol** (`matter` → `app-templates.json`, `zigbee` → SDK
+   `gen-templates.json`). If category flipped or the path points at
+   `snapshot/zap/test/…`, stop and fix packages before regenerate/build.
 
 ## Always isolate `--stateDirectory`
 
 Default state is shared (`~/.zap`), so concurrent `zap-cli` edits **or**
 concurrent `slc generate` / `slc example create` (which also run ZAP) fail with
-`SQLITE_BUSY: database is locked`. Pass a unique directory per job:
-
-```bash
-zap-cli edit ... --stateDirectory /tmp/zap-state-$$ --zcl "$ZCL"
-```
+`SQLITE_BUSY: database is locked`. Pass a unique directory per job (see
+invocation above).
 
 ## Do not hand-edit the `.zap` file
 
@@ -87,10 +112,11 @@ independently, so they drift. Check `CONFORMANCE` / `REQUIREDBY` from
 
 ```bash
 # CT-only light: change the contract too, not just the feature
+ZAP_PKG=(--zcl "$ZCL" --gen "$GEN" --packageMatch strict --stateDirectory /tmp/zap-state-$$)
 zap-cli edit devicetype set app.zap --endpoint 1 \
-  --device-type MA-colortemperaturelight --zcl "$ZCL"
+  --device-type MA-colortemperaturelight "${ZAP_PKG[@]}"
 zap-cli edit feature disable app.zap --endpoint 1 --cluster "Color Control" \
-  --feature XY --zcl "$ZCL"
+  --feature XY "${ZAP_PKG[@]}"
 ```
 
 Treat new `Feature Compliance` / `Device Type Compliance` warnings from **your**
@@ -154,9 +180,13 @@ repeatedly. `apply` runs a list in one pass (YAML or JSON, flags in camelCase,
 ```
 
 ```bash
-zap-cli edit apply app.zap --script changes.yaml --zcl "$ZCL" \
+zap-cli edit apply app.zap --script changes.yaml \
+  --zcl "$ZCL" --gen "$GEN" --packageMatch strict \
   --stateDirectory /tmp/zap-state-$$
 ```
+
+`silabs-tool-exec` cannot feed stdin, so prefer `--script <file>` over
+`--script -`.
 
 ## Other flags worth knowing
 
@@ -164,9 +194,10 @@ zap-cli edit apply app.zap --script changes.yaml --zcl "$ZCL" \
   numbering is per protocol.
 - `-o` / `--output` writes elsewhere; `--dry-run` previews; `--force` allows
   replacing an existing file with `new` / `--new`.
-- `--gen` takes the SDK's `*TemplateJsonFile`. Needed to generate code, and for
-  UC component integration.
+- `cluster enable|disable` needs `--side`; `command enable|disable` needs
+  `--direction in|out` (not `--incoming`).
 - Matter configs get the Root Node on endpoint 0; `--parent` composes endpoints.
+- Feature cascades: disable dependents before the parent feature.
 
 ## More
 
