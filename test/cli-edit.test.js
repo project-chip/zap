@@ -3694,7 +3694,25 @@ const componentPackages = {
 test(
   'cli edit: names the UC components an enabled cluster needs',
   async () => {
-    let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'components.zap')
+    // Built here rather than copied from a test resource: a resource names its
+    // own generation templates, and fuzzy package matching prefers those over
+    // the ones passed in, so which templates the session ends up with would
+    // depend on what the state database has already seen.
+    let file = path.join(workDir, 'components.zap')
+    let created = await edit({
+      ...componentPackages,
+      editOperation: 'new',
+      zapFile: file
+    })
+    expect(created.code).toBe(0)
+    let endpoint = await edit({
+      ...componentPackages,
+      editOperation: 'endpoint.create',
+      zapFile: file,
+      endpoint: 1,
+      deviceType: ['ZLL-onofflight']
+    })
+    expect(endpoint.code).toBe(0)
 
     let enabled = await edit({
       ...componentPackages,
