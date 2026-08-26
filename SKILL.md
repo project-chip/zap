@@ -167,14 +167,106 @@ ZAP defaults; keep demo `..._PRODUCT_ID` inside ExampleDAC ranges
 ## A `.zap` edit is not the whole job
 
 1. **The paired UC component has to be installed.** A configured cluster with
-   nothing implementing it does nothing. `zap-cli` does this exactly as the GUI
-   does — by asking a running Simplicity Studio — so it needs
-   `--studioHttpPort` **and** `--ideProjectPath` **and** `--gen` (the mapping
-   lives in the gen-templates package). Requesting Studio when it is not
-   answering is refused outright. Without those options the edit names the
-   components it did not install; add them with `slc`.
+   nothing implementing it does nothing: the `.zap` says the cluster is there,
+   the firmware has no code for it. Two ways to get the component in, below.
+   Never leave an enable unfinished — always end with the validation step.
 2. **Regenerate and rebuild.** `slc generate`, then build, so
    `autogen/zap-generated` matches the `.zap`.
+
+### Which components does the cluster need?
+
+Easiest: let the edit tell you. Run `cluster enable` **without** the Studio
+options and it names what it did not install:
+
+```text
+UC component(s) not installed: zigbee_barrier_control_server
+```
+
+The mapping itself is a package extension carried by the generation templates,
+so it is only known when `--gen` (or `slc_args.json`) loaded them. On disk it is
+`cluster-to-component-dependencies.json`, **beside the templates json**:
+
+| Protocol | File                                                                                           |
+| -------- | ---------------------------------------------------------------------------------------------- |
+| Zigbee   | `${sdkRoot}/protocol/zigbee/app/framework/gen-template/cluster-to-component-dependencies.json` |
+| Matter   | `<matter_extension>/src/app/zap-templates/cluster-to-component-dependencies.json`              |
+
+The templates json points at it as the `cluster` extension named `component`
+(`"defaults": "cluster-to-component-dependencies.json"`,
+`"autoEnableComponents": true`). Entries are keyed
+`"<cluster label lowercased>-<server|client>"`:
+
+```bash
+GENDIR=$(dirname "$GEN")   # $GEN is the gen-templates.json / app-templates.json
+grep -i -A3 '"barrier control-server"' "$GENDIR/cluster-to-component-dependencies.json"
+```
+
+Matter ids are extension-qualified (`%extension-matter%matter_fixed_label`).
+**Many clusters have no entry** (Zigbee `occupancy sensing-server`, for one) —
+then there is nothing to install and no missing-component message.
+
+Whether a component is already in the project is just the `.slcp` component
+list:
+
+```bash
+grep -n "id: zigbee_barrier_control_server" app.slcp
+```
+
+### If Studio is running: Jetty installs it for you
+
+With Simplicity Studio open **on that project**, `zap-cli` does exactly what
+ticking the cluster in the GUI does — it asks Studio's Jetty server to install
+the component, so the `.slcp` is updated for you:
+
+```bash
+PORT=$(lsof -nP -iTCP -sTCP:LISTEN | awk '/sts_back/ {sub(/.*:/,"",$9); print $9; exit}')
+zap-cli edit cluster enable app.zap --endpoint 1 --cluster "Barrier Control" --side server \
+  --packageMatch strict --stateDirectory /tmp/zap-state-$$ \
+  --studioHttpPort "$PORT" --ideProjectPath /abs/path/app.slcp
+```
+
+- Use the **`sts_back_end`** listener, not the UI process ports.
+- `--ideProjectPath` is the absolute `.slcp`.
+- Success prints `Studio component <id>: installed`. Removal is symmetric on
+  `cluster disable`, when the data model asks for it and no endpoint still uses
+  the cluster.
+- Studio 6 runs Jetty 12 with `UriCompliance.RFC3986`, which rejects `%2F` in a
+  path. Studio therefore percent-encodes the project path and then replaces `%`
+  with `_`; current `zap-cli` does the same (`encodeStudioProjectPath`). An
+  older `zap-cli` that only calls `encodeURIComponent` reports
+  `Studio component …: failed (404)` — use the slc route instead.
+
+If the request fails or nothing answers, treat Studio as unavailable and fall
+back to slc. **Do not start Studio** to get this path, and do not try to run its
+Jetty server standalone: the UC endpoints live inside Studio's `sts_back_end`
+and only serve a project the IDE has actually loaded, so a bare backend answers
+404 for every `clic` route.
+
+### If Studio is not running: add it with slc yourself
+
+Run from the project directory; ids comma separated, instance components use
+`:`:
+
+```bash
+slc modify project --project-file app.slcp --with zigbee_barrier_control_server
+```
+
+Note it prints `You MUST regenerate the project` — that is the rebuild step
+below, not an error.
+
+### Validate, either way
+
+Both routes get the same three checks:
+
+1. **Component recorded** — `grep -n "id: <component>" app.slcp`.
+2. **`.zap` still sane** — `zap-cli edit check app.zap --packageMatch strict
+--stateDirectory /tmp/zap-state-$$` (plus `package list`, as above), and read
+   the validation lines the edit printed. New device-type clusters commonly
+   land with mandatory attributes out of range; fix those before building.
+3. **It compiles** — `slc generate -p app.slcp -d .` then build. This is the
+   only check that proves the cluster has an implementation: a missing UC
+   component typically surfaces as an undefined-symbol link failure for that
+   cluster's callbacks.
 
 ## Batch edits with `apply`
 

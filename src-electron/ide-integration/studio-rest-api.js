@@ -31,7 +31,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
 const zclComponents = require('./zcl-components.js')
 import WebSocket from 'ws'
-import { projectName } from '../util/studio-util'
+import { encodeStudioProjectPath, projectName } from '../util/studio-util'
 
 const StudioRestAPI = {
   GetProjectInfo: '/rest/clic/components/all/project/',
@@ -111,7 +111,7 @@ async function isComponentTogglingDisabled(db, sessionId) {
  * @returns URL for rest api.
  */
 function restApiUrl(api, path, queryParams = {}) {
-  let base = localhost + studioHttpPort + api + encodeURIComponent(path)
+  let base = localhost + studioHttpPort + api + encodeStudioProjectPath(path)
   let params = Object.entries(queryParams)
   if (params.length) {
     let queries = new URLSearchParams()
@@ -133,7 +133,7 @@ function restApiUrl(api, path, queryParams = {}) {
  * @returns URL for WS
  */
 function wsApiUrl(api, path) {
-  return wsLocalhost + studioHttpPort + api + path
+  return wsLocalhost + studioHttpPort + api + encodeStudioProjectPath(path)
 }
 
 /**
@@ -523,11 +523,17 @@ async function integrationProblem(path) {
         err.code || err.message
       })`
     }
+    let body = `${response.data}`
     if (
       response.status == StatusCodes.BAD_REQUEST &&
-      `${response.data}`.includes('Project does not exists')
+      body.includes('Project does not exists')
     ) {
       return `Studio on port ${studioHttpPort} does not know the project ${path}`
+    }
+    // Jetty 12 RFC3986 rejects raw `%2F` in the path. encodeStudioProjectPath
+    // avoids that; if it still shows up, the URL builder regressed.
+    if (body.includes('Ambiguous URI')) {
+      return `Studio Jetty rejected the project path encoding on port ${studioHttpPort} (Ambiguous URI). The path must use Studio's %→_ mangling.`
     }
     // Any other answer means Studio is there and recognised the project. The
     // expected one is a 400 saying the component was not found in it.

@@ -23338,6 +23338,43 @@ Returns true if given character is a digit.
 <a name="module_JS API_ Studio utilities"></a>
 
 ## JS API: Studio utilities
+
+* [JS API: Studio utilities](#module_JS API_ Studio utilities)
+    * [~encodeStudioProjectPath(studioProjectPath)](#module_JS API_ Studio utilities..encodeStudioProjectPath) ⇒ <code>string</code>
+    * [~decodeStudioProjectPath(studioProjectPath)](#module_JS API_ Studio utilities..decodeStudioProjectPath) ⇒ <code>string</code>
+    * [~projectName(db, sessionId)](#module_JS API_ Studio utilities..projectName) ⇒
+
+<a name="module_JS API_ Studio utilities..encodeStudioProjectPath"></a>
+
+### JS API: Studio utilities~encodeStudioProjectPath(studioProjectPath) ⇒ <code>string</code>
+Studio puts the project path in a single URL path segment. Percent-encoding
+alone turns `/` into `%2F`, which Jetty 12 (UriCompliance.RFC3986) rejects as
+an ambiguous path separator. Studio therefore replaces `%` with `_` after
+encoding, and reverses that before decode. The GUI opens ZAP with paths
+already in that form; the CLI must apply the same mangling when talking to
+Jetty or component add/remove fails with a 400/404.
+
+Idempotent on an already-mangled path: those strings have no `%`, so a
+second encode+replace leaves them unchanged.
+
+**Kind**: inner method of [<code>JS API: Studio utilities</code>](#module_JS API_ Studio utilities)  
+**Returns**: <code>string</code> - path safe as one Jetty path segment  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| studioProjectPath | <code>string</code> | filesystem path or Studio-mangled path |
+
+<a name="module_JS API_ Studio utilities..decodeStudioProjectPath"></a>
+
+### JS API: Studio utilities~decodeStudioProjectPath(studioProjectPath) ⇒ <code>string</code>
+Reverse [encodeStudioProjectPath](encodeStudioProjectPath) (and Studio's own mangling).
+
+**Kind**: inner method of [<code>JS API: Studio utilities</code>](#module_JS API_ Studio utilities)  
+
+| Param | Type |
+| --- | --- |
+| studioProjectPath | <code>string</code> | 
+
 <a name="module_JS API_ Studio utilities..projectName"></a>
 
 ### JS API: Studio utilities~projectName(db, sessionId) ⇒
