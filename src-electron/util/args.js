@@ -28,6 +28,7 @@ const fs = require('fs')
 const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
 const env = require('./env.js')
+const sdkArgs = require('./sdk-args.js')
 const cliCommands = require('../cli/cli-commands.js')
 
 /**
@@ -117,6 +118,80 @@ function generationTemplateUnset(value) {
 }
 
 /**
+ * True when the caller did not name a data model. Unlike `--gen`, `--zcl`
+ * always arrives with something in it, so "unset" means "still the bundled
+ * Zigbee data model that yargs fills in".
+ *
+ * @param {*} value
+ * @returns {boolean}
+ */
+function zclPropertiesUnset(value) {
+  if (value == null) return true
+  let builtin = env.builtinSilabsZclMetafile()
+  let list = Array.isArray(value) ? value : [value]
+  return (
+    list.length === 0 ||
+    list.every((v) => v == null || v === '' || v === builtin)
+  )
+}
+
+/**
+ * The .zap file a command line is about to work on, whichever way it was
+ * named. Used to find the SDK arguments that were resolved for it.
+ *
+ * @param {*} ret Parsed arguments.
+ * @returns {string|null} one path, or null
+ */
+function zapFileFromArgs(ret) {
+  if (typeof ret.zapFile === 'string') return ret.zapFile
+  if (Array.isArray(ret.zapFiles) && typeof ret.zapFiles[0] === 'string') {
+    return ret.zapFiles[0]
+  }
+  return null
+}
+
+/**
+ * Fills in the packages the SDK resolved for the project, for a command line
+ * that named a project .zap file and no packages.
+ *
+ * This is the same answer Studio and `slc generate` get by expanding the
+ * `zcl.*` properties of apack.json, and the same one the server reads when the
+ * interface opens a project file. Without it a bare command line falls back to
+ * the bundled test data model and templates, which package matching then writes
+ * into the file, so the next generation quietly produces nothing.
+ *
+ * @param {*} ret Parsed arguments, modified in place.
+ * @returns {*} the same parsed arguments
+ */
+function applySdkProvidedPackages(ret) {
+  let zclUnset = zclPropertiesUnset(ret.zclProperties)
+  let genUnset = generationTemplateUnset(ret.generationTemplate)
+  if (!zclUnset && !genUnset) return ret
+
+  let sdk = sdkArgs.packagesForZapFile(zapFileFromArgs(ret))
+  if (sdk == null) return ret
+
+  let used = []
+  if (zclUnset && sdk.zclProperties.length > 0) {
+    ret.zclProperties = sdk.zclProperties
+    used.push('--zcl')
+  }
+  if (genUnset && sdk.generationTemplate.length > 0) {
+    ret.generationTemplate = sdk.generationTemplate
+    used.push('--generationTemplate')
+  }
+  if (used.length > 0) {
+    console.log(
+      env.formatEmojiMessage(
+        '🔧',
+        `${used.join(' and ')} from ${sdkArgs.slcArgsFileName}: ${sdk.categories.join(', ')}`
+      )
+    )
+  }
+  return ret
+}
+
+/**
  * Applies the settings that every command needs regardless of how it was
  * parsed: the Jenkins adjustments, the save file format, the emoji preference
  * and the state directory.
@@ -125,13 +200,18 @@ function generationTemplateUnset(value) {
  * @returns {*} the same parsed arguments
  */
 function applyEnvironmentSettings(ret) {
+  // Before the bundled names are resolved, so that asking for a bundled data
+  // model by name still counts as asking for one.
+  applySdkProvidedPackages(ret)
+
   if (ret.zclProperties != null) {
     ret.zclProperties = resolveZclMetafileNames(ret.zclProperties)
   }
 
-  // When --gen is omitted, load the test templates that match the ZCL data
-  // model so a packaged binary has something to generate / attach without the
-  // caller knowing where the bundle mounts those files.
+  // When --gen is omitted and the project has nothing to say, load the test
+  // templates that match the ZCL data model so a packaged binary has something
+  // to generate / attach without the caller knowing where the bundle mounts
+  // those files.
   if (generationTemplateUnset(ret.generationTemplate)) {
     ret.generationTemplate = env.defaultGenTemplatesForZcl(ret.zclProperties)
   } else {

@@ -428,6 +428,16 @@ scripting functionality.</p>
 <dd><p>This module contains the API functions for the post-load
 scripting functionality.</p>
 </dd>
+<dt><a href="#module_JS API_ SDK arguments">JS API: SDK arguments</a></dt>
+<dd><p>The data model and generation templates an SDK resolved for a project.</p>
+<p>Studio and <code>slc generate</code> both expand the <code>zcl.*</code> properties an apack.json
+declares and hand the results to ZAP on the command line. SLC also writes the
+same answers next to the .zap file, as slc_args.json, which is how the server
+finds them when the interface opens a project file. This does the same for a
+command line that was given a project .zap and no packages: without it the
+bundled test data model is used instead, and package matching writes that
+back into the file on save.</p>
+</dd>
 <dt><a href="#module_JS API_ SDK utilities">JS API: SDK utilities</a></dt>
 <dd></dd>
 <dt><a href="#module_JS API_ shared cluster state">JS API: shared cluster state</a></dt>
@@ -21758,6 +21768,9 @@ Arguments for ZAP
         * [~resolveZclMetafileNames(value)](#module_JS API_ Arguments for ZAP..resolveZclMetafileNames) ⇒ <code>\*</code>
         * [~resolveGenTemplateMetafileNames(value)](#module_JS API_ Arguments for ZAP..resolveGenTemplateMetafileNames) ⇒ <code>\*</code>
         * [~generationTemplateUnset(value)](#module_JS API_ Arguments for ZAP..generationTemplateUnset) ⇒ <code>boolean</code>
+        * [~zclPropertiesUnset(value)](#module_JS API_ Arguments for ZAP..zclPropertiesUnset) ⇒ <code>boolean</code>
+        * [~zapFileFromArgs(ret)](#module_JS API_ Arguments for ZAP..zapFileFromArgs) ⇒ <code>string</code> \| <code>null</code>
+        * [~applySdkProvidedPackages(ret)](#module_JS API_ Arguments for ZAP..applySdkProvidedPackages) ⇒ <code>\*</code>
         * [~applyEnvironmentSettings(ret)](#module_JS API_ Arguments for ZAP..applyEnvironmentSettings) ⇒ <code>\*</code>
 
 <a name="module_JS API_ Arguments for ZAP.processCommandLineArguments"></a>
@@ -21832,6 +21845,51 @@ pick the test template that goes with the ZCL data model.
 | Param | Type |
 | --- | --- |
 | value | <code>\*</code> | 
+
+<a name="module_JS API_ Arguments for ZAP..zclPropertiesUnset"></a>
+
+### JS API: Arguments for ZAP~zclPropertiesUnset(value) ⇒ <code>boolean</code>
+True when the caller did not name a data model. Unlike `--gen`, `--zcl`
+always arrives with something in it, so "unset" means "still the bundled
+Zigbee data model that yargs fills in".
+
+**Kind**: inner method of [<code>JS API: Arguments for ZAP</code>](#module_JS API_ Arguments for ZAP)  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+
+<a name="module_JS API_ Arguments for ZAP..zapFileFromArgs"></a>
+
+### JS API: Arguments for ZAP~zapFileFromArgs(ret) ⇒ <code>string</code> \| <code>null</code>
+The .zap file a command line is about to work on, whichever way it was
+named. Used to find the SDK arguments that were resolved for it.
+
+**Kind**: inner method of [<code>JS API: Arguments for ZAP</code>](#module_JS API_ Arguments for ZAP)  
+**Returns**: <code>string</code> \| <code>null</code> - one path, or null  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ret | <code>\*</code> | Parsed arguments. |
+
+<a name="module_JS API_ Arguments for ZAP..applySdkProvidedPackages"></a>
+
+### JS API: Arguments for ZAP~applySdkProvidedPackages(ret) ⇒ <code>\*</code>
+Fills in the packages the SDK resolved for the project, for a command line
+that named a project .zap file and no packages.
+
+This is the same answer Studio and `slc generate` get by expanding the
+`zcl.*` properties of apack.json, and the same one the server reads when the
+interface opens a project file. Without it a bare command line falls back to
+the bundled test data model and templates, which package matching then writes
+into the file, so the next generation quietly produces nothing.
+
+**Kind**: inner method of [<code>JS API: Arguments for ZAP</code>](#module_JS API_ Arguments for ZAP)  
+**Returns**: <code>\*</code> - the same parsed arguments  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ret | <code>\*</code> | Parsed arguments, modified in place. |
 
 <a name="module_JS API_ Arguments for ZAP..applyEnvironmentSettings"></a>
 
@@ -22893,6 +22951,83 @@ scripting functionality.
 ## JS API: post-import.
 This module contains the API functions for the post-load
 scripting functionality.
+
+<a name="module_JS API_ SDK arguments"></a>
+
+## JS API: SDK arguments
+The data model and generation templates an SDK resolved for a project.
+
+Studio and `slc generate` both expand the `zcl.*` properties an apack.json
+declares and hand the results to ZAP on the command line. SLC also writes the
+same answers next to the .zap file, as slc_args.json, which is how the server
+finds them when the interface opens a project file. This does the same for a
+command line that was given a project .zap and no packages: without it the
+bundled test data model is used instead, and package matching writes that
+back into the file on save.
+
+
+* [JS API: SDK arguments](#module_JS API_ SDK arguments)
+    * [~propertiesByCategory](#module_JS API_ SDK arguments..propertiesByCategory)
+    * [~readSlcArgs(zapFile)](#module_JS API_ SDK arguments..readSlcArgs) ⇒ <code>\*</code>
+    * [~categoriesOfZapFile(zapFile)](#module_JS API_ SDK arguments..categoriesOfZapFile) ⇒ <code>Array.&lt;string&gt;</code>
+    * [~packagesForZapFile(zapFile)](#module_JS API_ SDK arguments..packagesForZapFile) ⇒ <code>\*</code>
+
+<a name="module_JS API_ SDK arguments..propertiesByCategory"></a>
+
+### JS API: SDK arguments~propertiesByCategory
+The slc_args.json keys holding the data model and the generation templates
+for one protocol, under the package category a .zap file names it by.
+
+**Kind**: inner constant of [<code>JS API: SDK arguments</code>](#module_JS API_ SDK arguments)  
+<a name="module_JS API_ SDK arguments..readSlcArgs"></a>
+
+### JS API: SDK arguments~readSlcArgs(zapFile) ⇒ <code>\*</code>
+Reads the slc_args.json that sits beside a .zap file. Absent or unreadable
+is not an error: it just means this file was not written by SLC, and the
+caller carries on with what it had.
+
+**Kind**: inner method of [<code>JS API: SDK arguments</code>](#module_JS API_ SDK arguments)  
+**Returns**: <code>\*</code> - `{ file, args }`, or null  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| zapFile | <code>\*</code> | Path to a .zap file. |
+
+<a name="module_JS API_ SDK arguments..categoriesOfZapFile"></a>
+
+### JS API: SDK arguments~categoriesOfZapFile(zapFile) ⇒ <code>Array.&lt;string&gt;</code>
+The protocols a .zap file is configured against, taken from the categories of
+its data model packages.
+
+Only the data model packages are consulted. A generation template package is
+the one thing in the file that a previous edit may have replaced with
+something from another protocol, so it cannot say what the file is.
+
+**Kind**: inner method of [<code>JS API: SDK arguments</code>](#module_JS API_ SDK arguments)  
+**Returns**: <code>Array.&lt;string&gt;</code> - package categories, possibly empty  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| zapFile | <code>\*</code> | Path to a .zap file. |
+
+<a name="module_JS API_ SDK arguments..packagesForZapFile"></a>
+
+### JS API: SDK arguments~packagesForZapFile(zapFile) ⇒ <code>\*</code>
+The packages the SDK resolved for the project this .zap file belongs to.
+
+Which protocols to answer for comes from the file itself, so a Matter
+application in a workspace that also has the Zigbee SDK installed gets the
+Matter data model and the Matter templates, and a multiprotocol file gets
+both. A file whose data model packages say nothing recognisable falls back to
+every protocol slc_args.json has an answer for.
+
+**Kind**: inner method of [<code>JS API: SDK arguments</code>](#module_JS API_ SDK arguments)  
+**Returns**: <code>\*</code> - `{ zclProperties, generationTemplate, categories, file }`, or
+             null when there is nothing to say  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| zapFile | <code>\*</code> | Path to a .zap file. |
 
 <a name="module_JS API_ SDK utilities"></a>
 
