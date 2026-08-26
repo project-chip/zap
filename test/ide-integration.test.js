@@ -28,6 +28,11 @@ const testUtil = require('./test-util')
 const studioRestApi = require('../src-electron/ide-integration/studio-rest-api')
 const zclComponents = require('../src-electron/ide-integration/zcl-components')
 const queryZcl = require('../src-electron/db/query-zcl')
+const {
+  encodeStudioProjectPath,
+  decodeStudioProjectPath,
+  projectName
+} = require('../src-electron/util/studio-util')
 
 const testFile = path.join(__dirname, 'resource/test-meta.zap')
 let db
@@ -75,6 +80,18 @@ test(
   },
   testUtil.timeout.short()
 )
+
+test('Studio project path mangling matches GUI studioProject form', () => {
+  let fsPath = '/Users/me/proj/app.slcp'
+  let mangled = encodeStudioProjectPath(fsPath)
+  expect(mangled).toBe('_2FUsers_2Fme_2Fproj_2Fapp.slcp')
+  expect(mangled.includes('%')).toBeFalsy()
+  expect(decodeStudioProjectPath(mangled)).toBe(fsPath)
+  // Already-mangled paths (as Studio passes them) stay stable.
+  expect(encodeStudioProjectPath(mangled)).toBe(mangled)
+  expect(projectName(mangled)).toBe('app')
+  expect(projectName(fsPath)).toBe('app')
+})
 
 test(
   `Ide integration`,
