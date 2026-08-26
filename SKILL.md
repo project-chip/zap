@@ -86,6 +86,17 @@ zap-cli edit <op> app.zap … \
    `gen-templates.json`). If category flipped or the path points at
    `snapshot/zap/test/…`, stop and fix packages before regenerate/build.
 
+`--packageMatch strict` plus `--gen` **prevents** a clean Matter file from being
+rewritten to Zigbee test templates. It does **not** heal a file that is already
+wrong: a later edit with the correct `--gen` still saves the old zigbee
+`gen-templates-json` entry, because that path resolves inside ZAP's snapshot and
+strict treats it as found. Recover with convert, then replace the project file:
+
+```bash
+zap-cli convert broken.zap -o fixed.zap --zcl "$ZCL" --gen "$GEN"
+# verify: package list on fixed.zap shows matter app-templates.json
+```
+
 ## Always isolate `--stateDirectory`
 
 Default state is shared (`~/.zap`), so concurrent `zap-cli` edits **or**
