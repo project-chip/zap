@@ -37,29 +37,32 @@ zap-cli edit help --format json    # whole surface as a machine readable schema
 
 Most commands print a `Next:` section with ready-to-run follow-ups.
 
-## Always pass `--zcl` **and** `--gen`, from the SDK
+## Packages: prefer `slc_args.json`, else pass `--zcl` and `--gen`
 
-Both flags are required on **every** `zap-cli edit` (reads and writes). Defaults
-are wrong for SDK projects:
+Studio and `slc generate` inject the project's SDK data model and templates by
+expanding the `zcl.*` properties declared in ZAP's `apack.json`. SLC also
+writes those resolved paths next to the `.zap` as `slc_args.json`.
 
-- `--zcl` defaults to Zigbee regardless of the file. Omit it on Matter and
-  nothing errors: endpoints vanish and device types come back blank.
-- `--gen` defaults to ZAP's **bundled test** templates. Omit it and
-  `--packageMatch fuzzy` (the edit default) can remap a missing Matter
-  `app-templates.json` onto Zigbee test `gen-templates.json`, then **save that
-  into the `.zap`**. Later `slc generate` still exits 0 but only emits Zigbee
-  `zap-*` stubs — Matter `autogen/zap-generated/` (`gen_config.h`, etc.) is
-  empty and the firmware build fails.
+**Current `zap-cli`** (this tree): if you omit `--zcl` / `--gen` and
+`slc_args.json` sits beside the `.zap`, edit fills them in from that file —
+same answer Studio gets. It picks the protocol(s) from the file's
+`zcl-properties` package categories (Matter vs Zigbee), not from a corrupt
+template entry. Explicit `--zcl` / `--gen` still win.
 
-Also pass **`--packageMatch strict`** so a bad or unresolved package path fails
-the edit instead of silently rewriting packages. Never "fix" a strict failure
-by dropping back to `fuzzy`.
+**Older installed `zap-cli`** (archive packages that predate that behaviour):
+omitting the flags falls back to bundled Zigbee ZCL and **test** templates.
+`--packageMatch fuzzy` can then remap a Matter `app-templates.json` onto
+Zigbee test `gen-templates.json` and **save that into the `.zap`**. Later
+`slc generate` still exits 0 but Matter `autogen/zap-generated/` stays empty.
 
-Resolve paths from the SDK / project (`uc.sdkProvidedProperties`:
-`zcl.matterZclJsonFile`, `zcl.zigbeeZclJsonFile`, and the matching
-`*TemplateJsonFile`), or from `slc_args.json`. Prefer those over guessed
-`${sdkRoot}/…` layouts; SLT/Conan trees differ. Fallbacks when properties are
-unavailable:
+Always pass **`--packageMatch strict`**. Never "fix" a strict failure by
+dropping back to `fuzzy`.
+
+When you must name paths yourself (no `slc_args.json`, or an old `zap-cli`),
+read them from that file if present, else from SDK properties
+(`zcl.matterZclJsonFile`, `zcl.zigbeeZclJsonFile`, and matching
+`*TemplateJsonFile`). Prefer those over guessed `${sdkRoot}/…` layouts.
+Fallbacks:
 
 |        | ZCL                                                                        | Templates (`--gen`)                                                              |
 | ------ | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
@@ -67,16 +70,18 @@ unavailable:
 | Matter | `${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json` | `${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json` |
 
 Never substitute ZAP builtins (`--zcl matter` / `--zcl zigbee`, or bundled
-`--gen`) when an SDK exists — different data model than the project generates
-against.
+`--gen`) when an SDK project exists.
 
-Canonical invocation shape:
+Canonical invocation (works on old and new `zap-cli`):
 
 ```bash
 zap-cli edit <op> app.zap … \
   --zcl "$ZCL" --gen "$GEN" --packageMatch strict \
   --stateDirectory /tmp/zap-state-$$
 ```
+
+With a current build and `slc_args.json` present, `--zcl` / `--gen` may be
+omitted; keep `--packageMatch strict` and `--stateDirectory`.
 
 ### Sanity checks after every write
 
@@ -86,11 +91,10 @@ zap-cli edit <op> app.zap … \
    `gen-templates.json`). If category flipped or the path points at
    `snapshot/zap/test/…`, stop and fix packages before regenerate/build.
 
-`--packageMatch strict` plus `--gen` **prevents** a clean Matter file from being
-rewritten to Zigbee test templates. It does **not** heal a file that is already
-wrong: a later edit with the correct `--gen` still saves the old zigbee
-`gen-templates-json` entry, because that path resolves inside ZAP's snapshot and
-strict treats it as found. Recover with convert, then replace the project file:
+A current `zap-cli` that loaded SDK packages from `slc_args.json` (or explicit
+`--gen`) rewrites the template package on save to the SDK path, which heals a
+previously corrupted file. On an older `zap-cli`, or if the bad zigbee test
+path still resolves inside the snapshot, recover with convert:
 
 ```bash
 zap-cli convert broken.zap -o fixed.zap --zcl "$ZCL" --gen "$GEN"
