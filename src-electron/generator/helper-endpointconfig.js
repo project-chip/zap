@@ -1033,6 +1033,11 @@ async function collectAttributes(
       for (let attrIdx = 0; attrIdx < c.attributes.length; attrIdx++) {
         let a = c.attributes[attrIdx]
         let attributeDefaultValue = attributeDefaultValues[attrIdx]
+        // Whether the default value that ends up being generated is one the
+        // configuration asked for. An attribute that was never given a default
+        // value is blank, which is also what the UI shows for it.
+        let hasConfiguredDefaultValue =
+          a.defaultValue != null && a.defaultValue !== ''
         // typeSize is the size of a buffer needed to hold the attribute, if
         // that's known.
         let typeSize = a.typeSize
@@ -1083,6 +1088,7 @@ async function collectAttributes(
           ) {
             defaultSize = 0
             attributeDefaultValue = undefined
+            hasConfiguredDefaultValue = false
           }
         }
 
@@ -1242,6 +1248,19 @@ async function collectAttributes(
         }
         if (a.isNullable) mask.push('nullable')
         if (a.mustUseTimedWrite) mask.push('must_use_timed_write')
+        // The generated default value cannot say whether it came from the
+        // configuration: an attribute left blank is generated as
+        // ZAP_EMPTY_DEFAULT(), which is indistinguishable from a configured
+        // zero, and a blank nullable attribute is generated as the encoding of
+        // null, which is indistinguishable from a configured null. This mask
+        // records the difference. It is only generated when the template asks
+        // for it, so that older code generation is unaffected.
+        if (
+          options.isNoDefaultValueMaskGenerationEnabled &&
+          !hasConfiguredDefaultValue
+        ) {
+          mask.push('no_default_value')
+        }
         let zap_type = 'UNKNOWN ATTRIBUTE TYPE'
         if (a.typeInfo.atomicType) {
           zap_type = a.typeInfo.atomicType
@@ -1478,7 +1497,9 @@ function endpoint_config(options) {
       options.hash.allowUnknownStorageOption !== 'false',
     spaceForDefaultValue: options.hash.spaceForDefaultValue,
     isReadableMaskGenerationEnabled:
-      options.hash.isReadableMaskGenerationEnabled === 'true'
+      options.hash.isReadableMaskGenerationEnabled === 'true',
+    isNoDefaultValueMaskGenerationEnabled:
+      options.hash.isNoDefaultValueMaskGenerationEnabled === 'true'
   }
   let promise = templateUtil
     .ensureZclPackageIds(newContext)
