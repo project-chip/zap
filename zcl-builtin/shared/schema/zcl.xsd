@@ -731,6 +731,9 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="nullable" type="xs:boolean" use="optional"/>
       <xs:attribute name="scene" type="xs:boolean" use="optional"/>
       <xs:attribute name="reportable" type="xs:boolean" use="optional"/>
+      <xs:attribute name="quieterReporting" type="xs:boolean" use="optional"/>
+      <xs:attribute name="sourceAttribution" type="xs:boolean" use="optional"/>
+      <xs:attribute name="atomicWrite" type="xs:boolean" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="conformance" type="xs:string"/>

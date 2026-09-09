@@ -389,6 +389,21 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='persistence_685f8304.end' align='left'>TEXT</td>
 	</tr>
 	<tr>
+		<td port='is_quieter_reporting_a1b2c3d4.start' align='left'>IS_QUIETER_REPORTING</td>
+		<td align='left'> </td>
+		<td port='is_quieter_reporting_a1b2c3d4.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='is_source_attribution_b2c3d4e5.start' align='left'>IS_SOURCE_ATTRIBUTION</td>
+		<td align='left'> </td>
+		<td port='is_source_attribution_b2c3d4e5.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='is_atomic_c3d4e5f6.start' align='left'>IS_ATOMIC</td>
+		<td align='left'> </td>
+		<td port='is_atomic_c3d4e5f6.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
 		<td port='manufacturer_code_derived_d004b7de.start' align='left'>MANUFACTURER_CODE_DERIVED</td>
 		<td align='left'> </td>
 		<td port='manufacturer_code_derived_d004b7de.end' align='left'></td>

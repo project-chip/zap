@@ -133,6 +133,9 @@ exports.map = {
       apiMaturity: x.API_MATURITY,
       isChangeOmitted: dbApi.fromDbBool(x.IS_CHANGE_OMITTED),
       persistence: x.PERSISTENCE,
+      isQuieterReporting: dbApi.fromDbBool(x.IS_QUIETER_REPORTING),
+      isSourceAttribution: dbApi.fromDbBool(x.IS_SOURCE_ATTRIBUTION),
+      isAtomic: dbApi.fromDbBool(x.IS_ATOMIC),
       entryTypeElseType: x.ARRAY_TYPE ? x.ARRAY_TYPE : x.TYPE // added for convenience between types and entry types from arrays. Precedence set using entryType then type
     }
   },
