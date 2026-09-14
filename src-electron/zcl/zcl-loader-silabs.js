@@ -195,6 +195,10 @@ async function collectDataFromJsonFile(metadataFile, data) {
     returnObject.listsUseAttributeAccessInterface =
       obj.listsUseAttributeAccessInterface
   }
+  if ('structsUseAttributeAccessInterface' in obj) {
+    returnObject.structsUseAttributeAccessInterface =
+      obj.structsUseAttributeAccessInterface
+  }
 
   if ('attributeAccessInterfaceAttributes' in obj) {
     returnObject.attributeAccessInterfaceAttributes =
@@ -750,7 +754,7 @@ function prepareCluster(cluster, context, isExtension = false) {
       }
       let storagePolicy = dbEnum.storagePolicy.any
       // An entry in attributeAccessInterfaceAttributes names this attribute
-      // specifically, so it wins over the blanket rule for list types.
+      // specifically, so it wins over the blanket rule for list and struct types.
       let aaiEntry = (
         context.attributeAccessInterfaceAttributes?.[cluster.name] ?? []
       ).find((e) => e.name == name)
@@ -762,6 +766,8 @@ function prepareCluster(cluster, context, isExtension = false) {
       ) {
         storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
       }
+      // Struct-typed attributes are handled after all XML is loaded, once
+      // we know which types are structs. See applyStructAttributeAccessInterfacePolicy.
       let att = {
         code: parseInt(attribute.$.code),
         manufacturerCode: attribute.$.manufacturerCode,
@@ -3144,6 +3150,14 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
     ctx.clustersLoadedFromNewFiles = newFileResult.clusterIdsLoaded
     ctx.newFileErrors = newFileResult.errorFiles
     await parseZclFiles(db, ctx.packageId, ctx.zclFiles, ctx)
+    // Struct types are only known after every XML file is loaded, so the
+    // blanket Matter rule for struct-typed attributes is applied here.
+    if (ctx.structsUseAttributeAccessInterface) {
+      await queryLoader.applyStructAttributeAccessInterfacePolicy(
+        db,
+        ctx.packageId
+      )
+    }
     // Validate that our attributeAccessInterfaceAttributes, if present, is
     // sane.
     if (ctx.attributeAccessInterfaceAttributes) {

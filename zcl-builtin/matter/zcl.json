@@ -113,6 +113,7 @@
     }
   },
   "listsUseAttributeAccessInterface": true,
+  "structsUseAttributeAccessInterface": true,
   "attributeAccessInterfaceAttributes": {
     "Access Control": [
       "ClusterRevision",

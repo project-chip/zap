@@ -630,6 +630,48 @@ test(
       expect(aclAttributeMapped.name).toBe('ACL')
       expect(aclAttributeMapped.entryType).toBe('AccessControlEntryStruct')
       expect(aclAttributeMapped.isArray).toBe(1)
+      expect(aclAttributeMapped.storagePolicy).toBe(
+        dbEnum.storagePolicy.attributeAccessInterface
+      )
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'test Matter struct-typed attribute storage policy',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
+      let packageId = ctx.packageId
+
+      // Application (0x050d / 0x0004) is struct-typed and is not listed in
+      // attributeAccessInterfaceAttributes, so AAI must come from the
+      // structsUseAttributeAccessInterface rule.
+      let applicationBasic = await queryZcl.selectClusterByCode(
+        db,
+        packageId,
+        0x050d
+      )
+      let applicationAttr = await queryZcl.selectAttributeById(
+        db,
+        (
+          await dbApi.dbGet(
+            db,
+            "SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE CLUSTER_REF = ? AND CODE = 0x0004 AND NAME = 'Application'",
+            [applicationBasic.id]
+          )
+        ).ATTRIBUTE_ID
+      )
+      expect(applicationAttr.type).toBe('ApplicationStruct')
+      expect(applicationAttr.isArray).toBe(0)
+      expect(applicationAttr.storagePolicy).toBe(
+        dbEnum.storagePolicy.attributeAccessInterface
+      )
     } finally {
       await dbApi.closeDatabase(db)
     }
