@@ -4163,6 +4163,7 @@ This module provides queries for ZCL loading
     * [~createAccessRows(db, packageId, data)](#module_DB API_ zcl loading queries..createAccessRows)
     * [~insertDefaultAccess(db, packageId, defaultAccess)](#module_DB API_ zcl loading queries..insertDefaultAccess)
     * [~updateDataTypeClusterReferences(db, packageId)](#module_DB API_ zcl loading queries..updateDataTypeClusterReferences) ⇒
+    * [~applyStructAttributeAccessInterfacePolicy(db, packageId)](#module_DB API_ zcl loading queries..applyStructAttributeAccessInterfacePolicy) ⇒
     * [~insertDataTypeDiscriminator(db, packageId, data)](#module_DB API_ zcl loading queries..insertDataTypeDiscriminator)
     * [~insertDataType(db, packageId, data)](#module_DB API_ zcl loading queries..insertDataType)
     * [~insertNumber(db, packageId, data)](#module_DB API_ zcl loading queries..insertNumber)
@@ -4704,6 +4705,25 @@ references of all the data types based on their cluster code.
 
 **Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
 **Returns**: promise which updates cluster references for data types  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl loading queries..applyStructAttributeAccessInterfacePolicy"></a>
+
+### DB API: zcl loading queries~applyStructAttributeAccessInterfacePolicy(db, packageId) ⇒
+Force attributeAccessInterface storage policy on every attribute whose
+type is a struct in this package. List types are handled at parse time
+(they carry entryType); structs are only identifiable after all XML files
+have been loaded.
+
+Attributes already marked attributeAccessInterface (explicit annotation or
+the list-type rule) are left alone.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
+**Returns**: promise which updates storage policy for struct-typed attributes  
 
 | Param | Type |
 | --- | --- |
