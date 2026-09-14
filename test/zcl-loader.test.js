@@ -680,6 +680,55 @@ test(
 )
 
 test(
+  'test Matter non-volatile attribute persistence',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
+      let packageId = ctx.packageId
+      let colorControl = await queryZcl.selectClusterByCode(
+        db,
+        packageId,
+        0x0300
+      )
+
+      // ColorMode is a scalar marked nonVolatile in XML. It keeps storage
+      // policy "any" so the UI can choose NVM or External, but not RAM.
+      let colorMode = await queryZcl.selectAttributeById(
+        db,
+        (
+          await dbApi.dbGet(
+            db,
+            "SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE CLUSTER_REF = ? AND CODE = 0x0008 AND NAME = 'ColorMode'",
+            [colorControl.id]
+          )
+        ).ATTRIBUTE_ID
+      )
+      expect(colorMode.persistence).toBe(dbEnum.persistence.nonVolatile)
+      expect(colorMode.storagePolicy).toBe(dbEnum.storagePolicy.any)
+
+      // A volatile scalar is unchanged.
+      let currentX = await queryZcl.selectAttributeById(
+        db,
+        (
+          await dbApi.dbGet(
+            db,
+            "SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE CLUSTER_REF = ? AND CODE = 0x0003 AND NAME = 'CurrentX'",
+            [colorControl.id]
+          )
+        ).ATTRIBUTE_ID
+      )
+      expect(currentX.storagePolicy).toBe(dbEnum.storagePolicy.any)
+      expect(currentX.persistence).not.toBe(dbEnum.persistence.nonVolatile)
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.long()
+)
+
+test(
   'test loading IS_OPTIONAL column for Matter attributes, commands, and events',
   async () => {
     let db = await dbApi.initRamDatabase()

@@ -117,7 +117,7 @@ limitations under the License.
                 )
               "
               class="col"
-              :options="storageOptions"
+              :options="storageOptionsFor(props.row)"
               dense
               outlined
               @update:model-value="
@@ -312,6 +312,20 @@ export default {
         (row &&
           row.storagePolicy === DbEnum.storagePolicy.attributeAccessInterface)
       )
+    },
+    // RAM is not a legal option for spec-required non-volatile attributes.
+    // Forced-external attributes keep the full list so the shown value is valid.
+    storageOptionsFor(row) {
+      let options = Object.values(DbEnum.storageOption)
+      if (
+        row &&
+        row.persistence === DbEnum.persistence.nonVolatile &&
+        row.storagePolicy !== DbEnum.storagePolicy.attributeAccessInterface &&
+        !this.checkForcedExternal(row.label)
+      ) {
+        return options.filter((option) => option !== DbEnum.storageOption.ram)
+      }
+      return options
     },
     //return true and disable if attribute is not enabled
     isDisabled(id, selectedClusterId) {

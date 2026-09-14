@@ -251,8 +251,22 @@ async function insertOrUpdateAttributeState(
       staticAttribute.name
     )
   let storageOption = await queryUpgrade.computeStorageOptionNewConfig(
-    staticAttribute.storagePolicy
+    staticAttribute.storagePolicy,
+    staticAttribute.persistence
   )
+  if (paramValuePairArray != null) {
+    paramValuePairArray = paramValuePairArray.map((param) => {
+      if (param.key !== restApi.updateKey.attributeStorage) return param
+      return {
+        ...param,
+        value: queryUpgrade.resolveStorageOption(
+          staticAttribute.storagePolicy,
+          staticAttribute.persistence,
+          param.value
+        )
+      }
+    })
+  }
   if (
     staticAttribute.storagePolicy ==
     dbEnum.storagePolicy.attributeAccessInterface

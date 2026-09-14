@@ -120,6 +120,13 @@ When those flags are set, ZAP:
 An explicit `attributeAccessInterfaceAttributes` entry for the same attribute
 still wins, including `keepDefault`.
 
+### Non-volatile attributes
+
+Some attributes are required by the spec to be non-volatile. That quality comes
+from the XML (`<quality persistence="nonVolatile"/>`). For those attributes ZAP
+defaults storage to `NVM` and does not offer `RAM`, unless a storage policy from
+the previous sections forces `External`.
+
 ## Generation templates and extensions
 
 Generation templates and extensions are provided by the SDK. They are the input to the ZAP tool. They control generation and tailor the ZAP tool specifically to a given SDK, by providing the correct details of the implementation that ZAP cares about.

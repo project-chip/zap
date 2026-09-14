@@ -83,6 +83,15 @@ exports.storageOption = {
   external: 'External'
 }
 
+// Spec persistence quality on an attribute. nonVolatile attributes
+// default to NVM and cannot use RAM, unless a storage policy (for
+// example attributeAccessInterface) forces a different option.
+exports.persistence = {
+  volatile: 'volatile',
+  nonVolatile: 'nonVolatile',
+  fixed: 'fixed'
+}
+
 exports.composition = {
   fullFamily: 'fullFamily',
   tree: 'tree',
