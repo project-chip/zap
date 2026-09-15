@@ -274,6 +274,7 @@ exports.conformanceTag = {
   provisional: 'P',
   disallowed: 'X',
   deprecated: 'D',
+  obsolete: 'Z',
   described: 'desc'
 }
 
@@ -283,6 +284,7 @@ exports.conformanceVal = {
   provisional: 'provisional',
   disallowed: 'disallowed',
   deprecated: 'deprecated',
+  obsolete: 'obsolete',
   described: 'described conformance that cannot be displayed as an expression',
   notSupported: 'notSupported'
 }

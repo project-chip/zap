@@ -132,6 +132,7 @@ export default {
     eventData: {
       get() {
         return this.$store.state.zap.events.filter((event) => {
+          if (this.isObsoleteElement(event)) return false
           return this.individualClusterFilterString == ''
             ? true
             : event.name

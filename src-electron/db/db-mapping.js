@@ -26,6 +26,14 @@ const dbEnums = require('../../src-shared/db-enum.js')
 const bin = require('../util/bin')
 const conformEvaluator = require('../validation/conformance-expression-evaluator')
 
+/**
+ * True when the stored Matter conformance tag is obsolete (`Z` / `<obsoleteConform/>`).
+ * @param {*} conformance
+ */
+function isObsoleteConformance(conformance) {
+  return conformance === dbEnums.conformanceTag.obsolete
+}
+
 exports.map = {
   package: (x) => {
     if (x == null) return undefined
@@ -102,6 +110,7 @@ exports.map = {
       side: x.SIDE,
       define: x.DEFINE,
       conformance: x.CONFORMANCE,
+      obsolete: isObsoleteConformance(x.CONFORMANCE),
       min: x.MIN,
       max: x.MAX,
       minLength: x.MIN_LENGTH,
@@ -188,6 +197,7 @@ exports.map = {
       description: x.DESCRIPTION,
       side: x.SIDE,
       conformance: x.CONFORMANCE,
+      obsolete: isObsoleteConformance(x.CONFORMANCE),
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       priority: x.PRIORITY,
@@ -210,6 +220,7 @@ exports.map = {
       source: x.SOURCE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       conformance: x.CONFORMANCE,
+      obsolete: isObsoleteConformance(x.CONFORMANCE),
       mustUseTimedInvoke: dbApi.fromDbBool(x.MUST_USE_TIMED_INVOKE),
       isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
       clusterCode: x.CLUSTER_CODE,
@@ -298,6 +309,7 @@ exports.map = {
       bit: x.BIT,
       description: x.DESCRIPTION,
       conformance: x.CONFORMANCE,
+      obsolete: isObsoleteConformance(x.CONFORMANCE),
       translation: conformEvaluator.translateConformanceExpression(
         x.CONFORMANCE
       ),
@@ -763,7 +775,8 @@ exports.map = {
       persistence: x.PERSISTENCE,
       reportMinInterval: x.REPORT_MIN_INTERVAL,
       reportMaxInterval: x.REPORT_MAX_INTERVAL,
-      conformance: x.CONFORMANCE
+      conformance: x.CONFORMANCE,
+      obsolete: isObsoleteConformance(x.CONFORMANCE)
     }
   },
 
@@ -792,6 +805,7 @@ exports.map = {
       isIncoming: dbApi.fromDbBool(x.IS_INCOMING),
       source: x.SOURCE,
       conformance: x.CONFORMANCE,
+      obsolete: isObsoleteConformance(x.CONFORMANCE),
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       isEnabled: dbApi.fromDbBool(x.IS_ENABLED)
     }
@@ -816,6 +830,7 @@ exports.map = {
       eventRef: x.EVENT_REF,
       side: x.SIDE,
       conformance: x.CONFORMANCE,
+      obsolete: isObsoleteConformance(x.CONFORMANCE),
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       included: dbApi.fromDbBool(x.INCLUDED)
     }

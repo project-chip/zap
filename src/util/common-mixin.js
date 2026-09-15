@@ -174,6 +174,17 @@ export default {
     asHex(value, padding) {
       return Util.asHex(value, padding)
     },
+    /**
+     * True when a data-model element has obsolete Matter conformance (`Z`).
+     * Obsolete attributes, commands, and events are hidden from configurator views.
+     */
+    isObsoleteElement(element) {
+      return !!(
+        element &&
+        (element.obsolete ||
+          element.conformance === DbEnum.conformanceTag.obsolete)
+      )
+    },
     hashAttributeIdClusterId(attributeId, clusterId) {
       return Util.cantorPair(attributeId, clusterId)
     },

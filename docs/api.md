@@ -13149,6 +13149,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~if_is_enum(type)](#module_Templating API_ static zcl helpers..if_is_enum) ⇒
     * [~if_is_struct(type)](#module_Templating API_ static zcl helpers..if_is_struct) ⇒
     * [~isClient(side)](#module_Templating API_ static zcl helpers..isClient) ⇒
+    * [~isObsolete(conformance)](#module_Templating API_ static zcl helpers..isObsolete) ⇒
     * [~isServer(side)](#module_Templating API_ static zcl helpers..isServer) ⇒
     * [~isStrEqual(str1, str2)](#module_Templating API_ static zcl helpers..isStrEqual) ⇒
     * [~isLastElement(index, count)](#module_Templating API_ static zcl helpers..isLastElement) ⇒
@@ -13544,6 +13545,7 @@ From `exports.map.command` in `src-electron/db/db-mapping.js`:
 - manufacturerCode
 - mustUseTimedInvoke
 - name
+- obsolete
 - packageRef
 - requiredCommandArgCount
 - responseName
@@ -13655,6 +13657,7 @@ From `exports.map.event` in `src-electron/db/db-mapping.js`:
 - isOptional
 - manufacturerCode
 - name
+- obsolete
 - packageRef
 - priority
 - side
@@ -13750,6 +13753,7 @@ From `exports.map.attribute` in `src-electron/db/db-mapping.js`:
 - minLength
 - mustUseTimedWrite
 - name
+- obsolete
 - packageRef
 - persistence
 - reportableChange
@@ -14225,6 +14229,28 @@ Checks if the side is client or not
 | Param | Type |
 | --- | --- |
 | side | <code>\*</code> | 
+
+<a name="module_Templating API_ static zcl helpers..isObsolete"></a>
+
+### Templating API: static zcl helpers~isObsolete(conformance) ⇒
+True when the current element (or a given conformance string) is obsolete.
+Matter XML uses `<obsoleteConform/>`, stored as tag `Z`.
+
+Attribute, command, and event iterators also expose an `obsolete` boolean,
+so templates can skip codegen with:
+{{#zcl_attributes}}
+  {{#if obsolete}}
+  {{else}}
+    // generate attribute code
+  {{/if}}
+{{/zcl_attributes}}
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: boolean  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| conformance | <code>\*</code> | optional conformance string |
 
 <a name="module_Templating API_ static zcl helpers..isServer"></a>
 
