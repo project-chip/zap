@@ -33,9 +33,14 @@ const util = require('../src-electron/util/util')
 const queryConfig = require('../src-electron/db/query-config')
 const queryZcl = require('../src-electron/db/query-zcl')
 const queryPackage = require('../src-electron/db/query-package')
+const queryDeviceType = require('../src-electron/db/query-device-type')
+const querySession = require('../src-electron/db/query-session')
+const queryCommand = require('../src-electron/db/query-command')
 const restApi = require('../src-shared/rest-api.js')
+const dbEnum = require('../src-shared/db-enum.js')
 
 let db
+let pkgId
 let specCheckAllClustersApp = path.join(
   __dirname,
   'resource/spec-check-all-clusters-app-matter.zap'
@@ -54,6 +59,9 @@ beforeAll(() => {
       env.logInfo(`Test database initialized: ${file}.`)
     })
     .then(() => zclLoader.loadZcl(db, env.builtinMatterZclMetafile()))
+    .then((ctx) => {
+      pkgId = ctx.packageId
+    })
     .catch((err) => env.logError(`Error: ${err}`))
 }, testUtil.timeout.medium())
 
@@ -543,6 +551,198 @@ test(
     expect(
       sessionNotificationMessages.some((element) =>
         element.includes('on endpoint: 1')
+      )
+    ).toBeFalsy()
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Device type Color Control requirements must not leak to another endpoint',
+  async () => {
+    // Matter keeps cluster config per endpoint. Enabling Color Control on a
+    // Door Lock must not inherit Extended Color Light's required attributes
+    // and commands from a different endpoint.
+    let sid = await testQuery.createSession(
+      db,
+      'USER',
+      util.createUuid(),
+      env.builtinMatterZclMetafile()
+    )
+
+    let extendedColorLight =
+      await queryDeviceType.selectDeviceTypeByCodeAndName(
+        db,
+        pkgId,
+        0x010d,
+        'MA-extendedcolorlight'
+      )
+    let doorLock = await queryDeviceType.selectDeviceTypeByCodeAndName(
+      db,
+      pkgId,
+      0x000a,
+      'MA-doorlock'
+    )
+    expect(extendedColorLight).not.toBeNull()
+    expect(doorLock).not.toBeNull()
+
+    async function createEndpoint(deviceType, endpointId, name) {
+      let sessionPartitionInfo =
+        await querySession.selectSessionPartitionInfoFromDeviceType(
+          db,
+          sid,
+          deviceType.id
+        )
+      let endpointTypeId = await queryConfig.insertEndpointType(
+        db,
+        sessionPartitionInfo[0],
+        name,
+        deviceType.id,
+        deviceType.code,
+        0,
+        true
+      )
+      await queryEndpoint.insertEndpoint(
+        db,
+        sid,
+        endpointId,
+        endpointTypeId,
+        0,
+        null
+      )
+      return endpointTypeId
+    }
+
+    let lightEndpointTypeId = await createEndpoint(
+      extendedColorLight,
+      1,
+      'extended-color-light'
+    )
+    let doorLockEndpointTypeId = await createEndpoint(doorLock, 2, 'door-lock')
+
+    let colorControl = await queryZcl.selectClusterByCode(db, pkgId, 0x0300)
+    expect(colorControl).not.toBeNull()
+
+    await queryConfig.insertOrReplaceClusterState(
+      db,
+      doorLockEndpointTypeId,
+      colorControl.id,
+      dbEnum.side.server,
+      true
+    )
+    await queryConfig.insertClusterDefaults(
+      db,
+      doorLockEndpointTypeId,
+      [pkgId],
+      {
+        clusterRef: colorControl.id,
+        side: dbEnum.side.server
+      }
+    )
+
+    let colorControlAttributes =
+      await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+        db,
+        colorControl.id,
+        [pkgId],
+        dbEnum.side.server
+      )
+    let currentX = colorControlAttributes.find((a) => a.name === 'CurrentX')
+    expect(currentX).toBeDefined()
+    expect(currentX.isOptional).toBeTruthy()
+
+    await queryConfig.insertOrUpdateAttributeState(
+      db,
+      doorLockEndpointTypeId,
+      colorControl.id,
+      dbEnum.side.server,
+      currentX.id,
+      [
+        {
+          key: restApi.updateKey.attributeSelected,
+          value: 0
+        }
+      ],
+      null,
+      null,
+      null
+    )
+
+    let commands = await queryCommand.selectCommandsByClusterId(
+      db,
+      colorControl.id,
+      pkgId
+    )
+    let moveToColor = commands.find((c) => c.name === 'MoveToColor')
+    expect(moveToColor).toBeDefined()
+    expect(moveToColor.isOptional).toBeTruthy()
+
+    await queryConfig.insertOrUpdateCommandState(
+      db,
+      doorLockEndpointTypeId,
+      colorControl.id,
+      moveToColor.source,
+      moveToColor.id,
+      0,
+      true
+    )
+
+    let messages = await testQuery.getAllNotificationMessages(db, sid)
+    let colorControlOnEndpoint2 = messages.filter(
+      (m) =>
+        m.includes('Check Device Type Compliance on endpoint: 2') &&
+        m.includes('Color Control')
+    )
+    expect(colorControlOnEndpoint2).toEqual([])
+
+    await queryConfig.insertOrUpdateAttributeState(
+      db,
+      lightEndpointTypeId,
+      colorControl.id,
+      dbEnum.side.server,
+      currentX.id,
+      [
+        {
+          key: restApi.updateKey.attributeSelected,
+          value: 0
+        }
+      ],
+      null,
+      null,
+      null
+    )
+    await queryConfig.insertOrUpdateCommandState(
+      db,
+      lightEndpointTypeId,
+      colorControl.id,
+      moveToColor.source,
+      moveToColor.id,
+      0,
+      true
+    )
+
+    messages = await testQuery.getAllNotificationMessages(db, sid)
+    expect(
+      messages.some(
+        (m) =>
+          m.includes('Check Device Type Compliance on endpoint: 1') &&
+          m.includes('Color Control') &&
+          m.includes('attribute: CurrentX')
+      )
+    ).toBeTruthy()
+    expect(
+      messages.some(
+        (m) =>
+          m.includes('Check Device Type Compliance on endpoint: 1') &&
+          m.includes('Color Control') &&
+          m.includes('command: MoveToColor')
+      )
+    ).toBeTruthy()
+    expect(
+      messages.some(
+        (m) =>
+          m.includes('Check Device Type Compliance on endpoint: 2') &&
+          m.includes('Color Control')
       )
     ).toBeFalsy()
   },
