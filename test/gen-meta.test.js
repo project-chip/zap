@@ -29,6 +29,8 @@ const queryPackage = require('../src-electron/db/query-package')
 const queryZcl = require('../src-electron/db/query-zcl')
 const queryAccess = require('../src-electron/db/query-access')
 const queryEvent = require('../src-electron/db/query-event')
+const queryCommand = require('../src-electron/db/query-command')
+const dbEnum = require('../src-shared/db-enum')
 
 let db
 const testFile = path.join(__dirname, 'resource/test-meta.zap')
@@ -101,6 +103,42 @@ test(
     }
     expect(hasAt1).toBeTruthy()
     expect(hasAt2).toBeTruthy()
+
+    let apiMaturityCluster = await queryZcl.selectClusterByCode(
+      db,
+      zclContext.packageId,
+      0x1122
+    )
+    expect(apiMaturityCluster).not.toBeNull()
+    let obsoleteAttribute = attributes.find(
+      (a) => a.name === 'ObsoleteAttribute'
+    )
+    expect(obsoleteAttribute).toBeDefined()
+    expect(obsoleteAttribute.conformance).toBe(dbEnum.conformanceTag.obsolete)
+    expect(obsoleteAttribute.obsolete).toBe(true)
+
+    let obsoleteCommands = await queryCommand.selectCommandsByClusterId(
+      db,
+      apiMaturityCluster.id,
+      [zclContext.packageId]
+    )
+    let obsoleteCommand = obsoleteCommands.find(
+      (c) => c.name === 'ObsoleteCommand'
+    )
+    expect(obsoleteCommand).toBeDefined()
+    expect(obsoleteCommand.conformance).toBe(dbEnum.conformanceTag.obsolete)
+    expect(obsoleteCommand.obsolete).toBe(true)
+
+    let apiMaturityEvents = await queryEvent.selectEventsByClusterId(
+      db,
+      apiMaturityCluster.id
+    )
+    let obsoleteEvent = apiMaturityEvents.find(
+      (e) => e.name === 'ObsoleteEvent'
+    )
+    expect(obsoleteEvent).toBeDefined()
+    expect(obsoleteEvent.conformance).toBe(dbEnum.conformanceTag.obsolete)
+    expect(obsoleteEvent.obsolete).toBe(true)
 
     let test2Cluster = await queryZcl.selectClusterByCode(
       db,
