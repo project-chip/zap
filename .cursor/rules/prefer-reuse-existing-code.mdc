@@ -1,0 +1,33 @@
+---
+description: Prefer reusing existing ZAP code over writing new redundant helpers
+globs: "{src,src-electron,src-shared,test}/**/*.{js,cjs,mjs,vue}"
+alwaysApply: false
+---
+
+# Prefer reuse; minimize new code
+
+Before adding new functions, SQL, helpers, or modules:
+
+1. Search the repo for an existing API that already does (or nearly does) the job.
+2. Prefer calling or lightly extending that API over copying logic or inventing a parallel path.
+3. Add new code only when no suitable existing path exists—and keep the addition as small as possible.
+
+## Checklist
+
+- DB access: look in `src-electron/db/query-*.js` first; do not embed raw SQL in `ide-integration/`, `rest/`, or UI layers when a query helper already exists.
+- Shared utilities: check `src-electron/util/`, `src/util/`, and nearby modules in the same feature area.
+- Match call patterns already used by similar features (grep for callers of the helper you found).
+
+```javascript
+// ❌ BAD — new SQL in ide-integration when query-endpoint already covers it
+dbApi.dbAll(db, `SELECT ... FROM ENDPOINT ... ENDPOINT_TYPE_CLUSTER ...`)
+
+// ✅ GOOD — reuse existing query helpers
+const endpoints = await queryEndpoint.selectAllEndpoints(db, sessionId)
+const clusters = await queryEndpoint.selectEndpointClusters(
+  db,
+  endpoint.endpointTypeRef
+)
+```
+
+If you almost-duplicate existing code, stop and reuse or extract once into the proper layer instead.

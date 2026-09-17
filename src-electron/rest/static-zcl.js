@@ -33,6 +33,7 @@ const util = require('../util/util')
 const env = require('../util/env')
 const { StatusCodes } = require('http-status-codes')
 const queryNotification = require('../db/query-session-notification.js')
+const zclComponents = require('../ide-integration/zcl-components')
 
 /**
  * This function builds a function that has the following skeleton.
@@ -317,21 +318,12 @@ function httpGetZclExtension(db) {
       return response.status(StatusCodes.NOT_FOUND).send(err)
     }
 
-    // enable components
-    queryPackage
-      .getSessionPackagesByType(
-        db,
-        sessionId,
-        dbEnum.packageType.genTemplatesJson
-      )
-      .then((pkgs) => (pkgs.length == 0 ? null : pkgs[0].id))
-      .then((packageId) => {
-        if (!packageId) {
+    zclComponents
+      .getMergedSessionPackageExtensions(db, sessionId, entity)
+      .then((exts) => {
+        if (!exts.length) {
           throw new Error('Unable to retrieve valid packageId!')
         }
-        return queryPackage.selectPackageExtension(db, packageId, entity)
-      })
-      .then((exts) => {
         let clusterExt = util.getClusterExtension(exts, extensionId)
         if (clusterExt.length) {
           return response.status(StatusCodes.OK).json(clusterExt[0])

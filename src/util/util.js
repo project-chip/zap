@@ -16,6 +16,7 @@
  */
 
 const http = require('http-status-codes')
+const ucComponent = require('../../src-shared/uc-component-id')
 import { Notify } from 'quasar'
 
 /**
@@ -84,11 +85,7 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
       msg += `<div><span style="text-transform: capitalize"><ul>`
       msg += components
         .map((component) => {
-          let { id } = component
-          if (id.lastIndexOf('%') != -1) {
-            id = id.substring(id.lastIndexOf('%') + 1)
-          }
-
+          let id = ucComponent.extractUcClusterCode(component.id)
           return `<li>${id.replace(/_/g, ' ')}</li>`
         })
         .join(' ')
@@ -153,35 +150,6 @@ export function getUcComponents(ucComponentTreeResponse) {
 }
 
 /**
- * Returns the short cluster code from a UC component id, regardless of which
- * prefix format the id uses. Strips everything up to the last '%' and then
- * everything up to the last '-', and lowercases the result. Use this when
- * you need to compare ids that came from different sources.
- *
- * Examples:
- *   "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
- *     -> "zigbee_basic"
- *   "matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control"
- *     -> "matter_level_control"
- *   "%extension-zigbee%zigbee_basic"
- *     -> "zigbee_basic"
- *   "zigbee_basic"
- *     -> "zigbee_basic"
- *
- * @param {*} id
- * @returns {string}
- */
-export function extractUcClusterCode(id) {
-  if (id == null) return ''
-  let s = String(id).toLowerCase()
-  const lastPct = s.lastIndexOf('%')
-  if (lastPct >= 0 && lastPct < s.length - 1) s = s.substring(lastPct + 1)
-  const lastDash = s.lastIndexOf('-')
-  if (lastDash >= 0 && lastDash < s.length - 1) s = s.substring(lastDash + 1)
-  return s
-}
-
-/**
  * Returns the short cluster codes (see extractUcClusterCode) for a list of UC
  * component objects.
  *
@@ -196,7 +164,7 @@ export function extractUcClusterCode(id) {
  * @returns {string[]}
  */
 export function getClusterIdsByUcComponents(ucComponents) {
-  return ucComponents.map((c) => extractUcClusterCode(c.id))
+  return ucComponents.map((c) => ucComponent.extractUcClusterCode(c.id))
 }
 
 /**
@@ -215,3 +183,6 @@ export function getServerRestPort() {
     return null
   }
 }
+
+export const extractUcClusterCode = ucComponent.extractUcClusterCode
+export const splitComponentIds = ucComponent.splitComponentIds

@@ -1,0 +1,40 @@
+---
+description: Place new ZAP code in the layer and module that match existing structure
+globs: "{src,src-electron,src-shared,test}/**/*.{js,cjs,mjs,vue}"
+alwaysApply: false
+---
+
+# Follow ZAP code organization
+
+Put new code where similar code already lives. Do not invent a new layer or dump logic into the nearest open file.
+
+## Backend (`src-electron/`)
+
+| Concern | Put it in |
+|---|---|
+| SQL / DB reads & writes | `db/query-*.js` (domain-specific file, e.g. endpoints → `query-endpoint.js`) |
+| Row → JS object mapping | `db/db-mapping.js` |
+| HTTP route handlers | `rest/*.js` |
+| Studio / IDE integration | `ide-integration/` (orchestration only; call query/util helpers) |
+| Generation / templates | `generator/` |
+| ZCL loading | `zcl/` |
+| Shared non-UI helpers | `util/` |
+| Import(open) / export(save) | `importexport/` |
+
+## Frontend (`src/`)
+
+| Concern | Put it in |
+|---|---|
+| Vue components | `components/` |
+| Vuex state / actions / mutations | `store/zap/` |
+| Shared UI helpers / mixins | `util/` |
+| Pages / layouts | `pages/`, `layouts/` |
+
+## Conventions
+
+- Keep `require` / `import` at the top of the file (see `js-requires-at-top`).
+- Export new query helpers from the existing `query-*.js` module rather than creating one-off DB access in callers.
+- Tests that mirror a feature go under `test/` next to similar existing tests; reuse `test-util` and existing fixtures when possible.
+- Match local naming, async/Promise style, and comment density of the surrounding file—do not introduce a new style.
+
+When unsure where something belongs, find one existing feature that does the same kind of work and follow that file layout.

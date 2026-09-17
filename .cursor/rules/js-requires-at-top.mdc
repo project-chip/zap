@@ -1,0 +1,33 @@
+---
+description: Keep require/import statements at the top of JS files
+globs: "**/*.{js,cjs,mjs,vue}"
+alwaysApply: false
+---
+
+# Requires and imports stay at the top
+
+Never add `require(...)`, `import ...`, or dynamic `import()` for module loading in the middle of a function, test body, or after other statements.
+
+## Required pattern
+
+- Place all `require` / `import` declarations at the top of the file, after the license header / file comment, before any other code.
+- Do not lazy-`require` inside tests, callbacks, or conditionals unless there is an explicit, documented circular-dependency reason (rare; prefer restructuring instead).
+
+```javascript
+// ❌ BAD
+test('example', async () => {
+  const fs = require('fs')
+  const queryConfig = require('../src-electron/db/query-config')
+  // ...
+})
+
+// ✅ GOOD
+const fs = require('fs')
+const queryConfig = require('../src-electron/db/query-config')
+
+test('example', async () => {
+  // ...
+})
+```
+
+When editing a file that already has mid-file requires, move them to the top rather than adding more.

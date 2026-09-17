@@ -26,6 +26,7 @@ const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
 const util = require('../util/util.js')
+const env = require('../util/env.js')
 const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
