@@ -45,6 +45,8 @@ const exportJs = require('../importexport/export.js')
 const validateAll = require('../validation/validate-all.js')
 const watchdog = require('./watchdog')
 const sdkUtil = require('../util/sdk-util')
+const cliCommands = require('../cli/cli-commands.js')
+const cliError = require('../cli/cli-error.js')
 
 let mainDatabase = null
 
@@ -766,6 +768,33 @@ async function startValidate(argv, options) {
 }
 
 /**
+ * Runs the `zap edit` command line, which performs the same edits on a .zap
+ * file that a person would perform in the user interface.
+ *
+ * Failures are reported through `options.errorPrinter`, which defaults to
+ * stderr so that a machine readable result on stdout stays parseable. Tests
+ * override it to assert on what the user is actually told.
+ *
+ * @param {*} argv
+ * @param {*} options
+ * @returns exit code, 0 on success
+ */
+async function startEdit(argv, options = {}) {
+  let errorPrinter = options.errorPrinter || env.printToStderr
+  try {
+    return await cliCommands.run(argv, options)
+  } catch (err) {
+    if (err instanceof cliError.CliError) {
+      errorPrinter(env.formatEmojiMessage('⛔', err.message))
+      err.hints.forEach((hint) => errorPrinter(hint))
+    } else {
+      errorPrinter(env.formatEmojiMessage('⛔', `${err.stack || err}`))
+    }
+    return 1
+  }
+}
+
+/**
  * Starts zap in a server mode.
  *
  * @param {*} options
@@ -1399,6 +1428,23 @@ async function startUpMainInstance(argv, callbacks) {
         env.printToStderr(`Zap validation error: ${err}`)
         cleanExit(argv.cleanupDelay, 1)
       })
+  } else if (argv.editOperation != null) {
+    return startEdit(argv).then((code) => cleanExit(argv.cleanupDelay, code))
+  } else if (argv._.includes('edit')) {
+    // The word reached the general parser instead of the edit one, which only
+    // happens when something precedes it on the command line. Say so, rather
+    // than falling through and treating 'edit' as a file to open.
+    env.printToStderr(
+      env.formatEmojiMessage(
+        '⛔',
+        `'edit' has to be the first argument. Try: zap edit ${argv._.filter(
+          (a) => typeof a === 'string' && a !== 'edit' && !a.endsWith('.js')
+        )
+          .slice(1)
+          .join(' ')}`
+      )
+    )
+    cleanExit(argv.cleanupDelay, 1)
   } else if (argv._.includes('server')) {
     return startServer(argv, quitFunction)
   } else if (argv._.includes('convert')) {
@@ -1485,6 +1531,7 @@ exports.clearDatabaseFile = clearDatabaseFile
 exports.startConvert = startConvert
 exports.startAnalyze = startAnalyze
 exports.startValidate = startValidate
+exports.startEdit = startEdit
 exports.startUpMainInstance = startUpMainInstance
 exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown

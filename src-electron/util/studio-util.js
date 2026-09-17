@@ -22,19 +22,49 @@
 const path = require('path')
 
 /**
+ * Studio puts the project path in a single URL path segment. Percent-encoding
+ * alone turns `/` into `%2F`, which Jetty 12 (UriCompliance.RFC3986) rejects as
+ * an ambiguous path separator. Studio therefore replaces `%` with `_` after
+ * encoding, and reverses that before decode. The GUI opens ZAP with paths
+ * already in that form; the CLI must apply the same mangling when talking to
+ * Jetty or component add/remove fails with a 400/404.
+ *
+ * Idempotent on an already-mangled path: those strings have no `%`, so a
+ * second encode+replace leaves them unchanged.
+ *
+ * @param {string} studioProjectPath filesystem path or Studio-mangled path
+ * @returns {string} path safe as one Jetty path segment
+ */
+function encodeStudioProjectPath(studioProjectPath) {
+  if (studioProjectPath == null) return studioProjectPath
+  return encodeURIComponent(studioProjectPath).replace(/%/g, '_')
+}
+
+/**
+ * Reverse {@link encodeStudioProjectPath} (and Studio's own mangling).
+ * @param {string} studioProjectPath
+ * @returns {string}
+ */
+function decodeStudioProjectPath(studioProjectPath) {
+  if (studioProjectPath == null) return studioProjectPath
+  return decodeURIComponent(String(studioProjectPath).replace(/_/g, '%'))
+}
+
+/**
  *  Extract project name from the Studio project path
  * @param {} db
  * @param {*} sessionId
  * @returns '' if parsing fails
  */
 function projectName(studioProjectPath) {
-  // undo the manual trickery from the Studio side.
   try {
-    let p = path.parse(decodeURIComponent(studioProjectPath.replace(/_/g, '%')))
+    let p = path.parse(decodeStudioProjectPath(studioProjectPath))
     return p.name
   } catch (error) {
     return ''
   }
 }
 
+exports.encodeStudioProjectPath = encodeStudioProjectPath
+exports.decodeStudioProjectPath = decodeStudioProjectPath
 exports.projectName = projectName

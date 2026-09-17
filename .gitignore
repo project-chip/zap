@@ -7,6 +7,10 @@ generated-html
 # Temp generation file
 docs/zap-schema.dot
 
+# Generated from docs/zap-edit-architecture.md; regenerate with
+# docs/make-zap-edit-architecture-pdf
+docs/zap-edit-architecture.pdf
+
 # Quasar core related directories
 .quasar
 /dist

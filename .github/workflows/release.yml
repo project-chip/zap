@@ -329,6 +329,9 @@ jobs:
           command_line: ./dist/zap-mac/zap-cli --version
           contains: '0.0.0'
           expected_result: FAILED
+      - name: ZAP binary check (macOS x64) - zap edit smoke test
+        if: startsWith(matrix.os, 'macos')
+        run: npm run smoke:cli:mac
       - name: ZAP binary check (macOS x64) - unzip cleanup
         if: startsWith(matrix.os, 'macos')
         run: rm -rf dist/zap-mac
@@ -350,9 +353,33 @@ jobs:
           command_line: ./dist/zap-linux/zap-cli --version
           contains: '0.0.0'
           expected_result: FAILED
+      - name: ZAP binary check (Linux) - zap edit smoke test
+        if: startsWith(matrix.os, 'ubuntu')
+        run: node ./src-script/smoke-test-cli.js --binary ./dist/zap-linux/zap-cli
       - name: ZAP binary check (Linux) - unzip cleanup
         if: startsWith(matrix.os, 'ubuntu')
         run: rm -rf dist/zap-linux
+      - name: Verify SKILL.md exists in package's base directory
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: ./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip | grep SKILL.md
+          contains: 'SKILL.md'
+
+      - name: Verify SKILL.md exists in macOS x64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: 7za l ./dist/zap-mac-x64.zip | grep SKILL.md
+          contains: 'SKILL.md'
+
+      - name: Verify SKILL.md exists in Windows x64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: 7za l ./dist/zap-win-x64.zip | grep SKILL.md
+          contains: 'SKILL.md'
+
       - name: Verify zap.png exists in package's base directory
         if: startsWith(matrix.os, 'ubuntu')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1

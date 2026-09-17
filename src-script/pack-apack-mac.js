@@ -47,6 +47,25 @@ exports.default = async function (buildResult) {
           reject(err)
         })
       })
+
+      // SKILL.md tells an agent that .zap files are edited with zap-cli. The
+      // SDK collects these from the packages it ships.
+      await new Promise((resolve, reject) => {
+        const myStream3 = Seven.add(
+          element, // The .zip file (output)
+          path.join(buildResult.outDir, '../SKILL.md'), // Add SKILL.md
+          {
+            $progress: true,
+            $bin: pathTo7zip
+          }
+        )
+
+        myStream3.on('end', resolve)
+        myStream3.on('error', (err) => {
+          console.log('Error adding SKILL.md:', err.stderr)
+          reject(err)
+        })
+      })
     }
   }
 }
