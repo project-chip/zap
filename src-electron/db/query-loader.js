@@ -1697,6 +1697,54 @@ WHERE
 }
 
 /**
+ * Force attributeAccessInterface storage policy on every attribute whose
+ * type is a struct in this package. List types are handled at parse time
+ * (they carry entryType); structs are only identifiable after all XML files
+ * have been loaded.
+ *
+ * Attributes already marked attributeAccessInterface (explicit annotation or
+ * the list-type rule) are left alone.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @returns promise which updates storage policy for struct-typed attributes
+ */
+async function applyStructAttributeAccessInterfacePolicy(db, packageId) {
+  return dbApi.dbUpdate(
+    db,
+    `
+UPDATE
+  ATTRIBUTE
+SET
+  STORAGE_POLICY = ?
+WHERE
+  PACKAGE_REF = ?
+AND
+  (STORAGE_POLICY IS NULL OR STORAGE_POLICY != ?)
+AND
+  LOWER(TYPE) IN (
+    SELECT
+      LOWER(DATA_TYPE.NAME)
+    FROM
+      DATA_TYPE
+    INNER JOIN
+      STRUCT
+    ON
+      STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+    WHERE
+      DATA_TYPE.PACKAGE_REF = ?
+  )
+`,
+    [
+      dbEnum.storagePolicy.attributeAccessInterface,
+      packageId,
+      dbEnum.storagePolicy.attributeAccessInterface,
+      packageId
+    ]
+  )
+}
+
+/**
  * Insert Data Type Discriminator into the database.
  * Data is all the data types that can exist with name and whether the type is
  * a baseline data type or not
@@ -2530,6 +2578,8 @@ exports.insertBitmapFields = insertBitmapFields
 exports.insertStruct = insertStruct
 exports.insertStructItems = insertStructItems
 exports.updateDataTypeClusterReferences = updateDataTypeClusterReferences
+exports.applyStructAttributeAccessInterfacePolicy =
+  applyStructAttributeAccessInterfacePolicy
 exports.insertAttributeMappings = insertAttributeMappings
 exports.insertEndpointComposition = insertEndpointComposition
 exports.insertDeviceComposition = insertDeviceComposition

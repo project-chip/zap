@@ -97,6 +97,29 @@ A default value can only be kept when its size is known, which rules out list
 typed attributes and attributes whose type has no fixed size. Asking to keep the
 default value of one of those has no effect.
 
+### Forced storage by type
+
+Matter implementations serve list- and struct-typed attributes through the
+attribute access interface, so they must be `External`. A `zcl.json` metafile
+can ask ZAP to apply that rule automatically instead of listing every such
+attribute in `attributeAccessInterfaceAttributes`:
+
+```json
+"listsUseAttributeAccessInterface": true,
+"structsUseAttributeAccessInterface": true
+```
+
+When those flags are set, ZAP:
+
+- records `storagePolicy` as `attributeAccessInterface` on matching attributes
+  (lists at parse time; structs after every XML file is loaded, once types are
+  known);
+- defaults their storage option to `External`;
+- shows that value in the UI but does not allow changing it.
+
+An explicit `attributeAccessInterfaceAttributes` entry for the same attribute
+still wins, including `keepDefault`.
+
 ## Generation templates and extensions
 
 Generation templates and extensions are provided by the SDK. They are the input to the ZAP tool. They control generation and tailor the ZAP tool specifically to a given SDK, by providing the correct details of the implementation that ZAP cares about.

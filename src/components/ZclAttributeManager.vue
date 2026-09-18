@@ -112,7 +112,8 @@ limitations under the License.
                 isDisabledStorage(
                   props.row.id,
                   props.row.label,
-                  selectedCluster.id
+                  selectedCluster.id,
+                  props.row
                 )
               "
               class="col"
@@ -302,11 +303,14 @@ export default {
       )
     },
     //return true and disable Storage if forced External AND if attribute is not enabled
-    isDisabledStorage(id, name, selectedClusterId) {
+    isDisabledStorage(id, name, selectedClusterId, row) {
       return (
         !this.selection.includes(
           this.hashAttributeIdClusterId(id, selectedClusterId)
-        ) || this.checkForcedExternal(name)
+        ) ||
+        this.checkForcedExternal(name) ||
+        (row &&
+          row.storagePolicy === DbEnum.storagePolicy.attributeAccessInterface)
       )
     },
     //return true and disable if attribute is not enabled
