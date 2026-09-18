@@ -182,11 +182,17 @@ INSERT INTO ATTRIBUTE (
   REMOVED_IN_REF,
   API_MATURITY,
   IS_CHANGE_OMITTED,
-  PERSISTENCE
+  PERSISTENCE,
+  IS_QUIETER_REPORTING,
+  IS_SOURCE_ATTRIBUTION,
+  IS_ATOMIC
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  ?,
+  ?,
+  ?,
   ?,
   ?,
   ?
@@ -269,7 +275,10 @@ function attributeMap(clusterId, packageId, attributes) {
     packageId,
     attribute.apiMaturity,
     dbApi.toDbBool(attribute.isChangeOmitted),
-    attribute.persistence
+    attribute.persistence,
+    dbApi.toDbBool(attribute.isQuieterReporting),
+    dbApi.toDbBool(attribute.isSourceAttribution),
+    dbApi.toDbBool(attribute.isAtomic)
   ])
 }
 
