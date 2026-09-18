@@ -144,27 +144,54 @@ async function computeStoragePolicyForGlobalAttributes(
 }
 
 /**
+ * Resolves the storage option a configuration may use.
+ *
+ * attributeAccessInterface always wins and forces External:
+ * list- and struct-typed attributes, and explicit AAI annotations.
+ *
+ * Otherwise a spec persistence of nonVolatile defaults to NVM and rejects
+ * RAM. External remains allowed for those attributes.
+ *
+ * @param {String} storagePolicy
+ * @param {String} [persistence]
+ * @param {String} [requested] currently selected or imported storage option
+ * @returns {String} RAM, NVM, or External
+ */
+function resolveStorageOption(storagePolicy, persistence, requested) {
+  if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
+    return dbEnum.storageOption.external
+  }
+  if (storagePolicy != null && storagePolicy != dbEnum.storagePolicy.any) {
+    throw new Error('Invalid storage policy')
+  }
+  if (persistence == dbEnum.persistence.nonVolatile) {
+    if (
+      requested == dbEnum.storageOption.external ||
+      requested == dbEnum.storageOption.nvm
+    ) {
+      return requested
+    }
+    return dbEnum.storageOption.nvm
+  }
+  return requested || dbEnum.storageOption.ram
+}
+
+/**
  * This asynchronous function computes and returns the new configuration for a storage option.
  *
  * @param {String} storagePolicy - The current storage policy.
+ * @param {String} [persistence] - Spec persistence quality, if any.
  *
  * The function first initializes the storageOption. Then it checks the storagePolicy:
  * - If it's 'attributeAccessInterface', it sets the storageOption to 'external'.
+ * - If it's 'any' and persistence is nonVolatile, it sets the storageOption to 'nvm'.
  * - If it's 'any', it sets the storageOption to 'ram'.
  * If the storagePolicy is neither of these, it throws an error 'check storage policy'.
  * Finally, it returns the updated storage option.
  */
-async function computeStorageOptionNewConfig(storagePolicy) {
+async function computeStorageOptionNewConfig(storagePolicy, persistence) {
   try {
-    let storageOption
-    if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
-      storageOption = dbEnum.storageOption.external
-    } else if (storagePolicy == dbEnum.storagePolicy.any) {
-      storageOption = dbEnum.storageOption.ram
-    } else {
-      throw new Error('Invalid storage policy')
-    }
-    return storageOption
+    return resolveStorageOption(storagePolicy, persistence)
   } catch (error) {
     console.error('Error computing new storage option config:', error)
     throw error // Rethrow the error for further handling if necessary
@@ -240,6 +267,7 @@ async function computeStorageImport(
 exports.getForcedExternalStorage = getForcedExternalStorage
 exports.isForcedExternal = isForcedExternal
 exports.keepsDefault = keepsDefault
+exports.resolveStorageOption = resolveStorageOption
 exports.computeStorageImport = computeStorageImport
 exports.computeStoragePolicyNewConfig = computeStoragePolicyNewConfig
 exports.computeStorageOptionNewConfig = computeStorageOptionNewConfig

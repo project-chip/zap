@@ -706,6 +706,7 @@ SELECT
   A.ATTRIBUTE_ID,
   A.REPORTING_POLICY,
   A.STORAGE_POLICY,
+  A.PERSISTENCE,
   A.NAME
 FROM
   ATTRIBUTE AS A
@@ -731,17 +732,20 @@ WHERE
   let attributeId
   let reportingPolicy
   let storagePolicy
+  let persistence
   let forcedExternal
   let attributeName
   if (atRow.length == 0) {
     attributeId = null
     reportingPolicy = null
     storagePolicy = null
+    persistence = null
     attributeName = null
   } else {
     attributeId = atRow[0].ATTRIBUTE_ID
     reportingPolicy = atRow[0].REPORTING_POLICY
     storagePolicy = atRow[0].STORAGE_POLICY
+    persistence = atRow[0].PERSISTENCE
     attributeName = atRow[0].NAME
   }
 
@@ -761,10 +765,13 @@ WHERE
       forcedExternal,
       attributeName
     )
-  }
-  if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
-    attribute.storageOption = dbEnum.storageOption.external
+    attribute.storageOption = queryUpgrade.resolveStorageOption(
+      storagePolicy,
+      persistence,
+      attribute.storageOption
+    )
     if (
+      storagePolicy == dbEnum.storagePolicy.attributeAccessInterface &&
       !queryUpgrade.keepsDefault(forcedExternal, cluster.name, attributeName)
     ) {
       attribute.defaultValue = null

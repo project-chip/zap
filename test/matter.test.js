@@ -38,4 +38,29 @@ test('compute storage policy new config', async () => {
     dbEnum.storagePolicy.any
   )
   expect(result2).toEqual(dbEnum.storageOption.ram)
+  const result3 = await matter.computeStorageOptionNewConfig(
+    dbEnum.storagePolicy.any,
+    dbEnum.persistence.nonVolatile
+  )
+  expect(result3).toEqual(dbEnum.storageOption.nvm)
+  // AAI wins over non-volatile: list/struct attributes stay External.
+  const result4 = await matter.computeStorageOptionNewConfig(
+    dbEnum.storagePolicy.attributeAccessInterface,
+    dbEnum.persistence.nonVolatile
+  )
+  expect(result4).toEqual(dbEnum.storageOption.external)
+  expect(
+    matter.resolveStorageOption(
+      dbEnum.storagePolicy.any,
+      dbEnum.persistence.nonVolatile,
+      dbEnum.storageOption.ram
+    )
+  ).toEqual(dbEnum.storageOption.nvm)
+  expect(
+    matter.resolveStorageOption(
+      dbEnum.storagePolicy.any,
+      dbEnum.persistence.nonVolatile,
+      dbEnum.storageOption.external
+    )
+  ).toEqual(dbEnum.storageOption.external)
 })
