@@ -1,0 +1,33 @@
+---
+description: Extend existing ZAP tests before adding new suites; avoid redundant test code
+globs: "test/**/*.js"
+alwaysApply: false
+---
+
+# Prefer extending existing tests
+
+When adding coverage for a change, extend an existing related test first. Do not create a large new test file or duplicate setup unless nothing suitable exists.
+
+## Order of preference
+
+1. Add or adjust a case in an existing test that already loads the same packages, DB, fixtures, or feature area.
+2. Reuse shared helpers and fixtures (`test/test-util.js`, existing `test/resource/**`, patterns in nearby `*.test.js`).
+3. Only add a new `*.test.js` when the behavior is a distinct area with no reasonable host test.
+
+## Avoid
+
+- Copy-pasting `beforeAll` DB/schema/ZCL/template load blocks into a new file when an existing suite already has that context.
+- New fixtures that duplicate `test/resource/meta`, `test/gen-template/**`, or similar.
+- Large standalone suites whose only purpose is one small assertion that fits an existing test.
+
+```javascript
+// ❌ BAD — new file that re-boots DB + templates just for one mapping check
+// test/my-new-component-mapping.test.js with full beforeAll setup...
+
+// ✅ GOOD — extend the suite that already loads templates / IDE integration
+test('Multiple clusters can map to the same UC component', async () => {
+  // additional assertions in test/ide-integration.test.js
+})
+```
+
+Keep new test code minimal: only what proves the new behavior. Match the style and timeout helpers of the host file.

@@ -1,0 +1,26 @@
+{
+  "name": "Matter cluster-to-component stub",
+  "version": "meta-matter-components",
+  "category": "matter",
+  "templates": [],
+  "zcl": {
+    "cluster": {
+      "component": {
+        "type": "text",
+        "configurability": "hidden",
+        "globalDefault": null,
+        "label": "Cluster to Component dependency mapping",
+        "defaults": [
+          {
+            "clusterCode": "color control-server",
+            "value": ["matter_color_control"]
+          },
+          {
+            "clusterCode": "level control-server",
+            "value": ["matter_color_control"]
+          }
+        ]
+      }
+    }
+  }
+}

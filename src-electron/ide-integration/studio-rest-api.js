@@ -237,31 +237,35 @@ async function updateComponentByClusterIdAndComponentId(
     return Promise.resolve({ componentIds: [], added: add })
   }
 
-  // retrieve components to enable
-  let promises = []
+  // retrieve components to enable / disable from cluster mapping
+  let mappedIds = []
   if (clusterId) {
-    let ids = await zclComponents.getComponentIdsByCluster(
+    mappedIds = await zclComponents.getComponentIdsByCluster(
       db,
       sessionId,
       clusterId,
       side
     )
-
-    promises.push(...ids.map((x) => Promise.resolve(x)))
   }
 
-  // enabling components via Studio
-  return (
-    Promise.all(promises)
-      .then((ids) => ids.flat())
-      .then((ids) => ids.concat(componentIds))
-      // enabling components via Studio jetty server.
-      .then((ids) => updateComponentByComponentIds(db, sessionId, ids, add))
-      .catch((err) => {
-        env.logInfo(err)
-        return err
-      })
-  )
+  let ids = mappedIds.concat(componentIds || []).filter((x) => x)
+
+  // When disabling, keep any component that is still required by another
+  // enabled cluster (N:1 cluster→component mappings) or the same cluster on
+  // another endpoint. Cluster ZCL state is updated before this runs, so the
+  // just-disabled cluster is already excluded from "still required".
+  if (!add) {
+    ids = await zclComponents.filterOutComponentsStillRequired(
+      db,
+      sessionId,
+      ids
+    )
+  }
+
+  return updateComponentByComponentIds(db, sessionId, ids, add).catch((err) => {
+    env.logInfo(err)
+    return err
+  })
 }
 
 /**

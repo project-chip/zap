@@ -13,6 +13,11 @@
 <dt><a href="#module_REST API_ REST API.">REST API: REST API.</a></dt>
 <dd><p>This module provides REST API Exports.</p>
 </dd>
+<dt><a href="#module_Shared API_ UC component ids">Shared API: UC component ids</a></dt>
+<dd><p>Shared UC component-id helpers used by both the UI (<code>src/util/util.js</code>)
+and Studio IDE integration. Lives in src-shared so the Electron backend
+can require it without pulling in Quasar, and so <code>tsc</code> / packaging include it.</p>
+</dd>
 <dt><a href="#module_IPC Client API_ Inter-process communication">IPC Client API: Inter-process communication</a></dt>
 <dd><p>This module provides IPC Client functionality.</p>
 </dd>
@@ -461,6 +466,53 @@ Global function that can be overloaded by jxbrowser for notifications
 
 ## REST API: REST API.
 This module provides REST API Exports.
+
+<a name="module_Shared API_ UC component ids"></a>
+
+## Shared API: UC component ids
+Shared UC component-id helpers used by both the UI (`src/util/util.js`)
+and Studio IDE integration. Lives in src-shared so the Electron backend
+can require it without pulling in Quasar, and so `tsc` / packaging include it.
+
+
+* [Shared API: UC component ids](#module_Shared API_ UC component ids)
+    * [~extractUcClusterCode(id)](#module_Shared API_ UC component ids..extractUcClusterCode) ⇒ <code>string</code>
+    * [~splitComponentIds(ids)](#module_Shared API_ UC component ids..splitComponentIds) ⇒ <code>Array.&lt;string&gt;</code>
+
+<a name="module_Shared API_ UC component ids..extractUcClusterCode"></a>
+
+### Shared API: UC component ids~extractUcClusterCode(id) ⇒ <code>string</code>
+Returns the short cluster code from a UC component id, regardless of which
+prefix format the id uses. Strips everything up to the last '%' and then
+everything up to the last '-', and lowercases the result. Use this when
+you need to compare ids that came from different sources.
+
+Examples:
+  "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
+    -> "zigbee_basic"
+  "matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control"
+    -> "matter_level_control"
+  "%extension-zigbee%zigbee_basic"
+    -> "zigbee_basic"
+  "zigbee_basic"
+    -> "zigbee_basic"
+
+**Kind**: inner method of [<code>Shared API: UC component ids</code>](#module_Shared API_ UC component ids)  
+
+| Param | Type |
+| --- | --- |
+| id | <code>\*</code> | 
+
+<a name="module_Shared API_ UC component ids..splitComponentIds"></a>
+
+### Shared API: UC component ids~splitComponentIds(ids) ⇒ <code>Array.&lt;string&gt;</code>
+Split a cluster extension default value into component ids.
+
+**Kind**: inner method of [<code>Shared API: UC component ids</code>](#module_Shared API_ UC component ids)  
+
+| Param | Type |
+| --- | --- |
+| ids | <code>\*</code> | 
 
 <a name="module_IPC Client API_ Inter-process communication"></a>
 
@@ -16299,7 +16351,10 @@ This module provides the API to access zcl specific information.
 
 
 * [REST API: user data](#module_REST API_ user data)
+    * [~getSessionGenTemplatesPackageIdForCluster(db, sessionId, cluster)](#module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
+    * [~getMergedSessionPackageExtensions(db, sessionId, entity)](#module_REST API_ user data..getMergedSessionPackageExtensions) ⇒ <code>Promise.&lt;Array&gt;</code>
     * [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module_REST API_ user data..getComponentIdsByCluster) ⇒ <code>\*</code>
+    * [~filterOutComponentsStillRequired(db, sessionId, componentIds)](#module_REST API_ user data..filterOutComponentsStillRequired) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
     * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
     * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
     * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
@@ -16341,6 +16396,36 @@ This module provides the API to access zcl specific information.
     * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
+<a name="module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster"></a>
+
+### REST API: user data~getSessionGenTemplatesPackageIdForCluster(db, sessionId, cluster) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
+Session gen-templates package that matches the cluster's ZCL package category.
+Falls back to the first session templates package when category is missing
+or no matching templates package exists.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+
+<a name="module_REST API_ user data..getMergedSessionPackageExtensions"></a>
+
+### REST API: user data~getMergedSessionPackageExtensions(db, sessionId, entity) ⇒ <code>Promise.&lt;Array&gt;</code>
+Package extensions for an entity, merged across every session gen-templates
+package. Property metadata comes from the first package that defines it;
+defaults from later packages are concatenated.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+| entity | <code>\*</code> | 
+
 <a name="module_REST API_ user data..getComponentIdsByCluster"></a>
 
 ### REST API: user data~getComponentIdsByCluster(db, sessionId, clusterId, side) ⇒ <code>\*</code>
@@ -16355,6 +16440,23 @@ Promise that return a list of component Ids required by a specific cluster
 | sessionId | <code>\*</code> | 
 | clusterId | <code>\*</code> | 
 | side | <code>\*</code> | 
+
+<a name="module_REST API_ user data..filterOutComponentsStillRequired"></a>
+
+### REST API: user data~filterOutComponentsStillRequired(db, sessionId, componentIds) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+From a candidate remove list, drop any component that is still required by
+another enabled cluster (or the same cluster on another endpoint).
+Enabled clusters come from selectUsedEndpointTypeIds +
+selectAllClustersDetailsFromEndpointTypes (same pattern as ClustersHelper /
+helper-shared-config). Mapping to UC ids reuses getComponentIdsByCluster.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+| componentIds | <code>Array.&lt;string&gt;</code> | 
 
 <a name="module_REST API_ user data..httpGetSessionKeyValues"></a>
 
@@ -17664,7 +17766,10 @@ This module provides the REST API to the user specific data.
 
 
 * [REST API: user data](#module_REST API_ user data)
+    * [~getSessionGenTemplatesPackageIdForCluster(db, sessionId, cluster)](#module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
+    * [~getMergedSessionPackageExtensions(db, sessionId, entity)](#module_REST API_ user data..getMergedSessionPackageExtensions) ⇒ <code>Promise.&lt;Array&gt;</code>
     * [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module_REST API_ user data..getComponentIdsByCluster) ⇒ <code>\*</code>
+    * [~filterOutComponentsStillRequired(db, sessionId, componentIds)](#module_REST API_ user data..filterOutComponentsStillRequired) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
     * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
     * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
     * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
@@ -17706,6 +17811,36 @@ This module provides the REST API to the user specific data.
     * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
+<a name="module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster"></a>
+
+### REST API: user data~getSessionGenTemplatesPackageIdForCluster(db, sessionId, cluster) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
+Session gen-templates package that matches the cluster's ZCL package category.
+Falls back to the first session templates package when category is missing
+or no matching templates package exists.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+
+<a name="module_REST API_ user data..getMergedSessionPackageExtensions"></a>
+
+### REST API: user data~getMergedSessionPackageExtensions(db, sessionId, entity) ⇒ <code>Promise.&lt;Array&gt;</code>
+Package extensions for an entity, merged across every session gen-templates
+package. Property metadata comes from the first package that defines it;
+defaults from later packages are concatenated.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+| entity | <code>\*</code> | 
+
 <a name="module_REST API_ user data..getComponentIdsByCluster"></a>
 
 ### REST API: user data~getComponentIdsByCluster(db, sessionId, clusterId, side) ⇒ <code>\*</code>
@@ -17720,6 +17855,23 @@ Promise that return a list of component Ids required by a specific cluster
 | sessionId | <code>\*</code> | 
 | clusterId | <code>\*</code> | 
 | side | <code>\*</code> | 
+
+<a name="module_REST API_ user data..filterOutComponentsStillRequired"></a>
+
+### REST API: user data~filterOutComponentsStillRequired(db, sessionId, componentIds) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+From a candidate remove list, drop any component that is still required by
+another enabled cluster (or the same cluster on another endpoint).
+Enabled clusters come from selectUsedEndpointTypeIds +
+selectAllClustersDetailsFromEndpointTypes (same pattern as ClustersHelper /
+helper-shared-config). Mapping to UC ids reuses getComponentIdsByCluster.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+| componentIds | <code>Array.&lt;string&gt;</code> | 
 
 <a name="module_REST API_ user data..httpGetSessionKeyValues"></a>
 

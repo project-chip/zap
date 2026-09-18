@@ -102,10 +102,31 @@ test(
     // Bare short code passes through
     expect(util.extractUcClusterCode('zigbee_basic')).toEqual('zigbee_basic')
 
+    // Whitespace is ignored
+    expect(util.extractUcClusterCode('  zigbee_basic  ')).toEqual(
+      'zigbee_basic'
+    )
+
     // Defensive cases
     expect(util.extractUcClusterCode(null)).toEqual('')
     expect(util.extractUcClusterCode(undefined)).toEqual('')
     expect(util.extractUcClusterCode('')).toEqual('')
+  },
+  timeout.short()
+)
+
+test(
+  'splitComponentIds: splits a cluster-extension default into ids',
+  () => {
+    expect(util.splitComponentIds('shared-resource-component')).toEqual([
+      'shared-resource-component'
+    ])
+    expect(util.splitComponentIds('a, b, c')).toEqual(['a', 'b', 'c'])
+    expect(util.splitComponentIds('a,,b,')).toEqual(['a', 'b'])
+    expect(util.splitComponentIds(['one', 'two'])).toEqual(['one', 'two'])
+    expect(util.splitComponentIds('')).toEqual([])
+    expect(util.splitComponentIds(null)).toEqual([])
+    expect(util.splitComponentIds(undefined)).toEqual([])
   },
   timeout.short()
 )
