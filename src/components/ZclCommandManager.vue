@@ -152,6 +152,7 @@ export default {
     commandData: {
       get() {
         return this.$store.state.zap.commands.filter((command) => {
+          if (this.isObsoleteElement(command)) return false
           return this.individualClusterFilterString == ''
             ? true
             : command.name

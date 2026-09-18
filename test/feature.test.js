@@ -174,6 +174,7 @@ test(
       { expression: 'P', expected: 'provisional', operands: ['P'] },
       { expression: 'D', expected: 'notSupported', operands: ['D'] },
       { expression: 'X', expected: 'notSupported', operands: ['X'] },
+      { expression: 'Z', expected: 'notSupported', operands: ['Z'] },
 
       // 2. test simple mandatory conformance expression
       { expression: 'HS', expected: 'mandatory', operands: ['HS'] },
@@ -393,6 +394,7 @@ test(
       { expression: 'P', translation: 'provisional' },
       { expression: 'D', translation: 'deprecated' },
       { expression: 'X', translation: 'disallowed' },
+      { expression: 'Z', translation: 'obsolete' },
       {
         expression: 'desc',
         translation: dbEnum.conformanceVal.described
@@ -517,6 +519,23 @@ test(
       )
       expect(result).toBe(expression.translation)
     })
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Parse obsoleteConform from XML into tag Z',
+  () => {
+    const conformParser = require('../src-electron/validation/conformance-xml-parser')
+    expect(
+      conformParser.parseConformanceFromXML({ obsoleteConform: [''] })
+    ).toBe(dbEnum.conformanceTag.obsolete)
+    expect(
+      conformParser.parseConformanceFromXML({ deprecateConform: [''] })
+    ).toBe(dbEnum.conformanceTag.deprecated)
+    expect(
+      conformParser.parseConformanceFromXML({ disallowConform: [''] })
+    ).toBe(dbEnum.conformanceTag.disallowed)
   },
   testUtil.timeout.short()
 )

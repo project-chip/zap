@@ -626,6 +626,7 @@ async function zcl_clusters(options) {
  * - manufacturerCode
  * - mustUseTimedInvoke
  * - name
+ * - obsolete
  * - packageRef
  * - requiredCommandArgCount
  * - responseName
@@ -831,6 +832,7 @@ function zcl_commands_source_server(options) {
  * - isOptional
  * - manufacturerCode
  * - name
+ * - obsolete
  * - packageRef
  * - priority
  * - side
@@ -1029,6 +1031,7 @@ function zcl_global_commands(options) {
  * - minLength
  * - mustUseTimedWrite
  * - name
+ * - obsolete
  * - packageRef
  * - persistence
  * - reportableChange
@@ -2037,6 +2040,32 @@ async function if_is_struct(type, options) {
  */
 function isClient(side) {
   return 0 == side.localeCompare(dbEnum.side.client)
+}
+
+/**
+ * True when the current element (or a given conformance string) is obsolete.
+ * Matter XML uses `<obsoleteConform/>`, stored as tag `Z`.
+ *
+ * Attribute, command, and event iterators also expose an `obsolete` boolean,
+ * so templates can skip codegen with:
+ * {{#zcl_attributes}}
+ *   {{#if obsolete}}
+ *   {{else}}
+ *     // generate attribute code
+ *   {{/if}}
+ * {{/zcl_attributes}}
+ *
+ * @param {*} conformance optional conformance string
+ * @returns boolean
+ */
+function isObsolete(conformance) {
+  if (typeof conformance === 'string') {
+    return conformance === dbEnum.conformanceTag.obsolete
+  }
+  return (
+    this.obsolete === true ||
+    this.conformance === dbEnum.conformanceTag.obsolete
+  )
 }
 
 /**
@@ -3344,6 +3373,9 @@ exports.zcl_command_argument_data_type = zcl_command_argument_data_type
 
 exports.is_client = isClient
 exports.isClient = dep(isClient, { to: 'is_client' })
+
+exports.is_obsolete = isObsolete
+exports.isObsolete = dep(isObsolete, { to: 'is_obsolete' })
 
 exports.is_server = isServer
 exports.isServer = dep(isServer, { to: 'is_server' })
