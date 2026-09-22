@@ -914,7 +914,7 @@ limitations under the License.
     <server tick="false" init="false">true</server>
     <globalAttribute side="either" code="0xFFFD" value="2"/>
     <attribute side="server" code="0x0000" define="SHORT_ADDRESS" type="INT16U" min="0x0000" max="0xFFF7" writable="true" default="0xFFFF" optional="false">short address</attribute>
-    <attribute side="server" code="0x0001" define="EXTENDED_PAN_ID" type="IEEE_ADDRESS" min="0x0000000000000000" max="0xFFFFFFFFFFFFFFFE" writable="true" default="0xFFFFFFFFFFFFFFFF" optional="false">extended pan id</attribute>
+    <attribute side="server" code="0x0001" define="EXTENDED_PAN_ID" type="IEEE_ADDRESS" min="0x0000000000000000" max="0xFFFFFFFFFFFFFFFE" writable="true" default="0xFFFFFFFFFFFFFFFC" optional="false">extended pan id</attribute>
     <attribute side="server" code="0x0002" define="PAN_ID" type="INT16U" min="0x0000" max="0xFFFF" writable="true" default="0xFFFF" optional="false">pan id</attribute>
     <attribute side="server" code="0x0003" define="CHANNEL_MASK" type="BITMAP32" writable="true" default="0x07FFF800" optional="false">channel mask</attribute>
     <attribute side="server" code="0x0004" define="PROTOCOL_VERSION" type="INT8U" min="0x02" max="0x02" writable="true" default="0x02" optional="false">protocol version</attribute>
