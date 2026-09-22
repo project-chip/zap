@@ -49,11 +49,23 @@ function defaultFileFormat() {
 }
 
 /**
+ * Test ZCL metadata. Intentionally includes invalid data (duplicate commands,
+ * type contradictions, etc.) so unit tests can assert package notifications.
  *
  * @returns path to zcl.json file
  */
 function builtinSilabsZclMetafile() {
   return locateProjectResource('./zcl-builtin/silabs/zcl.json')
+}
+
+/**
+ * Demo ZCL metadata used when opening ZAP or running `npm run zap` without
+ * an explicit `--zcl` path. Should load without package errors or warnings.
+ *
+ * @returns path to demo zcl.json file
+ */
+function builtinSilabsZclDemoMetafile() {
+  return locateProjectResource('./zcl-builtin/silabs-demo/zcl.json')
 }
 
 /**
@@ -679,6 +691,7 @@ exports.environmentVariable = environmentVariable
 exports.setSaveFileFormat = setSaveFileFormat
 exports.defaultFileFormat = defaultFileFormat
 exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
+exports.builtinSilabsZclDemoMetafile = builtinSilabsZclDemoMetafile
 exports.builtinSilabsZclSpecialMetafile = builtinSilabsZclSpecialMetafile
 exports.builtinSilabsZclGeneralXmlFile = builtinSilabsZclGeneralXmlFile
 exports.builtinSilabsSpecialZclGeneralSpecialXmlFile =

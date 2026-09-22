@@ -1,9 +1,13 @@
-# ZCL Meta Repository
+# ZCL Test Meta Repository
 
-This repository contains the test meta-files that describe the ZCL application layer.
+This directory contains **test** ZCL meta-files. Some files (for example
+`demo.xml`) intentionally include invalid metadata so unit tests can assert
+package errors and warnings.
 
-**IMPORTANT**: these files are NOT the root repository of the ZCL XML files. It is ONLY a test snapshot so that the
-zap application has ability to run in a standalone mode.
+Standalone ZAP (`npm run zap` and the packaged executable) does **not** use
+this directory by default. Demo data lives in `zcl-builtin/silabs-demo`.
+
+**IMPORTANT**: these files are NOT the root repository of the ZCL XML files. It is ONLY a test snapshot.
 
 ## License
 

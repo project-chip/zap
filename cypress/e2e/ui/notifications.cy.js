@@ -85,4 +85,21 @@ describe('Notifications page functionality', () => {
       }
     })
   })
+
+  it('Should have a resizable notifications drawer', () => {
+    cy.dataCy('btn-notifications').click()
+    cy.wait(1000)
+    cy.dataCy('notification-drawer-resize').should('exist')
+  })
+
+  it('Should expand package notifications when present', () => {
+    cy.dataCy('btn-notifications').click()
+    cy.wait(1000)
+    cy.get('body').then(($body) => {
+      if ($body.find('[data-cy="package-notification-expansion"]').length) {
+        cy.dataCy('package-notification-expansion').first().click()
+        cy.contains(/Errors|Warnings/).should('be.visible')
+      }
+    })
+  })
 })

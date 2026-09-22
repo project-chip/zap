@@ -19541,6 +19541,7 @@ Environment utilities for ZAP
     * [~setSaveFileFormat(n)](#module_JS API_ Environment utilities..setSaveFileFormat)
     * [~defaultFileFormat()](#module_JS API_ Environment utilities..defaultFileFormat) ⇒
     * [~builtinSilabsZclMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclMetafile) ⇒
+    * [~builtinSilabsZclDemoMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclDemoMetafile) ⇒
     * [~builtinSilabsTemplatesMetaFile()](#module_JS API_ Environment utilities..builtinSilabsTemplatesMetaFile) ⇒
     * [~builtinSilabsZclSpecialMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclSpecialMetafile) ⇒
     * [~builtinSilabsZclGeneralXmlFile()](#module_JS API_ Environment utilities..builtinSilabsZclGeneralXmlFile) ⇒
@@ -19602,8 +19603,19 @@ Get save file format.
 <a name="module_JS API_ Environment utilities..builtinSilabsZclMetafile"></a>
 
 ### JS API: Environment utilities~builtinSilabsZclMetafile() ⇒
+Test ZCL metadata. Intentionally includes invalid data (duplicate commands,
+type contradictions, etc.) so unit tests can assert package notifications.
+
 **Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to zcl.json file  
+<a name="module_JS API_ Environment utilities..builtinSilabsZclDemoMetafile"></a>
+
+### JS API: Environment utilities~builtinSilabsZclDemoMetafile() ⇒
+Demo ZCL metadata used when opening ZAP or running `npm run zap` without
+an explicit `--zcl` path. Should load without package errors or warnings.
+
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Returns**: path to demo zcl.json file  
 <a name="module_JS API_ Environment utilities..builtinSilabsTemplatesMetaFile"></a>
 
 ### JS API: Environment utilities~builtinSilabsTemplatesMetaFile() ⇒
@@ -21490,6 +21502,8 @@ things were successful or not.
         * [~getBoundsInteger(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getBoundsInteger) ⇒
         * [~getTypeRange(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeRange) ⇒
         * [~unsignedToSignedInteger(value, typeSize)](#module_Validation API_ Validation APIs..unsignedToSignedInteger) ⇒
+        * [~maxAllowedStringLength(type, maxLength)](#module_Validation API_ Validation APIs..maxAllowedStringLength) ⇒
+        * [~stringValueLength(value)](#module_Validation API_ Validation APIs..stringValueLength) ⇒
         * [~getIntegerFromAttribute(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getIntegerFromAttribute) ⇒
         * [~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
         * [~checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsInteger) ⇒
@@ -21821,6 +21835,33 @@ Works for both BigInts and regular numbers.
 | --- | --- | --- |
 | value | <code>\*</code> | integer to convert |
 | typeSize | <code>\*</code> | bit representation |
+
+<a name="module_Validation API_ Validation APIs..maxAllowedStringLength"></a>
+
+### Validation API: Validation APIs~maxAllowedStringLength(type, maxLength) ⇒
+Max allowed length for a ZCL string default. Short strings are 254,
+long strings 65534, unless the attribute declares maxLength.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: number  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+| maxLength | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..stringValueLength"></a>
+
+### Validation API: Validation APIs~stringValueLength(value) ⇒
+Length of a string default. A 0x-prefixed hex value is a byte encoding
+(CHAR_STRING default="0x00" is 1 byte), matching isValidHexString.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: number  
+
+| Param | Type |
+| --- | --- |
+| value | <code>string</code> | 
 
 <a name="module_Validation API_ Validation APIs..getIntegerFromAttribute"></a>
 
@@ -22549,6 +22590,8 @@ things were successful or not.
         * [~getBoundsInteger(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getBoundsInteger) ⇒
         * [~getTypeRange(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeRange) ⇒
         * [~unsignedToSignedInteger(value, typeSize)](#module_Validation API_ Validation APIs..unsignedToSignedInteger) ⇒
+        * [~maxAllowedStringLength(type, maxLength)](#module_Validation API_ Validation APIs..maxAllowedStringLength) ⇒
+        * [~stringValueLength(value)](#module_Validation API_ Validation APIs..stringValueLength) ⇒
         * [~getIntegerFromAttribute(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getIntegerFromAttribute) ⇒
         * [~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
         * [~checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsInteger) ⇒
@@ -22880,6 +22923,33 @@ Works for both BigInts and regular numbers.
 | --- | --- | --- |
 | value | <code>\*</code> | integer to convert |
 | typeSize | <code>\*</code> | bit representation |
+
+<a name="module_Validation API_ Validation APIs..maxAllowedStringLength"></a>
+
+### Validation API: Validation APIs~maxAllowedStringLength(type, maxLength) ⇒
+Max allowed length for a ZCL string default. Short strings are 254,
+long strings 65534, unless the attribute declares maxLength.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: number  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+| maxLength | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..stringValueLength"></a>
+
+### Validation API: Validation APIs~stringValueLength(value) ⇒
+Length of a string default. A 0x-prefixed hex value is a byte encoding
+(CHAR_STRING default="0x00" is 1 byte), matching isValidHexString.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: number  
+
+| Param | Type |
+| --- | --- |
+| value | <code>string</code> | 
 
 <a name="module_Validation API_ Validation APIs..getIntegerFromAttribute"></a>
 

@@ -59,6 +59,7 @@ test(
     expect(a.httpPort).toEqual(123)
     expect(a.arglessArg).toBeTruthy()
     expect(a.xmlRoot).toBe('XmlRoot')
+    expect(a.zclProperties).toEqual([env.builtinSilabsZclDemoMetafile()])
   },
   timeout.short()
 )

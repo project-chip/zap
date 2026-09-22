@@ -1,141 +1,146 @@
 <template>
-  <div class="q-pa-sm">
-    <div class="text-h5 q-pb-sm">Notifications</div>
-    <q-table
-      :rows="notis"
-      :columns="columns"
-      row-key="ref"
-      flat
-      dense
-      wrap-cells
-    >
-      <template v-slot:header="props">
-        <q-tr :props="props">
-          <q-th v-for="col in props.cols" :key="col.name" :props="props">
-            {{ col.label }}
-          </q-th>
-        </q-tr>
-      </template>
-      <template v-slot:body="props">
-        <q-tr :props="props" class="table_body">
-          <q-td style="display: none" key="id" :props="props">
-            <div>{{ props.row.id }}</div>
-          </q-td>
-          <q-td key="type" :props="props">
-            <div v-if="props.row.type == 'ERROR'" style="color: red">
-              {{ props.row.type }}
-            </div>
-            <div
-              v-else-if="props.row.type == 'WARNING'"
-              style="color: rgb(128, 128, 9)"
+  <div class="column fit">
+    <q-scroll-area class="col">
+      <div class="q-pa-sm">
+        <div class="text-h5 q-pb-sm">Notifications</div>
+        <q-table
+          :rows="notis"
+          :columns="columns"
+          row-key="id"
+          flat
+          dense
+          wrap-cells
+          hide-pagination
+          :pagination="{ rowsPerPage: 0 }"
+        >
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
+          <template v-slot:body="props">
+            <q-tr
+              :props="props"
+              class="table_body cursor-pointer"
+              @click="props.expand = !props.expand"
             >
-              {{ props.row.type }}
-            </div>
-            <div v-else>{{ props.row.type }}</div>
-          </q-td>
-          <q-td key="message" :props="props">
-            <div v-if="props.row.type == 'ERROR'" style="color: red">
-              {{ props.row.message }}
-            </div>
-            <div
-              v-else-if="props.row.type == 'WARNING'"
-              style="color: rgb(128, 128, 9)"
-            >
-              {{ props.row.message }}
-            </div>
-            <div v-else>{{ props.row.message }}</div>
-          </q-td>
-          <q-td>
-            <q-btn
-              flat
-              icon="delete"
-              data-cy="btn-delete-notification"
-              @click="deleteNotification(props.row.id)"
-            />
-          </q-td>
-        </q-tr>
-      </template>
-    </q-table>
-
-    <br />
-
-    <div class="text-h5">Package Notifications</div>
-    <div v-for="(sessionPackage, index) in packages" :key="index">
-      <div
-        v-if="
-          packageNotis[sessionPackage.pkg.id]?.hasError ||
-          packageNotis[sessionPackage.pkg.id]?.hasWarning
-        "
-      >
-        <q-item>
-          <q-item-section>
-            <q-expansion-item>
-              <template #header>
-                <q-toolbar>
-                  <div>
-                    <strong>{{ sessionPackage.pkg.path }}</strong>
-                  </div>
-                </q-toolbar>
-              </template>
-              <div v-if="packageNotis[sessionPackage.pkg.id]?.hasError">
-                <div
-                  class="text-h6"
-                  style="margin-top: 15px; padding-left: 20px"
-                >
-                  Errors
+              <q-td key="type" :props="props">
+                <div v-if="props.row.type == 'ERROR'" style="color: red">
+                  {{ props.row.type }}
                 </div>
-                <ul>
-                  <li
-                    v-for="(error, index) in this.packageNotis[
-                      sessionPackage.pkg.id
-                    ]?.errors"
-                    :key="'error' + index"
-                    style="margin-bottom: 10px"
-                  >
-                    {{ error.message }}
-                  </li>
-                </ul>
-              </div>
-              <div v-if="packageNotis[sessionPackage.pkg.id]?.hasWarning">
                 <div
-                  class="text-h6"
-                  style="margin-top: 15px; padding-left: 20px"
+                  v-else-if="props.row.type == 'WARNING'"
+                  style="color: rgb(128, 128, 9)"
                 >
-                  Warnings
+                  {{ props.row.type }}
                 </div>
-                <ul>
-                  <li
-                    v-for="(warning, index) in this.packageNotis[
-                      sessionPackage.pkg.id
-                    ]?.warnings"
-                    :key="index"
-                    style="margin-bottom: 10px"
-                  >
-                    {{ warning.message }}
-                  </li>
-                </ul>
+                <div v-else>{{ props.row.type }}</div>
+              </q-td>
+              <q-td key="message" :props="props" class="notification-message">
+                <div v-if="props.row.type == 'ERROR'" style="color: red">
+                  {{ props.row.message }}
+                </div>
+                <div
+                  v-else-if="props.row.type == 'WARNING'"
+                  style="color: rgb(128, 128, 9)"
+                >
+                  {{ props.row.message }}
+                </div>
+                <div v-else>{{ props.row.message }}</div>
+              </q-td>
+              <q-td key="delete" :props="props">
+                <q-btn
+                  flat
+                  icon="delete"
+                  data-cy="btn-delete-notification"
+                  @click.stop="deleteNotification(props.row.id)"
+                />
+              </q-td>
+            </q-tr>
+            <q-tr v-show="props.expand" :props="props">
+              <q-td colspan="100%" class="notification-message-expanded">
+                {{ props.row.message }}
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+
+        <br />
+
+        <div class="text-h5">Package Notifications</div>
+        <div v-for="(sessionPackage, index) in packages" :key="index">
+          <q-expansion-item
+            v-if="
+              packageNotis[sessionPackage.pkg.id]?.hasError ||
+              packageNotis[sessionPackage.pkg.id]?.hasWarning
+            "
+            expand-separator
+            class="q-mt-sm"
+            header-class="text-body1 text-weight-bold"
+            data-cy="package-notification-expansion"
+          >
+            <template #header>
+              <q-item-section>
+                <q-item-label class="notification-message text-weight-bold">
+                  {{ sessionPackage.pkg.path }}
+                </q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-icon
+                  :name="
+                    packageNotis[sessionPackage.pkg.id]?.hasError
+                      ? 'error'
+                      : 'warning'
+                  "
+                  :color="
+                    packageNotis[sessionPackage.pkg.id]?.hasError
+                      ? 'red'
+                      : 'orange'
+                  "
+                  size="2em"
+                />
+              </q-item-section>
+            </template>
+            <div v-if="packageNotis[sessionPackage.pkg.id]?.hasError">
+              <div class="text-h6" style="margin-top: 15px; padding-left: 20px">
+                Errors
               </div>
-              <br />
-            </q-expansion-item>
-          </q-item-section>
-          <q-item-section side style="align-self: flex-start; margin-top: 15px">
-            <q-icon
-              :name="
-                this.packageNotis[sessionPackage.pkg.id]?.hasError
-                  ? 'error'
-                  : 'warning'
-              "
-              :color="
-                this.packageNotis[sessionPackage.pkg.id]?.hasError
-                  ? 'red'
-                  : 'orange'
-              "
-              size="2em"
-            />
-          </q-item-section>
-        </q-item>
+              <ul>
+                <li
+                  v-for="(error, errorIndex) in packageNotis[
+                    sessionPackage.pkg.id
+                  ]?.errors"
+                  :key="'error' + errorIndex"
+                  class="notification-message"
+                  style="margin-bottom: 10px"
+                >
+                  {{ error.message }}
+                </li>
+              </ul>
+            </div>
+            <div v-if="packageNotis[sessionPackage.pkg.id]?.hasWarning">
+              <div class="text-h6" style="margin-top: 15px; padding-left: 20px">
+                Warnings
+              </div>
+              <ul>
+                <li
+                  v-for="(warning, warningIndex) in packageNotis[
+                    sessionPackage.pkg.id
+                  ]?.warnings"
+                  :key="'warning' + warningIndex"
+                  class="notification-message"
+                  style="margin-bottom: 10px"
+                >
+                  {{ warning.message }}
+                </li>
+              </ul>
+            </div>
+          </q-expansion-item>
+        </div>
       </div>
-    </div>
+    </q-scroll-area>
   </div>
 </template>
 
@@ -252,7 +257,10 @@ export default {
             currentPackage.warnings.push(notification)
           }
         })
-        this.packageNotis[packageId] = currentPackage
+        this.packageNotis = {
+          ...this.packageNotis,
+          [packageId]: currentPackage
+        }
       })
     },
     hasError(packageId) {
@@ -262,22 +270,30 @@ export default {
   data() {
     return {
       columns: [
-        { name: 'type', align: 'center', label: 'type', field: 'type' },
+        {
+          name: 'type',
+          align: 'center',
+          label: 'type',
+          field: 'type',
+          style: 'width: 90px'
+        },
         {
           name: 'message',
-          align: 'center',
+          align: 'left',
           label: 'message',
-          field: 'message'
+          field: 'message',
+          style: 'white-space: normal; word-break: break-word;'
         },
         {
           name: 'delete',
           align: 'center',
           label: 'delete',
-          field: 'delete'
+          field: 'delete',
+          style: 'width: 70px'
         }
       ],
       notis: [],
-      packageNotis: []
+      packageNotis: {}
     }
   },
   mounted() {
@@ -289,3 +305,16 @@ export default {
   }
 }
 </script>
+<style scoped>
+.notification-message {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.notification-message-expanded {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  padding: 8px 12px 16px;
+}
+</style>

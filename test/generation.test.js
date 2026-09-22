@@ -29,6 +29,8 @@ const generationEngine = require('../src-electron/generator/generation-engine')
 const testUtil = require('./test-util')
 const testQuery = require('./test-query')
 const util = require('../src-electron/util/util')
+const querySession = require('../src-electron/db/query-session')
+const querySessionNotification = require('../src-electron/db/query-session-notification')
 
 let db
 const { port, baseUrl } = testUtil.testServer(__filename)
@@ -259,6 +261,28 @@ describe('Session specific tests', () => {
       expect(response.data.defaults[1].entityCode).toBe(
         'clusterCode mixed with strings'
       )
+    },
+    testUtil.timeout.medium()
+  )
+
+  test(
+    'missing cluster extension is empty, not a session error',
+    async () => {
+      let response = await axios.get(
+        `${baseUrl}/zclExtension/cluster/component?sessionId=${uuid}`
+      )
+      expect(response.status).toBe(200)
+      expect(response.data.property).toBeUndefined()
+      let session = await querySession.getSessionInfoFromSessionKey(db, uuid)
+      let notices = await querySessionNotification.getNotification(
+        db,
+        session.sessionId
+      )
+      expect(
+        notices.some((n) =>
+          String(n.message).includes('Unable to find cluster extension by')
+        )
+      ).toBeFalsy()
     },
     testUtil.timeout.medium()
   )

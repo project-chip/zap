@@ -130,10 +130,13 @@ test('Test hex unsigned to signed conversion', () => {
   //8 bits
   expect(validation.unsignedToSignedInteger(0x80, 8) == -128).toBeTruthy()
   expect(validation.unsignedToSignedInteger(0x7f, 8) == 127).toBeTruthy()
+  expect(validation.unsignedToSignedInteger(0xff, 8) == -1).toBeTruthy()
 
   // 16 bits
   expect(validation.unsignedToSignedInteger(0x8000, 16) == -32768).toBeTruthy()
   expect(validation.unsignedToSignedInteger(0x7fff, 16) == 32767).toBeTruthy()
+  expect(validation.unsignedToSignedInteger(0xffff, 16) == -1).toBeTruthy()
+  expect(validation.unsignedToSignedInteger(0x954d, 16) == -27315).toBeTruthy()
 
   // 24 bits
   expect(
@@ -142,6 +145,7 @@ test('Test hex unsigned to signed conversion', () => {
   expect(
     validation.unsignedToSignedInteger(0x7fffff, 24) == 8388607
   ).toBeTruthy()
+  expect(validation.unsignedToSignedInteger(0xffffff, 24) == -1).toBeTruthy()
 
   // 32 bits
   expect(
@@ -149,6 +153,9 @@ test('Test hex unsigned to signed conversion', () => {
   ).toBeTruthy()
   expect(
     validation.unsignedToSignedInteger(0x7fffffffn, 32) == 2147483647n
+  ).toBeTruthy()
+  expect(
+    validation.unsignedToSignedInteger(0xffffffffn, 32) == -1n
   ).toBeTruthy()
 
   // 40 bits
@@ -252,6 +259,24 @@ test(
     let minMax = await validation.getBoundsInteger(attribute, size, isSigned)
     expect(minMax.min == 0).toBeTruthy()
     expect(minMax.max === 0xffff).toBeTruthy()
+
+    // Signed hex min/max go through getIntegerFromAttribute
+    let signedHex = await validation.getBoundsInteger(
+      { min: '0xffff', max: '0x7fff' },
+      16,
+      true
+    )
+    expect(signedHex.min).toBe(-1)
+    expect(signedHex.max).toBe(32767)
+
+    // INT8S min="0x00" max="0xFF" inverts after signed convert; fall back to type
+    let inverted = await validation.getBoundsInteger(
+      { min: '0x00', max: '0xFF' },
+      8,
+      true
+    )
+    expect(inverted.min).toBe(-128)
+    expect(inverted.max).toBe(127)
   },
   timeout.medium()
 )
@@ -558,9 +583,11 @@ test(
 )
 
 test(
-  'validateXmlAttributeDefault - integer out of range',
+  'validateXmlAttributeDefault - signed hex 0xffff on int16s is not out of range',
   async () => {
-    // Check that notification was created
+    // ZCL XML uses hex bit patterns on signed types. 0xffff on int16s is -1,
+    // which is inside min="-32768" max="32767". The old unsigned compare
+    // treated it as 65535 and created this package warning; that was wrong.
     let notifications =
       await queryPackageNotification.getNotificationByPackageId(db, pkgId)
     let xmlValidationNotifs = notifications.filter((n) =>
@@ -568,8 +595,150 @@ test(
         'XML validation issues for attribute "active power max phase b" (type: int16s, defaultvalue: 0xffff): Out of range (min: -32768, max: 32767)'
       )
     )
+    expect(xmlValidationNotifs.length).toBe(0)
+  },
+  timeout.medium()
+)
+
+test(
+  'validateXmlAttributeDefault - integer out of range',
+  async () => {
+    // A default that is actually outside min/max must still create a WARNING
+    // so a user (or XML author) knows the value is wrong. Decimal 2 on int8u
+    // with max 1 is not hex two's complement.
+    await validation.validateXmlAttributeDefault(
+      db,
+      {
+        name: 'test-int8u-real-oob',
+        type: 'int8u',
+        min: '0x00',
+        max: '0x01',
+        defaultValue: '2'
+      },
+      pkgId
+    )
+    let notifications =
+      await queryPackageNotification.getNotificationByPackageId(db, pkgId)
+    let xmlValidationNotifs = notifications.filter((n) =>
+      n.message.includes(
+        'XML validation issues for attribute "test-int8u-real-oob"'
+      )
+    )
     expect(xmlValidationNotifs.length).toBeGreaterThan(0)
     expect(xmlValidationNotifs[0].type).toBe('WARNING')
+  },
+  timeout.medium()
+)
+
+test(
+  'validateXmlAttributeDefault - ZCL hex conventions are valid',
+  async () => {
+    let notifications =
+      await queryPackageNotification.getNotificationByPackageId(db, pkgId)
+    // Same signed-hex case as the dedicated test above; still must not warn.
+    let falsePositive = notifications.filter((n) =>
+      n.message.includes(
+        'XML validation issues for attribute "active power max phase b"'
+      )
+    )
+    expect(falsePositive.length).toBe(0)
+
+    await validation.validateXmlAttributeDefault(
+      db,
+      {
+        name: 'test-bool-hex',
+        type: 'boolean',
+        defaultValue: '0x00'
+      },
+      pkgId
+    )
+    await validation.validateXmlAttributeDefault(
+      db,
+      {
+        name: 'test-bool-hex-01',
+        type: 'boolean',
+        defaultValue: '0x01'
+      },
+      pkgId
+    )
+    await validation.validateXmlAttributeDefault(
+      db,
+      {
+        name: 'test-bool-hex-invalid',
+        type: 'boolean',
+        defaultValue: '0x02'
+      },
+      pkgId
+    )
+    await validation.validateXmlAttributeDefault(
+      db,
+      {
+        name: 'test-int8u-sentinel',
+        type: 'int8u',
+        min: '0x00',
+        max: '0x01',
+        defaultValue: '0xFF'
+      },
+      pkgId
+    )
+    await validation.validateXmlAttributeDefault(
+      db,
+      {
+        name: 'test-int8s-full-hex-range',
+        type: 'int8s',
+        min: '0x00',
+        max: '0xFF',
+        defaultValue: '0x7F'
+      },
+      pkgId
+    )
+    await validation.validateXmlAttributeDefault(
+      db,
+      {
+        name: 'test-int24s-hex',
+        type: 'int24s',
+        min: '-8388608',
+        max: '8388607',
+        defaultValue: '0xFFFFFF'
+      },
+      pkgId
+    )
+    await validation.validateXmlAttributeDefault(
+      db,
+      {
+        name: 'test-char-string-hex',
+        type: 'char_string',
+        maxLength: 2,
+        defaultValue: '0x00'
+      },
+      pkgId
+    )
+
+    notifications = await queryPackageNotification.getNotificationByPackageId(
+      db,
+      pkgId
+    )
+    expect(
+      notifications.some((n) => n.message.includes('test-bool-hex"'))
+    ).toBeFalsy()
+    expect(
+      notifications.some((n) => n.message.includes('test-bool-hex-01'))
+    ).toBeFalsy()
+    expect(
+      notifications.some((n) => n.message.includes('test-bool-hex-invalid'))
+    ).toBeTruthy()
+    expect(
+      notifications.some((n) => n.message.includes('test-int8u-sentinel'))
+    ).toBeFalsy()
+    expect(
+      notifications.some((n) => n.message.includes('test-int8s-full-hex-range'))
+    ).toBeFalsy()
+    expect(
+      notifications.some((n) => n.message.includes('test-int24s-hex'))
+    ).toBeFalsy()
+    expect(
+      notifications.some((n) => n.message.includes('test-char-string-hex'))
+    ).toBeFalsy()
   },
   timeout.medium()
 )
