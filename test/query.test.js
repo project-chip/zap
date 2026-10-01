@@ -269,6 +269,30 @@ describe('Session specific queries', () => {
   )
 
   test(
+    'Delete dirty sessions leaves clean sessions',
+    async () => {
+      let clean = await querySession.createBlankSession(db)
+      let dirty1 = await querySession.createBlankSession(db)
+      let dirty2 = await querySession.createBlankSession(db)
+      await dbApi.dbUpdate(
+        db,
+        'UPDATE SESSION SET DIRTY = 1 WHERE SESSION_ID IN (?,?)',
+        [dirty1, dirty2]
+      )
+      let removed = await querySession.deleteDirtySessions(db)
+      expect(removed).toBeGreaterThanOrEqual(2)
+      expect(
+        await querySession.getSessionFromSessionId(db, dirty1)
+      ).toBeUndefined()
+      expect(
+        await querySession.getSessionFromSessionId(db, dirty2)
+      ).toBeUndefined()
+      expect(await querySession.getSessionFromSessionId(db, clean)).toBeTruthy()
+    },
+    testUtil.timeout.short()
+  )
+
+  test(
     'Make sure triggers work',
     async () => {
       let result = await querySession.getSessionDirtyFlag(db, sid)

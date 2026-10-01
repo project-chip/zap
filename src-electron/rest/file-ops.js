@@ -31,6 +31,7 @@ const querySession = require('../db/query-session.js')
 const queryNotification = require('../db/query-session-notification.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const studio = require('../ide-integration/studio-rest-api')
+const recentFiles = require('../util/recent-files.js')
 import { projectName } from '../util/studio-util'
 
 /**
@@ -117,6 +118,7 @@ function httpPostFileOpen(db) {
           zapFilePath,
           options
         )
+        recentFiles.recordRecentFile(zapFilePath)
 
         let response = {
           sessionId: importResult.sessionId,
@@ -204,6 +206,7 @@ function httpPostFileSave(db) {
           req.zapSessionId,
           actualPath
         )
+        recentFiles.recordRecentFile(filePath)
         res.status(StatusCodes.OK).send({ filePath: filePath })
       } catch (err) {
         let msg = `Unable to save project.`

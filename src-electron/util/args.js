@@ -219,6 +219,13 @@ export function processCommandLineArguments(argv) {
         process.env[env.environmentVariable.saveFileFormat.name] ||
         env.defaultFileFormat()
     })
+    .option('recentFileDays', {
+      desc: 'How many days a .zap file stays on the recent-files list on the config page.',
+      type: 'number',
+      default:
+        process.env[env.environmentVariable.recentFileDays.name] ||
+        env.getRecentFileDays()
+    })
     .option('watchdogTimer', {
       desc: `In a server mode, how long of no-activity (in ms) shuts down the server.`,
       type: 'number',
@@ -309,6 +316,7 @@ For more information, see ${commonUrl.projectUrl}`
   }
 
   env.setSaveFileFormat(ret.saveFileFormat)
+  env.setRecentFileDays(ret.recentFileDays)
 
   // Set emoji preference via environment variable
   if (ret.noEmoji) {

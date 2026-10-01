@@ -360,6 +360,9 @@ scripting functionality.</p>
 <dd><p>This module contains the API functions for the post-load
 scripting functionality.</p>
 </dd>
+<dt><a href="#module_JS API_ recent files">JS API: recent files</a></dt>
+<dd><p>Recent .zap file list stored in the ZAP state directory.</p>
+</dd>
 <dt><a href="#module_JS API_ SDK utilities">JS API: SDK utilities</a></dt>
 <dd></dd>
 <dt><a href="#module_JS API_ string utilities">JS API: string utilities</a></dt>
@@ -17589,6 +17592,8 @@ This module provides the REST API to the session initialization
     * [~sessionCreate(db)](#module_REST API_ initialization functions..sessionCreate) ⇒
     * [~initializeSession(db, options:)](#module_REST API_ initialization functions..initializeSession) ⇒
     * [~loadPreviousSessions(db)](#module_REST API_ initialization functions..loadPreviousSessions) ⇒
+    * [~deleteSession(db)](#module_REST API_ initialization functions..deleteSession) ⇒
+    * [~deleteAllDirtySessions(db)](#module_REST API_ initialization functions..deleteAllDirtySessions) ⇒
     * [~init(db)](#module_REST API_ initialization functions..init) ⇒
 
 <a name="module_REST API_ initialization functions..ensurePackageLoaded"></a>
@@ -17650,6 +17655,30 @@ This function reloads previous session by user selected session's id
 
 **Kind**: inner method of [<code>REST API: initialization functions</code>](#module_REST API_ initialization functions)  
 **Returns**: A success message.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ initialization functions..deleteSession"></a>
+
+### REST API: initialization functions~deleteSession(db) ⇒
+Delete one unsaved session by id.
+
+**Kind**: inner method of [<code>REST API: initialization functions</code>](#module_REST API_ initialization functions)  
+**Returns**: An async function that handles HTTP requests.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ initialization functions..deleteAllDirtySessions"></a>
+
+### REST API: initialization functions~deleteAllDirtySessions(db) ⇒
+Delete every dirty (unsaved) session.
+
+**Kind**: inner method of [<code>REST API: initialization functions</code>](#module_REST API_ initialization functions)  
+**Returns**: An async function that handles HTTP requests.  
 
 | Param | Type |
 | --- | --- |
@@ -19489,6 +19518,8 @@ Environment utilities for ZAP
 * [JS API: Environment utilities](#module_JS API_ Environment utilities)
     * [~setSaveFileFormat(n)](#module_JS API_ Environment utilities..setSaveFileFormat)
     * [~defaultFileFormat()](#module_JS API_ Environment utilities..defaultFileFormat) ⇒
+    * [~setRecentFileDays(n)](#module_JS API_ Environment utilities..setRecentFileDays)
+    * [~getRecentFileDays()](#module_JS API_ Environment utilities..getRecentFileDays) ⇒ <code>number</code>
     * [~builtinSilabsZclMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclMetafile) ⇒
     * [~builtinSilabsTemplatesMetaFile()](#module_JS API_ Environment utilities..builtinSilabsTemplatesMetaFile) ⇒
     * [~builtinSilabsZclSpecialMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclSpecialMetafile) ⇒
@@ -19548,6 +19579,23 @@ Get save file format.
 
 **Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: saveFileFormat  
+<a name="module_JS API_ Environment utilities..setRecentFileDays"></a>
+
+### JS API: Environment utilities~setRecentFileDays(n)
+Set how many days a .zap file stays on the recent-files list.
+
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+
+| Param | Type |
+| --- | --- |
+| n | <code>\*</code> | 
+
+<a name="module_JS API_ Environment utilities..getRecentFileDays"></a>
+
+### JS API: Environment utilities~getRecentFileDays() ⇒ <code>number</code>
+Get how many days a .zap file stays on the recent-files list.
+
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 <a name="module_JS API_ Environment utilities..builtinSilabsZclMetafile"></a>
 
 ### JS API: Environment utilities~builtinSilabsZclMetafile() ⇒
@@ -20238,6 +20286,86 @@ scripting functionality.
 ## JS API: post-import.
 This module contains the API functions for the post-load
 scripting functionality.
+
+<a name="module_JS API_ recent files"></a>
+
+## JS API: recent files
+Recent .zap file list stored in the ZAP state directory.
+
+
+* [JS API: recent files](#module_JS API_ recent files)
+    * [~recentFilesPath()](#module_JS API_ recent files..recentFilesPath) ⇒ <code>string</code>
+    * [~recentFileDays()](#module_JS API_ recent files..recentFileDays) ⇒ <code>number</code>
+    * [~readAll()](#module_JS API_ recent files..readAll) ⇒ <code>Array</code>
+    * [~writeAll(list)](#module_JS API_ recent files..writeAll)
+    * [~isZapFile(filePath)](#module_JS API_ recent files..isZapFile) ⇒ <code>boolean</code>
+    * [~recordRecentFile(filePath)](#module_JS API_ recent files..recordRecentFile)
+    * [~getRecentFiles([maxAgeDays])](#module_JS API_ recent files..getRecentFiles) ⇒ <code>Array</code>
+
+<a name="module_JS API_ recent files..recentFilesPath"></a>
+
+### JS API: recent files~recentFilesPath() ⇒ <code>string</code>
+Absolute path of the recent-files JSON in the state directory.
+
+**Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
+<a name="module_JS API_ recent files..recentFileDays"></a>
+
+### JS API: recent files~recentFileDays() ⇒ <code>number</code>
+How many days a file stays on the list.
+
+**Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
+<a name="module_JS API_ recent files..readAll"></a>
+
+### JS API: recent files~readAll() ⇒ <code>Array</code>
+Read the raw list from disk.
+
+**Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
+**Returns**: <code>Array</code> - list of {path, lastUsed}  
+<a name="module_JS API_ recent files..writeAll"></a>
+
+### JS API: recent files~writeAll(list)
+Write the list to disk.
+
+**Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| list | <code>Array</code> | list of {path, lastUsed} |
+
+<a name="module_JS API_ recent files..isZapFile"></a>
+
+### JS API: recent files~isZapFile(filePath) ⇒ <code>boolean</code>
+True if the path looks like a .zap file.
+
+**Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
+
+| Param | Type |
+| --- | --- |
+| filePath | <code>string</code> | 
+
+<a name="module_JS API_ recent files..recordRecentFile"></a>
+
+### JS API: recent files~recordRecentFile(filePath)
+Record that a .zap file was opened or saved.
+
+**Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
+
+| Param | Type |
+| --- | --- |
+| filePath | <code>string</code> | 
+
+<a name="module_JS API_ recent files..getRecentFiles"></a>
+
+### JS API: recent files~getRecentFiles([maxAgeDays]) ⇒ <code>Array</code>
+Recent files still on disk and within the configured window.
+Stale or missing entries are dropped from disk.
+
+**Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
+**Returns**: <code>Array</code> - list of {path, lastUsed}  
+
+| Param | Type |
+| --- | --- |
+| [maxAgeDays] | <code>number</code> | 
 
 <a name="module_JS API_ SDK utilities"></a>
 

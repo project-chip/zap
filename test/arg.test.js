@@ -99,6 +99,24 @@ test(
 )
 
 test(
+  'recentFileDays can be set from the command line',
+  () => {
+    let previous = env.getRecentFileDays()
+    let a = args.processCommandLineArguments([
+      'node',
+      'test.js',
+      '--noUI',
+      '--recentFileDays',
+      '14'
+    ])
+    expect(a.recentFileDays).toEqual(14)
+    expect(env.getRecentFileDays()).toEqual(14)
+    env.setRecentFileDays(previous)
+  },
+  timeout.short()
+)
+
+test(
   'Verify how yargs works',
   () => {
     let argv = yargs(['a', '--x', 1, 'b', '--y', 2, '--tst', 42]).parse()
