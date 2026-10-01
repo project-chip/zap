@@ -101,7 +101,13 @@ limitations under the License.
                 ? asHex(props.row.manufacturerCode, 4)
                 : ''
           }}</q-td>
-          <q-td key="storageOption" :props="props" auto-width>
+          <q-td
+            key="storageOption"
+            :props="props"
+            auto-width
+            data-test="attribute-storage"
+            :attribute-name="props.row.label"
+          >
             <q-select
               :model-value="
                 selectionStorageOption[
