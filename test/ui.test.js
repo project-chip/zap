@@ -142,6 +142,7 @@ describe('Component mounting test', () => {
             $serverGet: jest.fn(() =>
               Promise.resolve({ data: { warningMap: {}, errorMap: {} } })
             ),
+            $serverDelete: jest.fn(() => Promise.resolve({ data: {} })),
             $q: { loading: { show: jest.fn(), hide: jest.fn() } },
             $router: { push: jest.fn() }
           }
@@ -432,7 +433,8 @@ describe('Component mounting test', () => {
             ),
             $serverGet: jest.fn(() =>
               Promise.resolve({ data: { warningMap: {}, errorMap: {} } })
-            )
+            ),
+            $serverDelete: jest.fn(() => Promise.resolve({ data: {} }))
           }
         }
       })
@@ -644,6 +646,7 @@ describe('Component mounting test', () => {
             $serverGet: jest.fn(() =>
               Promise.resolve({ data: { warningMap: {}, errorMap: {} } })
             ),
+            $serverDelete: jest.fn(() => Promise.resolve({ data: {} })),
             $q: { loading: { show: jest.fn(), hide: jest.fn() } },
             $router: { push: jest.fn() }
           }

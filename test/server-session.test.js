@@ -26,6 +26,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader')
 const testUtil = require('./test-util')
 const restApi = require('../src-shared/rest-api')
 const queryZcl = require('../src-electron/db/query-zcl')
+const querySession = require('../src-electron/db/query-session')
 const util = require('../src-electron/util/util')
 
 let db
@@ -79,6 +80,34 @@ test.each([
   async (uri) => {
     let response = await axiosInstance.get(uri)
     expect(response.data).not.toBeNull()
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Delete one dirty session and then delete all remaining dirty sessions',
+  async () => {
+    let dirty1 = await querySession.createBlankSession(db)
+    let dirty2 = await querySession.createBlankSession(db)
+    await dbApi.dbUpdate(
+      db,
+      'UPDATE SESSION SET DIRTY = 1 WHERE SESSION_ID IN (?,?)',
+      [dirty1, dirty2]
+    )
+
+    let one = await axiosInstance.delete(restApi.uri.deleteSession, {
+      params: { id: dirty1 }
+    })
+    expect(one.data.message).toContain('deleted')
+    expect(
+      await querySession.getSessionFromSessionId(db, dirty1)
+    ).toBeUndefined()
+
+    let all = await axiosInstance.delete(restApi.uri.deleteAllDirtySessions)
+    expect(all.data.count).toBeGreaterThanOrEqual(1)
+    expect(
+      await querySession.getSessionFromSessionId(db, dirty2)
+    ).toBeUndefined()
   },
   testUtil.timeout.medium()
 )

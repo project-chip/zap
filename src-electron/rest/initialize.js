@@ -27,6 +27,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
 const util = require('../util/util.js')
 const env = require('../util/env.js')
+const recentFilesUtil = require('../util/recent-files.js')
 const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
@@ -90,6 +91,12 @@ async function ensurePackageLoaded(db, packagePath, packageType) {
  */
 function sessionAttempt(db) {
   return async (req, res) => {
+    const send = (payload) =>
+      res.send({
+        recentFiles: recentFilesUtil.getRecentFiles(),
+        recentFileDays: recentFilesUtil.recentFileDays(),
+        ...payload
+      })
     let search = req.body.search
 
     const query = new URLSearchParams(search)
@@ -168,7 +175,7 @@ function sessionAttempt(db) {
           }
 
           const sessions = await querySession.getDirtySessionsWithPackages(db)
-          return res.send({
+          return send({
             zclGenTemplates,
             zclProperties,
             sessions,
@@ -193,7 +200,7 @@ function sessionAttempt(db) {
               category
             )
           const sessions = await querySession.getDirtySessionsWithPackages(db)
-          return res.send({
+          return send({
             zclGenTemplates,
             zclProperties,
             sessions,
@@ -213,7 +220,7 @@ function sessionAttempt(db) {
             dbEnum.packageType.genTemplatesJson
           )
           const sessions = await querySession.getDirtySessionsWithPackages(db)
-          return res.send({
+          return send({
             zclGenTemplates,
             zclProperties,
             sessions,
@@ -231,7 +238,7 @@ function sessionAttempt(db) {
           dbEnum.packageType.genTemplatesJson
         )
         const sessions = await querySession.getDirtySessionsWithPackages(db)
-        return res.send({
+        return send({
           zclGenTemplates,
           zclProperties,
           sessions,
@@ -249,7 +256,7 @@ function sessionAttempt(db) {
         dbEnum.packageType.genTemplatesJson
       )
       const sessions = await querySession.getDirtySessionsWithPackages(db)
-      return res.send({
+      return send({
         zclGenTemplates,
         zclProperties,
         sessions,
@@ -365,6 +372,39 @@ function loadPreviousSessions(db) {
 }
 
 /**
+ * Delete one unsaved session by id.
+ * @param {*} db
+ * @returns An async function that handles HTTP requests.
+ */
+function deleteSession(db) {
+  return async (req, res) => {
+    let sessionId = req.body?.id || req.query.id
+    if (sessionId == null) {
+      return res.status(400).send({ error: 'Missing session id' })
+    }
+    await querySession.deleteSession(db, sessionId)
+    return res.send({
+      message: 'Session deleted successfully'
+    })
+  }
+}
+
+/**
+ * Delete every dirty (unsaved) session.
+ * @param {*} db
+ * @returns An async function that handles HTTP requests.
+ */
+function deleteAllDirtySessions(db) {
+  return async (req, res) => {
+    let count = await querySession.deleteDirtySessions(db)
+    return res.send({
+      message: 'Unsaved sessions deleted successfully',
+      count
+    })
+  }
+}
+
+/**
  * Init function from the App.vue
  * @param {*} db
  * @returns A success message.
@@ -382,6 +422,8 @@ exports.sessionAttempt = sessionAttempt
 exports.sessionCreate = sessionCreate
 exports.initializeSession = initializeSession
 exports.loadPreviousSessions = loadPreviousSessions
+exports.deleteSession = deleteSession
+exports.deleteAllDirtySessions = deleteAllDirtySessions
 exports.init = init
 
 exports.post = [
@@ -404,5 +446,16 @@ exports.post = [
   {
     uri: restApi.uri.sessionAttempt,
     callback: sessionAttempt
+  }
+]
+
+exports.delete = [
+  {
+    uri: restApi.uri.deleteSession,
+    callback: deleteSession
+  },
+  {
+    uri: restApi.uri.deleteAllDirtySessions,
+    callback: deleteAllDirtySessions
   }
 ]

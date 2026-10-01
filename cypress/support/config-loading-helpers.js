@@ -48,9 +48,19 @@ export function buildSessionAttemptResponse({
   zclGenTemplates = [],
   filePath = '',
   open = false,
-  sessions = []
+  sessions = [],
+  recentFiles = [],
+  recentFileDays = 21
 } = {}) {
-  return { zclProperties, zclGenTemplates, sessions, filePath, open }
+  return {
+    zclProperties,
+    zclGenTemplates,
+    sessions,
+    filePath,
+    open,
+    recentFiles,
+    recentFileDays
+  }
 }
 
 /**
