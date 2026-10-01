@@ -536,6 +536,12 @@ test(
     expect(
       conformParser.parseConformanceFromXML({ disallowConform: [''] })
     ).toBe(dbEnum.conformanceTag.disallowed)
+    expect(
+      conformEvaluator.isObsoleteConformance(dbEnum.conformanceTag.obsolete)
+    ).toBe(true)
+    expect(
+      conformEvaluator.isObsoleteConformance(dbEnum.conformanceTag.disallowed)
+    ).toBe(false)
   },
   testUtil.timeout.short()
 )

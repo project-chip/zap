@@ -180,7 +180,8 @@ export default {
       // disable toggling features with unsupported conformance
       return (
         conformance == dbEnum.conformanceTag.disallowed ||
-        conformance == dbEnum.conformanceTag.deprecated
+        conformance == dbEnum.conformanceTag.deprecated ||
+        conformance == dbEnum.conformanceTag.obsolete
       )
     }
   },

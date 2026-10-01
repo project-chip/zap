@@ -115,7 +115,7 @@ test(
     )
     expect(obsoleteAttribute).toBeDefined()
     expect(obsoleteAttribute.conformance).toBe(dbEnum.conformanceTag.obsolete)
-    expect(obsoleteAttribute.obsolete).toBe(true)
+    expect(obsoleteAttribute.obsolete).toBeUndefined()
 
     let obsoleteCommands = await queryCommand.selectCommandsByClusterId(
       db,
@@ -127,7 +127,7 @@ test(
     )
     expect(obsoleteCommand).toBeDefined()
     expect(obsoleteCommand.conformance).toBe(dbEnum.conformanceTag.obsolete)
-    expect(obsoleteCommand.obsolete).toBe(true)
+    expect(obsoleteCommand.obsolete).toBeUndefined()
 
     let apiMaturityEvents = await queryEvent.selectEventsByClusterId(
       db,
@@ -138,7 +138,7 @@ test(
     )
     expect(obsoleteEvent).toBeDefined()
     expect(obsoleteEvent.conformance).toBe(dbEnum.conformanceTag.obsolete)
-    expect(obsoleteEvent.obsolete).toBe(true)
+    expect(obsoleteEvent.obsolete).toBeUndefined()
 
     let test2Cluster = await queryZcl.selectClusterByCode(
       db,

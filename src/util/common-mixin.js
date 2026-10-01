@@ -180,9 +180,7 @@ export default {
      */
     isObsoleteElement(element) {
       return !!(
-        element &&
-        (element.obsolete ||
-          element.conformance === DbEnum.conformanceTag.obsolete)
+        element && element.conformance === DbEnum.conformanceTag.obsolete
       )
     },
     hashAttributeIdClusterId(attributeId, clusterId) {

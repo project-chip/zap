@@ -26,6 +26,18 @@ const dbEnum = require('../../src-shared/db-enum')
 const OPERAND_REGEX = /[A-Za-z]\w*/g
 
 /**
+ * True when a stored conformance value is the obsolete tag (`Z`).
+ * Matter XML `<obsoleteConform/>` is parsed into this tag and evaluated as
+ * not supported, the same way `<disallowConform/>` is.
+ *
+ * @param {*} conformance
+ * @returns {boolean}
+ */
+function isObsoleteConformance(conformance) {
+  return conformance === dbEnum.conformanceTag.obsolete
+}
+
+/**
  * Evaluate the value of a boolean conformance expression that includes operands and operators.
  * An operand can be an attribute, command, event, feature, or conformance abbreviation.
  * Operators include AND (&), OR (|), and NOT (!).
@@ -96,7 +108,7 @@ function evaluateConformanceExpression(expression, elementMap) {
     } else if (
       part == dbEnum.conformanceTag.deprecated ||
       part == dbEnum.conformanceTag.disallowed ||
-      part == dbEnum.conformanceTag.obsolete
+      isObsoleteConformance(part)
     ) {
       return dbEnum.conformanceVal.notSupported
     } else if (part == dbEnum.conformanceTag.provisional) {
@@ -346,6 +358,7 @@ function translateConformanceExpression(expression) {
   return result
 }
 
+exports.isObsoleteConformance = isObsoleteConformance
 exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.checkMissingOperands = checkMissingOperands
 exports.checkIfExpressionHasOperand = checkIfExpressionHasOperand

@@ -254,6 +254,7 @@ export default {
       return (
         feature.conformance == dbEnum.conformanceTag.disallowed ||
         feature.conformance == dbEnum.conformanceTag.deprecated ||
+        feature.conformance == dbEnum.conformanceTag.obsolete ||
         this.isClusterDisabled(feature)
       )
     },
