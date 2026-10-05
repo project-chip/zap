@@ -22,6 +22,13 @@ import dbEnum from '../../../src-shared/db-enum.js'
 
 const http = require('http-status-codes')
 
+/**
+ * Disable obsolete elements that were enabled in the existing configuration.
+ * Keep their identities in session state so the UI can continue showing them.
+ * @param {*} context Vuex action context
+ * @param {number|string} endpointTypeId Endpoint type being initialized
+ * @returns {Promise<void>}
+ */
 async function disableObsoleteElements(context, endpointTypeId) {
   const response = await axiosRequests.$serverPost(
     restApi.uri.disableObsoleteElements,
