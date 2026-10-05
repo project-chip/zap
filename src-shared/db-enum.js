@@ -106,7 +106,8 @@ exports.sessionKey = {
   ideProjectPath: 'ideProjectPath',
   informationText: 'informationText',
   disableComponentToggling: 'disableComponentToggling',
-  generateStaticTemplates: 'generateStaticTemplates'
+  generateStaticTemplates: 'generateStaticTemplates',
+  legacyDisabledObsoleteElements: 'legacyDisabledObsoleteElements'
 }
 
 exports.pathRelativity = {

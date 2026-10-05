@@ -560,6 +560,172 @@ WHERE ENDPOINT_TYPE_CLUSTER_REF = ?
 }
 
 /**
+ * Disable obsolete data model elements that were enabled in a configuration
+ * loaded before obsolete conformance was supported. Return their identities so
+ * the UI can keep those legacy rows visible after disabling them.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} endpointTypeId
+ * @returns {Promise<{attributes: Array, commands: Array, events: Array, features: Array}>}
+ */
+async function disableObsoleteElements(db, sessionId, endpointTypeId) {
+  const obsolete = dbEnum.conformanceTag.obsolete
+  const elements = { attributes: [], commands: [], events: [], features: [] }
+  const categories = [
+    {
+      key: 'attributes',
+      type: 'attribute',
+      rows: `SELECT DISTINCT A.ATTRIBUTE_ID AS ID, A.NAME, A.CODE, A.MANUFACTURER_CODE, C.NAME AS CLUSTER_NAME, EP.NAME AS ENDPOINT_TYPE_NAME
+        FROM ENDPOINT_TYPE_ATTRIBUTE ETA
+        JOIN ENDPOINT_TYPE_CLUSTER ETC ON ETC.ENDPOINT_TYPE_CLUSTER_ID = ETA.ENDPOINT_TYPE_CLUSTER_REF
+        JOIN ENDPOINT_TYPE EP ON EP.ENDPOINT_TYPE_ID = ETC.ENDPOINT_TYPE_REF
+        JOIN ATTRIBUTE A ON A.ATTRIBUTE_ID = ETA.ATTRIBUTE_REF
+        JOIN CLUSTER C ON C.CLUSTER_ID = ETC.CLUSTER_REF
+        WHERE ETC.ENDPOINT_TYPE_REF = ? AND A.CONFORMANCE = ?
+          AND (ETA.INCLUDED = 1 OR ETA.INCLUDED_REPORTABLE = 1)`,
+      update: `UPDATE ENDPOINT_TYPE_ATTRIBUTE
+        SET INCLUDED = 0, INCLUDED_REPORTABLE = 0
+        WHERE ENDPOINT_TYPE_ATTRIBUTE_ID IN (
+          SELECT ETA.ENDPOINT_TYPE_ATTRIBUTE_ID
+          FROM ENDPOINT_TYPE_ATTRIBUTE ETA
+          JOIN ENDPOINT_TYPE_CLUSTER ETC ON ETC.ENDPOINT_TYPE_CLUSTER_ID = ETA.ENDPOINT_TYPE_CLUSTER_REF
+          JOIN ATTRIBUTE A ON A.ATTRIBUTE_ID = ETA.ATTRIBUTE_REF
+          WHERE ETC.ENDPOINT_TYPE_REF = ? AND A.CONFORMANCE = ?
+            AND (ETA.INCLUDED = 1 OR ETA.INCLUDED_REPORTABLE = 1)
+        )`
+    },
+    {
+      key: 'commands',
+      type: 'command',
+      rows: `SELECT DISTINCT CMD.COMMAND_ID AS ID, CMD.NAME, CMD.CODE, CMD.MANUFACTURER_CODE, C.NAME AS CLUSTER_NAME, EP.NAME AS ENDPOINT_TYPE_NAME
+        FROM ENDPOINT_TYPE_COMMAND ETCMD
+        JOIN ENDPOINT_TYPE_CLUSTER ETC ON ETC.ENDPOINT_TYPE_CLUSTER_ID = ETCMD.ENDPOINT_TYPE_CLUSTER_REF
+        JOIN ENDPOINT_TYPE EP ON EP.ENDPOINT_TYPE_ID = ETC.ENDPOINT_TYPE_REF
+        JOIN COMMAND CMD ON CMD.COMMAND_ID = ETCMD.COMMAND_REF
+        JOIN CLUSTER C ON C.CLUSTER_ID = ETC.CLUSTER_REF
+        WHERE ETC.ENDPOINT_TYPE_REF = ? AND CMD.CONFORMANCE = ? AND ETCMD.IS_ENABLED = 1`,
+      update: `UPDATE ENDPOINT_TYPE_COMMAND
+        SET IS_ENABLED = 0
+        WHERE ENDPOINT_TYPE_COMMAND_ID IN (
+          SELECT ETCMD.ENDPOINT_TYPE_COMMAND_ID
+          FROM ENDPOINT_TYPE_COMMAND ETCMD
+          JOIN ENDPOINT_TYPE_CLUSTER ETC ON ETC.ENDPOINT_TYPE_CLUSTER_ID = ETCMD.ENDPOINT_TYPE_CLUSTER_REF
+          JOIN COMMAND CMD ON CMD.COMMAND_ID = ETCMD.COMMAND_REF
+          WHERE ETC.ENDPOINT_TYPE_REF = ? AND CMD.CONFORMANCE = ? AND ETCMD.IS_ENABLED = 1
+        )`
+    },
+    {
+      key: 'events',
+      type: 'event',
+      rows: `SELECT DISTINCT E.EVENT_ID AS ID, E.NAME, E.CODE, E.MANUFACTURER_CODE, C.NAME AS CLUSTER_NAME, EP.NAME AS ENDPOINT_TYPE_NAME
+        FROM ENDPOINT_TYPE_EVENT ETE
+        JOIN ENDPOINT_TYPE_CLUSTER ETC ON ETC.ENDPOINT_TYPE_CLUSTER_ID = ETE.ENDPOINT_TYPE_CLUSTER_REF
+        JOIN ENDPOINT_TYPE EP ON EP.ENDPOINT_TYPE_ID = ETC.ENDPOINT_TYPE_REF
+        JOIN EVENT E ON E.EVENT_ID = ETE.EVENT_REF
+        JOIN CLUSTER C ON C.CLUSTER_ID = ETC.CLUSTER_REF
+        WHERE ETC.ENDPOINT_TYPE_REF = ? AND E.CONFORMANCE = ? AND ETE.INCLUDED = 1`,
+      update: `UPDATE ENDPOINT_TYPE_EVENT
+        SET INCLUDED = 0
+        WHERE ENDPOINT_TYPE_EVENT_ID IN (
+          SELECT ETE.ENDPOINT_TYPE_EVENT_ID
+          FROM ENDPOINT_TYPE_EVENT ETE
+          JOIN ENDPOINT_TYPE_CLUSTER ETC ON ETC.ENDPOINT_TYPE_CLUSTER_ID = ETE.ENDPOINT_TYPE_CLUSTER_REF
+          JOIN EVENT E ON E.EVENT_ID = ETE.EVENT_REF
+          WHERE ETC.ENDPOINT_TYPE_REF = ? AND E.CONFORMANCE = ? AND ETE.INCLUDED = 1
+        )`
+    }
+  ]
+
+  for (const category of categories) {
+    const rows = await dbApi.dbAll(db, category.rows, [endpointTypeId, obsolete])
+    if (rows.length === 0) continue
+
+    await dbApi.dbUpdate(db, category.update, [endpointTypeId, obsolete])
+    elements[category.key] = rows.map((row) => ({
+      id: row.ID,
+      name: row.NAME,
+      clusterName: row.CLUSTER_NAME,
+      code: row.CODE,
+      manufacturerCode: row.MANUFACTURER_CODE,
+      endpointTypeName: row.ENDPOINT_TYPE_NAME,
+      endpointTypeId
+    }))
+
+    for (const row of rows) {
+      const code = row.CODE == null ? '' : ` (code ${row.CODE})`
+      const manufacturerCode =
+        row.MANUFACTURER_CODE == null
+          ? ''
+          : `, manufacturer 0x${Number(row.MANUFACTURER_CODE).toString(16)}`
+      const message = `Obsolete ${category.type} ${row.CLUSTER_NAME}.${row.NAME}${code}${manufacturerCode} was automatically disabled in endpoint type ${row.ENDPOINT_TYPE_NAME}.`
+      await notification.setWarningIfMessageNotExists(db, sessionId, message)
+    }
+  }
+
+  const obsoleteFeatures = await dbApi.dbAll(
+    db,
+    `SELECT DISTINCT F.FEATURE_ID AS ID, F.NAME, F.CODE, C.NAME AS CLUSTER_NAME,
+      EP.NAME AS ENDPOINT_TYPE_NAME,
+      ETA.ENDPOINT_TYPE_ATTRIBUTE_ID AS FEATURE_MAP_ATTRIBUTE_ID, ETA.DEFAULT_VALUE AS FEATURE_MAP_VALUE, F.BIT
+      FROM FEATURE F
+      JOIN CLUSTER C ON C.CLUSTER_ID = F.CLUSTER_REF
+      JOIN ENDPOINT_TYPE_CLUSTER ETC ON ETC.CLUSTER_REF = F.CLUSTER_REF
+      JOIN ENDPOINT_TYPE EP ON EP.ENDPOINT_TYPE_ID = ETC.ENDPOINT_TYPE_REF
+      JOIN ENDPOINT_TYPE_ATTRIBUTE ETA ON ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
+      JOIN ATTRIBUTE A ON A.ATTRIBUTE_ID = ETA.ATTRIBUTE_REF
+      LEFT JOIN DEVICE_TYPE_FEATURE DTF ON DTF.FEATURE_REF = F.FEATURE_ID
+      LEFT JOIN DEVICE_TYPE_CLUSTER DTC ON DTC.DEVICE_TYPE_CLUSTER_ID = DTF.DEVICE_TYPE_CLUSTER_REF
+      LEFT JOIN ENDPOINT_TYPE_DEVICE ETD ON ETD.DEVICE_TYPE_REF = DTC.DEVICE_TYPE_REF
+        AND ETD.ENDPOINT_TYPE_REF = ETC.ENDPOINT_TYPE_REF
+      WHERE ETC.ENDPOINT_TYPE_REF = ? AND A.NAME = ? AND A.CODE = ?
+        AND ETA.INCLUDED = 1
+        AND (F.CONFORMANCE = ? OR
+          (ETD.ENDPOINT_TYPE_REF IS NOT NULL AND DTF.DEVICE_TYPE_CLUSTER_CONFORMANCE = ?))`,
+    [
+      endpointTypeId,
+      dbEnum.featureMapAttribute.name,
+      dbEnum.featureMapAttribute.code,
+      obsolete,
+      obsolete
+    ]
+  )
+
+  for (const feature of obsoleteFeatures) {
+    const featureMapValue = Number.parseInt(feature.FEATURE_MAP_VALUE || '0')
+    const bitValue = 2 ** Number(feature.BIT)
+    if (Math.floor(featureMapValue / bitValue) % 2 === 0) continue
+
+    const currentValue = await dbApi.dbGet(
+      db,
+      'SELECT DEFAULT_VALUE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_ATTRIBUTE_ID = ?',
+      [feature.FEATURE_MAP_ATTRIBUTE_ID]
+    )
+    const currentFeatureMapValue = Number.parseInt(
+      currentValue.DEFAULT_VALUE || '0'
+    )
+    const clearedValue = currentFeatureMapValue - bitValue
+    await dbApi.dbUpdate(
+      db,
+      'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET DEFAULT_VALUE = ? WHERE ENDPOINT_TYPE_ATTRIBUTE_ID = ?',
+      [clearedValue, feature.FEATURE_MAP_ATTRIBUTE_ID]
+    )
+    elements.features.push({
+      id: feature.ID,
+      name: feature.NAME,
+      clusterName: feature.CLUSTER_NAME,
+      code: feature.CODE,
+      endpointTypeName: feature.ENDPOINT_TYPE_NAME,
+      endpointTypeId
+    })
+    const message = `Obsolete feature ${feature.CLUSTER_NAME}.${feature.NAME} (${feature.CODE}) was automatically disabled in endpoint type ${feature.ENDPOINT_TYPE_NAME}.`
+    await notification.setWarningIfMessageNotExists(db, sessionId, message)
+  }
+
+  return elements
+}
+
+/**
  * Returns a promise to update the endpoint
  *
  * @param {*} db
@@ -1077,6 +1243,7 @@ async function resolveDefaultDeviceTypeAttributes(
         db,
         deviceAttribute.attributeRef
       )
+      if (attribute?.conformance == dbEnum.conformanceTag.obsolete) return null
 
       let clusterRef = attribute?.clusterRef
 
@@ -1129,7 +1296,12 @@ async function resolveCommandState(db, endpointTypeId, deviceCommand) {
     db,
     deviceCommand.commandRef
   )
-  if (command == null) return null
+  if (
+    command == null ||
+    command.conformance == dbEnum.conformanceTag.obsolete
+  ) {
+    return null
+  }
 
   let promises = []
   if (deviceTypeCluster.includeClient) {
@@ -1203,7 +1375,10 @@ async function resolveNonOptionalCommands(
       .then((commands) =>
         Promise.all(
           commands.map((command) => {
-            if (!command.isOptional) {
+            if (
+              !command.isOptional &&
+              command.conformance != dbEnum.conformanceTag.obsolete
+            ) {
               let isOutgoing =
                 (cluster.side == dbEnum.side.client &&
                   command.source == dbEnum.source.client) ||
@@ -1282,6 +1457,22 @@ async function resolveNonOptionalAndReportableAttributes(
 ) {
   let promises = attributes.map((attribute) => {
     let settings = []
+    if (attribute.conformance == dbEnum.conformanceTag.obsolete) {
+      return insertOrUpdateAttributeState(
+        db,
+        endpointTypeId,
+        cluster.clusterRef,
+        attribute.side,
+        attribute.id,
+        [
+          { key: restApi.updateKey.attributeSelected, value: false },
+          { key: restApi.updateKey.attributeReporting, value: false }
+        ],
+        attribute.reportMinInterval,
+        attribute.reportMaxInterval,
+        attribute.reportableChange
+      )
+    }
     if (
       attribute.reportingPolicy == dbEnum.reportingPolicy.mandatory ||
       attribute.reportingPolicy == dbEnum.reportingPolicy.suggested
@@ -1626,6 +1817,7 @@ exports.selectClusterStatesForAllEndpoints = selectClusterStatesForAllEndpoints
 exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
 exports.insertOrUpdateEventState = insertOrUpdateEventState
+exports.disableObsoleteElements = disableObsoleteElements
 exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn
 exports.duplicateEndpointType = duplicateEndpointType
 exports.selectEndpointClusters = selectEndpointClusters

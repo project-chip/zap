@@ -204,6 +204,7 @@ export default function () {
       deviceIdentifier: null
     },
     notificationCount: 0,
+    legacyDisabledObsoleteElements: [],
     enabledClusters: [],
     relevantClusters: []
   }

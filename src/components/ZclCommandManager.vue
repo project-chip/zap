@@ -60,6 +60,7 @@ limitations under the License.
               <q-checkbox
                 class="q-mt-xs"
                 v-model="selectionOut"
+                :disable="isObsoleteElement(props.row)"
                 :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
                 v-show="
                   (selectionClients.includes(selectedCluster.id) &&
@@ -84,6 +85,7 @@ limitations under the License.
               <q-checkbox
                 class="q-mt-xs"
                 v-model="selectionIn"
+                :disable="isObsoleteElement(props.row)"
                 :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
                 indeterminate-value="false"
                 keep-color
@@ -152,7 +154,12 @@ export default {
     commandData: {
       get() {
         return this.$store.state.zap.commands.filter((command) => {
-          if (this.isObsoleteElement(command)) return false
+          if (
+            this.isObsoleteElement(command) &&
+            !this.isLegacyDisabledObsoleteElement('commands', command)
+          ) {
+            return false
+          }
           return this.individualClusterFilterString == ''
             ? true
             : command.name

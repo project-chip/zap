@@ -61,6 +61,7 @@ limitations under the License.
               <q-toggle
                 class="q-mt-xs"
                 v-model="selectedEvents"
+                :disable="isObsoleteElement(props.row)"
                 :val="hashEventIdClusterId(props.row.id, selectedCluster.id)"
                 indeterminate-value="false"
                 keep-color
@@ -132,7 +133,12 @@ export default {
     eventData: {
       get() {
         return this.$store.state.zap.events.filter((event) => {
-          if (this.isObsoleteElement(event)) return false
+          if (
+            this.isObsoleteElement(event) &&
+            !this.isLegacyDisabledObsoleteElement('events', event)
+          ) {
+            return false
+          }
           return this.individualClusterFilterString == ''
             ? true
             : event.name
