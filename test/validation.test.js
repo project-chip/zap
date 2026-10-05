@@ -211,19 +211,31 @@ test(
 
 test(
   'Validate types',
-  () => {
-    expect(types.isString('CHAR_STRING'))
+  async () => {
+    // DB-backed ATOMIC flags (alias-aware); no sync name lists
+    expect(await types.isStringType(db, [pkgId], 'char_string')).toBeTruthy()
+    expect(await types.isStringType(db, [pkgId], 'octet_string')).toBeTruthy()
+    expect(
+      await types.isStringType(db, [pkgId], 'long_char_string')
+    ).toBeTruthy()
+    expect(
+      await types.isStringType(db, [pkgId], 'long_octet_string')
+    ).toBeTruthy()
+    expect(await types.isStringType(db, [pkgId], 'float_semi')).toBeFalsy()
 
-    expect(types.isString('char_string'))
-    expect(types.isString('OCTET_STRING'))
-    expect(types.isString('LONG_CHAR_STRING'))
-    expect(types.isString('LONG_OCTET_STRING'))
-    expect(!types.isString('FLOAT_SEMI'))
+    expect(await types.isFloatType(db, [pkgId], 'float_semi')).toBeTruthy()
+    expect(await types.isFloatType(db, [pkgId], 'float_single')).toBeTruthy()
+    expect(await types.isFloatType(db, [pkgId], 'float_double')).toBeTruthy()
+    expect(
+      await types.isFloatType(db, [pkgId], 'long_octet_string')
+    ).toBeFalsy()
 
-    expect(types.isFloat('FLOAT_SEMI'))
-    expect(types.isFloat('FLOAT_SINGLE'))
-    expect(types.isFloat('FLOAT_DOUBLE'))
-    expect(!types.isFloat('LONG_OCTET_STRING'))
+    expect(
+      await types.isOneBytePrefixedStringType(db, [pkgId], 'char_string')
+    ).toBeTruthy()
+    expect(
+      await types.isTwoBytePrefixedStringType(db, [pkgId], 'long_char_string')
+    ).toBeTruthy()
   },
   timeout.medium()
 )

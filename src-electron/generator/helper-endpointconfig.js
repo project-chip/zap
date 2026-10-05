@@ -793,7 +793,7 @@ function endpoint_attribute_long_defaults(options) {
   let ret = '{ \\\n'
   this.longDefaultsList.forEach((ld) => {
     let value = ld.value
-    if (littleEndian && !types.isString(ld.type)) {
+    if (littleEndian && !ld.isString) {
       // ld.value is in big-endian order.  For types for which endianness
       // matters, we need to reverse it.
       let valArr = value.split(/\s*,\s*/).filter((s) => s.length != 0)
@@ -836,6 +836,7 @@ function asMEI(manufacturerCode, code) {
  * @param {*} isNullable
  * @param {*} db
  * @param {*} sessionId
+ * @param {object} [typeInfo] determineType result with isString flag when available
  * @returns Attribute's default value
  */
 async function determineAttributeDefaultValue(
@@ -844,13 +845,18 @@ async function determineAttributeDefaultValue(
   typeSize,
   isNullable,
   db,
-  sessionId
+  sessionId,
+  typeInfo
 ) {
   if (specifiedDefault !== null || !isNullable) {
     return specifiedDefault
   }
 
-  if (types.isString(type)) {
+  let isStringType =
+    typeInfo && typeInfo.isString != null
+      ? !!typeInfo.isString
+      : types.isString(type)
+  if (isStringType) {
     // Handled elsewhere.
     return null
   }
@@ -859,7 +865,11 @@ async function determineAttributeDefaultValue(
     return '0x80' + '00'.repeat(typeSize - 1)
   }
 
-  if (types.isFloat(type)) {
+  let isFloatType =
+    typeInfo && typeInfo.isFloat != null
+      ? !!typeInfo.isFloat
+      : types.isFloat(type)
+  if (isFloatType) {
     // Not supported yet.
     throw new Error(
       "Don't know how to output a null default value for a float type"
@@ -1024,7 +1034,8 @@ async function collectAttributes(
             a.typeSize,
             a.isNullable,
             db,
-            sessionId
+            sessionId,
+            a.typeInfo
           )
         )
       )
@@ -1047,11 +1058,14 @@ async function collectAttributes(
         // Various types store the length of the actual content in bytes.
         // For those, we can size the default storage to be just big enough for
         // the actual default value.
-        if (types.isOneBytePrefixedString(a.type)) {
+        let typeInfo = a.typeInfo || {}
+        let isStringType = !!typeInfo.isString
+        let isLongString = !!typeInfo.isLong
+        if (isStringType && !isLongString) {
           typeSize += 1
           defaultSize =
             (attributeDefaultValue ? attributeDefaultValue.length : 0) + 1
-        } else if (types.isTwoBytePrefixedString(a.type)) {
+        } else if (isStringType && isLongString) {
           typeSize += 2
           defaultSize =
             (attributeDefaultValue ? attributeDefaultValue.length : 0) + 2
@@ -1105,7 +1119,7 @@ async function collectAttributes(
         // long defaults.
         if (
           defaultSize > spaceForDefaultValue ||
-          (types.isString(a.type) &&
+          (isStringType &&
             attributeDefaultValue !== undefined &&
             attributeDefaultValue !== '')
         ) {
@@ -1113,16 +1127,12 @@ async function collectAttributes(
           longDefaults.push(a)
 
           let def
-          if (
-            types.isString(a.type) &&
-            attributeDefaultValue === null &&
-            a.isNullable
-          ) {
-            def = types.nullStringDefaultValue(a.type)
+          if (isStringType && attributeDefaultValue === null && a.isNullable) {
+            def = types.nullStringDefaultValue(typeInfo)
           } else {
             def = types.longTypeDefaultValue(
               defaultSize,
-              a.type,
+              typeInfo,
               attributeDefaultValue
             )
           }
@@ -1132,7 +1142,8 @@ async function collectAttributes(
             index: longDefaultsIndex,
             name: a.name,
             comment: cluster.comment,
-            type: a.type
+            type: a.type,
+            isString: isStringType
           }
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           defaultValueIsMacro = true

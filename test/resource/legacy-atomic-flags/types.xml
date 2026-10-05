@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+  Minimal fixture: older SDK atomic format WITHOUT string/long/char/float XML
+  attributes. Mirrors historical Matter/Zigbee roots that ZAP used to classify
+  by type name alone. Used for backwards-compatibility regression tests.
+-->
+<configurator>
+  <atomic>
+    <type id="0x10" description="Boolean" name="boolean" size="1" discrete="true"/>
+    <type id="0x20" description="Unsigned 8-bit integer" name="int8u" size="1" analog="true"/>
+    <type id="0x39" description="Single precision" name="single" size="4" analog="true"/>
+    <type id="0x3A" description="Double precision" name="double" size="8" analog="true"/>
+    <type id="0x38" description="Semi-precision" name="float_semi" size="2"/>
+    <type id="0x3B" description="Single precision" name="float_single" size="4"/>
+    <type id="0x3C" description="Double precision" name="float_double" size="8"/>
+    <type id="0x41" description="Octet String" name="octet_string" composite="true"/>
+    <type id="0x42" description="Character String" name="char_string" composite="true"/>
+    <type id="0x43" description="Long Octet String" name="long_octet_string" composite="true"/>
+    <type id="0x44" description="Long Character String" name="long_char_string" composite="true"/>
+    <!-- Alias without baseType: must NOT inherit string flags (old behavior) -->
+    <type id="0xFA" description="IP Address" name="ipadr" composite="true"/>
+  </atomic>
+</configurator>

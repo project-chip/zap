@@ -101,6 +101,25 @@ exports.zclType = {
   number: 'number'
 }
 
+/**
+ * Canonical atomic type names as they appear in ZCL/Matter XML
+ * `<type name="...">`. Use for comparisons and legacy root-name fallbacks
+ * instead of scattering string literals.
+ */
+exports.atomicTypeName = {
+  charString: 'char_string',
+  longCharString: 'long_char_string',
+  octetString: 'octet_string',
+  longOctetString: 'long_octet_string',
+  boolean: 'boolean',
+  single: 'single',
+  double: 'double',
+  float: 'float',
+  floatSemi: 'float_semi',
+  floatSingle: 'float_single',
+  floatDouble: 'float_double'
+}
+
 exports.sessionKey = {
   filePath: 'filePath',
   ideProjectPath: 'ideProjectPath',

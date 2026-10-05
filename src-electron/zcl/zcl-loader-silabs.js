@@ -379,38 +379,162 @@ function maskToType(mask) {
 }
 
 /**
- * Prepare atomic to db insertion.
+ * Build a case-insensitive name → XML `<type>` map for one `<atomic>` block.
+ *
+ * @param {*} types
+ * @returns {Map<string, object>}
+ */
+function atomicsByName(types) {
+  let byName = new Map()
+  if (!types) return byName
+  for (let t of types) {
+    if (t && t.$ && t.$.name) {
+      byName.set(t.$.name.toLowerCase(), t)
+    }
+  }
+  return byName
+}
+
+/**
+ * Resolve the XML `<type>` named by `a.$.baseType` within the same atomic block.
+ * Returns null when there is no baseType, an unknown base, or a cycle.
  *
  * @param {*} a
+ * @param {Map<string, object>} byName
+ * @param {Set<string>} [visited]
+ * @returns {object|null}
  */
-function prepareAtomic(a) {
+function resolveAtomicBase(a, byName, visited = new Set()) {
+  if (!a || !a.$ || !a.$.baseType) return null
+  let key = a.$.baseType.toLowerCase()
+  if (visited.has(key)) {
+    env.logWarning(
+      `Atomic type "${a.$.name}" has a cyclic baseType chain involving "${a.$.baseType}"`
+    )
+    return null
+  }
+  visited.add(key)
+  return byName.get(key) || null
+}
+
+/**
+ * Own-name classification for an atomic XML type (no baseType walk).
+ *
+ * @param {*} a
+ * @returns {string|null} one of dbEnum.zclType, or null when unknown
+ */
+function atomicOwnZclType(a) {
+  if (!a || !a.$ || !a.$.name) return null
+  let name = a.$.name.toLowerCase()
+  if (name.includes(dbEnum.zclType.bitmap)) return dbEnum.zclType.bitmap
+  if (name.includes(dbEnum.zclType.enum)) return dbEnum.zclType.enum
+  if (
+    (a.$.string && a.$.string.toLowerCase() == 'true') ||
+    name.includes(dbEnum.zclType.string)
+  ) {
+    return dbEnum.zclType.string
+  }
+  if (name.includes(dbEnum.zclType.struct)) return dbEnum.zclType.struct
+  return null
+}
+
+/**
+ * Classify an atomic XML type, following baseType when the own name does not
+ * match bitmap/enum/string/struct. Own-name rules win so e.g. bitmap8 with
+ * baseType=int8u stays a bitmap.
+ *
+ * @param {*} a
+ * @param {Map<string, object>} byName
+ * @param {Set<string>} [visited]
+ * @returns {string} one of dbEnum.zclType
+ */
+function atomicZclType(a, byName, visited = new Set()) {
+  let own = atomicOwnZclType(a)
+  if (own) return own
+  let base = resolveAtomicBase(a, byName, visited)
+  if (base) return atomicZclType(base, byName, visited)
+  return dbEnum.zclType.number
+}
+
+/**
+ * Own-flag computation for an atomic XML type (no baseType inheritance).
+ * Prefer explicit XML attributes; fall back to historical root type names so
+ * older SDKs that omit string/long/char/float attrs keep working.
+ *
+ * @param {*} a
+ * @returns {object}
+ */
+function atomicOwnFlags(a) {
+  let name = a.$.name ? a.$.name.toLowerCase() : ''
+  let atn = dbEnum.atomicTypeName
+  // Prefer explicit XML attributes; fall back to known root names so older
+  // SDKs that omit string/long/char/float attrs keep working.
+  let legacyString =
+    name === atn.charString ||
+    name === atn.octetString ||
+    name === atn.longCharString ||
+    name === atn.longOctetString
+  let legacyLong = name === atn.longCharString || name === atn.longOctetString
+  let legacyChar = name === atn.charString || name === atn.longCharString
+  let legacyFloat =
+    name === atn.single ||
+    name === atn.double ||
+    name === atn.float ||
+    name === atn.floatSemi ||
+    name === atn.floatSingle ||
+    name === atn.floatDouble
   return {
-    name: a.$.name,
-    id: parseInt(a.$.id),
-    size: a.$.size,
-    description: a.$.description,
     isDiscrete: a.$.discrete == 'true',
     isComposite: a.$.composite == 'true',
     isSigned: a.$.signed == 'true',
-    isString:
-      a.$.string == 'true' ||
-      a.$.name.toLowerCase() == 'char_string' ||
-      a.$.name.toLowerCase() == 'long_char_string' ||
-      a.$.name.toLowerCase() == 'octet_string' ||
-      a.$.name.toLowerCase() == 'long_octet_string',
-    isLong:
-      a.$.long == 'true' ||
-      a.$.name.toLowerCase() == 'long_char_string' ||
-      a.$.name.toLowerCase() == 'long_octet_string',
-    isChar:
-      a.$.char == 'true' ||
-      a.$.name.toLowerCase() == 'char_string' ||
-      a.$.name.toLowerCase() == 'long_char_string',
-    isFloat:
-      a.$.float == 'true' ||
-      a.$.name.toLowerCase() === 'single' ||
-      a.$.name.toLowerCase() === 'double' ||
-      a.$.name.toLowerCase() === 'float',
+    isString: a.$.string == 'true' || legacyString,
+    isLong: a.$.long == 'true' || legacyLong,
+    isChar: a.$.char == 'true' || legacyChar,
+    isFloat: a.$.float == 'true' || legacyFloat
+  }
+}
+
+/**
+ * Prepare atomic to db insertion. When baseType is set, inherit string/float/
+ * signed/long/char flags (and size when the child declares none) from the base
+ * chain. BASE_TYPE keeps the immediate parent name from XML.
+ *
+ * @param {*} a
+ * @param {Map<string, object>} [byName]
+ */
+function prepareAtomic(a, byName) {
+  let flags = atomicOwnFlags(a)
+  let size = a.$.size
+  if (byName) {
+    let visited = new Set()
+    let base = resolveAtomicBase(a, byName, visited)
+    while (base) {
+      let baseFlags = atomicOwnFlags(base)
+      flags.isString = flags.isString || baseFlags.isString
+      flags.isLong = flags.isLong || baseFlags.isLong
+      flags.isChar = flags.isChar || baseFlags.isChar
+      flags.isFloat = flags.isFloat || baseFlags.isFloat
+      flags.isSigned = flags.isSigned || baseFlags.isSigned
+      flags.isDiscrete = flags.isDiscrete || baseFlags.isDiscrete
+      flags.isComposite = flags.isComposite || baseFlags.isComposite
+      if (size == null && base.$.size != null) {
+        size = base.$.size
+      }
+      base = resolveAtomicBase(base, byName, visited)
+    }
+  }
+  return {
+    name: a.$.name,
+    id: parseInt(a.$.id),
+    size: size,
+    description: a.$.description,
+    isDiscrete: flags.isDiscrete,
+    isComposite: flags.isComposite,
+    isSigned: flags.isSigned,
+    isString: flags.isString,
+    isLong: flags.isLong,
+    isChar: flags.isChar,
+    isFloat: flags.isFloat,
     baseType: a.$.baseType
   }
 }
@@ -425,11 +549,12 @@ function prepareAtomic(a) {
  */
 async function processAtomics(db, filePath, packageId, data) {
   let types = data[0].type
+  let byName = atomicsByName(types)
   env.logDebug(`${filePath}, ${packageId}: ${types.length} atomic types.`)
   return queryLoader.insertAtomics(
     db,
     packageId,
-    types.map((x) => prepareAtomic(x))
+    types.map((x) => prepareAtomic(x, byName))
   )
 }
 
@@ -815,8 +940,8 @@ function prepareCluster(cluster, context, isExtension = false) {
       // the xml.
       if (
         att.type &&
-        (att.type.toLowerCase() == 'long_octet_string' ||
-          att.type.toLowerCase() == 'long_char_string') &&
+        (att.type.toLowerCase() == dbEnum.atomicTypeName.longOctetString ||
+          att.type.toLowerCase() == dbEnum.atomicTypeName.longCharString) &&
         (att.maxLength == 0 || !att.maxLength)
       ) {
         if (context.category == 'zigbee') {
@@ -845,8 +970,8 @@ function prepareCluster(cluster, context, isExtension = false) {
       }
       if (
         att.type &&
-        (att.type.toLowerCase() == 'octet_string' ||
-          att.type.toLowerCase() == 'char_string') &&
+        (att.type.toLowerCase() == dbEnum.atomicTypeName.octetString ||
+          att.type.toLowerCase() == dbEnum.atomicTypeName.charString) &&
         (att.maxLength == 0 || !att.maxLength)
       ) {
         att.maxLength = 254
@@ -1183,30 +1308,17 @@ async function processDataTypeDiscriminator(db, packageId, zclDataTypes) {
  * @param {*} a
  * @param {*} dataType
  * @param {*} typeMap
+ * @param {Map<string, object>} [byName] atomic name map for baseType alias resolution
  * @returns An Object
  */
-function prepareDataType(a, dataType, typeMap) {
+function prepareDataType(a, dataType, typeMap, byName) {
   let dataTypeRef = 0
   // The following is when the dataType is atomic
-  if (!dataType && a.$.name.toLowerCase().includes(dbEnum.zclType.bitmap)) {
-    dataTypeRef = typeMap.get(dbEnum.zclType.bitmap)
-  } else if (
-    !dataType &&
-    a.$.name.toLowerCase().includes(dbEnum.zclType.enum)
-  ) {
-    dataTypeRef = typeMap.get(dbEnum.zclType.enum)
-  } else if (
-    !dataType &&
-    a.$.name.toLowerCase().includes(dbEnum.zclType.string)
-  ) {
-    dataTypeRef = typeMap.get(dbEnum.zclType.string)
-  } else if (
-    !dataType &&
-    a.$.name.toLowerCase().includes(dbEnum.zclType.struct)
-  ) {
-    dataTypeRef = typeMap.get(dbEnum.zclType.struct)
-  } else if (!dataType) {
-    dataTypeRef = typeMap.get(dbEnum.zclType.number)
+  if (!dataType) {
+    let zclType = byName
+      ? atomicZclType(a, byName)
+      : atomicOwnZclType(a) || dbEnum.zclType.number
+    dataTypeRef = typeMap.get(zclType)
   }
   return {
     name: a.$.name,
@@ -1244,11 +1356,12 @@ async function processDataType(
 
   if (dataType == dbEnum.zclType.atomic) {
     let types = data[0].type
+    let byName = atomicsByName(types)
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Atomic Data Types.`)
     return queryLoader.insertDataType(
       db,
       packageId,
-      types.map((x) => prepareDataType(x, 0, typeMap))
+      types.map((x) => prepareDataType(x, 0, typeMap, byName))
     )
   } else if (dataType == dbEnum.zclType.enum) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Data Types.`)
@@ -1311,8 +1424,9 @@ function prepareNumber(a, dataType) {
   // Adding explicit exceptions for signed types when xml does not specify it
   let isSignedException = false
   if (
-    (!('signed' in a.$) && a.$.name.toLowerCase() == 'single') ||
-    a.$.name.toLowerCase() == 'double'
+    (!('signed' in a.$) &&
+      a.$.name.toLowerCase() == dbEnum.atomicTypeName.single) ||
+    a.$.name.toLowerCase() == dbEnum.atomicTypeName.double
   ) {
     isSignedException = true
   }
@@ -1344,13 +1458,9 @@ function prepareNumber(a, dataType) {
  */
 async function processNumber(db, filePath, packageId, knownPackages, data) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
+  let byName = atomicsByName(data[0].type)
   let numbers = data[0].type.filter(function (item) {
-    return (
-      !item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap) &&
-      !item.$.name.toLowerCase().includes(dbEnum.zclType.enum) &&
-      !item.$.name.toLowerCase().includes(dbEnum.zclType.string) &&
-      !item.$.name.toLowerCase().includes(dbEnum.zclType.struct)
-    )
+    return atomicZclType(item, byName) == dbEnum.zclType.number
   })
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Number Types.`)
   return queryLoader.insertNumber(
@@ -1362,16 +1472,19 @@ async function processNumber(db, filePath, packageId, knownPackages, data) {
 
 /**
  * Prepare strings for database table insertion.
+ * Uses prepareAtomic so baseType aliases inherit isLong/isChar from the base.
  *
  * @param {*} a
  * @param {*} dataType
+ * @param {Map<string, object>} [byName]
  * @returns An Object
  */
-function prepareString(a, dataType) {
+function prepareString(a, dataType, byName) {
+  let atomic = prepareAtomic(a, byName)
   return {
-    is_long: a.$.long && a.$.long.toLowerCase() == 'true' ? 1 : 0,
-    size: a.$.size,
-    is_char: 0,
+    is_long: atomic.isLong ? 1 : 0,
+    size: atomic.size,
+    is_char: atomic.isChar ? 1 : 0,
     name: a.$.name,
     cluster_code: a.cluster ? a.cluster : null,
     discriminator_ref: dataType
@@ -1390,17 +1503,17 @@ function prepareString(a, dataType) {
  */
 async function processString(db, filePath, packageId, knownPackages, data) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
+  let byName = atomicsByName(data[0].type)
   let strings = data[0].type.filter(function (item) {
-    return (
-      (item.$.string && item.$.string.toLowerCase() == 'true') ||
-      (item.$.name && item.$.name.toLowerCase().includes('string'))
-    )
+    return atomicZclType(item, byName) == dbEnum.zclType.string
   })
   env.logDebug(`${filePath}, ${packageId}: ${data.length} String Types.`)
   return queryLoader.insertString(
     db,
     packageId,
-    strings.map((x) => prepareString(x, typeMap.get(dbEnum.zclType.string)))
+    strings.map((x) =>
+      prepareString(x, typeMap.get(dbEnum.zclType.string), byName)
+    )
   )
 }
 
@@ -1432,8 +1545,9 @@ function prepareEnumOrBitmapAtomic(a, dataType) {
  */
 async function processEnumAtomic(db, filePath, packageId, knownPackages, data) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
+  let byName = atomicsByName(data[0].type)
   let enums = data[0].type.filter(function (item) {
-    return item.$.name.toLowerCase().includes('enum')
+    return atomicZclType(item, byName) == dbEnum.zclType.enum
   })
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Baseline Enum Types.`)
   return queryLoader.insertEnumAtomic(
@@ -1568,8 +1682,9 @@ async function processBitmapAtomic(
   data
 ) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
+  let byName = atomicsByName(data[0].type)
   let bitmaps = data[0].type.filter(function (item) {
-    return item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap)
+    return atomicZclType(item, byName) == dbEnum.zclType.bitmap
   })
   env.logDebug(
     `${filePath}, ${packageId}: ${data.length} Baseline Bitmap Types.`

@@ -433,6 +433,14 @@ This module provides common external URLs.
 ## DB API: DB types and enums.
 This module provides mappings between database columns and JS keys.
 
+<a name="module_DB API_ DB types and enums..atomicTypeName"></a>
+
+### DB API: DB types and enums..atomicTypeName
+Canonical atomic type names as they appear in ZCL/Matter XML
+`<type name="...">`. Use for comparisons and legacy root-name fallbacks
+instead of scattering string literals.
+
+**Kind**: static property of [<code>DB API: DB types and enums.</code>](#module_DB API_ DB types and enums.)  
 <a name="module_Renderer API_ Renderer API."></a>
 
 ## Renderer API: Renderer API.
@@ -10321,7 +10329,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~endpoint_attribute_long_defaults_count(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attribute_long_defaults_count) ⇒
     * [~endpoint_attribute_long_defaults(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attribute_long_defaults) ⇒
     * [~asMEI(manufacturerCode, code)](#module_Templating API_ Matter endpoint config helpers..asMEI) ⇒
-    * [~determineAttributeDefaultValue(specifiedDefault, type, typeSize, isNullable, db, sessionId)](#module_Templating API_ Matter endpoint config helpers..determineAttributeDefaultValue) ⇒
+    * [~determineAttributeDefaultValue(specifiedDefault, type, typeSize, isNullable, db, sessionId, [typeInfo])](#module_Templating API_ Matter endpoint config helpers..determineAttributeDefaultValue) ⇒
     * [~keepDefaultValueKey(clusterName, attributeName)](#module_Templating API_ Matter endpoint config helpers..keepDefaultValueKey) ⇒
     * [~collectAttributesKeepingDefaultValue(db, zclPackageIds)](#module_Templating API_ Matter endpoint config helpers..collectAttributesKeepingDefaultValue) ⇒
     * [~keepsDefaultValueForExternalStorage(attribute, cluster, options)](#module_Templating API_ Matter endpoint config helpers..keepsDefaultValueForExternalStorage) ⇒
@@ -10763,7 +10771,7 @@ Get 32 bit code from the given code and manufacturer code.
 
 <a name="module_Templating API_ Matter endpoint config helpers..determineAttributeDefaultValue"></a>
 
-### Templating API: Matter endpoint config helpers~determineAttributeDefaultValue(specifiedDefault, type, typeSize, isNullable, db, sessionId) ⇒
+### Templating API: Matter endpoint config helpers~determineAttributeDefaultValue(specifiedDefault, type, typeSize, isNullable, db, sessionId, [typeInfo]) ⇒
 The representation of null depends on the type, so we can't use a single
 macro that's defined elsewhere for "null value".
 Get the default value of an attribute.
@@ -10771,14 +10779,15 @@ Get the default value of an attribute.
 **Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
 **Returns**: Attribute's default value  
 
-| Param | Type |
-| --- | --- |
-| specifiedDefault | <code>\*</code> | 
-| type | <code>\*</code> | 
-| typeSize | <code>\*</code> | 
-| isNullable | <code>\*</code> | 
-| db | <code>\*</code> | 
-| sessionId | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| specifiedDefault | <code>\*</code> |  |
+| type | <code>\*</code> |  |
+| typeSize | <code>\*</code> |  |
+| isNullable | <code>\*</code> |  |
+| db | <code>\*</code> |  |
+| sessionId | <code>\*</code> |  |
+| [typeInfo] | <code>object</code> | determineType result with isString flag when available |
 
 <a name="module_Templating API_ Matter endpoint config helpers..keepDefaultValueKey"></a>
 
@@ -13077,6 +13086,7 @@ This module contains the API for templating. For more detailed instructions, rea
 
 
 * [Templating API: static zcl helpers](#module_Templating API_ static zcl helpers)
+    * [~resolveStringRow(context, type)](#module_Templating API_ static zcl helpers..resolveStringRow) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
     * [~zcl_bitmaps(options)](#module_Templating API_ static zcl helpers..zcl_bitmaps) ⇒
     * [~zcl_bitmap_items(options)](#module_Templating API_ static zcl helpers..zcl_bitmap_items)
     * [~zcl_enums(options)](#module_Templating API_ static zcl helpers..zcl_enums) ⇒
@@ -13160,6 +13170,18 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~if_compare(leftValue, rightValue, options)](#module_Templating API_ static zcl helpers..if_compare) ⇒ <code>Object</code>
     * [~if_is_data_type_signed(type, clusterId, options)](#module_Templating API_ static zcl helpers..if_is_data_type_signed) ⇒
     * [~as_zcl_data_type_size(type, clusterId, options)](#module_Templating API_ static zcl helpers..as_zcl_data_type_size) ⇒
+
+<a name="module_Templating API_ static zcl helpers..resolveStringRow"></a>
+
+### Templating API: static zcl helpers~resolveStringRow(context, type) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
+Resolve a STRING table row by name or id for the current template packages.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+
+| Param | Type |
+| --- | --- |
+| context | <code>\*</code> | 
+| type | <code>\*</code> | 
 
 <a name="module_Templating API_ static zcl helpers..zcl_bitmaps"></a>
 
@@ -13998,7 +14020,7 @@ Helper that deals with the type of the argument.
 
 | Param | Description |
 | --- | --- |
-| type | Return: true or false based on whether the type is a string or not. |
+| type | Return: true or false based on whether the type is a string or not (ATOMIC.IS_STRING, alias-aware). |
 
 <a name="module_Templating API_ static zcl helpers..if_is_number"></a>
 
@@ -14041,8 +14063,8 @@ type is not string
 <a name="module_Templating API_ static zcl helpers..if_is_char_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_char\_string(type) ⇒
-If helper that checks if a string type is present in the list of char strings
-i.e. characterStringTypes
+If helper that checks if a string type is a character string
+(STRING.isChar from XML / baseType inheritance).
 
 example:
 {{#if_is_char_string type}}
@@ -14061,8 +14083,8 @@ type is not char string
 <a name="module_Templating API_ static zcl helpers..if_is_octet_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_octet\_string(type) ⇒
-If helper that checks if a string type is present in the list of octet strings
-i.e. octetStringTypes
+If helper that checks if a string type is an octet string
+(STRING row present and not isChar).
 
 example:
 {{#if_is_octet_string type}}
@@ -14081,8 +14103,7 @@ type is not octet string
 <a name="module_Templating API_ static zcl helpers..if_is_short_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_short\_string(type) ⇒
-If helper that checks if a string type is present in the list of short strings
-i.e. stringShortTypes
+If helper that checks if a string type is a short (1-byte length prefix) string.
 
 example:
 {{#if_is_short_string type}}
@@ -14101,8 +14122,7 @@ type is not short string
 <a name="module_Templating API_ static zcl helpers..if_is_long_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_long\_string(type) ⇒
-If helper that checks if a string type is present in the list of long strings
-i.e. stringLongTypes
+If helper that checks if a string type is a long (2-byte length prefix) string.
 
 example:
 {{#if_is_long_string type}}
@@ -20382,14 +20402,20 @@ Extract project name from the Studio project path
     * [~typeSizeAttribute(db, zclPackageIds, at, [defaultValue])](#module_JS API_ type related utilities..typeSizeAttribute) ⇒
     * [~convertFloatToBigEndian(value, size)](#module_JS API_ type related utilities..convertFloatToBigEndian) ⇒
     * [~convertIntToBigEndian(value, size)](#module_JS API_ type related utilities..convertIntToBigEndian) ⇒
-    * [~longTypeDefaultValue(size, type, value)](#module_JS API_ type related utilities..longTypeDefaultValue) ⇒
+    * [~stringFlagsFromTypeInfo(typeInfoOrName)](#module_JS API_ type related utilities..stringFlagsFromTypeInfo) ⇒ <code>Object</code>
+    * [~longTypeDefaultValue(size, typeInfo, value)](#module_JS API_ type related utilities..longTypeDefaultValue) ⇒
     * [~convertToCliType(str)](#module_JS API_ type related utilities..convertToCliType) ⇒
-    * [~isString(type)](#module_JS API_ type related utilities..isString) ⇒
-    * [~isFloat(type)](#module_JS API_ type related utilities..isFloat) ⇒
+    * [~selectAtomicFlags(db, packageIds, typeName)](#module_JS API_ type related utilities..selectAtomicFlags) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
+    * [~isStringType(db, packageIds, typeName)](#module_JS API_ type related utilities..isStringType) ⇒ <code>Promise.&lt;boolean&gt;</code>
+    * [~isFloatType(db, packageIds, typeName)](#module_JS API_ type related utilities..isFloatType) ⇒ <code>Promise.&lt;boolean&gt;</code>
+    * [~isOneBytePrefixedStringType(db, packageIds, typeName)](#module_JS API_ type related utilities..isOneBytePrefixedStringType) ⇒ <code>Promise.&lt;boolean&gt;</code>
+    * [~isTwoBytePrefixedStringType(db, packageIds, typeName)](#module_JS API_ type related utilities..isTwoBytePrefixedStringType) ⇒ <code>Promise.&lt;boolean&gt;</code>
+    * [~isString(type)](#module_JS API_ type related utilities..isString) ⇒ <code>boolean</code>
+    * [~isFloat(type)](#module_JS API_ type related utilities..isFloat) ⇒ <code>boolean</code>
     * [~isSignedInteger(db, sessionId, type)](#module_JS API_ type related utilities..isSignedInteger) ⇒ <code>Promise.&lt;boolean&gt;</code>
-    * [~isOneBytePrefixedString(type)](#module_JS API_ type related utilities..isOneBytePrefixedString) ⇒
-    * [~isTwoBytePrefixedString(type)](#module_JS API_ type related utilities..isTwoBytePrefixedString) ⇒
-    * [~nullStringDefaultValue(type)](#module_JS API_ type related utilities..nullStringDefaultValue) ⇒ <code>string</code>
+    * [~isOneBytePrefixedString(type)](#module_JS API_ type related utilities..isOneBytePrefixedString) ⇒ <code>boolean</code>
+    * [~isTwoBytePrefixedString(type)](#module_JS API_ type related utilities..isTwoBytePrefixedString) ⇒ <code>boolean</code>
+    * [~nullStringDefaultValue(typeInfo)](#module_JS API_ type related utilities..nullStringDefaultValue) ⇒ <code>string</code>
     * [~processZclTypeSignAndSize(db, dataType, type, packageIds, options, clusterId, clusterName)](#module_JS API_ type related utilities..processZclTypeSignAndSize) ⇒
     * [~getSignAndSizeOfZclType(type, context, options)](#module_JS API_ type related utilities..getSignAndSizeOfZclType) ⇒
     * [~getSignAndSizeOfZclTypeAndClusterId(db, type, clusterId, packageIds, options)](#module_JS API_ type related utilities..getSignAndSizeOfZclTypeAndClusterId) ⇒ <code>size:&#x27;bits&#x27;</code>
@@ -20436,9 +20462,23 @@ the given size. The value is returned in hex format and prefixed with '0x'.
 | value | <code>\*</code> | 
 | size | <code>\*</code> | 
 
+<a name="module_JS API_ type related utilities..stringFlagsFromTypeInfo"></a>
+
+### JS API: type related utilities~stringFlagsFromTypeInfo(typeInfoOrName) ⇒ <code>Object</code>
+Normalize a type info / atomic row / legacy type-name string into
+{ isString, isLong } flags. Object form is preferred (from ATOMIC /
+determineType). A bare string uses the sync root-name helpers for
+older call sites without a DB context.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
+
+| Param | Type |
+| --- | --- |
+| typeInfoOrName | <code>object</code> \| <code>string</code> | 
+
 <a name="module_JS API_ type related utilities..longTypeDefaultValue"></a>
 
-### JS API: type related utilities~longTypeDefaultValue(size, type, value) ⇒
+### JS API: type related utilities~longTypeDefaultValue(size, typeInfo, value) ⇒
 If the type is more than 2 bytes long, then this method creates
 the default byte array.
 
@@ -20448,7 +20488,7 @@ the default byte array.
 | Param | Type | Description |
 | --- | --- | --- |
 | size | <code>\*</code> | Size of bytes generated. |
-| type | <code>\*</code> | Type of the object. |
+| typeInfo | <code>object</code> \| <code>string</code> | Type info with isString/isLong (or legacy name). |
 | value | <code>\*</code> | Default value. |
 
 <a name="module_JS API_ type related utilities..convertToCliType"></a>
@@ -20464,13 +20504,78 @@ with a proper type engine.
 | --- | --- |
 | str | <code>\*</code> | 
 
-<a name="module_JS API_ type related utilities..isString"></a>
+<a name="module_JS API_ type related utilities..selectAtomicFlags"></a>
 
-### JS API: type related utilities~isString(type) ⇒
-Returns true if a given ZCL type is a string type.
+### JS API: type related utilities~selectAtomicFlags(db, packageIds, typeName) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
+Load an ATOMIC row by name (cached). Prefer this over sync name lists.
 
 **Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
-**Returns**: true if type is string, false otherwise  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>Array</code> | 
+| typeName | <code>string</code> | 
+
+<a name="module_JS API_ type related utilities..isStringType"></a>
+
+### JS API: type related utilities~isStringType(db, packageIds, typeName) ⇒ <code>Promise.&lt;boolean&gt;</code>
+True when ATOMIC.IS_STRING is set (alias-aware via loader inheritance).
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>Array</code> | 
+| typeName | <code>string</code> | 
+
+<a name="module_JS API_ type related utilities..isFloatType"></a>
+
+### JS API: type related utilities~isFloatType(db, packageIds, typeName) ⇒ <code>Promise.&lt;boolean&gt;</code>
+True when ATOMIC.IS_FLOAT is set.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>Array</code> | 
+| typeName | <code>string</code> | 
+
+<a name="module_JS API_ type related utilities..isOneBytePrefixedStringType"></a>
+
+### JS API: type related utilities~isOneBytePrefixedStringType(db, packageIds, typeName) ⇒ <code>Promise.&lt;boolean&gt;</code>
+Short (1-byte length prefix) string: isString && !isLong.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>Array</code> | 
+| typeName | <code>string</code> | 
+
+<a name="module_JS API_ type related utilities..isTwoBytePrefixedStringType"></a>
+
+### JS API: type related utilities~isTwoBytePrefixedStringType(db, packageIds, typeName) ⇒ <code>Promise.&lt;boolean&gt;</code>
+Long (2-byte length prefix) string: isString && isLong.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>Array</code> | 
+| typeName | <code>string</code> | 
+
+<a name="module_JS API_ type related utilities..isString"></a>
+
+### JS API: type related utilities~isString(type) ⇒ <code>boolean</code>
+Sync root-name fallback for legacy callers without a DB context.
+Prefer isStringType / typeInfo.isString when package data is available.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
 
 | Param | Type |
 | --- | --- |
@@ -20478,11 +20583,10 @@ Returns true if a given ZCL type is a string type.
 
 <a name="module_JS API_ type related utilities..isFloat"></a>
 
-### JS API: type related utilities~isFloat(type) ⇒
-Returns true if a given ZCL type is a float type.
+### JS API: type related utilities~isFloat(type) ⇒ <code>boolean</code>
+Sync float root-name fallback. Prefer isFloatType / atomic.isFloat.
 
 **Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
-**Returns**: true if type is float, false otherwise  
 
 | Param | Type |
 | --- | --- |
@@ -20504,11 +20608,10 @@ Checks if a given ZCL type is a signed integer.
 
 <a name="module_JS API_ type related utilities..isOneBytePrefixedString"></a>
 
-### JS API: type related utilities~isOneBytePrefixedString(type) ⇒
-Checks if type is a one-byte lengh string.
+### JS API: type related utilities~isOneBytePrefixedString(type) ⇒ <code>boolean</code>
+Sync short-string root-name fallback. Prefer isOneBytePrefixedStringType.
 
 **Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
-**Returns**: true if the said type is a string prefixed by one byte length  
 
 | Param | Type |
 | --- | --- |
@@ -20516,11 +20619,10 @@ Checks if type is a one-byte lengh string.
 
 <a name="module_JS API_ type related utilities..isTwoBytePrefixedString"></a>
 
-### JS API: type related utilities~isTwoBytePrefixedString(type) ⇒
-Checks if type is a two-byte lengh string.
+### JS API: type related utilities~isTwoBytePrefixedString(type) ⇒ <code>boolean</code>
+Sync long-string root-name fallback. Prefer isTwoBytePrefixedStringType.
 
 **Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
-**Returns**: true if the said type is a string prefixed by two byte length  
 
 | Param | Type |
 | --- | --- |
@@ -20528,7 +20630,7 @@ Checks if type is a two-byte lengh string.
 
 <a name="module_JS API_ type related utilities..nullStringDefaultValue"></a>
 
-### JS API: type related utilities~nullStringDefaultValue(type) ⇒ <code>string</code>
+### JS API: type related utilities~nullStringDefaultValue(typeInfo) ⇒ <code>string</code>
 Generates a default value for a null string based on its type.
 This function is designed to abstract away the specific null representation
 of strings from the longTypeDefaultValue function, ensuring that the latter
@@ -20543,7 +20645,7 @@ does not need to be aware of these details.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| type | <code>string</code> | The type of the string, which determines its null representation. |
+| typeInfo | <code>object</code> \| <code>string</code> | Type info with isString/isLong (or legacy name). |
 
 <a name="module_JS API_ type related utilities..processZclTypeSignAndSize"></a>
 
@@ -21403,6 +21505,9 @@ things were successful or not.
         * [~validateEndpoint(db, endpointId)](#module_Validation API_ Validation APIs..validateEndpoint) ⇒
         * [~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef)](#module_Validation API_ Validation APIs..validateNoDuplicateEndpoints) ⇒
         * [~isMatterSession(db, sessionId)](#module_Validation API_ Validation APIs..isMatterSession) ⇒
+        * [~resolveAtomicType(db, packageIds, typeName)](#module_Validation API_ Validation APIs..resolveAtomicType) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
+        * [~isStringAttributeType(atomic, [typeName])](#module_Validation API_ Validation APIs..isStringAttributeType) ⇒ <code>boolean</code>
+        * [~isFloatAttributeType(atomic, [typeName])](#module_Validation API_ Validation APIs..isFloatAttributeType) ⇒ <code>boolean</code>
         * [~validateXmlAttributeDefault(db, attribute, packageId)](#module_Validation API_ Validation APIs..validateXmlAttributeDefault) ⇒ <code>Promise.&lt;void&gt;</code>
         * [~validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)](#module_Validation API_ Validation APIs..validateSpecificAttribute) ⇒
         * [~validateSpecificEndpoint(endpoint)](#module_Validation API_ Validation APIs..validateSpecificEndpoint) ⇒
@@ -21419,6 +21524,8 @@ things were successful or not.
         * [~getBoundsInteger(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getBoundsInteger) ⇒
         * [~getTypeRange(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeRange) ⇒
         * [~unsignedToSignedInteger(value, typeSize)](#module_Validation API_ Validation APIs..unsignedToSignedInteger) ⇒
+        * [~maxAllowedStringLength(atomicOrType, maxLength)](#module_Validation API_ Validation APIs..maxAllowedStringLength) ⇒
+        * [~stringValueLength(value)](#module_Validation API_ Validation APIs..stringValueLength) ⇒
         * [~getIntegerFromAttribute(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getIntegerFromAttribute) ⇒
         * [~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
         * [~checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsInteger) ⇒
@@ -21522,6 +21629,47 @@ the root node in Matter).
 | --- | --- |
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..resolveAtomicType"></a>
+
+### Validation API: Validation APIs~resolveAtomicType(db, packageIds, typeName) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
+Resolve whether an attribute type is a string via ATOMIC.isString
+(alias-aware). Returns null when the type is not an atomic of the
+given packages.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: <code>Promise.&lt;(object\|null)&gt;</code> - atomic row when found, else null  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>Array</code> | 
+| typeName | <code>string</code> | 
+
+<a name="module_Validation API_ Validation APIs..isStringAttributeType"></a>
+
+### Validation API: Validation APIs~isStringAttributeType(atomic, [typeName]) ⇒ <code>boolean</code>
+True when ATOMIC.isString is set, else sync root-name fallback for
+packages that reference a standard type name without a local atomic row.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+
+| Param | Type |
+| --- | --- |
+| atomic | <code>object</code> \| <code>null</code> | 
+| [typeName] | <code>string</code> | 
+
+<a name="module_Validation API_ Validation APIs..isFloatAttributeType"></a>
+
+### Validation API: Validation APIs~isFloatAttributeType(atomic, [typeName]) ⇒ <code>boolean</code>
+True when ATOMIC.isFloat is set, else sync root-name fallback.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+
+| Param | Type |
+| --- | --- |
+| atomic | <code>object</code> \| <code>null</code> | 
+| [typeName] | <code>string</code> | 
 
 <a name="module_Validation API_ Validation APIs..validateXmlAttributeDefault"></a>
 
@@ -21750,6 +21898,34 @@ Works for both BigInts and regular numbers.
 | --- | --- | --- |
 | value | <code>\*</code> | integer to convert |
 | typeSize | <code>\*</code> | bit representation |
+
+<a name="module_Validation API_ Validation APIs..maxAllowedStringLength"></a>
+
+### Validation API: Validation APIs~maxAllowedStringLength(atomicOrType, maxLength) ⇒
+Max allowed length for a ZCL string default. Short strings are 254,
+long strings 65534, unless the attribute declares maxLength.
+Prefers ATOMIC.isLong; bare type names use the sync long-string root list.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| atomicOrType | <code>object</code> \| <code>string</code> \| <code>null</code> | atomic row with isLong, or legacy type name |
+| maxLength | <code>\*</code> |  |
+
+<a name="module_Validation API_ Validation APIs..stringValueLength"></a>
+
+### Validation API: Validation APIs~stringValueLength(value) ⇒
+Length of a string default. A 0x-prefixed hex value is a byte encoding
+(CHAR_STRING default="0x00" is 1 byte), matching isValidHexString.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: number  
+
+| Param | Type |
+| --- | --- |
+| value | <code>string</code> | 
 
 <a name="module_Validation API_ Validation APIs..getIntegerFromAttribute"></a>
 
@@ -22448,6 +22624,9 @@ things were successful or not.
         * [~validateEndpoint(db, endpointId)](#module_Validation API_ Validation APIs..validateEndpoint) ⇒
         * [~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef)](#module_Validation API_ Validation APIs..validateNoDuplicateEndpoints) ⇒
         * [~isMatterSession(db, sessionId)](#module_Validation API_ Validation APIs..isMatterSession) ⇒
+        * [~resolveAtomicType(db, packageIds, typeName)](#module_Validation API_ Validation APIs..resolveAtomicType) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
+        * [~isStringAttributeType(atomic, [typeName])](#module_Validation API_ Validation APIs..isStringAttributeType) ⇒ <code>boolean</code>
+        * [~isFloatAttributeType(atomic, [typeName])](#module_Validation API_ Validation APIs..isFloatAttributeType) ⇒ <code>boolean</code>
         * [~validateXmlAttributeDefault(db, attribute, packageId)](#module_Validation API_ Validation APIs..validateXmlAttributeDefault) ⇒ <code>Promise.&lt;void&gt;</code>
         * [~validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)](#module_Validation API_ Validation APIs..validateSpecificAttribute) ⇒
         * [~validateSpecificEndpoint(endpoint)](#module_Validation API_ Validation APIs..validateSpecificEndpoint) ⇒
@@ -22464,6 +22643,8 @@ things were successful or not.
         * [~getBoundsInteger(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getBoundsInteger) ⇒
         * [~getTypeRange(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeRange) ⇒
         * [~unsignedToSignedInteger(value, typeSize)](#module_Validation API_ Validation APIs..unsignedToSignedInteger) ⇒
+        * [~maxAllowedStringLength(atomicOrType, maxLength)](#module_Validation API_ Validation APIs..maxAllowedStringLength) ⇒
+        * [~stringValueLength(value)](#module_Validation API_ Validation APIs..stringValueLength) ⇒
         * [~getIntegerFromAttribute(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getIntegerFromAttribute) ⇒
         * [~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
         * [~checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsInteger) ⇒
@@ -22567,6 +22748,47 @@ the root node in Matter).
 | --- | --- |
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..resolveAtomicType"></a>
+
+### Validation API: Validation APIs~resolveAtomicType(db, packageIds, typeName) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
+Resolve whether an attribute type is a string via ATOMIC.isString
+(alias-aware). Returns null when the type is not an atomic of the
+given packages.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: <code>Promise.&lt;(object\|null)&gt;</code> - atomic row when found, else null  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>Array</code> | 
+| typeName | <code>string</code> | 
+
+<a name="module_Validation API_ Validation APIs..isStringAttributeType"></a>
+
+### Validation API: Validation APIs~isStringAttributeType(atomic, [typeName]) ⇒ <code>boolean</code>
+True when ATOMIC.isString is set, else sync root-name fallback for
+packages that reference a standard type name without a local atomic row.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+
+| Param | Type |
+| --- | --- |
+| atomic | <code>object</code> \| <code>null</code> | 
+| [typeName] | <code>string</code> | 
+
+<a name="module_Validation API_ Validation APIs..isFloatAttributeType"></a>
+
+### Validation API: Validation APIs~isFloatAttributeType(atomic, [typeName]) ⇒ <code>boolean</code>
+True when ATOMIC.isFloat is set, else sync root-name fallback.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+
+| Param | Type |
+| --- | --- |
+| atomic | <code>object</code> \| <code>null</code> | 
+| [typeName] | <code>string</code> | 
 
 <a name="module_Validation API_ Validation APIs..validateXmlAttributeDefault"></a>
 
@@ -22796,6 +23018,34 @@ Works for both BigInts and regular numbers.
 | value | <code>\*</code> | integer to convert |
 | typeSize | <code>\*</code> | bit representation |
 
+<a name="module_Validation API_ Validation APIs..maxAllowedStringLength"></a>
+
+### Validation API: Validation APIs~maxAllowedStringLength(atomicOrType, maxLength) ⇒
+Max allowed length for a ZCL string default. Short strings are 254,
+long strings 65534, unless the attribute declares maxLength.
+Prefers ATOMIC.isLong; bare type names use the sync long-string root list.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| atomicOrType | <code>object</code> \| <code>string</code> \| <code>null</code> | atomic row with isLong, or legacy type name |
+| maxLength | <code>\*</code> |  |
+
+<a name="module_Validation API_ Validation APIs..stringValueLength"></a>
+
+### Validation API: Validation APIs~stringValueLength(value) ⇒
+Length of a string default. A 0x-prefixed hex value is a byte encoding
+(CHAR_STRING default="0x00" is 1 byte), matching isValidHexString.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: number  
+
+| Param | Type |
+| --- | --- |
+| value | <code>string</code> | 
+
 <a name="module_Validation API_ Validation APIs..getIntegerFromAttribute"></a>
 
 ### Validation API: Validation APIs~getIntegerFromAttribute(attribute, typeSize, isSigned) ⇒
@@ -22998,7 +23248,12 @@ This module provides the APIs for dotdot Loading
     * [~collectDataFromJsonFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromJsonFile) ⇒
     * [~collectDataFromPropertiesFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromPropertiesFile) ⇒
     * [~maskToType(mask)](#module_Loader API_ Loader APIs..maskToType) ⇒
-    * [~prepareAtomic(a)](#module_Loader API_ Loader APIs..prepareAtomic)
+    * [~atomicsByName(types)](#module_Loader API_ Loader APIs..atomicsByName) ⇒ <code>Map.&lt;string, object&gt;</code>
+    * [~resolveAtomicBase(a, byName, [visited])](#module_Loader API_ Loader APIs..resolveAtomicBase) ⇒ <code>object</code> \| <code>null</code>
+    * [~atomicOwnZclType(a)](#module_Loader API_ Loader APIs..atomicOwnZclType) ⇒ <code>string</code> \| <code>null</code>
+    * [~atomicZclType(a, byName, [visited])](#module_Loader API_ Loader APIs..atomicZclType) ⇒ <code>string</code>
+    * [~atomicOwnFlags(a)](#module_Loader API_ Loader APIs..atomicOwnFlags) ⇒ <code>object</code>
+    * [~prepareAtomic(a, [byName])](#module_Loader API_ Loader APIs..prepareAtomic)
     * [~processAtomics(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processAtomics) ⇒
     * [~prepareClusterGlobalAttribute(cluster)](#module_Loader API_ Loader APIs..prepareClusterGlobalAttribute) ⇒
     * [~extractAccessTag(ac)](#module_Loader API_ Loader APIs..extractAccessTag) ⇒
@@ -23017,11 +23272,11 @@ This module provides the APIs for dotdot Loading
     * [~processDomains(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processDomains) ⇒
     * [~prepareDataTypeDiscriminator(a)](#module_Loader API_ Loader APIs..prepareDataTypeDiscriminator) ⇒
     * [~processDataTypeDiscriminator(db, filePath, zclDataTypes)](#module_Loader API_ Loader APIs..processDataTypeDiscriminator) ⇒
-    * [~prepareDataType(a, dataType, typeMap)](#module_Loader API_ Loader APIs..prepareDataType) ⇒
+    * [~prepareDataType(a, dataType, typeMap, [byName])](#module_Loader API_ Loader APIs..prepareDataType) ⇒
     * [~processDataType(db, filePath, packageId, knownPackages, data, dataType)](#module_Loader API_ Loader APIs..processDataType) ⇒
     * [~prepareNumber(a, dataType)](#module_Loader API_ Loader APIs..prepareNumber) ⇒
     * [~processNumber(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processNumber) ⇒
-    * [~prepareString(a, dataType)](#module_Loader API_ Loader APIs..prepareString) ⇒
+    * [~prepareString(a, dataType, [byName])](#module_Loader API_ Loader APIs..prepareString) ⇒
     * [~processString(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processString) ⇒
     * [~prepareEnumOrBitmapAtomic(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumOrBitmapAtomic) ⇒
     * [~processEnumAtomic(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processEnumAtomic) ⇒
@@ -23784,16 +24039,85 @@ Just to put some data in, we differentiate between "bool" and "enum" types here.
 | --- | --- |
 | mask | <code>\*</code> | 
 
-<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
+<a name="module_Loader API_ Loader APIs..atomicsByName"></a>
 
-### Loader API: Loader APIs~prepareAtomic(a)
-Prepare atomic to db insertion.
+### Loader API: Loader APIs~atomicsByName(types) ⇒ <code>Map.&lt;string, object&gt;</code>
+Build a case-insensitive name → XML `<type>` map for one `<atomic>` block.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| types | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..resolveAtomicBase"></a>
+
+### Loader API: Loader APIs~resolveAtomicBase(a, byName, [visited]) ⇒ <code>object</code> \| <code>null</code>
+Resolve the XML `<type>` named by `a.$.baseType` within the same atomic block.
+Returns null when there is no baseType, an unknown base, or a cycle.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 
 | Param | Type |
 | --- | --- |
 | a | <code>\*</code> | 
+| byName | <code>Map.&lt;string, object&gt;</code> | 
+| [visited] | <code>Set.&lt;string&gt;</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicOwnZclType"></a>
+
+### Loader API: Loader APIs~atomicOwnZclType(a) ⇒ <code>string</code> \| <code>null</code>
+Own-name classification for an atomic XML type (no baseType walk).
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>string</code> \| <code>null</code> - one of dbEnum.zclType, or null when unknown  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicZclType"></a>
+
+### Loader API: Loader APIs~atomicZclType(a, byName, [visited]) ⇒ <code>string</code>
+Classify an atomic XML type, following baseType when the own name does not
+match bitmap/enum/string/struct. Own-name rules win so e.g. bitmap8 with
+baseType=int8u stays a bitmap.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>string</code> - one of dbEnum.zclType  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| byName | <code>Map.&lt;string, object&gt;</code> | 
+| [visited] | <code>Set.&lt;string&gt;</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicOwnFlags"></a>
+
+### Loader API: Loader APIs~atomicOwnFlags(a) ⇒ <code>object</code>
+Own-flag computation for an atomic XML type (no baseType inheritance).
+Prefer explicit XML attributes; fall back to historical root type names so
+older SDKs that omit string/long/char/float attrs keep working.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
+
+### Loader API: Loader APIs~prepareAtomic(a, [byName])
+Prepare atomic to db insertion. When baseType is set, inherit string/float/
+signed/long/char flags (and size when the child declares none) from the base
+chain. BASE_TYPE keeps the immediate parent name from XML.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| [byName] | <code>Map.&lt;string, object&gt;</code> | 
 
 <a name="module_Loader API_ Loader APIs..processAtomics"></a>
 
@@ -24045,17 +24369,18 @@ Processes Data Type Discriminator.
 
 <a name="module_Loader API_ Loader APIs..prepareDataType"></a>
 
-### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap) ⇒
+### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap, [byName]) ⇒
 Prepare Data Types for database table insertion.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: An Object  
 
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-| typeMap | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| a | <code>\*</code> |  |
+| dataType | <code>\*</code> |  |
+| typeMap | <code>\*</code> |  |
+| [byName] | <code>Map.&lt;string, object&gt;</code> | atomic name map for baseType alias resolution |
 
 <a name="module_Loader API_ Loader APIs..processDataType"></a>
 
@@ -24105,8 +24430,9 @@ Processes Numbers.
 
 <a name="module_Loader API_ Loader APIs..prepareString"></a>
 
-### Loader API: Loader APIs~prepareString(a, dataType) ⇒
+### Loader API: Loader APIs~prepareString(a, dataType, [byName]) ⇒
 Prepare strings for database table insertion.
+Uses prepareAtomic so baseType aliases inherit isLong/isChar from the base.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: An Object  
@@ -24115,6 +24441,7 @@ Prepare strings for database table insertion.
 | --- | --- |
 | a | <code>\*</code> | 
 | dataType | <code>\*</code> | 
+| [byName] | <code>Map.&lt;string, object&gt;</code> | 
 
 <a name="module_Loader API_ Loader APIs..processString"></a>
 
@@ -24904,7 +25231,12 @@ This module provides the APIs for new data model loading
     * [~collectDataFromJsonFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromJsonFile) ⇒
     * [~collectDataFromPropertiesFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromPropertiesFile) ⇒
     * [~maskToType(mask)](#module_Loader API_ Loader APIs..maskToType) ⇒
-    * [~prepareAtomic(a)](#module_Loader API_ Loader APIs..prepareAtomic)
+    * [~atomicsByName(types)](#module_Loader API_ Loader APIs..atomicsByName) ⇒ <code>Map.&lt;string, object&gt;</code>
+    * [~resolveAtomicBase(a, byName, [visited])](#module_Loader API_ Loader APIs..resolveAtomicBase) ⇒ <code>object</code> \| <code>null</code>
+    * [~atomicOwnZclType(a)](#module_Loader API_ Loader APIs..atomicOwnZclType) ⇒ <code>string</code> \| <code>null</code>
+    * [~atomicZclType(a, byName, [visited])](#module_Loader API_ Loader APIs..atomicZclType) ⇒ <code>string</code>
+    * [~atomicOwnFlags(a)](#module_Loader API_ Loader APIs..atomicOwnFlags) ⇒ <code>object</code>
+    * [~prepareAtomic(a, [byName])](#module_Loader API_ Loader APIs..prepareAtomic)
     * [~processAtomics(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processAtomics) ⇒
     * [~prepareClusterGlobalAttribute(cluster)](#module_Loader API_ Loader APIs..prepareClusterGlobalAttribute) ⇒
     * [~extractAccessTag(ac)](#module_Loader API_ Loader APIs..extractAccessTag) ⇒
@@ -24923,11 +25255,11 @@ This module provides the APIs for new data model loading
     * [~processDomains(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processDomains) ⇒
     * [~prepareDataTypeDiscriminator(a)](#module_Loader API_ Loader APIs..prepareDataTypeDiscriminator) ⇒
     * [~processDataTypeDiscriminator(db, filePath, zclDataTypes)](#module_Loader API_ Loader APIs..processDataTypeDiscriminator) ⇒
-    * [~prepareDataType(a, dataType, typeMap)](#module_Loader API_ Loader APIs..prepareDataType) ⇒
+    * [~prepareDataType(a, dataType, typeMap, [byName])](#module_Loader API_ Loader APIs..prepareDataType) ⇒
     * [~processDataType(db, filePath, packageId, knownPackages, data, dataType)](#module_Loader API_ Loader APIs..processDataType) ⇒
     * [~prepareNumber(a, dataType)](#module_Loader API_ Loader APIs..prepareNumber) ⇒
     * [~processNumber(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processNumber) ⇒
-    * [~prepareString(a, dataType)](#module_Loader API_ Loader APIs..prepareString) ⇒
+    * [~prepareString(a, dataType, [byName])](#module_Loader API_ Loader APIs..prepareString) ⇒
     * [~processString(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processString) ⇒
     * [~prepareEnumOrBitmapAtomic(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumOrBitmapAtomic) ⇒
     * [~processEnumAtomic(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processEnumAtomic) ⇒
@@ -25690,16 +26022,85 @@ Just to put some data in, we differentiate between "bool" and "enum" types here.
 | --- | --- |
 | mask | <code>\*</code> | 
 
-<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
+<a name="module_Loader API_ Loader APIs..atomicsByName"></a>
 
-### Loader API: Loader APIs~prepareAtomic(a)
-Prepare atomic to db insertion.
+### Loader API: Loader APIs~atomicsByName(types) ⇒ <code>Map.&lt;string, object&gt;</code>
+Build a case-insensitive name → XML `<type>` map for one `<atomic>` block.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| types | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..resolveAtomicBase"></a>
+
+### Loader API: Loader APIs~resolveAtomicBase(a, byName, [visited]) ⇒ <code>object</code> \| <code>null</code>
+Resolve the XML `<type>` named by `a.$.baseType` within the same atomic block.
+Returns null when there is no baseType, an unknown base, or a cycle.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 
 | Param | Type |
 | --- | --- |
 | a | <code>\*</code> | 
+| byName | <code>Map.&lt;string, object&gt;</code> | 
+| [visited] | <code>Set.&lt;string&gt;</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicOwnZclType"></a>
+
+### Loader API: Loader APIs~atomicOwnZclType(a) ⇒ <code>string</code> \| <code>null</code>
+Own-name classification for an atomic XML type (no baseType walk).
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>string</code> \| <code>null</code> - one of dbEnum.zclType, or null when unknown  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicZclType"></a>
+
+### Loader API: Loader APIs~atomicZclType(a, byName, [visited]) ⇒ <code>string</code>
+Classify an atomic XML type, following baseType when the own name does not
+match bitmap/enum/string/struct. Own-name rules win so e.g. bitmap8 with
+baseType=int8u stays a bitmap.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>string</code> - one of dbEnum.zclType  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| byName | <code>Map.&lt;string, object&gt;</code> | 
+| [visited] | <code>Set.&lt;string&gt;</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicOwnFlags"></a>
+
+### Loader API: Loader APIs~atomicOwnFlags(a) ⇒ <code>object</code>
+Own-flag computation for an atomic XML type (no baseType inheritance).
+Prefer explicit XML attributes; fall back to historical root type names so
+older SDKs that omit string/long/char/float attrs keep working.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
+
+### Loader API: Loader APIs~prepareAtomic(a, [byName])
+Prepare atomic to db insertion. When baseType is set, inherit string/float/
+signed/long/char flags (and size when the child declares none) from the base
+chain. BASE_TYPE keeps the immediate parent name from XML.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| [byName] | <code>Map.&lt;string, object&gt;</code> | 
 
 <a name="module_Loader API_ Loader APIs..processAtomics"></a>
 
@@ -25951,17 +26352,18 @@ Processes Data Type Discriminator.
 
 <a name="module_Loader API_ Loader APIs..prepareDataType"></a>
 
-### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap) ⇒
+### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap, [byName]) ⇒
 Prepare Data Types for database table insertion.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: An Object  
 
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-| typeMap | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| a | <code>\*</code> |  |
+| dataType | <code>\*</code> |  |
+| typeMap | <code>\*</code> |  |
+| [byName] | <code>Map.&lt;string, object&gt;</code> | atomic name map for baseType alias resolution |
 
 <a name="module_Loader API_ Loader APIs..processDataType"></a>
 
@@ -26011,8 +26413,9 @@ Processes Numbers.
 
 <a name="module_Loader API_ Loader APIs..prepareString"></a>
 
-### Loader API: Loader APIs~prepareString(a, dataType) ⇒
+### Loader API: Loader APIs~prepareString(a, dataType, [byName]) ⇒
 Prepare strings for database table insertion.
+Uses prepareAtomic so baseType aliases inherit isLong/isChar from the base.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: An Object  
@@ -26021,6 +26424,7 @@ Prepare strings for database table insertion.
 | --- | --- |
 | a | <code>\*</code> | 
 | dataType | <code>\*</code> | 
+| [byName] | <code>Map.&lt;string, object&gt;</code> | 
 
 <a name="module_Loader API_ Loader APIs..processString"></a>
 
@@ -26810,7 +27214,12 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~collectDataFromJsonFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromJsonFile) ⇒
     * [~collectDataFromPropertiesFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromPropertiesFile) ⇒
     * [~maskToType(mask)](#module_Loader API_ Loader APIs..maskToType) ⇒
-    * [~prepareAtomic(a)](#module_Loader API_ Loader APIs..prepareAtomic)
+    * [~atomicsByName(types)](#module_Loader API_ Loader APIs..atomicsByName) ⇒ <code>Map.&lt;string, object&gt;</code>
+    * [~resolveAtomicBase(a, byName, [visited])](#module_Loader API_ Loader APIs..resolveAtomicBase) ⇒ <code>object</code> \| <code>null</code>
+    * [~atomicOwnZclType(a)](#module_Loader API_ Loader APIs..atomicOwnZclType) ⇒ <code>string</code> \| <code>null</code>
+    * [~atomicZclType(a, byName, [visited])](#module_Loader API_ Loader APIs..atomicZclType) ⇒ <code>string</code>
+    * [~atomicOwnFlags(a)](#module_Loader API_ Loader APIs..atomicOwnFlags) ⇒ <code>object</code>
+    * [~prepareAtomic(a, [byName])](#module_Loader API_ Loader APIs..prepareAtomic)
     * [~processAtomics(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processAtomics) ⇒
     * [~prepareClusterGlobalAttribute(cluster)](#module_Loader API_ Loader APIs..prepareClusterGlobalAttribute) ⇒
     * [~extractAccessTag(ac)](#module_Loader API_ Loader APIs..extractAccessTag) ⇒
@@ -26829,11 +27238,11 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~processDomains(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processDomains) ⇒
     * [~prepareDataTypeDiscriminator(a)](#module_Loader API_ Loader APIs..prepareDataTypeDiscriminator) ⇒
     * [~processDataTypeDiscriminator(db, filePath, zclDataTypes)](#module_Loader API_ Loader APIs..processDataTypeDiscriminator) ⇒
-    * [~prepareDataType(a, dataType, typeMap)](#module_Loader API_ Loader APIs..prepareDataType) ⇒
+    * [~prepareDataType(a, dataType, typeMap, [byName])](#module_Loader API_ Loader APIs..prepareDataType) ⇒
     * [~processDataType(db, filePath, packageId, knownPackages, data, dataType)](#module_Loader API_ Loader APIs..processDataType) ⇒
     * [~prepareNumber(a, dataType)](#module_Loader API_ Loader APIs..prepareNumber) ⇒
     * [~processNumber(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processNumber) ⇒
-    * [~prepareString(a, dataType)](#module_Loader API_ Loader APIs..prepareString) ⇒
+    * [~prepareString(a, dataType, [byName])](#module_Loader API_ Loader APIs..prepareString) ⇒
     * [~processString(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processString) ⇒
     * [~prepareEnumOrBitmapAtomic(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumOrBitmapAtomic) ⇒
     * [~processEnumAtomic(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processEnumAtomic) ⇒
@@ -27596,16 +28005,85 @@ Just to put some data in, we differentiate between "bool" and "enum" types here.
 | --- | --- |
 | mask | <code>\*</code> | 
 
-<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
+<a name="module_Loader API_ Loader APIs..atomicsByName"></a>
 
-### Loader API: Loader APIs~prepareAtomic(a)
-Prepare atomic to db insertion.
+### Loader API: Loader APIs~atomicsByName(types) ⇒ <code>Map.&lt;string, object&gt;</code>
+Build a case-insensitive name → XML `<type>` map for one `<atomic>` block.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| types | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..resolveAtomicBase"></a>
+
+### Loader API: Loader APIs~resolveAtomicBase(a, byName, [visited]) ⇒ <code>object</code> \| <code>null</code>
+Resolve the XML `<type>` named by `a.$.baseType` within the same atomic block.
+Returns null when there is no baseType, an unknown base, or a cycle.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 
 | Param | Type |
 | --- | --- |
 | a | <code>\*</code> | 
+| byName | <code>Map.&lt;string, object&gt;</code> | 
+| [visited] | <code>Set.&lt;string&gt;</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicOwnZclType"></a>
+
+### Loader API: Loader APIs~atomicOwnZclType(a) ⇒ <code>string</code> \| <code>null</code>
+Own-name classification for an atomic XML type (no baseType walk).
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>string</code> \| <code>null</code> - one of dbEnum.zclType, or null when unknown  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicZclType"></a>
+
+### Loader API: Loader APIs~atomicZclType(a, byName, [visited]) ⇒ <code>string</code>
+Classify an atomic XML type, following baseType when the own name does not
+match bitmap/enum/string/struct. Own-name rules win so e.g. bitmap8 with
+baseType=int8u stays a bitmap.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>string</code> - one of dbEnum.zclType  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| byName | <code>Map.&lt;string, object&gt;</code> | 
+| [visited] | <code>Set.&lt;string&gt;</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicOwnFlags"></a>
+
+### Loader API: Loader APIs~atomicOwnFlags(a) ⇒ <code>object</code>
+Own-flag computation for an atomic XML type (no baseType inheritance).
+Prefer explicit XML attributes; fall back to historical root type names so
+older SDKs that omit string/long/char/float attrs keep working.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
+
+### Loader API: Loader APIs~prepareAtomic(a, [byName])
+Prepare atomic to db insertion. When baseType is set, inherit string/float/
+signed/long/char flags (and size when the child declares none) from the base
+chain. BASE_TYPE keeps the immediate parent name from XML.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| [byName] | <code>Map.&lt;string, object&gt;</code> | 
 
 <a name="module_Loader API_ Loader APIs..processAtomics"></a>
 
@@ -27857,17 +28335,18 @@ Processes Data Type Discriminator.
 
 <a name="module_Loader API_ Loader APIs..prepareDataType"></a>
 
-### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap) ⇒
+### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap, [byName]) ⇒
 Prepare Data Types for database table insertion.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: An Object  
 
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-| typeMap | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| a | <code>\*</code> |  |
+| dataType | <code>\*</code> |  |
+| typeMap | <code>\*</code> |  |
+| [byName] | <code>Map.&lt;string, object&gt;</code> | atomic name map for baseType alias resolution |
 
 <a name="module_Loader API_ Loader APIs..processDataType"></a>
 
@@ -27917,8 +28396,9 @@ Processes Numbers.
 
 <a name="module_Loader API_ Loader APIs..prepareString"></a>
 
-### Loader API: Loader APIs~prepareString(a, dataType) ⇒
+### Loader API: Loader APIs~prepareString(a, dataType, [byName]) ⇒
 Prepare strings for database table insertion.
+Uses prepareAtomic so baseType aliases inherit isLong/isChar from the base.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: An Object  
@@ -27927,6 +28407,7 @@ Prepare strings for database table insertion.
 | --- | --- |
 | a | <code>\*</code> | 
 | dataType | <code>\*</code> | 
+| [byName] | <code>Map.&lt;string, object&gt;</code> | 
 
 <a name="module_Loader API_ Loader APIs..processString"></a>
 
@@ -28716,7 +29197,12 @@ This module provides the APIs for for common functionality related to loading.
     * [~collectDataFromJsonFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromJsonFile) ⇒
     * [~collectDataFromPropertiesFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromPropertiesFile) ⇒
     * [~maskToType(mask)](#module_Loader API_ Loader APIs..maskToType) ⇒
-    * [~prepareAtomic(a)](#module_Loader API_ Loader APIs..prepareAtomic)
+    * [~atomicsByName(types)](#module_Loader API_ Loader APIs..atomicsByName) ⇒ <code>Map.&lt;string, object&gt;</code>
+    * [~resolveAtomicBase(a, byName, [visited])](#module_Loader API_ Loader APIs..resolveAtomicBase) ⇒ <code>object</code> \| <code>null</code>
+    * [~atomicOwnZclType(a)](#module_Loader API_ Loader APIs..atomicOwnZclType) ⇒ <code>string</code> \| <code>null</code>
+    * [~atomicZclType(a, byName, [visited])](#module_Loader API_ Loader APIs..atomicZclType) ⇒ <code>string</code>
+    * [~atomicOwnFlags(a)](#module_Loader API_ Loader APIs..atomicOwnFlags) ⇒ <code>object</code>
+    * [~prepareAtomic(a, [byName])](#module_Loader API_ Loader APIs..prepareAtomic)
     * [~processAtomics(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processAtomics) ⇒
     * [~prepareClusterGlobalAttribute(cluster)](#module_Loader API_ Loader APIs..prepareClusterGlobalAttribute) ⇒
     * [~extractAccessTag(ac)](#module_Loader API_ Loader APIs..extractAccessTag) ⇒
@@ -28735,11 +29221,11 @@ This module provides the APIs for for common functionality related to loading.
     * [~processDomains(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processDomains) ⇒
     * [~prepareDataTypeDiscriminator(a)](#module_Loader API_ Loader APIs..prepareDataTypeDiscriminator) ⇒
     * [~processDataTypeDiscriminator(db, filePath, zclDataTypes)](#module_Loader API_ Loader APIs..processDataTypeDiscriminator) ⇒
-    * [~prepareDataType(a, dataType, typeMap)](#module_Loader API_ Loader APIs..prepareDataType) ⇒
+    * [~prepareDataType(a, dataType, typeMap, [byName])](#module_Loader API_ Loader APIs..prepareDataType) ⇒
     * [~processDataType(db, filePath, packageId, knownPackages, data, dataType)](#module_Loader API_ Loader APIs..processDataType) ⇒
     * [~prepareNumber(a, dataType)](#module_Loader API_ Loader APIs..prepareNumber) ⇒
     * [~processNumber(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processNumber) ⇒
-    * [~prepareString(a, dataType)](#module_Loader API_ Loader APIs..prepareString) ⇒
+    * [~prepareString(a, dataType, [byName])](#module_Loader API_ Loader APIs..prepareString) ⇒
     * [~processString(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processString) ⇒
     * [~prepareEnumOrBitmapAtomic(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumOrBitmapAtomic) ⇒
     * [~processEnumAtomic(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processEnumAtomic) ⇒
@@ -29502,16 +29988,85 @@ Just to put some data in, we differentiate between "bool" and "enum" types here.
 | --- | --- |
 | mask | <code>\*</code> | 
 
-<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
+<a name="module_Loader API_ Loader APIs..atomicsByName"></a>
 
-### Loader API: Loader APIs~prepareAtomic(a)
-Prepare atomic to db insertion.
+### Loader API: Loader APIs~atomicsByName(types) ⇒ <code>Map.&lt;string, object&gt;</code>
+Build a case-insensitive name → XML `<type>` map for one `<atomic>` block.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| types | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..resolveAtomicBase"></a>
+
+### Loader API: Loader APIs~resolveAtomicBase(a, byName, [visited]) ⇒ <code>object</code> \| <code>null</code>
+Resolve the XML `<type>` named by `a.$.baseType` within the same atomic block.
+Returns null when there is no baseType, an unknown base, or a cycle.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 
 | Param | Type |
 | --- | --- |
 | a | <code>\*</code> | 
+| byName | <code>Map.&lt;string, object&gt;</code> | 
+| [visited] | <code>Set.&lt;string&gt;</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicOwnZclType"></a>
+
+### Loader API: Loader APIs~atomicOwnZclType(a) ⇒ <code>string</code> \| <code>null</code>
+Own-name classification for an atomic XML type (no baseType walk).
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>string</code> \| <code>null</code> - one of dbEnum.zclType, or null when unknown  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicZclType"></a>
+
+### Loader API: Loader APIs~atomicZclType(a, byName, [visited]) ⇒ <code>string</code>
+Classify an atomic XML type, following baseType when the own name does not
+match bitmap/enum/string/struct. Own-name rules win so e.g. bitmap8 with
+baseType=int8u stays a bitmap.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>string</code> - one of dbEnum.zclType  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| byName | <code>Map.&lt;string, object&gt;</code> | 
+| [visited] | <code>Set.&lt;string&gt;</code> | 
+
+<a name="module_Loader API_ Loader APIs..atomicOwnFlags"></a>
+
+### Loader API: Loader APIs~atomicOwnFlags(a) ⇒ <code>object</code>
+Own-flag computation for an atomic XML type (no baseType inheritance).
+Prefer explicit XML attributes; fall back to historical root type names so
+older SDKs that omit string/long/char/float attrs keep working.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
+
+### Loader API: Loader APIs~prepareAtomic(a, [byName])
+Prepare atomic to db insertion. When baseType is set, inherit string/float/
+signed/long/char flags (and size when the child declares none) from the base
+chain. BASE_TYPE keeps the immediate parent name from XML.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| [byName] | <code>Map.&lt;string, object&gt;</code> | 
 
 <a name="module_Loader API_ Loader APIs..processAtomics"></a>
 
@@ -29763,17 +30318,18 @@ Processes Data Type Discriminator.
 
 <a name="module_Loader API_ Loader APIs..prepareDataType"></a>
 
-### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap) ⇒
+### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap, [byName]) ⇒
 Prepare Data Types for database table insertion.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: An Object  
 
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-| typeMap | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| a | <code>\*</code> |  |
+| dataType | <code>\*</code> |  |
+| typeMap | <code>\*</code> |  |
+| [byName] | <code>Map.&lt;string, object&gt;</code> | atomic name map for baseType alias resolution |
 
 <a name="module_Loader API_ Loader APIs..processDataType"></a>
 
@@ -29823,8 +30379,9 @@ Processes Numbers.
 
 <a name="module_Loader API_ Loader APIs..prepareString"></a>
 
-### Loader API: Loader APIs~prepareString(a, dataType) ⇒
+### Loader API: Loader APIs~prepareString(a, dataType, [byName]) ⇒
 Prepare strings for database table insertion.
+Uses prepareAtomic so baseType aliases inherit isLong/isChar from the base.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: An Object  
@@ -29833,6 +30390,7 @@ Prepare strings for database table insertion.
 | --- | --- |
 | a | <code>\*</code> | 
 | dataType | <code>\*</code> | 
+| [byName] | <code>Map.&lt;string, object&gt;</code> | 
 
 <a name="module_Loader API_ Loader APIs..processString"></a>
 

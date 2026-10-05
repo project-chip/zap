@@ -1,0 +1,43 @@
+---
+description: Keep ZAP backwards compatible with older SDKs, projects, APIs, and templates
+alwaysApply: true
+---
+
+# Backwards compatibility
+
+Latest ZAP must keep working with **older SDKs, `.zap` / `.zcl` projects, public APIs, and generation templates**. New capabilities are additive. They must not force upgrades or change outcomes for inputs that used to work.
+
+## Required behavior
+
+1. **Old inputs keep prior results.** Opening or generating against an older package, project file, template, or helper usage must behave as it did before the change (same flags, validation, generated output shape, and load success), unless an intentional, documented breaking change is explicitly approved.
+2. **New fields and formats are optional.** Prefer new attributes, schema keys, DB columns, options, and helper signatures when present. When absent, fall back to the historical path (name rules, defaults, previous API) at the appropriate boundary (loader/parse, import, template engine)—do not require the new form.
+3. **Do not break public surfaces without a path.** Exported helpers, template helper names, CLI flags, IPC/REST shapes, and DB mappings used by SDKs or external templates need a deprecation path (keep old export, dual-read, or adapter) before removal or signature breaks.
+4. **Additive over replace.** Prefer extending behavior (new optional path + legacy fallback) over replacing the only path. Feature flags or package/version checks are fine when legacy and new semantics must coexist.
+5. **Prove it with tests first.** Add or extend regression tests that exercise the **old** shape (fixture, package, API call, or template) and assert historical expectations **before** or alongside the new-path implementation. Do not rely only on new-format tests.
+
+## Bad vs good
+
+```javascript
+// ❌ BAD — new path only; older inputs fail or change meaning
+if (!pkg.hasNewAttribute) throw new Error('unsupported')
+classify(pkg.newAttribute)
+
+// ✅ GOOD — prefer new, fall back to historical behavior
+classify(pkg.newAttribute ?? legacyClassify(pkg))
+```
+
+```javascript
+// ❌ BAD — rename/remove a public helper SDKs still call
+exports.old_helper = undefined
+
+// ✅ GOOD — keep the old export; route to the new implementation if needed
+exports.old_helper = deprecatedHelper(new_helper, { from: 'old_helper', to: 'new_helper' })
+```
+
+## Scope examples (not exhaustive)
+
+- ZCL/Matter XML and metafiles (attributes, `baseType`, cluster files)
+- Saved projects, import/export, and session keys
+- Generator helpers and `.zapt` / SDK templates
+- Shared enums, DB schema/migrations, and query row shapes
+- CLI, UI, and programmatic APIs

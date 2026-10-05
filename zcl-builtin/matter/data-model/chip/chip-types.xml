@@ -42,15 +42,15 @@ limitations under the License.
     <type id="0x2F" description="Signed 64-bit integer"    name="int64s"            size="8"  analog="true"   />
     <type id="0x30" description="8-bit enumeration"        name="enum8"             size="1"  discrete="true" baseType="int8u"/>
     <type id="0x31" description="16-bit enumeration"       name="enum16"            size="2"  discrete="true" baseType="int16u"/>
-    <type id="0x39" description="Single precision"         name="single"            size="4"  analog="true"   />
-    <type id="0x3A" description="Double precision"         name="double"            size="8"  analog="true"   />
-    <type id="0x41" description="Octet String"             name="octet_string"                composite="true" />
-    <type id="0x43" description="Long Octet String"        name="long_octet_string"           composite="true" />
+    <type id="0x39" description="Single precision"         name="single"            size="4"  analog="true"   float="true" signed="true"/>
+    <type id="0x3A" description="Double precision"         name="double"            size="8"  analog="true"   float="true" signed="true"/>
+    <type id="0x41" description="Octet String"             name="octet_string"                composite="true" string="true"/>
+    <type id="0x43" description="Long Octet String"        name="long_octet_string"           composite="true" string="true" long="true"/>
     <type id="0x48" description="List"                     name="array"                       composite="true"/>
     <type id="0x4C" description="Structure"                name="struct"                      composite="true"/>
     <!-- Derived Data Types -->
-    <type id="0x42" description="Character String"         name="char_string"                 composite="true" />
-    <type id="0x44" description="Long Character String"    name="long_char_string"            composite="true" />
+    <type id="0x42" description="Character String"         name="char_string"                 composite="true" string="true" char="true"/>
+    <type id="0x44" description="Long Character String"    name="long_char_string"            composite="true" string="true" char="true" long="true"/>
     <type id="0xE0" description="Time of day"              name="tod"               size="4"  analog="true"   />
     <type id="0xE1" description="Date"                     name="date"              size="4"  analog="true"   />
     <type id="0xE3" description="Epoch Microseconds"       name="epoch_us"          size="8"  analog="true"   />
@@ -75,11 +75,11 @@ limitations under the License.
     <type id="0xF7" description="Event Number"             name="event_no"          size="8"  discrete="true" />
     <type id="0xF8" description="Endpoint Number"          name="endpoint_no"       size="2"  discrete="true" />
     <type id="0xF9" description="Fabric Index"             name="fabric_idx"        size="1"  discrete="true" />
-    <type id="0xFA" description="IP Address"               name="ipadr"                       composite="true"/>
-    <type id="0xFB" description="IPv4 Address"             name="ipv4adr"           size="4"  composite="true"/>
-    <type id="0xFC" description="IPv6 Address"             name="ipv6adr"           size="16" composite="true" baseType="long_octet_string"/>
-    <type id="0xFD" description="IPv6 Prefix"              name="ipv6pre"                     composite="true"/>
-    <type id="0xFE" description="Hardware Address"         name="hwadr"                       composite="true"/>
+    <type id="0xFA" description="IP Address"               name="ipadr"                       composite="true" baseType="octet_string"/>
+    <type id="0xFB" description="IPv4 Address"             name="ipv4adr"                     composite="true" baseType="octet_string"/>
+    <type id="0xFC" description="IPv6 Address"             name="ipv6adr"                     composite="true" baseType="octet_string"/>
+    <type id="0xFD" description="IPv6 Prefix"              name="ipv6pre"                     composite="true" baseType="octet_string"/>
+    <type id="0xFE" description="Hardware Address"         name="hwadr"                       composite="true" baseType="octet_string"/>
     <type id="0xFF" description="Unknown"                  name="unknown"           size="0"                  />
     <type id="0xD8" description="Temperature"              name="temperature"       size="2"  analog="true"     signed="true" />
   </atomic>

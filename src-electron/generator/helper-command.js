@@ -146,6 +146,7 @@ async function if_command_is_not_fixed_length_but_command_argument_is_always_pre
   trueReturn,
   falseReturn
 ) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
     commandId
@@ -154,7 +155,7 @@ async function if_command_is_not_fixed_length_but_command_argument_is_always_pre
   for (let ca of commandArgs) {
     if (
       ca.isArray ||
-      types.isString(ca.type) ||
+      (await types.isStringType(this.global.db, packageIds, ca.type)) ||
       ca.introducedInRef ||
       ca.removedInRef ||
       ca.presentIf
@@ -200,6 +201,7 @@ async function if_command_not_fixed_length_command_argument_always_present(
   commandArg,
   options
 ) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
     command
@@ -208,7 +210,7 @@ async function if_command_not_fixed_length_command_argument_always_present(
   for (let ca of commandArgs) {
     if (
       ca.isArray ||
-      types.isString(ca.type) ||
+      (await types.isStringType(this.global.db, packageIds, ca.type)) ||
       ca.introducedInRef ||
       ca.removedInRef ||
       ca.presentIf
@@ -345,6 +347,7 @@ async function if_command_is_fixed_length(
   fixedLengthReturn,
   notFixedLengthReturn
 ) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
     commandId
@@ -354,7 +357,7 @@ async function if_command_is_fixed_length(
   for (let commandArg of commandArgs) {
     if (
       commandArg.isArray ||
-      types.isString(commandArg.type) ||
+      (await types.isStringType(this.global.db, packageIds, commandArg.type)) ||
       commandArg.introducedInRef ||
       commandArg.removedInRef ||
       commandArg.presentIf
@@ -387,6 +390,7 @@ async function if_command_is_fixed_length(
  * length or not as shown in the example above.
  */
 async function if_command_fixed_length(commandId, options) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
     commandId
@@ -394,7 +398,7 @@ async function if_command_fixed_length(commandId, options) {
   for (let commandArg of commandArgs) {
     if (
       commandArg.isArray ||
-      types.isString(commandArg.type) ||
+      (await types.isStringType(this.global.db, packageIds, commandArg.type)) ||
       commandArg.introducedInRef ||
       commandArg.removedInRef ||
       commandArg.presentIf
