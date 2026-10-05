@@ -178,6 +178,7 @@ function loadCommandResponse(command) {
   return queryCommand
     .selectCommandById(db, command.id)
     .then((commandDetails) => {
+      command.conformance = commandDetails.conformance;
       if (commandDetails.responseRef == null) {
         command.response = null;
         return command;
@@ -259,6 +260,11 @@ function loadCommandsCommon(commandsPromise) {
       Promise.all(
         commands.map((command) => loadCommandArguments.call(this, command))
       )
+    )
+    .then((commands) =>
+      commands.filter(
+        (command) => command.conformance != dbEnum.conformanceTag.obsolete
+      )
     );
 }
 
@@ -292,6 +298,9 @@ async function loadAllAttributes(packageIds) {
   // don't want here, because the types of the attributes are not in fact
   // optionals for our purposes.
   attrs.forEach((attr) => delete attr.isOptional);
+  attrs = attrs.filter(
+    (attr) => attr.conformance != dbEnum.conformanceTag.obsolete
+  );
   // Treat all attributes that could be reportable as reportable.
   attrs.forEach((attr) => {
     if (attr.isReportable) {
@@ -329,7 +338,11 @@ function loadAttributes() {
     )
     .then((attributes) => attributes.flat())
     .then((attributes) =>
-      attributes.filter((attribute) => attribute.isIncluded)
+      attributes.filter(
+        (attribute) =>
+          attribute.isIncluded &&
+          attribute.conformance != dbEnum.conformanceTag.obsolete
+      )
     )
     .then((attributes) => attributes.sort((a, b) => a.code - b.code));
 }
@@ -370,8 +383,10 @@ function loadEventsCommon(packageIds, clusters) {
         event.clusterName = cluster.name;
       }
     });
-    return events.filter((event) =>
-      clusters.find((cluster) => cluster.code == event.clusterCode)
+    return events.filter(
+      (event) =>
+        event.conformance != dbEnum.conformanceTag.obsolete &&
+        clusters.find((cluster) => cluster.code == event.clusterCode)
     );
   });
 }
