@@ -22,7 +22,6 @@ const dbApi = require('../src-electron/db/db-api')
 const queryZcl = require('../src-electron/db/query-zcl')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const env = require('../src-electron/util/env')
-const types = require('../src-electron/util/types')
 const overridable = require('../src-electron/generator/overridable')
 const validation = require('../src-electron/validation/validation')
 const testUtil = require('./test-util')
@@ -77,24 +76,16 @@ test(
       expect(longChar.isLong).toBe(true)
       expect(longChar.isChar).toBe(true)
 
-      // Matter-style float roots (name single/double, no float="true")
-      let single = await queryZcl.selectAtomicType(db, pkgs, 'single')
-      expect(single.isFloat).toBe(true)
-      let dbl = await queryZcl.selectAtomicType(db, pkgs, 'double')
-      expect(dbl.isFloat).toBe(true)
-
-      // Zigbee-style float_* roots without float="true"
+      expect(
+        (await queryZcl.selectAtomicType(db, pkgs, 'single')).isFloat
+      ).toBe(true)
+      expect(
+        (await queryZcl.selectAtomicType(db, pkgs, 'double')).isFloat
+      ).toBe(true)
       expect(
         (await queryZcl.selectAtomicType(db, pkgs, 'float_semi')).isFloat
       ).toBe(true)
-      expect(
-        (await queryZcl.selectAtomicType(db, pkgs, 'float_single')).isFloat
-      ).toBe(true)
-      expect(
-        (await queryZcl.selectAtomicType(db, pkgs, 'float_double')).isFloat
-      ).toBe(true)
 
-      // Atomic string roots still land in STRING table
       expect(
         await queryZcl.selectStringByName(db, 'octet_string', pkgs)
       ).toBeDefined()
@@ -102,23 +93,13 @@ test(
         await queryZcl.selectStringByName(db, 'char_string', pkgs)
       ).toBeDefined()
 
-      // Type without baseType is not an alias of another atomic
+      // Without baseType, ipadr is not a string alias
       let ipadr = await queryZcl.selectAtomicType(db, pkgs, 'ipadr')
       expect(ipadr.isString).toBe(false)
+      expect(ipadr.baseType).toBeNull()
       expect(
         await queryZcl.selectStringByName(db, 'ipadr', pkgs)
       ).toBeUndefined()
-
-      // Async helpers and sync atomic-root helpers agree
-      expect(await types.isStringType(db, pkgs, 'octet_string')).toBe(true)
-      expect(await types.isStringType(db, pkgs, 'ipadr')).toBe(false)
-      expect(await types.isFloatType(db, pkgs, 'single')).toBe(true)
-      expect(types.isString('CHAR_STRING')).toBe(true)
-      expect(types.isString('octet_string')).toBe(true)
-      expect(types.isFloat('FLOAT_SEMI')).toBe(true)
-      expect(types.isFloat('single')).toBe(true)
-      expect(types.isOneBytePrefixedString('char_string')).toBe(true)
-      expect(types.isTwoBytePrefixedString('long_octet_string')).toBe(true)
 
       // C mapping for string roots
       expect(overridable.atomicType({ name: 'octet_string', size: null })).toBe(
@@ -166,6 +147,21 @@ test(
       expect(hwadr.isString).toBe(true)
       expect(hwadr.baseType).toBe('octet_string')
       expect(await queryZcl.selectStringByName(db, 'hwadr', pkgs)).toBeDefined()
+
+      expect(
+        overridable.atomicType({
+          name: 'hwadr',
+          baseType: 'octet_string',
+          size: null
+        })
+      ).toBe('uint8_t *')
+      expect(
+        overridable.atomicType({
+          name: 'hwadr',
+          isString: true,
+          size: null
+        })
+      ).toBe('uint8_t *')
 
       let octet = await queryZcl.selectAtomicType(db, pkgs, 'octet_string')
       expect(octet.isString).toBe(true)

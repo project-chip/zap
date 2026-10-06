@@ -27,7 +27,6 @@ const string = require('../util/string')
 const helperC = require('./helper-c.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryCluster = require('../db/query-cluster.js')
-const queryZcl = require('../db/query-zcl.js')
 
 /**
  * Get a transformed config object.
@@ -174,17 +173,12 @@ async function tokens_context(options) {
                       attribute,
                       `ERROR: ${attribute.name}, invalid size, ${attribute.type}`
                     )
-                    .then(async (size) => {
+                    .then((size) => {
                       attr.typeSize = size
                       if (size > 2) {
-                        let atomic = await queryZcl.selectAtomicType(
-                          this.global.db,
-                          packageIds,
-                          attribute.type
-                        )
                         attr.longDefault = types.longTypeDefaultValue(
                           attr.typeSize,
-                          atomic || attribute.type,
+                          attr.type,
                           attr.defaultValue
                         )
                       }
