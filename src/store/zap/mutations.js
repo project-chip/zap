@@ -15,6 +15,7 @@
  */
 
 const restApi = require('../../../src-shared/rest-api.js')
+const dbEnum = require('../../../src-shared/db-enum.js')
 
 /**
  * Sets a property on an object to a given value.
@@ -745,6 +746,13 @@ export function initializeEndpointTypes(state, endpointTypes) {
 export function initializeSessionKeyValues(state, sessionKeyValues) {
   sessionKeyValues.forEach((skv) => {
     setSelectedGenericOption(state, skv)
+    if (skv.key === dbEnum.sessionKey.legacyDisabledObsoleteElements) {
+      try {
+        state.legacyDisabledObsoleteElements = JSON.parse(skv.value)
+      } catch (error) {
+        state.legacyDisabledObsoleteElements = []
+      }
+    }
   })
 }
 
@@ -782,6 +790,13 @@ export function setSelectedGenericOption(state, keyValue) {
 export function loadSessionKeyValues(state, sessionKeyValues) {
   sessionKeyValues?.data.map((keyValue) => {
     vue3Set(state.selectedGenericOptions, keyValue.key, keyValue.value)
+    if (keyValue.key === dbEnum.sessionKey.legacyDisabledObsoleteElements) {
+      try {
+        state.legacyDisabledObsoleteElements = JSON.parse(keyValue.value)
+      } catch (error) {
+        state.legacyDisabledObsoleteElements = []
+      }
+    }
   })
 }
 
@@ -1144,6 +1159,22 @@ export function updateIsClusterOptionChanged(state, value) {
  */
 export function updateNotificationCount(state, value) {
   state.notificationCount = value
+}
+
+/** Keep rows for obsolete elements disabled during this session visible. */
+export function addLegacyDisabledObsoleteElements(state, elements) {
+  const existing = new Set(
+    state.legacyDisabledObsoleteElements.map(
+      (element) => `${element.elementType}:${element.endpointTypeId}:${element.id}`
+    )
+  )
+  elements.forEach((element) => {
+    const key = `${element.elementType}:${element.endpointTypeId}:${element.id}`
+    if (!existing.has(key)) {
+      existing.add(key)
+      state.legacyDisabledObsoleteElements.push(element)
+    }
+  })
 }
 
 /**

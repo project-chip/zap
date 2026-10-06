@@ -44,6 +44,11 @@ export default {
           .filter((attribute) => {
             return !this.globalLists.includes(attribute.label)
           })
+          .filter(
+            (attribute) =>
+              !this.isObsoleteElement(attribute) ||
+              this.isLegacyDisabledObsoleteElement('attributes', attribute)
+          )
       }
     },
     selection: {

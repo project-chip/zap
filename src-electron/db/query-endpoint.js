@@ -282,6 +282,7 @@ SELECT
   A.IS_SCENE_REQUIRED,
   A.IS_OPTIONAL,
   A.DEFINE,
+  A.CONFORMANCE,
   A.API_MATURITY,
   A.STORAGE_POLICY,
   EA.STORAGE_OPTION,
@@ -344,6 +345,7 @@ ORDER BY A.MANUFACTURER_CODE, A.CODE
       maxInterval: row.MAX_INTERVAL,
       reportableChange: row.REPORTABLE_CHANGE,
       define: row.DEFINE,
+      conformance: row.CONFORMANCE,
       apiMaturity: row.API_MATURITY
     }
   })

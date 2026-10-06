@@ -24,10 +24,10 @@ limitations under the License.
       </span>
     </div>
     <div class="col column linear-border-wrap">
-      <div v-if="deviceTypeFeatures.length > 0">
+      <div v-if="visibleDeviceTypeFeatures.length > 0">
         <q-table
           class="my-striped-table"
-          :rows="deviceTypeFeatures"
+          :rows="visibleDeviceTypeFeatures"
           :columns="filteredColumns"
           flat
           v-model:pagination="pagination"
@@ -254,6 +254,7 @@ export default {
       return (
         feature.conformance == dbEnum.conformanceTag.disallowed ||
         feature.conformance == dbEnum.conformanceTag.deprecated ||
+        feature.conformance == dbEnum.conformanceTag.obsolete ||
         this.isClusterDisabled(feature)
       )
     },

@@ -95,7 +95,8 @@ function evaluateConformanceExpression(expression, elementMap) {
       return dbEnum.conformanceVal.optional
     } else if (
       part == dbEnum.conformanceTag.deprecated ||
-      part == dbEnum.conformanceTag.disallowed
+      part == dbEnum.conformanceTag.disallowed ||
+      part == dbEnum.conformanceTag.obsolete
     ) {
       return dbEnum.conformanceVal.notSupported
     } else if (part == dbEnum.conformanceTag.provisional) {

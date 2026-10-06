@@ -562,7 +562,8 @@ This schema describes the format of the XML files, that describe the ZCL specifi
         <xs:element ref="mandatoryConform"/>
         <xs:element ref="optionalConform"/>
         <xs:element ref="otherwiseConform"/>
-          <xs:element ref="deprecateConform"/>
+        <xs:element ref="deprecateConform"/>
+        <xs:element ref="obsoleteConform"/>
       </xs:choice>
       <xs:attribute name="code" type="xs:string"/>
       <xs:attribute name="name" type="xs:string"/>
@@ -584,6 +585,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
         <xs:element ref="optionalConform"/>
         <xs:element ref="otherwiseConform"/>
         <xs:element ref="deprecateConform"/>
+        <xs:element ref="obsoleteConform"/>
         <xs:element ref="describedConform"/>
         <xs:element ref="provisionalConform"/>
         <xs:element ref="disallowConform"/>
@@ -618,6 +620,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
         <xs:element ref="optionalConform"/>
         <xs:element ref="otherwiseConform"/>
         <xs:element ref="deprecateConform"/>
+        <xs:element ref="obsoleteConform"/>
         <xs:element ref="describedConform"/>
         <xs:element ref="provisionalConform"/>
         <xs:element ref="disallowConform"/>
@@ -775,6 +778,13 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="obsoleteConform">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="describedConform">
     <xs:complexType mixed="true">
       <xs:sequence>
@@ -833,6 +843,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
               <xs:element ref="otherwiseConform"/>
               <xs:element ref="describedConform"/>
               <xs:element ref="deprecateConform"/>
+              <xs:element ref="obsoleteConform"/>
               <xs:element ref="disallowConform"/>
               <xs:element ref="provisionalConform"/>
             </xs:choice>

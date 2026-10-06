@@ -147,6 +147,8 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
     return dbEnum.conformanceTag.disallowed
   } else if (operand.deprecateConform) {
     return dbEnum.conformanceTag.deprecated
+  } else if (operand.obsoleteConform) {
+    return dbEnum.conformanceTag.obsolete
   } else if (operand.describedConform) {
     return dbEnum.conformanceTag.described
   } else {

@@ -174,6 +174,23 @@ export default {
     asHex(value, padding) {
       return Util.asHex(value, padding)
     },
+    /**
+     * True when a data-model element has obsolete Matter conformance (`Z`).
+     * Obsolete data model elements are hidden from new configurator views.
+     */
+    isObsoleteElement(element) {
+      return !!(
+        element && element.conformance === DbEnum.conformanceTag.obsolete
+      )
+    },
+    isLegacyDisabledObsoleteElement(elementType, element) {
+      return this.$store.state.zap.legacyDisabledObsoleteElements.some(
+        (legacyElement) =>
+          legacyElement.elementType === elementType &&
+          legacyElement.endpointTypeId == this.selectedEndpointTypeId &&
+          legacyElement.id == element.id
+      )
+    },
     hashAttributeIdClusterId(attributeId, clusterId) {
       return Util.cantorPair(attributeId, clusterId)
     },

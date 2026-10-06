@@ -67,6 +67,7 @@ limitations under the License.
             <q-toggle
               class="q-mt-xs v-step-13"
               v-model="selection"
+              :disable="isObsoleteElement(props.row)"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color

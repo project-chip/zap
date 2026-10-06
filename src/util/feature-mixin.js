@@ -26,6 +26,13 @@ export default {
     deviceTypeFeatures() {
       return this.$store.state.zap.featureView.deviceTypeFeatures
     },
+    visibleDeviceTypeFeatures() {
+      return this.deviceTypeFeatures.filter(
+        (feature) =>
+          !this.isObsoleteElement(feature) ||
+          this.isLegacyDisabledObsoleteElement('features', feature)
+      )
+    },
     // attribute Id for the feature map attribute, used to query feature map attribute
     featureMapAttributeId() {
       return this.$store.state.zap.attributes.find(
@@ -82,6 +89,11 @@ export default {
           }
           return feature
         })
+        .filter(
+          (feature) =>
+            !this.isObsoleteElement(feature) ||
+            this.isLegacyDisabledObsoleteElement('features', feature)
+        )
     },
     enabledClusterFeatures() {
       return this.clusterFeatures

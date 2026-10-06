@@ -22100,6 +22100,7 @@ This module provides utilities for evaluating conformance expressions.
 
 
 * [Validation API: Evaluate conformance expressions](#module_Validation API_ Evaluate conformance expressions)
+    * [~isObsoleteConformance(conformance)](#module_Validation API_ Evaluate conformance expressions..isObsoleteConformance) ⇒ <code>boolean</code>
     * [~evaluateConformanceExpression(expression, elementMap)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression) ⇒
         * [~evaluateBooleanExpression(expr)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateBooleanExpression)
         * [~evaluateWithParentheses(expr)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateWithParentheses)
@@ -22111,6 +22112,19 @@ This module provides utilities for evaluating conformance expressions.
     * [~translateConformanceTag(expression)](#module_Validation API_ Evaluate conformance expressions..translateConformanceTag) ⇒ <code>string</code>
     * [~translateBooleanExpr(expr)](#module_Validation API_ Evaluate conformance expressions..translateBooleanExpr) ⇒ <code>string</code>
     * [~translateConformanceExpression(expression)](#module_Validation API_ Evaluate conformance expressions..translateConformanceExpression) ⇒ <code>string</code>
+
+<a name="module_Validation API_ Evaluate conformance expressions..isObsoleteConformance"></a>
+
+### Validation API: Evaluate conformance expressions~isObsoleteConformance(conformance) ⇒ <code>boolean</code>
+True when a stored conformance value is the obsolete tag (`Z`).
+Matter XML `<obsoleteConform/>` is parsed into this tag and evaluated as
+not supported, the same way `<disallowConform/>` is.
+
+**Kind**: inner method of [<code>Validation API: Evaluate conformance expressions</code>](#module_Validation API_ Evaluate conformance expressions)  
+
+| Param | Type |
+| --- | --- |
+| conformance | <code>\*</code> | 
 
 <a name="module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression"></a>
 

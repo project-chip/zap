@@ -75,6 +75,7 @@ const uri = {
   endpointTypeAttributes: '/zcl/endpointTypeAttributes/',
   endpointTypeCommands: '/zcl/endpointTypeCommands/',
   endpointTypeEvents: '/zcl/endpointTypeEvents/',
+  disableObsoleteElements: '/zcl/disableObsoleteElements',
   deviceTypeClusters: '/zcl/deviceTypeClusters/',
   deviceTypeAttributes: '/zcl/deviceTypeAttributes/',
   deviceTypeCommands: '/zcl/deviceTypeCommands/',

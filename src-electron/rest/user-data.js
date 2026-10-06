@@ -1177,6 +1177,21 @@ function httpPostRequiredElementWarning(db) {
 }
 
 /**
+ * Disable obsolete attributes, commands, events, and features enabled by an
+ * older configuration, and notify the user about each affected element.
+ */
+function httpPostDisableObsoleteElements(db) {
+  return async (request, response) => {
+    const elements = await queryConfig.disableObsoleteElements(
+      db,
+      request.zapSessionId,
+      request.body.endpointTypeId
+    )
+    response.status(StatusCodes.OK).json(elements)
+  }
+}
+
+/**
  * duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
  *
  * @param {*} db
@@ -1291,6 +1306,10 @@ exports.post = [
   {
     uri: restApi.uri.requiredElementWarning,
     callback: httpPostRequiredElementWarning
+  },
+  {
+    uri: restApi.uri.disableObsoleteElements,
+    callback: httpPostDisableObsoleteElements
   },
   {
     uri: restApi.uri.requiredElements,
