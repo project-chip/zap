@@ -1105,7 +1105,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~endpoint_attribute_long_defaults_count(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attribute_long_defaults_count) ⇒
     * [~endpoint_attribute_long_defaults(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attribute_long_defaults) ⇒
     * [~asMEI(manufacturerCode, code)](#module_Templating API_ Matter endpoint config helpers..asMEI) ⇒
-    * [~determineAttributeDefaultValue(specifiedDefault, type, typeSize, isNullable, db, sessionId, [typeInfo])](#module_Templating API_ Matter endpoint config helpers..determineAttributeDefaultValue) ⇒
+    * [~determineAttributeDefaultValue(specifiedDefault, type, typeSize, isNullable, db, sessionId)](#module_Templating API_ Matter endpoint config helpers..determineAttributeDefaultValue) ⇒
     * [~keepDefaultValueKey(clusterName, attributeName)](#module_Templating API_ Matter endpoint config helpers..keepDefaultValueKey) ⇒
     * [~collectAttributesKeepingDefaultValue(db, zclPackageIds)](#module_Templating API_ Matter endpoint config helpers..collectAttributesKeepingDefaultValue) ⇒
     * [~keepsDefaultValueForExternalStorage(attribute, cluster, options)](#module_Templating API_ Matter endpoint config helpers..keepsDefaultValueForExternalStorage) ⇒
@@ -1547,7 +1547,7 @@ Get 32 bit code from the given code and manufacturer code.
 
 <a name="module_Templating API_ Matter endpoint config helpers..determineAttributeDefaultValue"></a>
 
-### Templating API: Matter endpoint config helpers~determineAttributeDefaultValue(specifiedDefault, type, typeSize, isNullable, db, sessionId, [typeInfo]) ⇒
+### Templating API: Matter endpoint config helpers~determineAttributeDefaultValue(specifiedDefault, type, typeSize, isNullable, db, sessionId) ⇒
 The representation of null depends on the type, so we can't use a single
 macro that's defined elsewhere for "null value".
 Get the default value of an attribute.
@@ -1555,15 +1555,14 @@ Get the default value of an attribute.
 **Kind**: inner method of [<code>Templating API: Matter endpoint config helpers</code>](#module_Templating API_ Matter endpoint config helpers)  
 **Returns**: Attribute's default value  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| specifiedDefault | <code>\*</code> |  |
-| type | <code>\*</code> |  |
-| typeSize | <code>\*</code> |  |
-| isNullable | <code>\*</code> |  |
-| db | <code>\*</code> |  |
-| sessionId | <code>\*</code> |  |
-| [typeInfo] | <code>object</code> | determineType result with isString flag when available |
+| Param | Type |
+| --- | --- |
+| specifiedDefault | <code>\*</code> | 
+| type | <code>\*</code> | 
+| typeSize | <code>\*</code> | 
+| isNullable | <code>\*</code> | 
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
 
 <a name="module_Templating API_ Matter endpoint config helpers..keepDefaultValueKey"></a>
 
@@ -3862,7 +3861,6 @@ This module contains the API for templating. For more detailed instructions, rea
 
 
 * [Templating API: static zcl helpers](#module_Templating API_ static zcl helpers)
-    * [~resolveStringRow(context, type)](#module_Templating API_ static zcl helpers..resolveStringRow) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
     * [~zcl_bitmaps(options)](#module_Templating API_ static zcl helpers..zcl_bitmaps) ⇒
     * [~zcl_bitmap_items(options)](#module_Templating API_ static zcl helpers..zcl_bitmap_items)
     * [~zcl_enums(options)](#module_Templating API_ static zcl helpers..zcl_enums) ⇒
@@ -3946,18 +3944,6 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~if_compare(leftValue, rightValue, options)](#module_Templating API_ static zcl helpers..if_compare) ⇒ <code>Object</code>
     * [~if_is_data_type_signed(type, clusterId, options)](#module_Templating API_ static zcl helpers..if_is_data_type_signed) ⇒
     * [~as_zcl_data_type_size(type, clusterId, options)](#module_Templating API_ static zcl helpers..as_zcl_data_type_size) ⇒
-
-<a name="module_Templating API_ static zcl helpers..resolveStringRow"></a>
-
-### Templating API: static zcl helpers~resolveStringRow(context, type) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
-Resolve a STRING table row by name or id for the current template packages.
-
-**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
-
-| Param | Type |
-| --- | --- |
-| context | <code>\*</code> | 
-| type | <code>\*</code> | 
 
 <a name="module_Templating API_ static zcl helpers..zcl_bitmaps"></a>
 
@@ -4796,7 +4782,7 @@ Helper that deals with the type of the argument.
 
 | Param | Description |
 | --- | --- |
-| type | Return: true or false based on whether the type is a string or not (ATOMIC.IS_STRING, alias-aware). |
+| type | Return: true or false based on whether the type is a string or not. |
 
 <a name="module_Templating API_ static zcl helpers..if_is_number"></a>
 
@@ -4839,8 +4825,8 @@ type is not string
 <a name="module_Templating API_ static zcl helpers..if_is_char_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_char\_string(type) ⇒
-If helper that checks if a string type is a character string
-(STRING.isChar from XML / baseType inheritance).
+If helper that checks if a string type is present in the list of char strings
+i.e. characterStringTypes
 
 example:
 {{#if_is_char_string type}}
@@ -4859,8 +4845,8 @@ type is not char string
 <a name="module_Templating API_ static zcl helpers..if_is_octet_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_octet\_string(type) ⇒
-If helper that checks if a string type is an octet string
-(STRING row present and not isChar).
+If helper that checks if a string type is present in the list of octet strings
+i.e. octetStringTypes
 
 example:
 {{#if_is_octet_string type}}
@@ -4879,7 +4865,8 @@ type is not octet string
 <a name="module_Templating API_ static zcl helpers..if_is_short_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_short\_string(type) ⇒
-If helper that checks if a string type is a short (1-byte length prefix) string.
+If helper that checks if a string type is present in the list of short strings
+i.e. stringShortTypes
 
 example:
 {{#if_is_short_string type}}
@@ -4898,7 +4885,8 @@ type is not short string
 <a name="module_Templating API_ static zcl helpers..if_is_long_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_long\_string(type) ⇒
-If helper that checks if a string type is a long (2-byte length prefix) string.
+If helper that checks if a string type is present in the list of long strings
+i.e. stringLongTypes
 
 example:
 {{#if_is_long_string type}}

@@ -175,14 +175,13 @@ async function isMatterSession(db, sessionId) {
 }
 
 /**
- * Resolve whether an attribute type is a string via ATOMIC.isString
- * (alias-aware). Returns null when the type is not an atomic of the
- * given packages.
+ * Load ATOMIC row so baseType-inherited flags (isString/isFloat/isLong) are used.
+ * Falls back to sync name helpers when there is no atomic row.
  *
  * @param {*} db
  * @param {Array} packageIds
  * @param {string} typeName
- * @returns {Promise<object|null>} atomic row when found, else null
+ * @returns {Promise<object|null>}
  */
 async function resolveAtomicType(db, packageIds, typeName) {
   if (!typeName || !packageIds || packageIds.length === 0) return null
@@ -194,9 +193,6 @@ async function resolveAtomicType(db, packageIds, typeName) {
 }
 
 /**
- * True when ATOMIC.isString is set, else sync root-name fallback for
- * packages that reference a standard type name without a local atomic row.
- *
  * @param {object|null} atomic
  * @param {string} [typeName]
  * @returns {boolean}
@@ -207,8 +203,6 @@ function isStringAttributeType(atomic, typeName) {
 }
 
 /**
- * True when ATOMIC.isFloat is set, else sync root-name fallback.
- *
  * @param {object|null} atomic
  * @param {string} [typeName]
  * @returns {boolean}
@@ -216,6 +210,21 @@ function isStringAttributeType(atomic, typeName) {
 function isFloatAttributeType(atomic, typeName) {
   if (atomic && atomic.isFloat != null) return !!atomic.isFloat
   return typeName ? types.isFloat(typeName) : false
+}
+
+/**
+ * @param {object|null} atomic
+ * @param {string} typeName
+ * @param {*} maxLength
+ * @returns {number}
+ */
+function maxAllowedStringLength(atomic, typeName, maxLength) {
+  let isLong =
+    atomic && atomic.isLong != null
+      ? !!atomic.isLong
+      : types.isTwoBytePrefixedString(typeName)
+  let fallback = isLong ? 65534 : 254
+  return maxLength != null && maxLength !== '' ? maxLength : fallback
 }
 
 /**
@@ -236,11 +245,8 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
   let atomic = await resolveAtomicType(db, [packageId], attribute.type)
   let isStringType = isStringAttributeType(atomic, attribute.type)
 
-  // Validate boolean type (XML wire name)
-  if (
-    attribute.type &&
-    attribute.type.toLowerCase() === dbEnum.atomicTypeName.boolean
-  ) {
+  // Validate boolean type
+  if (attribute.type && attribute.type.toLowerCase() === 'boolean') {
     const boolValue = String(attribute.defaultValue).toLowerCase()
     if (
       boolValue !== 'true' &&
@@ -304,20 +310,21 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
       }
     }
   }
-  // Validate string types. Hex defaults (e.g. CHAR_STRING default="0x00")
-  // encode bytes, not the literal characters "0x00".
+  // Validate string types (includes baseType string aliases via ATOMIC.isString)
   else if (isStringType) {
     let maxAllowedLength = maxAllowedStringLength(
-      atomic || attribute.type,
+      atomic,
+      attribute.type,
       attribute.maxLength
     )
-    if (typeof attribute.defaultValue === 'string') {
-      let encodedLength = stringValueLength(attribute.defaultValue)
-      if (encodedLength > maxAllowedLength) {
-        issues.push(
-          `String length ${encodedLength} exceeds maximum ${maxAllowedLength}`
-        )
-      }
+
+    if (
+      typeof attribute.defaultValue === 'string' &&
+      attribute.defaultValue.length > maxAllowedLength
+    ) {
+      issues.push(
+        `String length ${attribute.defaultValue.length} exceeds maximum ${maxAllowedLength}`
+      )
     }
   }
 
@@ -403,8 +410,8 @@ async function validateSpecificAttribute(
   } else if (isStringType) {
     if (
       typeof endpointAttribute.defaultValue === 'string' &&
-      stringValueLength(endpointAttribute.defaultValue) >
-        maxAllowedStringLength(atomic, attribute.maxLength)
+      endpointAttribute.defaultValue.length >
+        maxAllowedStringLength(atomic, attribute.type, attribute.maxLength)
     ) {
       defaultAttributeIssues.push('String length out of range')
     }
@@ -667,40 +674,6 @@ function unsignedToSignedInteger(value, typeSize) {
     value += isBigInteger(typeSize) ? 1n : 1
   }
   return value
-}
-
-/**
- * Max allowed length for a ZCL string default. Short strings are 254,
- * long strings 65534, unless the attribute declares maxLength.
- * Prefers ATOMIC.isLong; bare type names use the sync atomic long-string roots.
- *
- * @param {object|string|null} atomicOrType - atomic row with isLong, or type name
- * @param {*} maxLength
- * @returns number
- */
-function maxAllowedStringLength(atomicOrType, maxLength) {
-  let isLong = false
-  if (atomicOrType != null && typeof atomicOrType === 'object') {
-    isLong = !!atomicOrType.isLong
-  } else if (typeof atomicOrType === 'string') {
-    isLong = types.isTwoBytePrefixedString(atomicOrType)
-  }
-  let fallback = isLong ? 65534 : 254
-  return maxLength != null && maxLength !== '' ? maxLength : fallback
-}
-
-/**
- * Length of a string default. A 0x-prefixed hex value is a byte encoding
- * (CHAR_STRING default="0x00" is 1 byte), matching isValidHexString.
- *
- * @param {string} value
- * @returns number
- */
-function stringValueLength(value) {
-  if (/^0x/i.test(value) && isValidHexString(value)) {
-    return Math.ceil((value.length - 2) / 2)
-  }
-  return value.length
 }
 
 /**

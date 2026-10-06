@@ -153,48 +153,26 @@ function convertIntToBigEndian(value, size) {
 }
 
 /**
- * Normalize a type info / atomic row / type-name string into
- * { isString, isLong } flags. Object form is preferred (from ATOMIC /
- * determineType). A bare string uses sync atomic-root helpers when
- * callers have no DB context.
- *
- * @param {object|string} typeInfoOrName
- * @returns {{ isString: boolean, isLong: boolean }}
- */
-function stringFlagsFromTypeInfo(typeInfoOrName) {
-  if (typeInfoOrName != null && typeof typeInfoOrName === 'object') {
-    return {
-      isString: !!typeInfoOrName.isString,
-      isLong: !!typeInfoOrName.isLong
-    }
-  }
-  let name = typeInfoOrName
-  return {
-    isString: isString(name),
-    isLong: isTwoBytePrefixedString(name)
-  }
-}
-
-/**
  * If the type is more than 2 bytes long, then this method creates
  * the default byte array.
  *
  * @param {*} size Size of bytes generated.
- * @param {object|string} typeInfo Type info with isString/isLong (or type name).
+ * @param {*} type Type of the object.
  * @param {*} value Default value.
  * @returns string which is a C-formatted byte array.
  */
-function longTypeDefaultValue(size, typeInfo, value) {
+function longTypeDefaultValue(size, type, value) {
   let v = ''
-  let flags = stringFlagsFromTypeInfo(typeInfo)
   if (value == null || value.length == 0) {
     v = '0x00, '.repeat(size)
-  } else if (flags.isString) {
+  } else if (isString(type)) {
     // String Value
-    if (!flags.isLong) {
+    if (isOneBytePrefixedString(type)) {
       v = bin.stringToOneByteLengthPrefixCBytes(value, size).content
-    } else {
+    } else if (isTwoBytePrefixedString(type)) {
       v = bin.stringToTwoByteLengthPrefixCBytes(value, size).content
+    } else {
+      v = bin.hexToCBytes(bin.stringToHex(value))
     }
   } else {
     let temp = ''
@@ -246,7 +224,7 @@ function convertToCliType(str) {
     str.toLowerCase().endsWith('s')
   ) {
     str = str.substring(0, str.length - 1)
-  } else if (str.toLowerCase().endsWith(dbEnum.atomicTypeName.charString)) {
+  } else if (str.toLowerCase().endsWith('char_string')) {
     str = 'string'
   } else if (str.toLowerCase().startsWith('bitmap')) {
     str = str.toLowerCase().replace('bitmap', 'uint')
@@ -259,104 +237,36 @@ function convertToCliType(str) {
 }
 
 /**
- * Load an ATOMIC row by name (cached). Prefer this over sync name lists.
- *
- * @param {*} db
- * @param {Array} packageIds
- * @param {string} typeName
- * @returns {Promise<object|null>}
- */
-async function selectAtomicFlags(db, packageIds, typeName) {
-  if (!typeName || !packageIds || packageIds.length === 0) return null
-  return queryZcl.selectAtomicType(db, packageIds, typeName)
-}
-
-/**
- * True when ATOMIC.IS_STRING is set (alias-aware via loader inheritance).
- *
- * @param {*} db
- * @param {Array} packageIds
- * @param {string} typeName
- * @returns {Promise<boolean>}
- */
-async function isStringType(db, packageIds, typeName) {
-  let atomic = await selectAtomicFlags(db, packageIds, typeName)
-  return atomic ? !!atomic.isString : false
-}
-
-/**
- * True when ATOMIC.IS_FLOAT is set.
- *
- * @param {*} db
- * @param {Array} packageIds
- * @param {string} typeName
- * @returns {Promise<boolean>}
- */
-async function isFloatType(db, packageIds, typeName) {
-  let atomic = await selectAtomicFlags(db, packageIds, typeName)
-  return atomic ? !!atomic.isFloat : false
-}
-
-/**
- * Short (1-byte length prefix) string: isString && !isLong.
- *
- * @param {*} db
- * @param {Array} packageIds
- * @param {string} typeName
- * @returns {Promise<boolean>}
- */
-async function isOneBytePrefixedStringType(db, packageIds, typeName) {
-  let atomic = await selectAtomicFlags(db, packageIds, typeName)
-  return atomic ? !!atomic.isString && !atomic.isLong : false
-}
-
-/**
- * Long (2-byte length prefix) string: isString && isLong.
- *
- * @param {*} db
- * @param {Array} packageIds
- * @param {string} typeName
- * @returns {Promise<boolean>}
- */
-async function isTwoBytePrefixedStringType(db, packageIds, typeName) {
-  let atomic = await selectAtomicFlags(db, packageIds, typeName)
-  return atomic ? !!atomic.isString && !!atomic.isLong : false
-}
-
-/**
- * Sync atomic-root fallback for callers without a DB context.
- * Prefer isStringType / typeInfo.isString when package data is available.
+ * Returns true if a given ZCL type is a string type.
  * @param {*} type
- * @returns {boolean}
+ * @returns true if type is string, false otherwise
  */
 function isString(type) {
-  if (type == null) return false
-  let name = type.toLowerCase()
-  let atn = dbEnum.atomicTypeName
-  return (
-    name === atn.charString ||
-    name === atn.octetString ||
-    name === atn.longCharString ||
-    name === atn.longOctetString
-  )
+  switch (type.toLowerCase()) {
+    case 'char_string':
+    case 'octet_string':
+    case 'long_char_string':
+    case 'long_octet_string':
+      return true
+    default:
+      return false
+  }
 }
 
 /**
- * Sync float root-name fallback. Prefer isFloatType / atomic.isFloat.
+ * Returns true if a given ZCL type is a float type.
  * @param {*} type
- * @returns {boolean}
+ * @returns true if type is float, false otherwise
  */
 function isFloat(type) {
-  if (type == null) return false
-  let name = type.toLowerCase()
-  let atn = dbEnum.atomicTypeName
-  return (
-    name === atn.floatSemi ||
-    name === atn.floatSingle ||
-    name === atn.floatDouble ||
-    name === atn.single ||
-    name === atn.double
-  )
+  switch (type.toLowerCase()) {
+    case 'float_semi':
+    case 'float_single':
+    case 'float_double':
+      return true
+    default:
+      return false
+  }
 }
 
 /**
@@ -377,27 +287,24 @@ async function isSignedInteger(db, sessionId, type) {
 }
 
 /**
- * Sync short-string root-name fallback. Prefer isOneBytePrefixedStringType.
+ * Checks if type is a one-byte lengh string.
+ *
  * @param {*} type
- * @returns {boolean}
+ * @returns true if the said type is a string prefixed by one byte length
  */
 function isOneBytePrefixedString(type) {
-  if (type == null) return false
-  let name = type.toLowerCase()
-  let atn = dbEnum.atomicTypeName
-  return name === atn.charString || name === atn.octetString
+  type = type.toLowerCase()
+  return type == 'char_string' || type == 'octet_string'
 }
-
 /**
- * Sync long-string root-name fallback. Prefer isTwoBytePrefixedStringType.
+ * Checks if type is a two-byte lengh string.
+ *
  * @param {*} type
- * @returns {boolean}
+ * @returns true if the said type is a string prefixed by two byte length
  */
 function isTwoBytePrefixedString(type) {
-  if (type == null) return false
-  let name = type.toLowerCase()
-  let atn = dbEnum.atomicTypeName
-  return name === atn.longCharString || name === atn.longOctetString
+  type = type.toLowerCase()
+  return type == 'long_char_string' || type == 'long_octet_string'
 }
 
 /**
@@ -406,21 +313,20 @@ function isTwoBytePrefixedString(type) {
  * of strings from the longTypeDefaultValue function, ensuring that the latter
  * does not need to be aware of these details.
  *
- * @param {object|string} typeInfo - Type info with isString/isLong (or type name).
+ * @param {string} type - The type of the string, which determines its null representation.
  * @returns {string} The default value for a null string of the specified type.
  * @throws {Error} Throws an error if the string type is unknown.
  */
-function nullStringDefaultValue(typeInfo) {
+function nullStringDefaultValue(type) {
   // We don't want to make longTypeDefaultValue know about our null
   // string representation.
-  let flags = stringFlagsFromTypeInfo(typeInfo)
   let def
-  if (flags.isString && !flags.isLong) {
+  if (isOneBytePrefixedString(type)) {
     def = '0xFF,'
-  } else if (flags.isString && flags.isLong) {
+  } else if (isTwoBytePrefixedString(type)) {
     def = '0xFF, 0xFF,'
   } else {
-    throw new Error(`Unknown string type: ${JSON.stringify(typeInfo)}`)
+    throw new Error(`Unknown string type: ${type}`)
   }
   return def
 }
@@ -677,11 +583,6 @@ function hexStringToInt(s) {
 
 exports.typeSizeAttribute = typeSizeAttribute
 exports.longTypeDefaultValue = longTypeDefaultValue
-exports.selectAtomicFlags = selectAtomicFlags
-exports.isStringType = isStringType
-exports.isFloatType = isFloatType
-exports.isOneBytePrefixedStringType = isOneBytePrefixedStringType
-exports.isTwoBytePrefixedStringType = isTwoBytePrefixedStringType
 exports.isOneBytePrefixedString = isOneBytePrefixedString
 exports.isTwoBytePrefixedString = isTwoBytePrefixedString
 exports.convertToCliType = convertToCliType

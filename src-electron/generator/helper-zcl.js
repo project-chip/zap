@@ -35,29 +35,11 @@ const zclUtil = require('../util/zcl-util')
 const upgrade = require('../sdk/matter.js')
 const _ = require('lodash')
 
-/**
- * Resolve a STRING table row by name or id for the current template packages.
- *
- * @param {*} context
- * @param {*} type
- * @returns {Promise<object|null>}
- */
-function resolveStringRow(context, type) {
-  return templateUtil
-    .ensureZclPackageIds(context)
-    .then((packageIds) =>
-      type && typeof type === 'string'
-        ? queryZcl.selectStringByName(
-            context.global.db,
-            type.toLowerCase(),
-            packageIds
-          )
-        : null
-    )
-    .then((res) =>
-      res ? res : queryZcl.selectStringById(context.global.db, type)
-    )
-}
+const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING']
+const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING']
+const stringShortTypes = ['CHAR_STRING', 'OCTET_STRING']
+const stringLongTypes = ['LONG_CHAR_STRING', 'LONG_OCTET_STRING']
+
 /**
  * Block helper iterating over all bitmaps.
  * From `exports.map.bitmap` in `src-electron/db/db-mapping.js`:
@@ -913,14 +895,13 @@ async function zcl_events(options) {
 function zcl_command_tree(options) {
   let promise = templateUtil
     .ensureZclPackageIds(this)
-    .then(async (packageIds) => {
-      let cmds = await queryCommand.selectCommandTree(
-        this.global.db,
-        packageIds
-      )
+    .then((packageIds) =>
+      queryCommand.selectCommandTree(this.global.db, packageIds)
+    )
+    .then((cmds) => {
       // Now reduce the array by collecting together arguments.
       let reducedCommands = []
-      for (let el of cmds) {
+      cmds.forEach((el) => {
         let newCommand
         let lastCommand
         if (reducedCommands.length == 0) {
@@ -951,21 +932,9 @@ function zcl_command_tree(options) {
           }
           if (el.argIsArray) {
             arg.formatChar = 'b'
-          } else if (
-            await types.isOneBytePrefixedStringType(
-              this.global.db,
-              packageIds,
-              el.argType
-            )
-          ) {
+          } else if (types.isOneBytePrefixedString(el.argType)) {
             arg.formatChar = 's'
-          } else if (
-            await types.isTwoBytePrefixedStringType(
-              this.global.db,
-              packageIds,
-              el.argType
-            )
-          ) {
+          } else if (types.isTwoBytePrefixedString(el.argType)) {
             arg.formatChar = 'l'
           } else {
             arg.formatChar = 'u'
@@ -1001,7 +970,7 @@ function zcl_command_tree(options) {
             )
           }
         }
-      }
+      })
       return reducedCommands
     })
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
@@ -1283,7 +1252,6 @@ async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
   notFixedLengthReturn,
   currentContext
 ) {
-  let packageIds = await templateUtil.ensureZclPackageIds(currentContext)
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     currentContext.global.db,
     commandId
@@ -1294,11 +1262,7 @@ async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
   for (let argIndex = 0; argIndex < commandArgs.length; argIndex++) {
     if (
       commandArgs[argIndex].isArray ||
-      (await types.isStringType(
-        currentContext.global.db,
-        packageIds,
-        commandArgs[argIndex].type
-      ))
+      types.isString(commandArgs[argIndex].type)
     ) {
       isFixedLength = false
     }
@@ -1351,46 +1315,49 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
   appendString,
   options
 ) {
-  let packageIdsPromise = templateUtil.ensureZclPackageIds(this)
-  return packageIdsPromise
-    .then((packageIds) =>
-      queryCommand
-        .selectCommandArgumentsByCommandId(this.global.db, command)
-        .then(async (commandArgs) => {
+  return queryCommand
+    .selectCommandArgumentsByCommandId(this.global.db, command)
+    .then(
+      (commandArgs) =>
+        new Promise((resolve, reject) => {
           for (let ca of commandArgs) {
             if (
               ca.isArray ||
-              (await types.isStringType(this.global.db, packageIds, ca.type)) ||
+              types.isString(ca.type) ||
               ca.introducedInRef ||
               ca.removedInRef ||
               ca.presentIf
             ) {
-              return false
+              resolve(false)
             }
           }
-          return true
+          resolve(true)
         })
-        .then((isFixedLengthCommand) => {
-          if (isFixedLengthCommand) {
-            return ''
-          } else if (
-            !(
-              commandArg.isArray ||
-              commandArg.introducedInRef ||
-              commandArg.removedInRef ||
-              commandArg.presentIf
-            )
-          ) {
-            return zclUtil.asUnderlyingZclTypeWithPackageId(
+    )
+    .then((isFixedLengthCommand) => {
+      if (isFixedLengthCommand) {
+        return ''
+      } else if (
+        !(
+          commandArg.isArray ||
+          commandArg.introducedInRef ||
+          commandArg.removedInRef ||
+          commandArg.presentIf
+        )
+      ) {
+        return templateUtil
+          .ensureZclPackageIds(this)
+          .then((packageIds) =>
+            zclUtil.asUnderlyingZclTypeWithPackageId(
               type,
               options,
               packageIds,
               this
             )
-          }
-          return ''
-        })
-    )
+          )
+      }
+      return ''
+    })
     .then((res) => (res ? res + appendString : res))
     .catch((err) => {
       env.logError(
@@ -1713,43 +1680,22 @@ function zcl_string_type_return(type, options) {
   ) {
     throw new Error('Specify all options for the helper')
   }
-  let promise = templateUtil
-    .ensureZclPackageIds(this)
-    .then(async (packageIds) => {
-      if (
-        await types.isOneBytePrefixedStringType(
-          this.global.db,
-          packageIds,
-          type
-        )
-      ) {
-        return options.hash.short_string
-      } else if (
-        await types.isTwoBytePrefixedStringType(
-          this.global.db,
-          packageIds,
-          type
-        )
-      ) {
-        return options.hash.long_string
-      } else {
-        return options.hash.default
-      }
-    })
-  return templateUtil.templatePromise(this.global, promise)
+  if (types.isOneBytePrefixedString(type.toLowerCase())) {
+    return options.hash.short_string
+  } else if (types.isTwoBytePrefixedString(type.toLowerCase())) {
+    return options.hash.long_string
+  } else {
+    return options.hash.default
+  }
 }
 
 /**
  *
  * @param type
- * Return: true or false based on whether the type is a string or not
- * (ATOMIC.IS_STRING, alias-aware).
+ * Return: true or false based on whether the type is a string or not.
  */
 function is_zcl_string(type) {
-  let promise = templateUtil
-    .ensureZclPackageIds(this)
-    .then((packageIds) => types.isStringType(this.global.db, packageIds, type))
-  return templateUtil.templatePromise(this.global, promise)
+  return types.isString(type)
 }
 
 /**
@@ -1817,8 +1763,8 @@ function if_is_string(type, options) {
 }
 
 /**
- * If helper that checks if a string type is a character string
- * (STRING.isChar from XML / baseType inheritance).
+ * If helper that checks if a string type is present in the list of char strings
+ * i.e. characterStringTypes
  *
  * example:
  * {{#if_is_char_string type}}
@@ -1831,15 +1777,31 @@ function if_is_string(type, options) {
  * @returns Promise of content.
  */
 function if_is_char_string(type, options) {
-  let promise = resolveStringRow(this, type).then((res) =>
-    res && res.isChar ? options.fn(this) : options.inverse(this)
-  )
+  let promise = templateUtil
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+            this.global.db,
+            type.toLowerCase(),
+            packageIds
+          )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && characterStringTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
   return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
- * If helper that checks if a string type is an octet string
- * (STRING row present and not isChar).
+ * If helper that checks if a string type is present in the list of octet strings
+ * i.e. octetStringTypes
  *
  * example:
  * {{#if_is_octet_string type}}
@@ -1852,14 +1814,31 @@ function if_is_char_string(type, options) {
  * @returns Promise of content.
  */
 function if_is_octet_string(type, options) {
-  let promise = resolveStringRow(this, type).then((res) =>
-    res && !res.isChar ? options.fn(this) : options.inverse(this)
-  )
+  let promise = templateUtil
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+            this.global.db,
+            type.toLowerCase(),
+            packageIds
+          )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && octetStringTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
   return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
- * If helper that checks if a string type is a short (1-byte length prefix) string.
+ * If helper that checks if a string type is present in the list of short strings
+ * i.e. stringShortTypes
  *
  * example:
  * {{#if_is_short_string type}}
@@ -1872,14 +1851,31 @@ function if_is_octet_string(type, options) {
  * @returns Promise of content.
  */
 function if_is_short_string(type, options) {
-  let promise = resolveStringRow(this, type).then((res) =>
-    res && !res.isLong ? options.fn(this) : options.inverse(this)
-  )
+  let promise = templateUtil
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+            this.global.db,
+            type.toLowerCase(),
+            packageIds
+          )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && stringShortTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
   return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
- * If helper that checks if a string type is a long (2-byte length prefix) string.
+ * If helper that checks if a string type is present in the list of long strings
+ * i.e. stringLongTypes
  *
  * example:
  * {{#if_is_long_string type}}
@@ -1892,9 +1888,25 @@ function if_is_short_string(type, options) {
  * @returns Promise of content.
  */
 function if_is_long_string(type, options) {
-  let promise = resolveStringRow(this, type).then((res) =>
-    res && res.isLong ? options.fn(this) : options.inverse(this)
-  )
+  let promise = templateUtil
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+            this.global.db,
+            type.toLowerCase(),
+            packageIds
+          )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && stringLongTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
   return templateUtil.templatePromise(this.global, promise)
 }
 
