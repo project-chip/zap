@@ -114,8 +114,8 @@ exports.settingKey = {
   recentFileDays: 'DAYS'
 /**
  * Canonical atomic type names as they appear in ZCL/Matter XML
- * `<type name="...">`. Use for comparisons and legacy root-name fallbacks
- * instead of scattering string literals.
+ * `<type name="...">`. Use for comparisons and atomic root classification
+ * (type is itself an atomic, not only via baseType).
  */
 exports.atomicTypeName = {
   charString: 'char_string',

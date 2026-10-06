@@ -7,7 +7,7 @@ beforeAll(() => {
 
 test('ZCL types nullable strings', () => {
   let r
-  // Legacy name form (sync root-name fallback)
+  // Name form (sync atomic-root helpers)
   r = types.nullStringDefaultValue('char_string')
   expect(r).toContain('0xFF,')
 

@@ -96,7 +96,7 @@ function atomicType(arg = { name: 'unknown', size: 0, no_warning: 0 }) {
   } else if (name.startsWith('bitmap')) {
     return cleanseUints(`uint${name.slice(6)}_t`, name.slice(6), false)
   } else if (arg.isString) {
-    // ATOMIC.IS_STRING (XML string="true" / baseType inheritance / legacy roots)
+    // ATOMIC.IS_STRING (existing XML attrs / baseType inheritance / atomic roots)
     return 'uint8_t *'
   } else {
     switch (name) {

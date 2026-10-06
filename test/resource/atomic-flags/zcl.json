@@ -1,5 +1,5 @@
 {
-  "description": "Legacy atomic flags (no string/float XML attrs)",
+  "description": "Atomics without baseType; no invented string/float XML attrs",
   "version": 1,
   "category": "matter",
   "xmlRoot": ["."],

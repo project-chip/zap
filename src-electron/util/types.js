@@ -153,10 +153,10 @@ function convertIntToBigEndian(value, size) {
 }
 
 /**
- * Normalize a type info / atomic row / legacy type-name string into
+ * Normalize a type info / atomic row / type-name string into
  * { isString, isLong } flags. Object form is preferred (from ATOMIC /
- * determineType). A bare string uses the sync root-name helpers for
- * older call sites without a DB context.
+ * determineType). A bare string uses sync atomic-root helpers when
+ * callers have no DB context.
  *
  * @param {object|string} typeInfoOrName
  * @returns {{ isString: boolean, isLong: boolean }}
@@ -180,7 +180,7 @@ function stringFlagsFromTypeInfo(typeInfoOrName) {
  * the default byte array.
  *
  * @param {*} size Size of bytes generated.
- * @param {object|string} typeInfo Type info with isString/isLong (or legacy name).
+ * @param {object|string} typeInfo Type info with isString/isLong (or type name).
  * @param {*} value Default value.
  * @returns string which is a C-formatted byte array.
  */
@@ -324,7 +324,7 @@ async function isTwoBytePrefixedStringType(db, packageIds, typeName) {
 }
 
 /**
- * Sync root-name fallback for legacy callers without a DB context.
+ * Sync atomic-root fallback for callers without a DB context.
  * Prefer isStringType / typeInfo.isString when package data is available.
  * @param {*} type
  * @returns {boolean}
@@ -406,7 +406,7 @@ function isTwoBytePrefixedString(type) {
  * of strings from the longTypeDefaultValue function, ensuring that the latter
  * does not need to be aware of these details.
  *
- * @param {object|string} typeInfo - Type info with isString/isLong (or legacy name).
+ * @param {object|string} typeInfo - Type info with isString/isLong (or type name).
  * @returns {string} The default value for a null string of the specified type.
  * @throws {Error} Throws an error if the string type is unknown.
  */
