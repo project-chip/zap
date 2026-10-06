@@ -458,8 +458,9 @@ function atomicZclType(a, byName, visited = new Set()) {
 
 /**
  * Own-flag computation for an atomic XML type (no baseType inheritance).
- * Prefer explicit XML attributes; fall back to historical root type names so
- * older SDKs that omit string/long/char/float attrs keep working.
+ * Uses existing XML attributes when present (e.g. Silabs string="true"), and
+ * dbEnum.atomicTypeName for known atomic roots. baseType aliases inherit
+ * via prepareAtomic instead of re-listing names here.
  *
  * @param {*} a
  * @returns {object}
@@ -467,16 +468,15 @@ function atomicZclType(a, byName, visited = new Set()) {
 function atomicOwnFlags(a) {
   let name = a.$.name ? a.$.name.toLowerCase() : ''
   let atn = dbEnum.atomicTypeName
-  // Prefer explicit XML attributes; fall back to known root names so older
-  // SDKs that omit string/long/char/float attrs keep working.
-  let legacyString =
+  // Known atomic roots from dbEnum (type is the atomic itself, not a baseType alias).
+  let atomicString =
     name === atn.charString ||
     name === atn.octetString ||
     name === atn.longCharString ||
     name === atn.longOctetString
-  let legacyLong = name === atn.longCharString || name === atn.longOctetString
-  let legacyChar = name === atn.charString || name === atn.longCharString
-  let legacyFloat =
+  let atomicLong = name === atn.longCharString || name === atn.longOctetString
+  let atomicChar = name === atn.charString || name === atn.longCharString
+  let atomicFloat =
     name === atn.single ||
     name === atn.double ||
     name === atn.float ||
@@ -487,10 +487,12 @@ function atomicOwnFlags(a) {
     isDiscrete: a.$.discrete == 'true',
     isComposite: a.$.composite == 'true',
     isSigned: a.$.signed == 'true',
-    isString: a.$.string == 'true' || legacyString,
-    isLong: a.$.long == 'true' || legacyLong,
-    isChar: a.$.char == 'true' || legacyChar,
-    isFloat: a.$.float == 'true' || legacyFloat
+    // Keep reading existing XML attrs (Silabs already declares them); do not
+    // require new attrs on Matter roots — dbEnum covers known atomic roots.
+    isString: a.$.string == 'true' || atomicString,
+    isLong: a.$.long == 'true' || atomicLong,
+    isChar: a.$.char == 'true' || atomicChar,
+    isFloat: a.$.float == 'true' || atomicFloat
   }
 }
 

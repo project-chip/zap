@@ -437,8 +437,8 @@ This module provides mappings between database columns and JS keys.
 
 ### DB API: DB types and enums..atomicTypeName
 Canonical atomic type names as they appear in ZCL/Matter XML
-`<type name="...">`. Use for comparisons and legacy root-name fallbacks
-instead of scattering string literals.
+`<type name="...">`. Use for comparisons and atomic root classification
+(type is itself an atomic, not only via baseType).
 
 **Kind**: static property of [<code>DB API: DB types and enums.</code>](#module_DB API_ DB types and enums.)  
 <a name="module_Renderer API_ Renderer API."></a>
@@ -20465,10 +20465,10 @@ the given size. The value is returned in hex format and prefixed with '0x'.
 <a name="module_JS API_ type related utilities..stringFlagsFromTypeInfo"></a>
 
 ### JS API: type related utilities~stringFlagsFromTypeInfo(typeInfoOrName) ⇒ <code>Object</code>
-Normalize a type info / atomic row / legacy type-name string into
+Normalize a type info / atomic row / type-name string into
 { isString, isLong } flags. Object form is preferred (from ATOMIC /
-determineType). A bare string uses the sync root-name helpers for
-older call sites without a DB context.
+determineType). A bare string uses sync atomic-root helpers when
+callers have no DB context.
 
 **Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
 
@@ -20488,7 +20488,7 @@ the default byte array.
 | Param | Type | Description |
 | --- | --- | --- |
 | size | <code>\*</code> | Size of bytes generated. |
-| typeInfo | <code>object</code> \| <code>string</code> | Type info with isString/isLong (or legacy name). |
+| typeInfo | <code>object</code> \| <code>string</code> | Type info with isString/isLong (or type name). |
 | value | <code>\*</code> | Default value. |
 
 <a name="module_JS API_ type related utilities..convertToCliType"></a>
@@ -20572,7 +20572,7 @@ Long (2-byte length prefix) string: isString && isLong.
 <a name="module_JS API_ type related utilities..isString"></a>
 
 ### JS API: type related utilities~isString(type) ⇒ <code>boolean</code>
-Sync root-name fallback for legacy callers without a DB context.
+Sync atomic-root fallback for callers without a DB context.
 Prefer isStringType / typeInfo.isString when package data is available.
 
 **Kind**: inner method of [<code>JS API: type related utilities</code>](#module_JS API_ type related utilities)  
@@ -20645,7 +20645,7 @@ does not need to be aware of these details.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| typeInfo | <code>object</code> \| <code>string</code> | Type info with isString/isLong (or legacy name). |
+| typeInfo | <code>object</code> \| <code>string</code> | Type info with isString/isLong (or type name). |
 
 <a name="module_JS API_ type related utilities..processZclTypeSignAndSize"></a>
 
@@ -21904,14 +21904,14 @@ Works for both BigInts and regular numbers.
 ### Validation API: Validation APIs~maxAllowedStringLength(atomicOrType, maxLength) ⇒
 Max allowed length for a ZCL string default. Short strings are 254,
 long strings 65534, unless the attribute declares maxLength.
-Prefers ATOMIC.isLong; bare type names use the sync long-string root list.
+Prefers ATOMIC.isLong; bare type names use the sync atomic long-string roots.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: number  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| atomicOrType | <code>object</code> \| <code>string</code> \| <code>null</code> | atomic row with isLong, or legacy type name |
+| atomicOrType | <code>object</code> \| <code>string</code> \| <code>null</code> | atomic row with isLong, or type name |
 | maxLength | <code>\*</code> |  |
 
 <a name="module_Validation API_ Validation APIs..stringValueLength"></a>
@@ -23023,14 +23023,14 @@ Works for both BigInts and regular numbers.
 ### Validation API: Validation APIs~maxAllowedStringLength(atomicOrType, maxLength) ⇒
 Max allowed length for a ZCL string default. Short strings are 254,
 long strings 65534, unless the attribute declares maxLength.
-Prefers ATOMIC.isLong; bare type names use the sync long-string root list.
+Prefers ATOMIC.isLong; bare type names use the sync atomic long-string roots.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: number  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| atomicOrType | <code>object</code> \| <code>string</code> \| <code>null</code> | atomic row with isLong, or legacy type name |
+| atomicOrType | <code>object</code> \| <code>string</code> \| <code>null</code> | atomic row with isLong, or type name |
 | maxLength | <code>\*</code> |  |
 
 <a name="module_Validation API_ Validation APIs..stringValueLength"></a>
@@ -24096,8 +24096,9 @@ baseType=int8u stays a bitmap.
 
 ### Loader API: Loader APIs~atomicOwnFlags(a) ⇒ <code>object</code>
 Own-flag computation for an atomic XML type (no baseType inheritance).
-Prefer explicit XML attributes; fall back to historical root type names so
-older SDKs that omit string/long/char/float attrs keep working.
+Uses existing XML attributes when present (e.g. Silabs string="true"), and
+dbEnum.atomicTypeName for known atomic roots. baseType aliases inherit
+via prepareAtomic instead of re-listing names here.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 
@@ -26079,8 +26080,9 @@ baseType=int8u stays a bitmap.
 
 ### Loader API: Loader APIs~atomicOwnFlags(a) ⇒ <code>object</code>
 Own-flag computation for an atomic XML type (no baseType inheritance).
-Prefer explicit XML attributes; fall back to historical root type names so
-older SDKs that omit string/long/char/float attrs keep working.
+Uses existing XML attributes when present (e.g. Silabs string="true"), and
+dbEnum.atomicTypeName for known atomic roots. baseType aliases inherit
+via prepareAtomic instead of re-listing names here.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 
@@ -28062,8 +28064,9 @@ baseType=int8u stays a bitmap.
 
 ### Loader API: Loader APIs~atomicOwnFlags(a) ⇒ <code>object</code>
 Own-flag computation for an atomic XML type (no baseType inheritance).
-Prefer explicit XML attributes; fall back to historical root type names so
-older SDKs that omit string/long/char/float attrs keep working.
+Uses existing XML attributes when present (e.g. Silabs string="true"), and
+dbEnum.atomicTypeName for known atomic roots. baseType aliases inherit
+via prepareAtomic instead of re-listing names here.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 
@@ -30045,8 +30048,9 @@ baseType=int8u stays a bitmap.
 
 ### Loader API: Loader APIs~atomicOwnFlags(a) ⇒ <code>object</code>
 Own-flag computation for an atomic XML type (no baseType inheritance).
-Prefer explicit XML attributes; fall back to historical root type names so
-older SDKs that omit string/long/char/float attrs keep working.
+Uses existing XML attributes when present (e.g. Silabs string="true"), and
+dbEnum.atomicTypeName for known atomic roots. baseType aliases inherit
+via prepareAtomic instead of re-listing names here.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 

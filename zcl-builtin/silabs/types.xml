@@ -52,9 +52,9 @@ limitations under the License.
     <type id="0x2F" name="int64s" size="8" description="Signed 64-bit integer" signed="true"/>
     <type id="0x30" name="enum8" size="1" description="8-bit enumeration" discrete="true"/>
     <type id="0x31" name="enum16" size="2" description="16-bit enumeration" discrete="true"/>
-    <type id="0x38" name="float_semi" size="2" description="Semi-precision" float="true" signed="true"/>
-    <type id="0x39" name="float_single" size="4" description="Single precision" float="true" signed="true"/>
-    <type id="0x3A" name="float_double" size="8" description="Double precision" float="true" signed="true"/>
+    <type id="0x38" name="float_semi" size="2" description="Semi-precision"/>
+    <type id="0x39" name="float_single" size="4" description="Single precision"/>
+    <type id="0x3A" name="float_double" size="8" description="Double precision"/>
     <type id="0x41" name="octet_string" description="Octet string" discrete="true" string="true"/>
     <type id="0x42" name="char_string" description="Character string" discrete="true" string="true" char="true"/>
     <type id="0x43" name="long_octet_string" description="Long octet string" discrete="true" string="true" long="true"/>

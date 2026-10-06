@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <!--
-  Minimal fixture: older SDK atomic format WITHOUT string/long/char/float XML
-  attributes. Mirrors historical Matter/Zigbee roots that ZAP used to classify
-  by type name alone. Used for backwards-compatibility regression tests.
+  Minimal fixture: atomics declared without baseType aliases and without
+  invented string/long/char/float XML attrs. Flags come from dbEnum.atomicTypeName.
 -->
 <configurator>
   <atomic>
@@ -17,7 +16,7 @@
     <type id="0x42" description="Character String" name="char_string" composite="true"/>
     <type id="0x43" description="Long Octet String" name="long_octet_string" composite="true"/>
     <type id="0x44" description="Long Character String" name="long_char_string" composite="true"/>
-    <!-- Alias without baseType: must NOT inherit string flags (old behavior) -->
+    <!-- Type without baseType: not an alias of another atomic -->
     <type id="0xFA" description="IP Address" name="ipadr" composite="true"/>
   </atomic>
 </configurator>

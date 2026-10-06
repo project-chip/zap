@@ -28,27 +28,23 @@ const validation = require('../src-electron/validation/validation')
 const testUtil = require('./test-util')
 const testQuery = require('./test-query')
 
-const legacyZclMetafile = path.join(
-  __dirname,
-  'resource/legacy-atomic-flags/zcl.json'
-)
+const atomicZclMetafile = path.join(__dirname, 'resource/atomic-flags/zcl.json')
 
 beforeAll(() => {
   env.setDevelopmentEnv()
 })
 
 /**
- * Older SDKs omit string/long/char/float XML attributes on root atomics.
- * Latest ZAP must still treat those roots the same as historical name-based
- * classification.
+ * Atomics without baseType: flags come from dbEnum.atomicTypeName
+ * (Matter-style XML has no string/float attrs on these roots).
  */
 test(
-  'Legacy atomic XML without string/float attrs still sets ATOMIC flags',
+  'Atomic roots get flags via dbEnum without new XML flag attrs',
   async () => {
     let db = await dbApi.initRamDatabase()
     try {
       await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
-      let ctx = await zclLoader.loadZcl(db, legacyZclMetafile)
+      let ctx = await zclLoader.loadZcl(db, atomicZclMetafile)
       let packageId = ctx.packageId
       let pkgs = [packageId]
 
@@ -98,7 +94,7 @@ test(
         (await queryZcl.selectAtomicType(db, pkgs, 'float_double')).isFloat
       ).toBe(true)
 
-      // Roots still land in STRING table via name classification
+      // Atomic string roots still land in STRING table
       expect(
         await queryZcl.selectStringByName(db, 'octet_string', pkgs)
       ).toBeDefined()
@@ -106,14 +102,14 @@ test(
         await queryZcl.selectStringByName(db, 'char_string', pkgs)
       ).toBeDefined()
 
-      // Alias without baseType must NOT become a string (old behavior)
+      // Type without baseType is not an alias of another atomic
       let ipadr = await queryZcl.selectAtomicType(db, pkgs, 'ipadr')
       expect(ipadr.isString).toBe(false)
       expect(
         await queryZcl.selectStringByName(db, 'ipadr', pkgs)
       ).toBeUndefined()
 
-      // Async helpers and sync root-name helpers agree on legacy roots
+      // Async helpers and sync atomic-root helpers agree
       expect(await types.isStringType(db, pkgs, 'octet_string')).toBe(true)
       expect(await types.isStringType(db, pkgs, 'ipadr')).toBe(false)
       expect(await types.isFloatType(db, pkgs, 'single')).toBe(true)
@@ -124,7 +120,7 @@ test(
       expect(types.isOneBytePrefixedString('char_string')).toBe(true)
       expect(types.isTwoBytePrefixedString('long_octet_string')).toBe(true)
 
-      // C mapping for string roots without relying only on new flags
+      // C mapping for string roots
       expect(overridable.atomicType({ name: 'octet_string', size: null })).toBe(
         'uint8_t *'
       )
@@ -137,7 +133,7 @@ test(
         db,
         'USER',
         'SESSION',
-        legacyZclMetafile
+        atomicZclMetafile
       )
       let issues = await validation.validateSpecificAttribute(
         { defaultValue: 'hello' },
@@ -154,10 +150,10 @@ test(
 )
 
 /**
- * New-format Matter XML (attrs + baseType) must keep alias inheritance.
+ * baseType aliases inherit flags from the referred atomic.
  */
 test(
-  'Current Matter XML with attrs and baseType still aliases to octet_string',
+  'baseType alias atomics inherit string flags from the referred atomic',
   async () => {
     let db = await dbApi.initRamDatabase()
     try {

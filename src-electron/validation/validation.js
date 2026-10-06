@@ -672,9 +672,9 @@ function unsignedToSignedInteger(value, typeSize) {
 /**
  * Max allowed length for a ZCL string default. Short strings are 254,
  * long strings 65534, unless the attribute declares maxLength.
- * Prefers ATOMIC.isLong; bare type names use the sync long-string root list.
+ * Prefers ATOMIC.isLong; bare type names use the sync atomic long-string roots.
  *
- * @param {object|string|null} atomicOrType - atomic row with isLong, or legacy type name
+ * @param {object|string|null} atomicOrType - atomic row with isLong, or type name
  * @param {*} maxLength
  * @returns number
  */
