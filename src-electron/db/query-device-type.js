@@ -529,7 +529,7 @@ async function warnUnlinkedDeviceTypeClusters(db, packageId, sessionId) {
     [packageId]
   )
   for (const dtCluster of unlinkedDtClusters) {
-    querySessionNotification.setNotification(
+    await querySessionNotification.setNotification(
       db,
       'ERROR',
       `Cluster "${dtCluster.CLUSTER_NAME}" in device type ${dtCluster.NAME} is not found in the current session - "${packagePath.PATH}"`,
