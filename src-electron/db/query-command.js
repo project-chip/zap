@@ -200,6 +200,7 @@ async function selectAllAvailableClusterCommandDetailsFromEndpointTypes(
   let mapFunction = (x) => {
     return {
       clusterId: x.CLUSTER_ID,
+      clusterRef: x.CLUSTER_ID,
       id: x.COMMAND_ID,
       clusterName: x.CLUSTER_NAME,
       clusterCode: x.CLUSTER_CODE,
@@ -664,6 +665,7 @@ async function selectAllIncomingOrOutgoingCommandsForCluster(
   let mapFunction = (x) => {
     return {
       clusterId: x.CLUSTER_ID,
+      clusterRef: x.CLUSTER_ID,
       clusterName: x.CLUSTER_NAME,
       clusterCode: x.CLUSTER_CODE,
       clusterDefine: x.CLUSTER_DEFINE,
@@ -823,6 +825,7 @@ async function selectAllIncomingCommands(
   let mapFunction = (x) => {
     return {
       clusterId: x.CLUSTER_ID,
+      clusterRef: x.CLUSTER_ID,
       clusterName: x.CLUSTER_NAME,
       clusterCode: x.CLUSTER_CODE,
       clusterDefine: x.CLUSTER_DEFINE,
@@ -1737,6 +1740,7 @@ function commandMapFunction(x) {
     description: x.DESCRIPTION,
     clusterSide: x.SIDE,
     clusterId: x.CLUSTER_ID,
+    clusterRef: x.CLUSTER_ID,
     endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
     clusterName: x.CLUSTER_NAME,
     clusterDefine: x.CLUSTER_DEFINE,

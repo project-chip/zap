@@ -644,6 +644,7 @@ async function selectClustersAndEndpointDetailsFromEndpointTypes(
   let mapFunction = (x) => {
     return {
       endpointId: x.ENDPOINT_TYPE_REF,
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
       endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
       endpointTypeClusterRef: x.CLUSTER_REF
     }

@@ -427,6 +427,7 @@ async function selectAttributeDetailsFromEnabledClusters(
       isWritable: x.IS_WRITABLE,
       isReadable: x.IS_READABLE,
       clusterId: x.CLUSTER_ID,
+      clusterRef: x.CLUSTER_ID,
       clusterSide: x.CLUSTER_SIDE,
       clusterName: x.CLUSTER_NAME,
       clusterDefine: x.CLUSTER_DEFINE,

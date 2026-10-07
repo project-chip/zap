@@ -11492,6 +11492,7 @@ Creates device type iterator over an endpoint type id.
 This works inside user_endpoints or user_endpoint_types.
 From `exports.map.endpointTypeDeviceExtended` in `src-electron/db/db-mapping.js`:
 - clusterId
+- clusterRef
 - composition
 - conformance
 - deviceId
