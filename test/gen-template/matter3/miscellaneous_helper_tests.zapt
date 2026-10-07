@@ -58,3 +58,35 @@ Name - {{asUpperCamelCase label}}, Read Privilege - {{asUpperCamelCase (chip_get
 {{#zcl_commands_source_client}}
 Name - {{asUpperCamelCase name}}, Invoke Privilege - {{asUpperCamelCase (chip_get_access_role entity="command" op="invoke" default="operate")}}
 {{/zcl_commands_source_client}}
+
+// Test user_data_types over the whole zap configuration
+{{#user_data_types}}
+Used data type: {{name}} ({{discriminatorName}})
+{{#if isEnum}}
+{{#zcl_enum_items}}
+  Used enum {{parent.name}} item: {{label}} = {{value}}
+{{/zcl_enum_items}}
+{{/if}}
+{{#if isBitmap}}
+{{#zcl_bitmap_items}}
+  Used bitmap {{parent.name}} field: {{label}} mask {{mask}}
+{{/zcl_bitmap_items}}
+{{/if}}
+{{#if isStruct}}
+{{#zcl_struct_items}}
+  Used struct {{parent.name}} item: {{label}} of {{type}} ({{discriminatorName}}){{#if isArray}} list{{/if}}
+{{/zcl_struct_items}}
+{{/if}}
+{{/user_data_types}}
+
+// Test user_data_types scoped to each enabled cluster
+{{#all_user_clusters}}
+{{#user_data_types}}
+Cluster {{parent.name}} {{parent.side}} uses data type: {{name}}
+{{#if isStruct}}
+{{#zcl_struct_items}}
+  Cluster {{parent.parent.name}} {{parent.parent.side}} struct {{parent.name}} item: {{label}}
+{{/zcl_struct_items}}
+{{/if}}
+{{/user_data_types}}
+{{/all_user_clusters}}

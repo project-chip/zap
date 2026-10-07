@@ -1,0 +1,32 @@
+---
+description: Map database rows in db-mapping.js, not inside query functions
+globs: src-electron/db/{query-*.js,db-mapping.js}
+alwaysApply: false
+---
+
+# Map rows in db-mapping.js
+
+Query functions return rows through `dbMapping.map.*`. Do not translate columns to JS fields inside `query-*.js`.
+
+1. Use an existing map in `src-electron/db/db-mapping.js` when the row is that entity.
+2. Extend that map when the query adds columns for the same entity. Add the new fields only when the column is present (`'COLUMN' in x`) if older queries do not select it.
+3. Add a new map only when no existing map describes the row.
+
+```javascript
+// ❌ BAD — column mapping copied into the query
+rows.map((row) => ({
+  id: row.DATA_TYPE_ID,
+  name: row.NAME
+}))
+
+// ❌ BAD — rebuild a fake row to call the map
+dbMapping.map.dataType({
+  DATA_TYPE_ID: type.id,
+  NAME: type.name
+})
+
+// ✅ GOOD — map the real row once
+rows.map(dbMapping.map.dataType)
+```
+
+Grouping or filtering mapped records can stay in the query. The field names themselves come from the map.

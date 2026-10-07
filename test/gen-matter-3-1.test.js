@@ -625,6 +625,78 @@ test(
 
     // Testing chip_get_access_role for commands
     expect(ept).toContain('Name - KeySetWrite, Invoke Privilege - Administer')
+
+    // Testing user_data_types over the whole zap configuration, with the
+    // items of enums, bitmaps, and structs
+    expect(ept).toContain('Used data type: OnOffStartUpOnOff (ENUM)')
+    expect(ept).toContain(
+      'Used enum OnOffStartUpOnOff item: TogglePreviousOnOff = 2'
+    )
+    expect(ept).toContain('Used data type: LevelControlOptions (BITMAP)')
+    expect(ept).toContain(
+      'Used bitmap LevelControlOptions field: CoupleColorTempToLevel mask 2'
+    )
+    expect(ept).toContain('Used data type: AccessControlEntryStruct (STRUCT)')
+    expect(ept).toContain(
+      'Used struct AccessControlEntryStruct item: Targets of TargetStruct (STRUCT) list'
+    )
+    // Enum reached only through a struct field
+    expect(ept).toContain(
+      'Used enum AccessControlEntryPrivilegeEnum item: Administer = 5'
+    )
+    // Size type of a used enum
+    expect(ept).toContain('Used data type: enum8 (ENUM)')
+    // Access Control and Binding each define their own TargetStruct
+    expect(ept).toContain('Used struct TargetStruct item: DeviceType')
+    expect(ept).toContain('Used struct TargetStruct item: Group')
+    // Application Launcher server is enabled, but CurrentApp is not included
+    // and no command using ApplicationLauncherStatusEnum is enabled
+    expect(ept).not.toContain('Used data type: ApplicationEPStruct')
+    expect(ept).not.toContain('Used data type: ApplicationLauncherStatusEnum')
+    // Defined in the spec and referenced by nothing
+    expect(ept).not.toContain('Used data type: enumTest')
+    expect(ept).not.toContain('Used data type: bitmapTest')
+
+    // Testing user_data_types scoped to each enabled cluster
+    expect(ept).toContain(
+      'Cluster On/Off server uses data type: OnOffStartUpOnOff'
+    )
+    expect(ept).toContain('Cluster On/Off server uses data type: OnOffControl')
+    expect(ept).not.toContain(
+      'Cluster On/Off server uses data type: AccessControlEntryStruct'
+    )
+    expect(ept).not.toContain(
+      'Cluster On/Off server uses data type: LevelControlOptions'
+    )
+    expect(ept).toContain(
+      'Cluster Access Control server uses data type: AccessControlEntryStruct'
+    )
+    expect(ept).toContain(
+      'Cluster Access Control server struct TargetStruct item: DeviceType'
+    )
+    expect(ept).not.toContain(
+      'Cluster Access Control server struct TargetStruct item: Group'
+    )
+    expect(ept).not.toContain(
+      'Cluster Access Control server uses data type: group_id'
+    )
+    expect(ept).toContain(
+      'Cluster Binding server struct TargetStruct item: Group'
+    )
+    expect(ept).not.toContain(
+      'Cluster Binding server struct TargetStruct item: DeviceType'
+    )
+    expect(ept).not.toContain(
+      'Cluster Binding server uses data type: AccessControlEntryStruct'
+    )
+    expect(ept).not.toContain(
+      'Cluster Application Launcher server uses data type: ApplicationEPStruct'
+    )
+    // Disabled cluster sides are not visited at all
+    expect(ept).not.toContain('Cluster Access Control client uses data type')
+    expect(ept).not.toContain(
+      'Cluster OTA Software Update Provider server uses data type'
+    )
   },
   testUtil.timeout.long()
 )
