@@ -106,6 +106,17 @@ export default function () {
               .map((c) => c.id)
               .includes(cluster.id)
           }
+        },
+        {
+          label: 'Components Not Enabled',
+          domainFilterFn: (domain, currentOpenDomains, context) =>
+            (context.clustersMissingComponents || [])
+              .map((a) => a.domainName)
+              .includes(domain),
+          clusterFilterFn: (cluster, context) =>
+            (context.clustersMissingComponents || []).find(
+              (a) => cluster.id == a.id
+            ) != undefined
         }
       ],
       allDomainsCollapsed: true,
