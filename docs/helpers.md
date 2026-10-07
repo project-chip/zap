@@ -218,8 +218,8 @@ This module contains the API for templating. For more detailed instructions, rea
 
 * [Templating API: Attribute helpers](#module_Templating API_ Attribute helpers)
     * [~count_mandatory_matter_attributes()](#module_Templating API_ Attribute helpers..count_mandatory_matter_attributes)
-    * [~featureBits(options)](#module_Templating API_ Attribute helpers..featureBits) ⇒
-    * [~attributeDefault()](#module_Templating API_ Attribute helpers..attributeDefault) ⇒
+    * [~feature_bits(options)](#module_Templating API_ Attribute helpers..feature_bits) ⇒
+    * [~global_attribute_default()](#module_Templating API_ Attribute helpers..global_attribute_default) ⇒
     * [~as_underlying_atomic_identifier_for_attribute_id(attributeId)](#module_Templating API_ Attribute helpers..as_underlying_atomic_identifier_for_attribute_id)
     * [~selectFeatureBitmapForCluster(db, packageIds, clusterId)](#module_Templating API_ Attribute helpers..selectFeatureBitmapForCluster) ⇒ <code>Promise.&lt;(object\|null)&gt;</code>
     * [~if_cluster_has_feature_bitmap(options)](#module_Templating API_ Attribute helpers..if_cluster_has_feature_bitmap) ⇒ <code>Promise.&lt;string&gt;</code>
@@ -234,9 +234,9 @@ Usage: {{count_mandatory_matter_attributes side="server"}}
 If side is not provided or invalid, counts all attributes.
 
 **Kind**: inner method of [<code>Templating API: Attribute helpers</code>](#module_Templating API_ Attribute helpers)  
-<a name="module_Templating API_ Attribute helpers..featureBits"></a>
+<a name="module_Templating API_ Attribute helpers..feature_bits"></a>
 
-### Templating API: Attribute helpers~featureBits(options) ⇒
+### Templating API: Attribute helpers~feature\_bits(options) ⇒
 Get feature bits from the given context.
 
 **Kind**: inner method of [<code>Templating API: Attribute helpers</code>](#module_Templating API_ Attribute helpers)  
@@ -246,9 +246,9 @@ Get feature bits from the given context.
 | --- | --- |
 | options | <code>\*</code> | 
 
-<a name="module_Templating API_ Attribute helpers..attributeDefault"></a>
+<a name="module_Templating API_ Attribute helpers..global_attribute_default"></a>
 
-### Templating API: Attribute helpers~attributeDefault() ⇒
+### Templating API: Attribute helpers~global\_attribute\_default() ⇒
 Valid within a cluster context, requires code.
 
 **Kind**: inner method of [<code>Templating API: Attribute helpers</code>](#module_Templating API_ Attribute helpers)  
@@ -405,26 +405,26 @@ This module contains the API for templating. For more detailed instructions, rea
 
 
 * [Templating API: C formatting helpers](#module_Templating API_ C formatting helpers)
-    * [~asOffset(hex)](#module_Templating API_ C formatting helpers..asOffset)
-    * [~asDelimitedMacro(label)](#module_Templating API_ C formatting helpers..asDelimitedMacro)
-    * [~asHex(label)](#module_Templating API_ C formatting helpers..asHex) ⇒
+    * [~as_offset(hex)](#module_Templating API_ C formatting helpers..as_offset)
+    * [~as_delimited_macro(label)](#module_Templating API_ C formatting helpers..as_delimited_macro)
+    * [~as_hex(label)](#module_Templating API_ C formatting helpers..as_hex) ⇒
     * [~asUnderlyingTypeHelper(dataType, context, packageIds)](#module_Templating API_ C formatting helpers..asUnderlyingTypeHelper) ⇒
-    * [~asUnderlyingType(value)](#module_Templating API_ C formatting helpers..asUnderlyingType) ⇒
-    * [~asType(label)](#module_Templating API_ C formatting helpers..asType) ⇒
-    * [~asSymbol(label)](#module_Templating API_ C formatting helpers..asSymbol) ⇒
-    * [~formatValue(value, length)](#module_Templating API_ C formatting helpers..formatValue) ⇒
-    * [~asBytes(value)](#module_Templating API_ C formatting helpers..asBytes)
-    * [~asCamelCased(str)](#module_Templating API_ C formatting helpers..asCamelCased) ⇒
-    * [~cleanseLabel(label)](#module_Templating API_ C formatting helpers..cleanseLabel)
-    * [~asUnderscoreLowercase(str)](#module_Templating API_ C formatting helpers..asUnderscoreLowercase) ⇒
-    * [~cleanseLabelAsKebabCase(label)](#module_Templating API_ C formatting helpers..cleanseLabelAsKebabCase)
-    * [~asSpacedLowercase(str)](#module_Templating API_ C formatting helpers..asSpacedLowercase) ⇒
-    * [~asUnderscoreUppercase(str)](#module_Templating API_ C formatting helpers..asUnderscoreUppercase) ⇒
-    * [~asCliType(size, isSigned)](#module_Templating API_ C formatting helpers..asCliType) ⇒
+    * [~as_underlying_type(value)](#module_Templating API_ C formatting helpers..as_underlying_type) ⇒
+    * [~as_type(label)](#module_Templating API_ C formatting helpers..as_type) ⇒
+    * [~as_symbol(label)](#module_Templating API_ C formatting helpers..as_symbol) ⇒
+    * [~format_value(value, length)](#module_Templating API_ C formatting helpers..format_value) ⇒
+    * [~as_bytes(value)](#module_Templating API_ C formatting helpers..as_bytes)
+    * [~as_camel_cased(str)](#module_Templating API_ C formatting helpers..as_camel_cased) ⇒
+    * [~cleanse_label(label)](#module_Templating API_ C formatting helpers..cleanse_label)
+    * [~as_underscore_lowercase(str)](#module_Templating API_ C formatting helpers..as_underscore_lowercase) ⇒
+    * [~cleanse_label_as_kebab_case(label)](#module_Templating API_ C formatting helpers..cleanse_label_as_kebab_case)
+    * [~as_spaced_lowercase(str)](#module_Templating API_ C formatting helpers..as_spaced_lowercase) ⇒
+    * [~as_underscore_uppercase(str)](#module_Templating API_ C formatting helpers..as_underscore_uppercase) ⇒
+    * [~as_cli_type(size, isSigned)](#module_Templating API_ C formatting helpers..as_cli_type) ⇒
     * [~as_zcl_cli_type(str, optional, isSigned)](#module_Templating API_ C formatting helpers..as_zcl_cli_type)
-    * [~dataTypeForBitmap(db, bitmap_name, packageIds)](#module_Templating API_ C formatting helpers..dataTypeForBitmap)
-    * [~dataTypeForEnum(db, enum_name, packageIds)](#module_Templating API_ C formatting helpers..dataTypeForEnum)
-    * [~addOne(number)](#module_Templating API_ C formatting helpers..addOne)
+    * [~data_type_for_bitmap(db, bitmap_name, packageIds)](#module_Templating API_ C formatting helpers..data_type_for_bitmap)
+    * [~data_type_for_enum(db, enum_name, packageIds)](#module_Templating API_ C formatting helpers..data_type_for_enum)
+    * [~add_one(number)](#module_Templating API_ C formatting helpers..add_one)
     * [~is_number_greater_than(num1, num2)](#module_Templating API_ C formatting helpers..is_number_greater_than) ⇒
     * [~cluster_extension(options)](#module_Templating API_ C formatting helpers..cluster_extension) ⇒
     * [~device_type_extension(options)](#module_Templating API_ C formatting helpers..device_type_extension) ⇒
@@ -438,9 +438,9 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~command_extension(options)](#module_Templating API_ C formatting helpers..command_extension) ⇒
     * [~event_extension(options)](#module_Templating API_ C formatting helpers..event_extension) ⇒
 
-<a name="module_Templating API_ C formatting helpers..asOffset"></a>
+<a name="module_Templating API_ C formatting helpers..as_offset"></a>
 
-### Templating API: C formatting helpers~asOffset(hex)
+### Templating API: C formatting helpers~as\_offset(hex)
 Given a hex number, it prints the offset, which is the index of the first non-zero bit.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -449,9 +449,9 @@ Given a hex number, it prints the offset, which is the index of the first non-ze
 | --- | --- |
 | hex | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asDelimitedMacro"></a>
+<a name="module_Templating API_ C formatting helpers..as_delimited_macro"></a>
 
-### Templating API: C formatting helpers~asDelimitedMacro(label)
+### Templating API: C formatting helpers~as\_delimited\_macro(label)
 Takes a label, and delimits is on camelcasing.
 For example:
    VerySimpleLabel will turn into VERY_SIMPLE_LABEL
@@ -462,9 +462,9 @@ For example:
 | --- | --- |
 | label | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asHex"></a>
+<a name="module_Templating API_ C formatting helpers..as_hex"></a>
 
-### Templating API: C formatting helpers~asHex(label) ⇒
+### Templating API: C formatting helpers~as\_hex(label) ⇒
 Formats label as a C hex constant.
 If value starts as 0x or 0X it is already treated as hex,
 otherwise it is assumed decimal and converted to hex.
@@ -491,9 +491,9 @@ returning the correct C type for the given data type
 | context | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asUnderlyingType"></a>
+<a name="module_Templating API_ C formatting helpers..as_underlying_type"></a>
 
-### Templating API: C formatting helpers~asUnderlyingType(value) ⇒
+### Templating API: C formatting helpers~as\_underlying\_type(value) ⇒
 Converts the actual zcl type into an underlying usable C type.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -503,9 +503,9 @@ Converts the actual zcl type into an underlying usable C type.
 | --- | --- |
 | value | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asType"></a>
+<a name="module_Templating API_ C formatting helpers..as_type"></a>
 
-### Templating API: C formatting helpers~asType(label) ⇒
+### Templating API: C formatting helpers~as\_type(label) ⇒
 Formats label as a C type.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -515,9 +515,9 @@ Formats label as a C type.
 | --- | --- |
 | label | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asSymbol"></a>
+<a name="module_Templating API_ C formatting helpers..as_symbol"></a>
 
-### Templating API: C formatting helpers~asSymbol(label) ⇒
+### Templating API: C formatting helpers~as\_symbol(label) ⇒
 Formats label as a C symbol.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -527,9 +527,9 @@ Formats label as a C symbol.
 | --- | --- |
 | label | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..formatValue"></a>
+<a name="module_Templating API_ C formatting helpers..format_value"></a>
 
-### Templating API: C formatting helpers~formatValue(value, length) ⇒
+### Templating API: C formatting helpers~format\_value(value, length) ⇒
 Formats the default value into an attribute of a given length
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -540,9 +540,9 @@ Formats the default value into an attribute of a given length
 | value | <code>\*</code> | 
 | length | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asBytes"></a>
+<a name="module_Templating API_ C formatting helpers..as_bytes"></a>
 
-### Templating API: C formatting helpers~asBytes(value)
+### Templating API: C formatting helpers~as\_bytes(value)
 Given a default value of attribute, this method converts it into bytes
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -551,9 +551,9 @@ Given a default value of attribute, this method converts it into bytes
 | --- | --- |
 | value | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asCamelCased"></a>
+<a name="module_Templating API_ C formatting helpers..as_camel_cased"></a>
 
-### Templating API: C formatting helpers~asCamelCased(str) ⇒
+### Templating API: C formatting helpers~as\_camel\_cased(str) ⇒
 Given a string convert it into a camelCased string
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -563,9 +563,9 @@ Given a string convert it into a camelCased string
 | --- | --- |
 | str | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..cleanseLabel"></a>
+<a name="module_Templating API_ C formatting helpers..cleanse_label"></a>
 
-### Templating API: C formatting helpers~cleanseLabel(label)
+### Templating API: C formatting helpers~cleanse\_label(label)
 returns a string after converting ':' and '-' into '_'
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -574,9 +574,9 @@ returns a string after converting ':' and '-' into '_'
 | --- | --- |
 | label | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asUnderscoreLowercase"></a>
+<a name="module_Templating API_ C formatting helpers..as_underscore_lowercase"></a>
 
-### Templating API: C formatting helpers~asUnderscoreLowercase(str) ⇒
+### Templating API: C formatting helpers~as\_underscore\_lowercase(str) ⇒
 Given a camel case string, convert it into one with underscore and lowercase
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -586,9 +586,9 @@ Given a camel case string, convert it into one with underscore and lowercase
 | --- | --- |
 | str | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..cleanseLabelAsKebabCase"></a>
+<a name="module_Templating API_ C formatting helpers..cleanse_label_as_kebab_case"></a>
 
-### Templating API: C formatting helpers~cleanseLabelAsKebabCase(label)
+### Templating API: C formatting helpers~cleanse\_label\_as\_kebab\_case(label)
 returns a string after converting ':', ' ' and camel case into '-'
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -597,9 +597,9 @@ returns a string after converting ':', ' ' and camel case into '-'
 | --- | --- |
 | label | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asSpacedLowercase"></a>
+<a name="module_Templating API_ C formatting helpers..as_spaced_lowercase"></a>
 
-### Templating API: C formatting helpers~asSpacedLowercase(str) ⇒
+### Templating API: C formatting helpers~as\_spaced\_lowercase(str) ⇒
 Given a camel case string convert it into one with space and lowercase
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -609,9 +609,9 @@ Given a camel case string convert it into one with space and lowercase
 | --- | --- |
 | str | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asUnderscoreUppercase"></a>
+<a name="module_Templating API_ C formatting helpers..as_underscore_uppercase"></a>
 
-### Templating API: C formatting helpers~asUnderscoreUppercase(str) ⇒
+### Templating API: C formatting helpers~as\_underscore\_uppercase(str) ⇒
 Given a camel case string convert it into one with underscore and uppercase
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -621,9 +621,9 @@ Given a camel case string convert it into one with underscore and uppercase
 | --- | --- |
 | str | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asCliType"></a>
+<a name="module_Templating API_ C formatting helpers..as_cli_type"></a>
 
-### Templating API: C formatting helpers~asCliType(size, isSigned) ⇒
+### Templating API: C formatting helpers~as\_cli\_type(size, isSigned) ⇒
 Returns the cli type representation.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -645,9 +645,9 @@ Returns the cli type representation.
 | optional |  |
 | isSigned | Return the data type of zcl cli |
 
-<a name="module_Templating API_ C formatting helpers..dataTypeForBitmap"></a>
+<a name="module_Templating API_ C formatting helpers..data_type_for_bitmap"></a>
 
-### Templating API: C formatting helpers~dataTypeForBitmap(db, bitmap_name, packageIds)
+### Templating API: C formatting helpers~data\_type\_for\_bitmap(db, bitmap_name, packageIds)
 Returns the type of bitmap based on the bitmap's name
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -658,9 +658,9 @@ Returns the type of bitmap based on the bitmap's name
 | bitmap_name | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..dataTypeForEnum"></a>
+<a name="module_Templating API_ C formatting helpers..data_type_for_enum"></a>
 
-### Templating API: C formatting helpers~dataTypeForEnum(db, enum_name, packageIds)
+### Templating API: C formatting helpers~data\_type\_for\_enum(db, enum_name, packageIds)
 Returns the type of enum
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -671,9 +671,9 @@ Returns the type of enum
 | enum_name | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..addOne"></a>
+<a name="module_Templating API_ C formatting helpers..add_one"></a>
 
-### Templating API: C formatting helpers~addOne(number)
+### Templating API: C formatting helpers~add\_one(number)
 Returns the number by adding 1 to it.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1682,13 +1682,13 @@ This module contains the API for templating. For more detailed instructions, rea
 
 
 * [Templating API: Future helpers](#module_Templating API_ Future helpers)
-    * [~ifFuture(options)](#module_Templating API_ Future helpers..ifFuture)
-    * [~setFuture(options)](#module_Templating API_ Future helpers..setFuture)
+    * [~if_future(options)](#module_Templating API_ Future helpers..if_future)
+    * [~set_future(options)](#module_Templating API_ Future helpers..set_future)
     * [~future(options)](#module_Templating API_ Future helpers..future)
 
-<a name="module_Templating API_ Future helpers..ifFuture"></a>
+<a name="module_Templating API_ Future helpers..if_future"></a>
 
-### Templating API: Future helpers~ifFuture(options)
+### Templating API: Future helpers~if\_future(options)
 Block helper resolving the block if the
 value of the specified future matches.
 
@@ -1698,9 +1698,9 @@ value of the specified future matches.
 | --- | --- |
 | options | <code>\*</code> | 
 
-<a name="module_Templating API_ Future helpers..setFuture"></a>
+<a name="module_Templating API_ Future helpers..set_future"></a>
 
-### Templating API: Future helpers~setFuture(options)
+### Templating API: Future helpers~set\_future(options)
 This method sets the value of the future.
 Use it as:
   {{set_future name="NAME" value="VALUE"}}
@@ -1735,26 +1735,26 @@ This module contains the API for accessing SDK extensions.
 
 
 * [Templating API: C formatting helpers](#module_Templating API_ C formatting helpers)
-    * [~asOffset(hex)](#module_Templating API_ C formatting helpers..asOffset)
-    * [~asDelimitedMacro(label)](#module_Templating API_ C formatting helpers..asDelimitedMacro)
-    * [~asHex(label)](#module_Templating API_ C formatting helpers..asHex) ⇒
+    * [~as_offset(hex)](#module_Templating API_ C formatting helpers..as_offset)
+    * [~as_delimited_macro(label)](#module_Templating API_ C formatting helpers..as_delimited_macro)
+    * [~as_hex(label)](#module_Templating API_ C formatting helpers..as_hex) ⇒
     * [~asUnderlyingTypeHelper(dataType, context, packageIds)](#module_Templating API_ C formatting helpers..asUnderlyingTypeHelper) ⇒
-    * [~asUnderlyingType(value)](#module_Templating API_ C formatting helpers..asUnderlyingType) ⇒
-    * [~asType(label)](#module_Templating API_ C formatting helpers..asType) ⇒
-    * [~asSymbol(label)](#module_Templating API_ C formatting helpers..asSymbol) ⇒
-    * [~formatValue(value, length)](#module_Templating API_ C formatting helpers..formatValue) ⇒
-    * [~asBytes(value)](#module_Templating API_ C formatting helpers..asBytes)
-    * [~asCamelCased(str)](#module_Templating API_ C formatting helpers..asCamelCased) ⇒
-    * [~cleanseLabel(label)](#module_Templating API_ C formatting helpers..cleanseLabel)
-    * [~asUnderscoreLowercase(str)](#module_Templating API_ C formatting helpers..asUnderscoreLowercase) ⇒
-    * [~cleanseLabelAsKebabCase(label)](#module_Templating API_ C formatting helpers..cleanseLabelAsKebabCase)
-    * [~asSpacedLowercase(str)](#module_Templating API_ C formatting helpers..asSpacedLowercase) ⇒
-    * [~asUnderscoreUppercase(str)](#module_Templating API_ C formatting helpers..asUnderscoreUppercase) ⇒
-    * [~asCliType(size, isSigned)](#module_Templating API_ C formatting helpers..asCliType) ⇒
+    * [~as_underlying_type(value)](#module_Templating API_ C formatting helpers..as_underlying_type) ⇒
+    * [~as_type(label)](#module_Templating API_ C formatting helpers..as_type) ⇒
+    * [~as_symbol(label)](#module_Templating API_ C formatting helpers..as_symbol) ⇒
+    * [~format_value(value, length)](#module_Templating API_ C formatting helpers..format_value) ⇒
+    * [~as_bytes(value)](#module_Templating API_ C formatting helpers..as_bytes)
+    * [~as_camel_cased(str)](#module_Templating API_ C formatting helpers..as_camel_cased) ⇒
+    * [~cleanse_label(label)](#module_Templating API_ C formatting helpers..cleanse_label)
+    * [~as_underscore_lowercase(str)](#module_Templating API_ C formatting helpers..as_underscore_lowercase) ⇒
+    * [~cleanse_label_as_kebab_case(label)](#module_Templating API_ C formatting helpers..cleanse_label_as_kebab_case)
+    * [~as_spaced_lowercase(str)](#module_Templating API_ C formatting helpers..as_spaced_lowercase) ⇒
+    * [~as_underscore_uppercase(str)](#module_Templating API_ C formatting helpers..as_underscore_uppercase) ⇒
+    * [~as_cli_type(size, isSigned)](#module_Templating API_ C formatting helpers..as_cli_type) ⇒
     * [~as_zcl_cli_type(str, optional, isSigned)](#module_Templating API_ C formatting helpers..as_zcl_cli_type)
-    * [~dataTypeForBitmap(db, bitmap_name, packageIds)](#module_Templating API_ C formatting helpers..dataTypeForBitmap)
-    * [~dataTypeForEnum(db, enum_name, packageIds)](#module_Templating API_ C formatting helpers..dataTypeForEnum)
-    * [~addOne(number)](#module_Templating API_ C formatting helpers..addOne)
+    * [~data_type_for_bitmap(db, bitmap_name, packageIds)](#module_Templating API_ C formatting helpers..data_type_for_bitmap)
+    * [~data_type_for_enum(db, enum_name, packageIds)](#module_Templating API_ C formatting helpers..data_type_for_enum)
+    * [~add_one(number)](#module_Templating API_ C formatting helpers..add_one)
     * [~is_number_greater_than(num1, num2)](#module_Templating API_ C formatting helpers..is_number_greater_than) ⇒
     * [~cluster_extension(options)](#module_Templating API_ C formatting helpers..cluster_extension) ⇒
     * [~device_type_extension(options)](#module_Templating API_ C formatting helpers..device_type_extension) ⇒
@@ -1768,9 +1768,9 @@ This module contains the API for accessing SDK extensions.
     * [~command_extension(options)](#module_Templating API_ C formatting helpers..command_extension) ⇒
     * [~event_extension(options)](#module_Templating API_ C formatting helpers..event_extension) ⇒
 
-<a name="module_Templating API_ C formatting helpers..asOffset"></a>
+<a name="module_Templating API_ C formatting helpers..as_offset"></a>
 
-### Templating API: C formatting helpers~asOffset(hex)
+### Templating API: C formatting helpers~as\_offset(hex)
 Given a hex number, it prints the offset, which is the index of the first non-zero bit.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1779,9 +1779,9 @@ Given a hex number, it prints the offset, which is the index of the first non-ze
 | --- | --- |
 | hex | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asDelimitedMacro"></a>
+<a name="module_Templating API_ C formatting helpers..as_delimited_macro"></a>
 
-### Templating API: C formatting helpers~asDelimitedMacro(label)
+### Templating API: C formatting helpers~as\_delimited\_macro(label)
 Takes a label, and delimits is on camelcasing.
 For example:
    VerySimpleLabel will turn into VERY_SIMPLE_LABEL
@@ -1792,9 +1792,9 @@ For example:
 | --- | --- |
 | label | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asHex"></a>
+<a name="module_Templating API_ C formatting helpers..as_hex"></a>
 
-### Templating API: C formatting helpers~asHex(label) ⇒
+### Templating API: C formatting helpers~as\_hex(label) ⇒
 Formats label as a C hex constant.
 If value starts as 0x or 0X it is already treated as hex,
 otherwise it is assumed decimal and converted to hex.
@@ -1821,9 +1821,9 @@ returning the correct C type for the given data type
 | context | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asUnderlyingType"></a>
+<a name="module_Templating API_ C formatting helpers..as_underlying_type"></a>
 
-### Templating API: C formatting helpers~asUnderlyingType(value) ⇒
+### Templating API: C formatting helpers~as\_underlying\_type(value) ⇒
 Converts the actual zcl type into an underlying usable C type.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1833,9 +1833,9 @@ Converts the actual zcl type into an underlying usable C type.
 | --- | --- |
 | value | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asType"></a>
+<a name="module_Templating API_ C formatting helpers..as_type"></a>
 
-### Templating API: C formatting helpers~asType(label) ⇒
+### Templating API: C formatting helpers~as\_type(label) ⇒
 Formats label as a C type.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1845,9 +1845,9 @@ Formats label as a C type.
 | --- | --- |
 | label | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asSymbol"></a>
+<a name="module_Templating API_ C formatting helpers..as_symbol"></a>
 
-### Templating API: C formatting helpers~asSymbol(label) ⇒
+### Templating API: C formatting helpers~as\_symbol(label) ⇒
 Formats label as a C symbol.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1857,9 +1857,9 @@ Formats label as a C symbol.
 | --- | --- |
 | label | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..formatValue"></a>
+<a name="module_Templating API_ C formatting helpers..format_value"></a>
 
-### Templating API: C formatting helpers~formatValue(value, length) ⇒
+### Templating API: C formatting helpers~format\_value(value, length) ⇒
 Formats the default value into an attribute of a given length
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1870,9 +1870,9 @@ Formats the default value into an attribute of a given length
 | value | <code>\*</code> | 
 | length | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asBytes"></a>
+<a name="module_Templating API_ C formatting helpers..as_bytes"></a>
 
-### Templating API: C formatting helpers~asBytes(value)
+### Templating API: C formatting helpers~as\_bytes(value)
 Given a default value of attribute, this method converts it into bytes
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1881,9 +1881,9 @@ Given a default value of attribute, this method converts it into bytes
 | --- | --- |
 | value | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asCamelCased"></a>
+<a name="module_Templating API_ C formatting helpers..as_camel_cased"></a>
 
-### Templating API: C formatting helpers~asCamelCased(str) ⇒
+### Templating API: C formatting helpers~as\_camel\_cased(str) ⇒
 Given a string convert it into a camelCased string
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1893,9 +1893,9 @@ Given a string convert it into a camelCased string
 | --- | --- |
 | str | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..cleanseLabel"></a>
+<a name="module_Templating API_ C formatting helpers..cleanse_label"></a>
 
-### Templating API: C formatting helpers~cleanseLabel(label)
+### Templating API: C formatting helpers~cleanse\_label(label)
 returns a string after converting ':' and '-' into '_'
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1904,9 +1904,9 @@ returns a string after converting ':' and '-' into '_'
 | --- | --- |
 | label | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asUnderscoreLowercase"></a>
+<a name="module_Templating API_ C formatting helpers..as_underscore_lowercase"></a>
 
-### Templating API: C formatting helpers~asUnderscoreLowercase(str) ⇒
+### Templating API: C formatting helpers~as\_underscore\_lowercase(str) ⇒
 Given a camel case string, convert it into one with underscore and lowercase
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1916,9 +1916,9 @@ Given a camel case string, convert it into one with underscore and lowercase
 | --- | --- |
 | str | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..cleanseLabelAsKebabCase"></a>
+<a name="module_Templating API_ C formatting helpers..cleanse_label_as_kebab_case"></a>
 
-### Templating API: C formatting helpers~cleanseLabelAsKebabCase(label)
+### Templating API: C formatting helpers~cleanse\_label\_as\_kebab\_case(label)
 returns a string after converting ':', ' ' and camel case into '-'
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1927,9 +1927,9 @@ returns a string after converting ':', ' ' and camel case into '-'
 | --- | --- |
 | label | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asSpacedLowercase"></a>
+<a name="module_Templating API_ C formatting helpers..as_spaced_lowercase"></a>
 
-### Templating API: C formatting helpers~asSpacedLowercase(str) ⇒
+### Templating API: C formatting helpers~as\_spaced\_lowercase(str) ⇒
 Given a camel case string convert it into one with space and lowercase
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1939,9 +1939,9 @@ Given a camel case string convert it into one with space and lowercase
 | --- | --- |
 | str | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asUnderscoreUppercase"></a>
+<a name="module_Templating API_ C formatting helpers..as_underscore_uppercase"></a>
 
-### Templating API: C formatting helpers~asUnderscoreUppercase(str) ⇒
+### Templating API: C formatting helpers~as\_underscore\_uppercase(str) ⇒
 Given a camel case string convert it into one with underscore and uppercase
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1951,9 +1951,9 @@ Given a camel case string convert it into one with underscore and uppercase
 | --- | --- |
 | str | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..asCliType"></a>
+<a name="module_Templating API_ C formatting helpers..as_cli_type"></a>
 
-### Templating API: C formatting helpers~asCliType(size, isSigned) ⇒
+### Templating API: C formatting helpers~as\_cli\_type(size, isSigned) ⇒
 Returns the cli type representation.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1975,9 +1975,9 @@ Returns the cli type representation.
 | optional |  |
 | isSigned | Return the data type of zcl cli |
 
-<a name="module_Templating API_ C formatting helpers..dataTypeForBitmap"></a>
+<a name="module_Templating API_ C formatting helpers..data_type_for_bitmap"></a>
 
-### Templating API: C formatting helpers~dataTypeForBitmap(db, bitmap_name, packageIds)
+### Templating API: C formatting helpers~data\_type\_for\_bitmap(db, bitmap_name, packageIds)
 Returns the type of bitmap based on the bitmap's name
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -1988,9 +1988,9 @@ Returns the type of bitmap based on the bitmap's name
 | bitmap_name | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..dataTypeForEnum"></a>
+<a name="module_Templating API_ C formatting helpers..data_type_for_enum"></a>
 
-### Templating API: C formatting helpers~dataTypeForEnum(db, enum_name, packageIds)
+### Templating API: C formatting helpers~data\_type\_for\_enum(db, enum_name, packageIds)
 Returns the type of enum
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -2001,9 +2001,9 @@ Returns the type of enum
 | enum_name | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
-<a name="module_Templating API_ C formatting helpers..addOne"></a>
+<a name="module_Templating API_ C formatting helpers..add_one"></a>
 
-### Templating API: C formatting helpers~addOne(number)
+### Templating API: C formatting helpers~add\_one(number)
 Returns the number by adding 1 to it.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module_Templating API_ C formatting helpers)  
@@ -3466,7 +3466,7 @@ This module contains the API for templating. For more detailed instructions, rea
 
 * [Templating API: toplevel utility helpers](#module_Templating API_ toplevel utility helpers)
     * [~zap_header()](#module_Templating API_ toplevel utility helpers..zap_header) ⇒
-    * [~ident()](#module_Templating API_ toplevel utility helpers..ident) ⇒
+    * [~indent()](#module_Templating API_ toplevel utility helpers..indent) ⇒
     * [~new_line(cnt)](#module_Templating API_ toplevel utility helpers..new_line) ⇒
     * [~backslash()](#module_Templating API_ toplevel utility helpers..backslash) ⇒
     * [~template_options(category, options)](#module_Templating API_ toplevel utility helpers..template_options)
@@ -3477,14 +3477,14 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~middle(options)](#module_Templating API_ toplevel utility helpers..middle) ⇒
     * [~template_option_with_code(options, key)](#module_Templating API_ toplevel utility helpers..template_option_with_code)
     * [~fail(options)](#module_Templating API_ toplevel utility helpers..fail)
-    * [~isEqual(string_a, string_b)](#module_Templating API_ toplevel utility helpers..isEqual)
+    * [~is_equal(string_a, string_b)](#module_Templating API_ toplevel utility helpers..is_equal)
     * [~is_lowercase_equal(string_a, string_b)](#module_Templating API_ toplevel utility helpers..is_lowercase_equal)
     * [~toggle(condition, trueResult, falseResult)](#module_Templating API_ toplevel utility helpers..toggle) ⇒
     * [~trim_string(str)](#module_Templating API_ toplevel utility helpers..trim_string) ⇒
-    * [~asLastWord(str)](#module_Templating API_ toplevel utility helpers..asLastWord)
+    * [~as_last_word(str)](#module_Templating API_ toplevel utility helpers..as_last_word)
     * [~iterate()](#module_Templating API_ toplevel utility helpers..iterate)
-    * [~addToAccumulator(accumulator, value)](#module_Templating API_ toplevel utility helpers..addToAccumulator)
-    * [~iterateAccumulator(options)](#module_Templating API_ toplevel utility helpers..iterateAccumulator) ⇒
+    * [~add_to_accumulator(accumulator, value)](#module_Templating API_ toplevel utility helpers..add_to_accumulator)
+    * [~iterate_accumulator(options)](#module_Templating API_ toplevel utility helpers..iterate_accumulator) ⇒
     * [~waitForSynchronousPromise(pollInterval, promise, resolve, reject)](#module_Templating API_ toplevel utility helpers..waitForSynchronousPromise)
     * [~promiseToResolveAllPreviousPromises(globalPromises)](#module_Templating API_ toplevel utility helpers..promiseToResolveAllPreviousPromises)
     * [~after(options)](#module_Templating API_ toplevel utility helpers..after) ⇒
@@ -3505,9 +3505,9 @@ Produces the top-of-the-file header for a C file.
 
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module_Templating API_ toplevel utility helpers)  
 **Returns**: The header content  
-<a name="module_Templating API_ toplevel utility helpers..ident"></a>
+<a name="module_Templating API_ toplevel utility helpers..indent"></a>
 
-### Templating API: toplevel utility helpers~ident() ⇒
+### Templating API: toplevel utility helpers~indent() ⇒
 Simple helper that produces an approved size of identation.
 
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module_Templating API_ toplevel utility helpers)  
@@ -3637,9 +3637,9 @@ Forced fail halper.
 | --- | --- |
 | options | <code>\*</code> | 
 
-<a name="module_Templating API_ toplevel utility helpers..isEqual"></a>
+<a name="module_Templating API_ toplevel utility helpers..is_equal"></a>
 
-### Templating API: toplevel utility helpers~isEqual(string_a, string_b)
+### Templating API: toplevel utility helpers~is\_equal(string_a, string_b)
 This returns a boolean if the 2 strings are same
 
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module_Templating API_ toplevel utility helpers)  
@@ -3687,9 +3687,9 @@ Remove leading and trailing spaces from a string
 | --- | --- |
 | str | <code>\*</code> | 
 
-<a name="module_Templating API_ toplevel utility helpers..asLastWord"></a>
+<a name="module_Templating API_ toplevel utility helpers..as_last_word"></a>
 
-### Templating API: toplevel utility helpers~asLastWord(str)
+### Templating API: toplevel utility helpers~as\_last\_word(str)
 Split the string based on spaces and return the last word
 
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module_Templating API_ toplevel utility helpers)  
@@ -3704,9 +3704,9 @@ Split the string based on spaces and return the last word
 Iteration block.
 
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module_Templating API_ toplevel utility helpers)  
-<a name="module_Templating API_ toplevel utility helpers..addToAccumulator"></a>
+<a name="module_Templating API_ toplevel utility helpers..add_to_accumulator"></a>
 
-### Templating API: toplevel utility helpers~addToAccumulator(accumulator, value)
+### Templating API: toplevel utility helpers~add\_to\_accumulator(accumulator, value)
 Add to accumulator results.
 
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module_Templating API_ toplevel utility helpers)  
@@ -3716,9 +3716,9 @@ Add to accumulator results.
 | accumulator | <code>\*</code> | 
 | value | <code>\*</code> | 
 
-<a name="module_Templating API_ toplevel utility helpers..iterateAccumulator"></a>
+<a name="module_Templating API_ toplevel utility helpers..iterate_accumulator"></a>
 
-### Templating API: toplevel utility helpers~iterateAccumulator(options) ⇒
+### Templating API: toplevel utility helpers~iterate\_accumulator(options) ⇒
 Get accumulated information from templates.
 
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module_Templating API_ toplevel utility helpers)  
@@ -3900,7 +3900,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~zcl_command_arguments(options)](#module_Templating API_ static zcl helpers..zcl_command_arguments) ⇒
     * [~zcl_event_fields(options)](#module_Templating API_ static zcl helpers..zcl_event_fields)
     * [~zcl_command_argument_data_type(typeName, options)](#module_Templating API_ static zcl helpers..zcl_command_argument_data_type)
-    * [~asUnderlyingZclType(typeName, options)](#module_Templating API_ static zcl helpers..asUnderlyingZclType)
+    * [~as_underlying_zcl_type(typeName, options)](#module_Templating API_ static zcl helpers..as_underlying_zcl_type)
     * [~zcl_string_type_return(type, options)](#module_Templating API_ static zcl helpers..zcl_string_type_return)
     * [~is_zcl_string(type)](#module_Templating API_ static zcl helpers..is_zcl_string)
     * [~if_is_number(type)](#module_Templating API_ static zcl helpers..if_is_number) ⇒
@@ -3913,13 +3913,13 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~if_is_bitmap(type)](#module_Templating API_ static zcl helpers..if_is_bitmap) ⇒
     * [~if_is_enum(type)](#module_Templating API_ static zcl helpers..if_is_enum) ⇒
     * [~if_is_struct(type)](#module_Templating API_ static zcl helpers..if_is_struct) ⇒
-    * [~isClient(side)](#module_Templating API_ static zcl helpers..isClient) ⇒
-    * [~isServer(side)](#module_Templating API_ static zcl helpers..isServer) ⇒
-    * [~isStrEqual(str1, str2)](#module_Templating API_ static zcl helpers..isStrEqual) ⇒
-    * [~isLastElement(index, count)](#module_Templating API_ static zcl helpers..isLastElement) ⇒
-    * [~isFirstElement(index, count)](#module_Templating API_ static zcl helpers..isFirstElement) ⇒
-    * [~isEnabled(enable)](#module_Templating API_ static zcl helpers..isEnabled) ⇒
-    * [~isCommandAvailable(clusterSide, incoming, outgoing, source, name)](#module_Templating API_ static zcl helpers..isCommandAvailable) ⇒
+    * [~is_client(side)](#module_Templating API_ static zcl helpers..is_client) ⇒
+    * [~is_server(side)](#module_Templating API_ static zcl helpers..is_server) ⇒
+    * [~is_str_equal(str1, str2)](#module_Templating API_ static zcl helpers..is_str_equal) ⇒
+    * [~is_last_element(index, count)](#module_Templating API_ static zcl helpers..is_last_element) ⇒
+    * [~is_first_element(index, count)](#module_Templating API_ static zcl helpers..is_first_element) ⇒
+    * [~is_enabled(enable)](#module_Templating API_ static zcl helpers..is_enabled) ⇒
+    * [~is_command_available(clusterSide, incoming, outgoing, source, name)](#module_Templating API_ static zcl helpers..is_command_available) ⇒
     * [~as_underlying_zcl_type_command_argument_always_present(type:, commandId:, appendString:, introducedInRef:, removedInRef:, presentIf:, options:)](#module_Templating API_ static zcl helpers..as_underlying_zcl_type_command_argument_always_present) ⇒
     * [~if_command_argument_always_present(commandId, introducedInRef, removedInRef, presentIf, argumentPresentReturn, argumentNotPresentReturn)](#module_Templating API_ static zcl helpers..if_command_argument_always_present) ⇒
     * [~as_underlying_zcl_type_command_argument_not_always_present_no_presentif(type:, commandId:, appendString:, introducedInRef:, removedInRef:, presentIf:, options:)](#module_Templating API_ static zcl helpers..as_underlying_zcl_type_command_argument_not_always_present_no_presentif) ⇒
@@ -4803,9 +4803,9 @@ Helper that deals with the type of the argument.
 | typeName | <code>\*</code> | 
 | options | <code>\*</code> | 
 
-<a name="module_Templating API_ static zcl helpers..asUnderlyingZclType"></a>
+<a name="module_Templating API_ static zcl helpers..as_underlying_zcl_type"></a>
 
-### Templating API: static zcl helpers~asUnderlyingZclType(typeName, options)
+### Templating API: static zcl helpers~as\_underlying\_zcl\_type(typeName, options)
 Helper that deals with the type of the argument.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
@@ -5028,9 +5028,9 @@ type is not struct
 | --- |
 | type | 
 
-<a name="module_Templating API_ static zcl helpers..isClient"></a>
+<a name="module_Templating API_ static zcl helpers..is_client"></a>
 
-### Templating API: static zcl helpers~isClient(side) ⇒
+### Templating API: static zcl helpers~is\_client(side) ⇒
 Checks if the side is client or not
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
@@ -5040,9 +5040,9 @@ Checks if the side is client or not
 | --- | --- |
 | side | <code>\*</code> | 
 
-<a name="module_Templating API_ static zcl helpers..isServer"></a>
+<a name="module_Templating API_ static zcl helpers..is_server"></a>
 
-### Templating API: static zcl helpers~isServer(side) ⇒
+### Templating API: static zcl helpers~is\_server(side) ⇒
 Checks if the side is server or not
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
@@ -5052,9 +5052,9 @@ Checks if the side is server or not
 | --- | --- |
 | side | <code>\*</code> | 
 
-<a name="module_Templating API_ static zcl helpers..isStrEqual"></a>
+<a name="module_Templating API_ static zcl helpers..is_str_equal"></a>
 
-### Templating API: static zcl helpers~isStrEqual(str1, str2) ⇒
+### Templating API: static zcl helpers~is\_str\_equal(str1, str2) ⇒
 Compares 2 strings.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
@@ -5065,9 +5065,9 @@ Compares 2 strings.
 | str1 | <code>\*</code> | 
 | str2 | <code>\*</code> | 
 
-<a name="module_Templating API_ static zcl helpers..isLastElement"></a>
+<a name="module_Templating API_ static zcl helpers..is_last_element"></a>
 
-### Templating API: static zcl helpers~isLastElement(index, count) ⇒
+### Templating API: static zcl helpers~is\_last\_element(index, count) ⇒
 Returns boolean based on whether the element is the last element.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
@@ -5078,9 +5078,9 @@ Returns boolean based on whether the element is the last element.
 | index | <code>\*</code> | 
 | count | <code>\*</code> | 
 
-<a name="module_Templating API_ static zcl helpers..isFirstElement"></a>
+<a name="module_Templating API_ static zcl helpers..is_first_element"></a>
 
-### Templating API: static zcl helpers~isFirstElement(index, count) ⇒
+### Templating API: static zcl helpers~is\_first\_element(index, count) ⇒
 Returns boolean based on whether the element is the first element.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
@@ -5091,9 +5091,9 @@ Returns boolean based on whether the element is the first element.
 | index | <code>\*</code> | 
 | count | <code>\*</code> | 
 
-<a name="module_Templating API_ static zcl helpers..isEnabled"></a>
+<a name="module_Templating API_ static zcl helpers..is_enabled"></a>
 
-### Templating API: static zcl helpers~isEnabled(enable) ⇒
+### Templating API: static zcl helpers~is\_enabled(enable) ⇒
 Check if enable is 1.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
@@ -5103,9 +5103,9 @@ Check if enable is 1.
 | --- | --- |
 | enable | <code>\*</code> | 
 
-<a name="module_Templating API_ static zcl helpers..isCommandAvailable"></a>
+<a name="module_Templating API_ static zcl helpers..is_command_available"></a>
 
-### Templating API: static zcl helpers~isCommandAvailable(clusterSide, incoming, outgoing, source, name) ⇒
+### Templating API: static zcl helpers~is\_command\_available(clusterSide, incoming, outgoing, source, name) ⇒
 Returns boolean based on command being available or not.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
