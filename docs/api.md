@@ -16414,6 +16414,7 @@ This module provides the API to access zcl specific information.
     * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
     * [~httpGetValidateAll(db)](#module_REST API_ user data..httpGetValidateAll) ⇒
     * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
+    * [~httpPostDisableObsoleteElements()](#module_REST API_ user data..httpPostDisableObsoleteElements)
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
 <a name="module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster"></a>
@@ -16945,6 +16946,13 @@ Set warning for the required element, and delete its existing warning if any.
 | --- | --- |
 | db | <code>\*</code> | 
 
+<a name="module_REST API_ user data..httpPostDisableObsoleteElements"></a>
+
+### REST API: user data~httpPostDisableObsoleteElements()
+Disable obsolete attributes, commands, events, and features enabled by an
+older configuration, and notify the user about each affected element.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 <a name="module_REST API_ user data..duplicateEndpointTypeClusters"></a>
 
 ### REST API: user data~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)
@@ -17829,6 +17837,7 @@ This module provides the REST API to the user specific data.
     * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
     * [~httpGetValidateAll(db)](#module_REST API_ user data..httpGetValidateAll) ⇒
     * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
+    * [~httpPostDisableObsoleteElements()](#module_REST API_ user data..httpPostDisableObsoleteElements)
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
 <a name="module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster"></a>
@@ -18360,6 +18369,13 @@ Set warning for the required element, and delete its existing warning if any.
 | --- | --- |
 | db | <code>\*</code> | 
 
+<a name="module_REST API_ user data..httpPostDisableObsoleteElements"></a>
+
+### REST API: user data~httpPostDisableObsoleteElements()
+Disable obsolete attributes, commands, events, and features enabled by an
+older configuration, and notify the user about each affected element.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 <a name="module_REST API_ user data..duplicateEndpointTypeClusters"></a>
 
 ### REST API: user data~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)
@@ -22100,7 +22116,6 @@ This module provides utilities for evaluating conformance expressions.
 
 
 * [Validation API: Evaluate conformance expressions](#module_Validation API_ Evaluate conformance expressions)
-    * [~isObsoleteConformance(conformance)](#module_Validation API_ Evaluate conformance expressions..isObsoleteConformance) ⇒ <code>boolean</code>
     * [~evaluateConformanceExpression(expression, elementMap)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression) ⇒
         * [~evaluateBooleanExpression(expr)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateBooleanExpression)
         * [~evaluateWithParentheses(expr)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateWithParentheses)
@@ -22112,19 +22127,6 @@ This module provides utilities for evaluating conformance expressions.
     * [~translateConformanceTag(expression)](#module_Validation API_ Evaluate conformance expressions..translateConformanceTag) ⇒ <code>string</code>
     * [~translateBooleanExpr(expr)](#module_Validation API_ Evaluate conformance expressions..translateBooleanExpr) ⇒ <code>string</code>
     * [~translateConformanceExpression(expression)](#module_Validation API_ Evaluate conformance expressions..translateConformanceExpression) ⇒ <code>string</code>
-
-<a name="module_Validation API_ Evaluate conformance expressions..isObsoleteConformance"></a>
-
-### Validation API: Evaluate conformance expressions~isObsoleteConformance(conformance) ⇒ <code>boolean</code>
-True when a stored conformance value is the obsolete tag (`Z`).
-Matter XML `<obsoleteConform/>` is parsed into this tag and evaluated as
-not supported, the same way `<disallowConform/>` is.
-
-**Kind**: inner method of [<code>Validation API: Evaluate conformance expressions</code>](#module_Validation API_ Evaluate conformance expressions)  
-
-| Param | Type |
-| --- | --- |
-| conformance | <code>\*</code> | 
 
 <a name="module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression"></a>
 

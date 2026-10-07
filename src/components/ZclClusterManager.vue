@@ -61,6 +61,23 @@ limitations under the License.
         >
           <q-tooltip> Cluster Specification </q-tooltip>
         </q-btn>
+        <q-btn
+          v-if="showEnableAllComponents"
+          class="full-height"
+          flat
+          rounded
+          label="Enable All Components"
+          color="primary"
+          :loading="enablingAllComponents"
+          :disable="enablingAllComponents"
+          data-cy="enable-all-components"
+          @click="enableAllMissingComponents"
+        >
+          <q-tooltip>
+            Enable the Simplicity Studio components required by every cluster
+            that does not have them enabled.
+          </q-tooltip>
+        </q-btn>
         <div class="v-step-7">
           <q-select
             outlined
@@ -160,8 +177,16 @@ export default {
     this.changeDomainFilter(this.filter)
     this.$store.dispatch('zap/updateConformDataExists')
   },
+  data() {
+    return {
+      enablingAllComponents: false
+    }
+  },
   watch: {
     enabledClusters() {
+      this.changeDomainFilter(this.filter)
+    },
+    clustersMissingComponents() {
       this.changeDomainFilter(this.filter)
     },
     expanded() {
@@ -235,6 +260,31 @@ export default {
         })
         this.$store.commit('zap/setEnabledClusters', clusters)
         return clusters
+      }
+    },
+    /**
+     * Enabled clusters whose Simplicity Studio components are not installed.
+     * Hidden until Studio has reported a component tree, matching the
+     * per-cluster warning.
+     */
+    clustersMissingComponents: {
+      get() {
+        if (
+          this.$store.state.zap.studio.ucComponents.length == 0 &&
+          !this.standaloneMode()
+        ) {
+          return []
+        }
+        return this.relevantClusters.filter(
+          (cluster) => this.missingUcComponentDependencies(cluster).length > 0
+        )
+      }
+    },
+    showEnableAllComponents: {
+      get() {
+        return (
+          !this.standaloneMode() && this.clustersMissingComponents.length > 0
+        )
       }
     },
     deviceTypeClustersForSelectedEndpoint: {
@@ -322,14 +372,7 @@ export default {
         })
         .filter((a) => {
           return typeof this.filter.clusterFilterFn === 'function'
-            ? this.filter.clusterFilterFn(a, {
-                enabledClusters: this.enabledClusters,
-                relevantClusters: this.relevantClusters,
-                deviceTypeRefsForSelectedEndpoint:
-                  this.endpointDeviceTypeRef[this.selectedEndpointId],
-                deviceTypeClustersForSelectedEndpoint:
-                  this.deviceTypeClustersForSelectedEndpoint
-              })
+            ? this.filter.clusterFilterFn(a, this.filterContext())
             : true
         })
         .sort(function (b, a) {
@@ -365,16 +408,51 @@ export default {
     getDomainOpenState(domainName) {
       return this.openDomains[domainName]
     },
-    changeDomainFilter(filter) {
-      this.$store.dispatch('zap/setDomainFilter', {
-        filter: filter,
+    filterContext() {
+      return {
         enabledClusters: this.enabledClusters,
         relevantClusters: this.relevantClusters,
+        clustersMissingComponents: this.clustersMissingComponents,
         deviceTypeRefsForSelectedEndpoint:
           this.endpointDeviceTypeRef[this.selectedEndpointId],
         deviceTypeClustersForSelectedEndpoint:
           this.deviceTypeClustersForSelectedEndpoint
+      }
+    },
+    changeDomainFilter(filter) {
+      this.$store.dispatch('zap/setDomainFilter', {
+        filter: filter,
+        ...this.filterContext()
       })
+    },
+    /**
+     * Ask Studio to enable the components for every cluster that is missing
+     * them. One request per cluster; Studio adds each component itself.
+     */
+    async enableAllMissingComponents() {
+      this.enablingAllComponents = true
+      try {
+        for (const cluster of this.clustersMissingComponents) {
+          const side = []
+          if (this.selectionClients.includes(cluster.id)) side.push('client')
+          if (this.selectionServers.includes(cluster.id)) side.push('server')
+          if (!side.length) continue
+          try {
+            await this.updateSelectedComponentRequest({
+              clusterId: cluster.id,
+              side,
+              added: true
+            })
+          } catch (err) {
+            console.log(
+              `Failed to enable Studio components for ${cluster.label}`,
+              err
+            )
+          }
+        }
+      } finally {
+        this.enablingAllComponents = false
+      }
     },
     doActionFilter(filter) {
       this.$store.dispatch('zap/doActionFilter', {
