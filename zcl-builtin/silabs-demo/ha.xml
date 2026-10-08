@@ -2607,6 +2607,6 @@ limitations under the License.
     <attribute side="server" code="0x011A" define="PACKET_VALIDATE_DROP_COUNT" type="INT16U" min="0x0000" max="0xFFFF" writable="false" default="0x0000" optional="true">packet validate drop count</attribute>
     <attribute side="server" code="0x011B" define="AVERAGE_MAC_RETRY_PER_APS_MSG_SENT" type="INT16U" min="0x0000" max="0xFFFF" writable="false" default="0x0000" optional="true">average mac retry per aps message sent</attribute>
     <attribute side="server" code="0x011C" define="LAST_MESSAGE_LQI" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x0000" optional="true">last message lqi</attribute>
-    <attribute side="server" code="0x011D" define="LAST_MESSAGE_RSSI" type="INT8S" min="0x00" max="0xFF" writable="false" default="0x0000" optional="true">last message rssi</attribute>
+    <attribute side="server" code="0x011D" define="LAST_MESSAGE_RSSI" type="INT8S" min="0x00" max="0x7F" writable="false" default="0x0000" optional="true">last message rssi</attribute>
   </cluster>
 </configurator>

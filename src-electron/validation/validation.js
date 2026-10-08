@@ -29,6 +29,8 @@ const types = require('../util/types.js')
 const queryPackage = require('../db/query-package.js')
 const env = require('../util/env')
 const queryNotification = require('../db/query-package-notification.js')
+const querySessionNotification = require('../db/query-session-notification.js')
+const bin = require('../util/bin.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const matterSdk = require('../sdk/matter.js')
 
@@ -144,7 +146,7 @@ async function validateNoDuplicateEndpoints(
   endpointIdentifier,
   sessionRef
 ) {
-  const count =
+  let count =
     await queryConfig.selectCountOfEndpointsWithGivenEndpointIdentifier(
       db,
       endpointIdentifier,
@@ -170,6 +172,16 @@ async function isMatterSession(db, sessionId) {
     const pkgs = await queryPackage.getSessionZclPackages(db, sessionId)
     return pkgs.some((p) => p.category === dbEnum.helperCategory.matter)
   } catch (e) {
+    const msg = `Could not determine session type for session ${sessionId}: ${e.message}. Defaulting to non-Matter (endpoint 0 may be incorrectly flagged as invalid).`
+    env.logWarning(msg)
+    querySessionNotification.setNotification(
+      db,
+      'WARNING',
+      msg,
+      sessionId,
+      2,
+      1
+    )
     return false
   }
 }
@@ -220,6 +232,9 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
         size =
           lookup && lookup.dataTypesize ? lookup.dataTypesize * 8 : undefined
       } catch (e) {
+        const msg = `Could not resolve float type size for attribute "${attribute.name}" (type: ${attribute.type}): ${e.message}`
+        env.logWarning(msg)
+        queryNotification.setNotification(db, 'WARNING', msg, packageId, 2)
         size = undefined
       }
       if (!isValidFloat(attribute.defaultValue, size)) {
@@ -592,19 +607,14 @@ function isBigInteger(bits) {
  * @returns object
  */
 async function getBoundsInteger(attribute, typeSize, isSigned) {
-  let min = attribute.min
-    ? await getIntegerFromAttribute(attribute.min, typeSize, isSigned)
-    : getTypeRange(typeSize, isSigned, true)
-  let max = attribute.max
-    ? await getIntegerFromAttribute(attribute.max, typeSize, isSigned)
-    : getTypeRange(typeSize, isSigned, false)
-  // Hex min/max that span the full bit pattern (e.g. INT8S min="0x00"
-  // max="0xFF") invert once interpreted as signed. Fall back to the type.
-  if (min != null && max != null && min > max) {
-    min = getTypeRange(typeSize, isSigned, true)
-    max = getTypeRange(typeSize, isSigned, false)
+  return {
+    min: attribute.min
+      ? await getIntegerFromAttribute(attribute.min, typeSize, isSigned)
+      : getTypeRange(typeSize, isSigned, true),
+    max: attribute.max
+      ? await getIntegerFromAttribute(attribute.max, typeSize, isSigned)
+      : getTypeRange(typeSize, isSigned, false)
   }
-  return { min, max }
 }
 
 /**
@@ -630,18 +640,14 @@ function getTypeRange(typeSize, isSigned, isMin) {
  * @returns A decimal number
  */
 function unsignedToSignedInteger(value, typeSize) {
-  if (isBigInteger(typeSize)) {
-    const bits = BigInt(typeSize)
-    let v = BigInt(value)
-    const signBit = 1n << (bits - 1n)
-    if ((v & signBit) !== 0n) {
-      v -= 1n << bits
-    }
-    return v
-  }
-  const signBit = 2 ** (typeSize - 1)
-  if (value >= signBit) {
-    return value - 2 ** typeSize
+  const isSigned = value.toString(2).padStart(typeSize, '0').charAt(0) === '1'
+  if (isSigned) {
+    // Use value − 2^typeSize for correct N-bit two's complement.
+    // The old `~value + 1` was wrong for non-32-bit widths because JS `~`
+    // always operates on 32-bit integers.
+    return isBigInteger(typeSize)
+      ? BigInt(value) - (1n << BigInt(typeSize))
+      : value - 2 ** typeSize
   }
   return value
 }
@@ -691,7 +697,21 @@ async function getIntegerFromAttribute(attribute, typeSize, isSigned) {
     isValidHexString(attribute) &&
     isSigned
   ) {
-    value = unsignedToSignedInteger(value, typeSize)
+    // ZCL XML often specifies min/max with fewer hex digits than the type is
+    // wide (e.g. INT32S bounds written as 0x800001/0x7FFFFF to express a
+    // 24-bit operational range inside a 32-bit field). Use the natural bit
+    // width of the hex literal (via bin.hexToBinary, which pads to nibble
+    // boundaries) capped at typeSize so the sign bit is determined by how
+    // many digits the author actually wrote, not by the full type width.
+    const naturalBits = bin.hexToBinary(String(attribute)).length
+    const effectiveBits = Math.min(naturalBits, typeSize)
+    // extractBigIntegerValue is used when typeSize >= 32, but effectiveBits
+    // may be smaller. Convert back to Number before calling
+    // unsignedToSignedInteger to avoid a BigInt/Number type mismatch.
+    if (typeof value === 'bigint' && !isBigInteger(effectiveBits)) {
+      value = Number(value)
+    }
+    value = unsignedToSignedInteger(value, effectiveBits)
   }
   return value
 }
