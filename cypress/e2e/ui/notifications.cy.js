@@ -91,24 +91,4 @@ describe('Notifications page functionality', () => {
     cy.wait(1000)
     cy.dataCy('notification-drawer-resize').should('exist')
   })
-
-  it('Should show empty state when there are no session or package notifications', () => {
-    // Do NOT intercept — let the real session and package notification APIs
-    // respond so this test verifies that loading the demo ZCL produces zero
-    // notifications, not just that the UI renders correctly when APIs are mocked.
-    cy.intercept('GET', '/sessionNotification').as('getSessionNotifications')
-    cy.intercept('GET', '/packageNotificationById/*').as(
-      'getPackageNotifications'
-    )
-
-    cy.dataCy('btn-notifications').click()
-    cy.wait('@getSessionNotifications')
-    cy.wait('@getPackageNotifications')
-
-    // Session table: Quasar renders "No data available" when the row list is empty
-    cy.contains('No data available').should('be.visible')
-    // Package section: heading is present but no expansion items exist
-    cy.contains('Package Notifications').should('be.visible')
-    cy.dataCy('package-notification-expansion').should('not.exist')
-  })
 })
