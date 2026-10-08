@@ -68,6 +68,9 @@ if (testsType == 'zigbee') {
 } else if (testsType == 'multiprotocol') {
   svrCmd = 'zapall-devserver'
   fixturesConfig = '--config fixturesFolder=cypress/multiprotocolFixtures'
+} else if (testsType == 'silabsdemo') {
+  svrCmd = 'silabsdemo-devserver'
+  fixturesConfig = ''
 } else {
   printUsage()
 }
