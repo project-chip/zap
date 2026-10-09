@@ -1,5 +1,14 @@
 /// <reference types="cypress" />
 
+import {
+  zigbeeZclPkg,
+  matterZclPkg,
+  zigbeeTemplatePkg,
+  matterTemplatePkg,
+  buildSessionAttemptResponse,
+  stubConfigApis
+} from '../../support/config-loading-helpers'
+
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from
   // failing the test
@@ -371,5 +380,71 @@ describe('ZapConfig page functionality', () => {
         cy.log('Skipping - config page auto-submitted')
       }
     })
+  })
+})
+
+describe('ZapConfig recent files and unsaved session delete', () => {
+  /**
+   * Open the config page with stubbed sessionAttempt data.
+   * @param {object} options
+   * @param {Array} [options.sessions]
+   * @param {Array} [options.recentFiles]
+   */
+  function openConfigPage({ sessions = [], recentFiles = [] } = {}) {
+    const body = buildSessionAttemptResponse({
+      zclProperties: [zigbeeZclPkg, matterZclPkg],
+      zclGenTemplates: [zigbeeTemplatePkg, matterTemplatePkg],
+      sessions,
+      recentFiles
+    })
+    stubConfigApis(body)
+    cy.intercept('DELETE', '**/zcl/deleteSession*', {
+      statusCode: 200,
+      body: { message: 'Session deleted successfully' }
+    }).as('deleteSession')
+    cy.intercept('DELETE', '**/zcl/deleteAllDirtySessions*', {
+      statusCode: 200,
+      body: { message: 'Unsaved sessions deleted successfully', count: 1 }
+    }).as('deleteAllSessions')
+    cy.visit('/')
+    cy.wait('@sessionAttempt')
+    cy.url().should('include', '/config')
+  }
+
+  it('Should list recent files and open one on click', () => {
+    openConfigPage({
+      recentFiles: [
+        {
+          path: '/tmp/recent-light.zap',
+          lastUsed: Date.now()
+        }
+      ]
+    })
+    cy.dataCy('recent-file-radio').should('be.visible')
+    cy.dataCy('recent-file-radio').find('input[type="radio"]').check({
+      force: true
+    })
+    cy.contains('recent-light.zap').should('be.visible')
+    cy.dataCy('recent-file-row').should('exist')
+  })
+
+  it('Should delete an unsaved session and support delete all', () => {
+    openConfigPage({
+      sessions: [
+        {
+          sessionId: 11,
+          creationTime: Date.now(),
+          packageRef: [zigbeeZclPkg.id, zigbeeTemplatePkg.id]
+        }
+      ]
+    })
+    cy.dataCy('restore-session-radio').should('be.visible')
+    cy.dataCy('restore-session-radio').find('input[type="radio"]').check({
+      force: true
+    })
+    cy.dataCy('delete-all-sessions').should('be.visible')
+    cy.dataCy('delete-session-checkbox').should('exist')
+    cy.dataCy('delete-session').first().click({ force: true })
+    cy.wait('@deleteSession')
   })
 })

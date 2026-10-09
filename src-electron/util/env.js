@@ -30,6 +30,7 @@ const emojiUtil = require('./emoji-util')
 const zapBaseUrl = 'http://localhost:'
 
 let saveFileFormat = 2 // This is the enabled only .zap file format
+let recentFileDays = 21 // How long a .zap file stays on the config-page recent list
 
 /**
  * Set save file format.
@@ -46,6 +47,25 @@ function setSaveFileFormat(n) {
  */
 function defaultFileFormat() {
   return saveFileFormat
+}
+
+/**
+ * Set how many days a .zap file stays on the recent-files list.
+ * @param {*} n
+ */
+function setRecentFileDays(n) {
+  let parsed = parseInt(n, 10)
+  if (Number.isFinite(parsed) && parsed > 0) {
+    recentFileDays = parsed
+  }
+}
+
+/**
+ * Get how many days a .zap file stays on the recent-files list.
+ * @returns {number}
+ */
+function getRecentFileDays() {
+  return recentFileDays
 }
 
 /**
@@ -184,6 +204,11 @@ const environmentVariable = {
   saveFileFormat: {
     name: 'ZAP_SAVE_FILE_FORMAT',
     description: `Overrides a default saved zap file format, ${defaultFileFormat()}. It should be an integer number 0 or greater. This only affects file saving.`
+  },
+  recentFileDays: {
+    name: 'ZAP_RECENT_FILE_DAYS',
+    description:
+      'How many days a .zap file stays on the recent-files list on the config page. Default: 21'
   }
 }
 
@@ -678,6 +703,8 @@ function formatEmojiMessage(emoji, message) {
 exports.environmentVariable = environmentVariable
 exports.setSaveFileFormat = setSaveFileFormat
 exports.defaultFileFormat = defaultFileFormat
+exports.setRecentFileDays = setRecentFileDays
+exports.getRecentFileDays = getRecentFileDays
 exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
 exports.builtinSilabsZclSpecialMetafile = builtinSilabsZclSpecialMetafile
 exports.builtinSilabsZclGeneralXmlFile = builtinSilabsZclGeneralXmlFile
