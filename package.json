@@ -47,7 +47,7 @@
     "test:e2e-multiprotocol": "node src-script/zap-uitest.js open multiprotocol",
     "test:e2e-multiprotocol-ci": "node src-script/zap-uitest.js run multiprotocol",
     "report": "node src-script/zap-combine-reports.js",
-    "postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary && npm run version-stamp",
+    "postinstall": "electron-builder install-app-deps && husky install && node src-script/setup-husky-env.js && npm rebuild canvas --update-binary && npm run version-stamp",
     "buildAndPack:win": "npm run build && npm run pack:win",
     "buildAndPack:mac": "npm run build && npm run pack:mac && cp apack.json dist/mac",
     "buildAndPack:linux": "npm run build && npm run pack:linux",
