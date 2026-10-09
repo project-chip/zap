@@ -317,7 +317,7 @@ exports.map = {
 
   dataType: (x) => {
     if (x == null) return undefined
-    return {
+    let mapped = {
       id: x.DATA_TYPE_ID,
       name: x.NAME,
       description: x.DESCRIPTION,
@@ -325,6 +325,29 @@ exports.map = {
       packageId: x.PACKAGE_REF,
       discriminatorName: x.DISCRIMINATOR_NAME,
       clusterCode: x.CLUSTER_CODE
+    }
+    // Present only when the query selects them. Omitted otherwise so existing
+    // data-type results keep their previous keys.
+    if ('ENUM_SIZE' in x) mapped.enumSize = x.ENUM_SIZE
+    if ('BITMAP_SIZE' in x) mapped.bitmapSize = x.BITMAP_SIZE
+    if ('CLUSTER_REF' in x) mapped.clusterRef = x.CLUSTER_REF
+    if ('IS_ENUM' in x) mapped.isEnum = dbApi.fromDbBool(x.IS_ENUM)
+    if ('IS_BITMAP' in x) mapped.isBitmap = dbApi.fromDbBool(x.IS_BITMAP)
+    if ('IS_STRUCT' in x) mapped.isStruct = dbApi.fromDbBool(x.IS_STRUCT)
+    return mapped
+  },
+
+  /**
+   * A type name used by the zap configuration: an included attribute
+   * (TYPE plus list ENTRY_TYPE), an enabled command argument, or an
+   * included event field. CLUSTER_REF is the enabled endpoint cluster.
+   */
+  configuredType: (x) => {
+    if (x == null) return undefined
+    return {
+      clusterRef: x.CLUSTER_REF,
+      type: x.TYPE,
+      entryType: x.ENTRY_TYPE
     }
   },
 

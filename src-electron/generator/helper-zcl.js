@@ -1192,6 +1192,63 @@ async function zcl_atomics(options) {
 }
 
 /**
+ * Block helper iterating over data types used by the open zap configuration.
+ *
+ * At the top level this is every type reached from the endpoint types in the
+ * session. Nested in `all_user_clusters` (or any cluster block whose `id` is
+ * the cluster id) it is limited to that cluster. A disabled cluster, an
+ * attribute that is not included, a command that is not enabled, and an event
+ * that is not included do not contribute types.
+ *
+ * A type is used when it is:
+ * - the type or list entry type of an included attribute
+ * - an argument type of an enabled command, or of that command's response
+ * - a field type of an included event
+ * - a field of a used struct, followed until there is nothing new
+ * - the enum or bitmap size type of a used enum or bitmap (enum8, bitmap32, ...)
+ * - the atomic baseType of a used type
+ *
+ * `id` is the data type id, which is also the enum, bitmap, or struct id, so
+ * `zcl_enum_items`, `zcl_bitmap_items`, and `zcl_struct_items` work inside
+ * this block:
+ *
+ * {{#user_data_types}}
+ *   {{#if isEnum}}{{#zcl_enum_items}}{{label}}{{/zcl_enum_items}}{{/if}}
+ *   {{#if isBitmap}}{{#zcl_bitmap_items}}{{label}}{{/zcl_bitmap_items}}{{/if}}
+ *   {{#if isStruct}}{{#zcl_struct_items}}{{label}}{{/zcl_struct_items}}{{/if}}
+ * {{/user_data_types}}
+ *
+ * From `exports.map.dataType` in `src-electron/db/db-mapping.js`:
+ * - bitmapSize, when the bitmap row was joined
+ * - description
+ * - descriminatorId
+ * - discriminatorName
+ * - enumSize, when the enum row was joined
+ * - id
+ * - isBitmap, when the bitmap row was joined
+ * - isEnum, when the enum row was joined
+ * - isStruct, when the struct row was joined
+ * - name
+ * - packageId
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+async function user_data_types(options) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let endpointTypeIds = await templateUtil.ensureEndpointTypeIds(this)
+  let clusterId = 'id' in this ? this.id : null
+  let used = await queryZcl.selectUsedDataTypes(
+    this.global.db,
+    packageIds,
+    endpointTypeIds,
+    clusterId
+  )
+  let promise = templateUtil.collectBlocks(used, options, this)
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  *
  *
  * Given: N/A
@@ -3336,6 +3393,7 @@ exports.zcl_attributes = zcl_attributes
 exports.zcl_attributes_client = zcl_attributes_client
 exports.zcl_attributes_server = zcl_attributes_server
 exports.zcl_atomics = zcl_atomics
+exports.user_data_types = user_data_types
 exports.zcl_global_commands = zcl_global_commands
 exports.zcl_cluster_largest_label_length = zcl_cluster_largest_label_length
 exports.zcl_command_arguments_count = zcl_command_arguments_count

@@ -1397,6 +1397,7 @@ exports.selectNumberByNameAndClusterId =
 
 exports.selectAllDiscriminators = queryDiscriminator.selectAllDiscriminators
 exports.selectAllDataTypes = queryDataType.selectAllDataTypes
+exports.selectUsedDataTypes = queryDataType.selectUsedDataTypes
 exports.selectAllNumbers = queryNumber.selectAllNumbers
 exports.selectAllStrings = queryString.selectAllStrings
 exports.selectSizeFromType = queryDataType.selectSizeFromType
