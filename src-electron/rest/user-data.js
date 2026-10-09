@@ -116,6 +116,7 @@ function httpPostCheckConformOnFeatureUpdate(db) {
       clusterFeatures,
       endpointId,
       endpointTypeId,
+      storageOption,
       changeConfirmed
     } = request.body
 
@@ -136,7 +137,8 @@ function httpPostCheckConformOnFeatureUpdate(db) {
       featureMap,
       featureData,
       endpointId,
-      clusterFeatures
+      clusterFeatures,
+      storageOption
     )
 
     if (changeConfirmed || result.disableChange) {
@@ -423,6 +425,63 @@ function httpPostForcedExternal(db) {
 }
 
 /**
+ * Set or delete external storage warnings when the user changes attribute storage.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} endpointTypeId
+ * @param {*} clusterRef
+ * @param {*} attributeId
+ * @param {*} storageValue
+ */
+async function handleAttributeStorageNotification(
+  db,
+  sessionId,
+  endpointTypeId,
+  clusterRef,
+  attributeId,
+  storageValue
+) {
+  let attr = await queryZcl.selectAttributeById(db, attributeId)
+  let cluster = await queryZcl.selectClusterById(db, clusterRef)
+  let endpointIdentifiers =
+    await queryEndpoint.selectEndpointIdentifiersBySessionAndEndpointType(
+      db,
+      sessionId,
+      endpointTypeId
+    )
+  let endpointDisplay =
+    endpointIdentifiers.length > 0
+      ? String(endpointIdentifiers[0])
+      : String(endpointTypeId)
+  let attributeName = attr?.name || attr?.label || 'Unknown'
+  let clusterName = cluster?.name || 'Unknown'
+  let userMessage = env.formatEmojiMessage(
+    '⚠️',
+    `On endpoint: ${endpointDisplay}, cluster: ${clusterName}, attribute ${attributeName} has ${dbEnum.warnings.externalStorageControl}`
+  )
+
+  if (storageValue === dbEnum.storageOption.external) {
+    await querySessionNotification.setWarningIfMessageNotExists(
+      db,
+      sessionId,
+      userMessage
+    )
+  } else if (
+    storageValue === dbEnum.storageOption.ram ||
+    storageValue === dbEnum.storageOption.nvm
+  ) {
+    await querySessionNotification.deleteExternalAttributeStorageNotificationsForAttribute(
+      db,
+      sessionId,
+      endpointDisplay,
+      clusterName,
+      attributeName
+    )
+  }
+}
+
+/**
  * HTTP POST attribute update
  *
  * @param {*} db
@@ -477,6 +536,18 @@ function httpPostAttributeUpdate(db) {
         )
       )
     )
+
+    if (listType === restApi.updateKey.attributeStorage) {
+      await handleAttributeStorageNotification(
+        db,
+        request.zapSessionId,
+        selectedEndpoint,
+        clusterRef,
+        id,
+        value
+      )
+    }
+
     // send latest value to frontend to update UI
     let eptAttr = await queryZcl.selectEndpointTypeAttribute(
       db,
