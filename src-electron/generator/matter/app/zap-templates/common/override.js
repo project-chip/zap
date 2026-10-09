@@ -81,6 +81,10 @@ function atomicType(arg) {
     case 'utc':
       return 'uint32_t';
     default:
+      // XML baseType alias: resolve C++ type from the declared base.
+      if (arg.baseType) {
+        return atomicType({ ...arg, name: arg.baseType, baseType: null });
+      }
       throw 'not overriding';
   }
 }

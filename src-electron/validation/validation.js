@@ -175,6 +175,59 @@ async function isMatterSession(db, sessionId) {
 }
 
 /**
+ * Load ATOMIC row so baseType-inherited flags (isString/isFloat/isLong) are used.
+ * Falls back to sync name helpers when there is no atomic row.
+ *
+ * @param {*} db
+ * @param {Array} packageIds
+ * @param {string} typeName
+ * @returns {Promise<object|null>}
+ */
+async function resolveAtomicType(db, packageIds, typeName) {
+  if (!typeName || !packageIds || packageIds.length === 0) return null
+  try {
+    return await queryZcl.selectAtomicType(db, packageIds, typeName)
+  } catch (e) {
+    return null
+  }
+}
+
+/**
+ * @param {object|null} atomic
+ * @param {string} [typeName]
+ * @returns {boolean}
+ */
+function isStringAttributeType(atomic, typeName) {
+  if (atomic && atomic.isString != null) return !!atomic.isString
+  return typeName ? types.isString(typeName) : false
+}
+
+/**
+ * @param {object|null} atomic
+ * @param {string} [typeName]
+ * @returns {boolean}
+ */
+function isFloatAttributeType(atomic, typeName) {
+  if (atomic && atomic.isFloat != null) return !!atomic.isFloat
+  return typeName ? types.isFloat(typeName) : false
+}
+
+/**
+ * @param {object|null} atomic
+ * @param {string} typeName
+ * @param {*} maxLength
+ * @returns {number}
+ */
+function maxAllowedStringLength(atomic, typeName, maxLength) {
+  let isLong =
+    atomic && atomic.isLong != null
+      ? !!atomic.isLong
+      : types.isTwoBytePrefixedString(typeName)
+  let fallback = isLong ? 65534 : 254
+  return maxLength != null && maxLength !== '' ? maxLength : fallback
+}
+
+/**
  * Validates attribute default value from XML metadata (without endpoint context).
  * Only validates type constraints, ranges, and string lengths available in the XML.
  *
@@ -189,6 +242,8 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
   }
 
   let issues = []
+  let atomic = await resolveAtomicType(db, [packageId], attribute.type)
+  let isStringType = isStringAttributeType(atomic, attribute.type)
 
   // Validate boolean type
   if (attribute.type && attribute.type.toLowerCase() === 'boolean') {
@@ -203,8 +258,8 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
     }
   }
   // Validate numeric types
-  else if (!types.isString(attribute.type)) {
-    if (types.isFloat(attribute.type)) {
+  else if (!isStringType) {
+    if (isFloatAttributeType(atomic, attribute.type)) {
       // Resolve the float bit width so hex IEEE 754 bit-pattern bounds
       // and defaults (the ZCL XML convention, e.g. min="0x0000"
       // max="0x3F800000" for float_single) are decoded correctly. We
@@ -255,14 +310,13 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
       }
     }
   }
-  // Validate string types
-  else if (types.isString(attribute.type)) {
-    let maxLengthForString =
-      attribute.type === 'char_string' || attribute.type === 'octet_string'
-        ? 254
-        : 65534
-    let maxAllowedLength =
-      attribute.maxLength != null ? attribute.maxLength : maxLengthForString
+  // Validate string types (includes baseType string aliases via ATOMIC.isString)
+  else if (isStringType) {
+    let maxAllowedLength = maxAllowedStringLength(
+      atomic,
+      attribute.type,
+      attribute.maxLength
+    )
 
     if (
       typeof attribute.defaultValue === 'string' &&
@@ -305,10 +359,17 @@ async function validateSpecificAttribute(
     return { defaultValue: ['Missing attribute or endpoint configuration'] }
   }
   let defaultAttributeIssues = []
+  let packageIds =
+    zapSessionId != null
+      ? await queryPackage.getSessionZclPackageIds(db, zapSessionId)
+      : []
+  let atomic = await resolveAtomicType(db, packageIds, attribute.type)
+  let isStringType = isStringAttributeType(atomic, attribute.type)
+
   if (attribute.isNullable && endpointAttribute.defaultValue == null) {
     return { defaultValue: defaultAttributeIssues }
-  } else if (!types.isString(attribute.type)) {
-    if (types.isFloat(attribute.type)) {
+  } else if (!isStringType) {
+    if (isFloatAttributeType(atomic, attribute.type)) {
       // Resolve the float type's bit width so hex IEEE 754 bit patterns
       // (e.g. "0x3F800000" => 1.0 for float_single) are recognized as
       // valid float defaults. This matches the ZCL/Matter XML convention
@@ -346,17 +407,11 @@ async function validateSpecificAttribute(
         defaultAttributeIssues.push('Out of range')
       }
     }
-  } else if (types.isString(attribute.type)) {
-    let maxLengthForString =
-      attribute.type == 'char_string' || attribute.type == 'octet_string'
-        ? 254
-        : 65534
-    let maxAllowedLength = attribute.maxLength
-      ? attribute.maxLength
-      : maxLengthForString
+  } else if (isStringType) {
     if (
       typeof endpointAttribute.defaultValue === 'string' &&
-      endpointAttribute.defaultValue.length > maxAllowedLength
+      endpointAttribute.defaultValue.length >
+        maxAllowedStringLength(atomic, attribute.type, attribute.maxLength)
     ) {
       defaultAttributeIssues.push('String length out of range')
     }
