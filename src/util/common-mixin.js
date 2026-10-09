@@ -281,14 +281,16 @@ export default {
      */
     updateSelectedComponentRequest(params) {
       if (!this.standaloneMode()) {
-        this.$store
+        return this.$store
           .dispatch('zap/updateSelectedComponent', params)
           .then((response) => {
             if (response.status != http.StatusCodes.OK) {
               console.log('Failed to update selected components!')
             }
+            return response
           })
       }
+      return Promise.resolve()
     },
 
     /**

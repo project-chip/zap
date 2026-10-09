@@ -850,6 +850,8 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
         ? filter.domainFilterFn(domainName, state.clusterManager.openDomains, {
             enabledClusters: filterEnabledClusterPair.enabledClusters,
             relevantClusters: filterEnabledClusterPair.relevantClusters,
+            clustersMissingComponents:
+              filterEnabledClusterPair.clustersMissingComponents,
             deviceTypeRefsForSelectedEndpoint:
               filterEnabledClusterPair.deviceTypeRefsForSelectedEndpoint,
             deviceTypeClustersForSelectedEndpoint:
@@ -1165,7 +1167,8 @@ export function updateNotificationCount(state, value) {
 export function addLegacyDisabledObsoleteElements(state, elements) {
   const existing = new Set(
     state.legacyDisabledObsoleteElements.map(
-      (element) => `${element.elementType}:${element.endpointTypeId}:${element.id}`
+      (element) =>
+        `${element.elementType}:${element.endpointTypeId}:${element.id}`
     )
   )
   elements.forEach((element) => {
