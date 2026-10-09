@@ -6,7 +6,7 @@
 [![Zigbee code regeneration](https://github.com/project-chip/zap/actions/workflows/zigbee.yml/badge.svg)](https://github.com/project-chip/zap/actions/workflows/zigbee.yml)
 [![Matter code regeneration](https://github.com/project-chip/zap/actions/workflows/matter.yml/badge.svg)](https://github.com/project-chip/zap/actions/workflows/matter.yml)
 
-## [What is ZAP?](https://docs.silabs.com/zap-tool/1.0.0/zap-start/)
+## [What is ZAP?](https://docs.silabs.com/zap-tool/latest/zap-start/)
 
 ZAP is a generic generation engine and user interface for applications and libraries based on Zigbee Cluster Library, the specification developed by the [Connectivity Standards Alliance](https://csa-iot.org/).
 
@@ -20,7 +20,7 @@ ZAP is a generic templating engine. Examples are provided for how to generate ar
 
 ## Quick setup
 
-Refer to [Setup Instructions](https://docs.silabs.com/zap-tool/1.0.0/zap-getting-started/zap-installation)
+Refer to [Setup Instructions](https://docs.silabs.com/zap-tool/latest/zap-getting-started/zap-installation)
 
 ### Source code
 
@@ -32,8 +32,8 @@ This software is licensed under [Apache 2.0 license](LICENSE.txt).
 
 ## Usage Documentation
 
-- [ZAP Fundamentals](https://docs.silabs.com/zap-tool/1.0.0/zap-fundamentals/)
-- [ZAP User's Guide](https://docs.silabs.com/zap-tool/1.0.0/zap-users-guide/)
+- [ZAP Fundamentals](https://docs.silabs.com/zap-tool/latest/zap-fundamentals/)
+- [ZAP User's Guide](https://docs.silabs.com/zap-tool/latest/zap-users-guide/)
 
 ## Detailed Developer Documentation
 
