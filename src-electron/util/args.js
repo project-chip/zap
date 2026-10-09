@@ -117,7 +117,7 @@ export function processCommandLineArguments(argv) {
       desc: 'zcl.properties file to read in.',
       alias: ['zcl', 'z'],
       type: 'array',
-      default: env.builtinSilabsZclMetafile()
+      default: env.builtinSilabsZclDemoMetafile()
     })
     .option('sdk', {
       desc: 'sdk.json file to read, for operations that act on whole SDK',

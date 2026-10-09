@@ -234,6 +234,42 @@ test(
 )
 
 test(
+  'test Silabs demo zcl data loads without package errors',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclDemoMetafile())
+      let packageId = ctx.packageId
+      let p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
+      expect(p.version).toEqual(1)
+      expect(p.description).toEqual('Zigbee Silabs ZCL demo data')
+      expect(p.category).toEqual('zigbee')
+
+      let clusters = await queryZcl.selectAllClusters(db, packageId)
+      expect(clusters.length).toBeGreaterThan(0)
+
+      let packageNotif =
+        await queryPackageNotification.getNotificationByPackageId(db, packageId)
+      expect(
+        packageNotif.some((notif) =>
+          notif.message.includes('Duplicate command found')
+        )
+      ).toBeFalsy()
+      expect(packageNotif.some((notif) => notif.type === 'ERROR')).toBeFalsy()
+      expect(
+        packageNotif.some((notif) =>
+          notif.message.includes('XML validation issues')
+        )
+      ).toBeFalsy()
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.long()
+)
+
+test(
   'test changing xml file reloads all zcl packages',
   async () => {
     let db = await dbApi.initRamDatabase()

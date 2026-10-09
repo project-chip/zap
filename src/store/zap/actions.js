@@ -1386,6 +1386,9 @@ export function loadZclClusterToUcComponentDependencyMap(context) {
         response?.data?.defaults
       )
     })
+    .catch(() => {
+      // No Studio cluster-to-component mapping in this session.
+    })
 }
 
 /**

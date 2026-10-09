@@ -29,6 +29,8 @@ const types = require('../util/types.js')
 const queryPackage = require('../db/query-package.js')
 const env = require('../util/env')
 const queryNotification = require('../db/query-package-notification.js')
+const querySessionNotification = require('../db/query-session-notification.js')
+const bin = require('../util/bin.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const matterSdk = require('../sdk/matter.js')
 
@@ -144,7 +146,7 @@ async function validateNoDuplicateEndpoints(
   endpointIdentifier,
   sessionRef
 ) {
-  const count =
+  let count =
     await queryConfig.selectCountOfEndpointsWithGivenEndpointIdentifier(
       db,
       endpointIdentifier,
@@ -170,6 +172,16 @@ async function isMatterSession(db, sessionId) {
     const pkgs = await queryPackage.getSessionZclPackages(db, sessionId)
     return pkgs.some((p) => p.category === dbEnum.helperCategory.matter)
   } catch (e) {
+    const msg = `Could not determine session type for session ${sessionId}: ${e.message}. Defaulting to non-Matter (endpoint 0 may be incorrectly flagged as invalid).`
+    env.logWarning(msg)
+    querySessionNotification.setNotification(
+      db,
+      'WARNING',
+      msg,
+      sessionId,
+      2,
+      1
+    )
     return false
   }
 }
@@ -193,13 +205,15 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
   // Validate boolean type
   if (attribute.type && attribute.type.toLowerCase() === 'boolean') {
     const boolValue = String(attribute.defaultValue).toLowerCase()
-    if (
-      boolValue !== 'true' &&
-      boolValue !== 'false' &&
-      boolValue !== '0' &&
-      boolValue !== '1'
-    ) {
-      issues.push(`Invalid boolean value. Must be true, false, 0, or 1`)
+    const isNamed = boolValue === 'true' || boolValue === 'false'
+    const isNumeric =
+      isValidNumberString(boolValue) &&
+      (extractIntegerValue(boolValue) === 0 ||
+        extractIntegerValue(boolValue) === 1)
+    if (!isNamed && !isNumeric) {
+      issues.push(
+        `Invalid boolean value. Must be true, false, 0, 1, or hex 0x00/0x01`
+      )
     }
   }
   // Validate numeric types
@@ -218,6 +232,9 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
         size =
           lookup && lookup.dataTypesize ? lookup.dataTypesize * 8 : undefined
       } catch (e) {
+        const msg = `Could not resolve float type size for attribute "${attribute.name}" (type: ${attribute.type}): ${e.message}`
+        env.logWarning(msg)
+        queryNotification.setNotification(db, 'WARNING', msg, packageId, 2)
         size = undefined
       }
       if (!isValidFloat(attribute.defaultValue, size)) {
@@ -230,24 +247,42 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
         }
       }
     } else {
-      // Validate integer
+      // Integer path uses the same signed/hex conversion as endpoint
+      // validation (getBoundsInteger / getIntegerFromAttribute).
       if (!isValidNumberString(attribute.defaultValue)) {
         issues.push('Invalid Integer')
       } else if (attribute.min != null || attribute.max != null) {
-        // For XML validation, we can check basic range without session context
-        // by using the min/max values directly from the attribute
         try {
-          let min =
-            attribute.min != null ? extractBigIntegerValue(attribute.min) : null
-          let max =
-            attribute.max != null ? extractBigIntegerValue(attribute.max) : null
-          let value = extractBigIntegerValue(attribute.defaultValue)
-
-          if ((min != null && value < min) || (max != null && value > max)) {
-            issues.push(`Out of range (min: ${min}, max: ${max})`)
+          const lookup = await types.getSignAndSizeOfZclType(
+            db,
+            attribute.type,
+            [packageId],
+            { noCeiling: true }
+          )
+          let typeSize =
+            lookup && lookup.dataTypesize ? lookup.dataTypesize * 8 : undefined
+          let isSigned = lookup ? !!lookup.isTypeSigned : false
+          if (typeSize) {
+            let { min, max } = await getBoundsInteger(
+              attribute,
+              typeSize,
+              isSigned
+            )
+            let value = await getIntegerFromAttribute(
+              attribute.defaultValue,
+              typeSize,
+              isSigned
+            )
+            // ZCL "invalid" sentinels (signed min / unsigned max) are
+            // legal stored values even when min/max are operational.
+            if (
+              !checkBoundsInteger(value, min, max) &&
+              value != getTypeRange(typeSize, isSigned, isSigned)
+            ) {
+              issues.push(`Out of range (min: ${min}, max: ${max})`)
+            }
           }
         } catch (e) {
-          // If BigInt conversion fails, skip range validation
           env.logWarning(
             `Could not validate range for attribute ${attribute.name}: ${e.message}`
           )
@@ -255,22 +290,20 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
       }
     }
   }
-  // Validate string types
+  // Validate string types. Hex defaults (e.g. CHAR_STRING default="0x00")
+  // encode bytes, not the literal characters "0x00".
   else if (types.isString(attribute.type)) {
-    let maxLengthForString =
-      attribute.type === 'char_string' || attribute.type === 'octet_string'
-        ? 254
-        : 65534
-    let maxAllowedLength =
-      attribute.maxLength != null ? attribute.maxLength : maxLengthForString
-
-    if (
-      typeof attribute.defaultValue === 'string' &&
-      attribute.defaultValue.length > maxAllowedLength
-    ) {
-      issues.push(
-        `String length ${attribute.defaultValue.length} exceeds maximum ${maxAllowedLength}`
-      )
+    let maxAllowedLength = maxAllowedStringLength(
+      attribute.type,
+      attribute.maxLength
+    )
+    if (typeof attribute.defaultValue === 'string') {
+      let encodedLength = stringValueLength(attribute.defaultValue)
+      if (encodedLength > maxAllowedLength) {
+        issues.push(
+          `String length ${encodedLength} exceeds maximum ${maxAllowedLength}`
+        )
+      }
     }
   }
 
@@ -347,16 +380,10 @@ async function validateSpecificAttribute(
       }
     }
   } else if (types.isString(attribute.type)) {
-    let maxLengthForString =
-      attribute.type == 'char_string' || attribute.type == 'octet_string'
-        ? 254
-        : 65534
-    let maxAllowedLength = attribute.maxLength
-      ? attribute.maxLength
-      : maxLengthForString
     if (
       typeof endpointAttribute.defaultValue === 'string' &&
-      endpointAttribute.defaultValue.length > maxAllowedLength
+      stringValueLength(endpointAttribute.defaultValue) >
+        maxAllowedStringLength(attribute.type, attribute.maxLength)
     ) {
       defaultAttributeIssues.push('String length out of range')
     }
@@ -615,10 +642,41 @@ function getTypeRange(typeSize, isSigned, isMin) {
 function unsignedToSignedInteger(value, typeSize) {
   const isSigned = value.toString(2).padStart(typeSize, '0').charAt(0) === '1'
   if (isSigned) {
-    value = ~value
-    value += isBigInteger(typeSize) ? 1n : 1
+    // Use value − 2^typeSize for correct N-bit two's complement.
+    // The old `~value + 1` was wrong for non-32-bit widths because JS `~`
+    // always operates on 32-bit integers.
+    return isBigInteger(typeSize)
+      ? BigInt(value) - (1n << BigInt(typeSize))
+      : value - 2 ** typeSize
   }
   return value
+}
+
+/**
+ * Max allowed length for a ZCL string default. Short strings are 254,
+ * long strings 65534, unless the attribute declares maxLength.
+ *
+ * @param {*} type
+ * @param {*} maxLength
+ * @returns number
+ */
+function maxAllowedStringLength(type, maxLength) {
+  let fallback = type == 'char_string' || type == 'octet_string' ? 254 : 65534
+  return maxLength != null && maxLength !== '' ? maxLength : fallback
+}
+
+/**
+ * Length of a string default. A 0x-prefixed hex value is a byte encoding
+ * (CHAR_STRING default="0x00" is 1 byte), matching isValidHexString.
+ *
+ * @param {string} value
+ * @returns number
+ */
+function stringValueLength(value) {
+  if (/^0x/i.test(value) && isValidHexString(value)) {
+    return Math.ceil((value.length - 2) / 2)
+  }
+  return value.length
 }
 
 /**
@@ -639,7 +697,21 @@ async function getIntegerFromAttribute(attribute, typeSize, isSigned) {
     isValidHexString(attribute) &&
     isSigned
   ) {
-    value = unsignedToSignedInteger(value, typeSize)
+    // ZCL XML often specifies min/max with fewer hex digits than the type is
+    // wide (e.g. INT32S bounds written as 0x800001/0x7FFFFF to express a
+    // 24-bit operational range inside a 32-bit field). Use the natural bit
+    // width of the hex literal (via bin.hexToBinary, which pads to nibble
+    // boundaries) capped at typeSize so the sign bit is determined by how
+    // many digits the author actually wrote, not by the full type width.
+    const naturalBits = bin.hexToBinary(String(attribute)).length
+    const effectiveBits = Math.min(naturalBits, typeSize)
+    // extractBigIntegerValue is used when typeSize >= 32, but effectiveBits
+    // may be smaller. Convert back to Number before calling
+    // unsignedToSignedInteger to avoid a BigInt/Number type mismatch.
+    if (typeof value === 'bigint' && !isBigInteger(effectiveBits)) {
+      value = Number(value)
+    }
+    value = unsignedToSignedInteger(value, effectiveBits)
   }
   return value
 }

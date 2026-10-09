@@ -37,6 +37,10 @@ export default defineConfig({
           '**/zigbee/**',
           '**/matter/**'
         ]
+      } else if (mode === Mode.silabsdemo) {
+        // Only run the silabs-demo-specific specs; exclude the regular ui suite
+        // because those run against a different ZCL server.
+        config.specPattern = 'cypress/e2e/silabs-demo/**/*.cy.js'
       }
 
       return config

@@ -1,12 +1,14 @@
 ---
 description: Extend existing ZAP tests before adding new suites; avoid redundant test code
-globs: "test/**/*.js"
+globs: "{test,cypress}/**/*.{js,cjs}"
 alwaysApply: false
 ---
 
 # Prefer extending existing tests
 
 When adding coverage for a change, extend an existing related test first. Do not create a large new test file or duplicate setup unless nothing suitable exists.
+
+Do not remove or replace existing `test(...)` / `it(...)` cases when adding new ones. Keep them unless the behavior is gone or the test is wrong, and only then with a clear reason.
 
 ## Order of preference
 
@@ -28,6 +30,14 @@ When adding coverage for a change, extend an existing related test first. Do not
 test('Multiple clusters can map to the same UC component', async () => {
   // additional assertions in test/ide-integration.test.js
 })
+
+// ❌ BAD — drop an existing case to add a new one
+// removed: it('Should have delete button for notifications', ...)
+it('Should have a resizable notifications drawer', () => { ... })
+
+// ✅ GOOD — keep existing cases; append new ones
+it('Should have delete button for notifications', () => { ... })
+it('Should have a resizable notifications drawer', () => { ... })
 ```
 
 Keep new test code minimal: only what proves the new behavior. Match the style and timeout helpers of the host file.

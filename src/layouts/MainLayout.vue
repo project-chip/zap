@@ -78,15 +78,20 @@
       </div>
     </q-drawer>
     <q-drawer
-      :width="$q.screen.width * 0.4"
+      :width="notificationDrawerWidth"
       bordered
       v-model="showNotificationTab"
       side="right"
       :breakpoint="0"
-      class="bg-glass column"
+      class="bg-glass column overflow-hidden"
       id="NotificationPanel"
     >
-      <NotificationPage />
+      <div
+        class="drawer-resize-handle"
+        data-cy="notification-drawer-resize"
+        @mousedown.prevent="startNotificationDrawerResize"
+      />
+      <NotificationPage class="col" />
     </q-drawer>
 
     <q-drawer
@@ -139,10 +144,17 @@ export default {
       scrollTop: '',
       index: 0,
       maxIndex: 0,
-      generationDirectory: ''
+      generationDirectory: '',
+      notificationDrawerWidthPx: null
     }
   },
   computed: {
+    notificationDrawerWidth() {
+      if (this.notificationDrawerWidthPx != null) {
+        return this.notificationDrawerWidthPx
+      }
+      return Math.round(this.$q.screen.width * 0.4)
+    },
     showPreviewTab: {
       get() {
         return this.$store.state.zap.showPreviewTab
@@ -197,6 +209,25 @@ export default {
           this.$refs.generationScroll.setScrollPosition('vertical', 0)
         })
         .catch((err) => console.log('Server Get:' + err))
+    },
+    startNotificationDrawerResize(event) {
+      const startX = event.clientX
+      const startWidth = this.notificationDrawerWidth
+      const onMove = (moveEvent) => {
+        const delta = startX - moveEvent.clientX
+        const max = Math.round(this.$q.screen.width * 0.85)
+        const min = 320
+        this.notificationDrawerWidthPx = Math.min(
+          max,
+          Math.max(min, startWidth + delta)
+        )
+      }
+      const onUp = () => {
+        window.removeEventListener('mousemove', onMove)
+        window.removeEventListener('mouseup', onUp)
+      }
+      window.addEventListener('mousemove', onMove)
+      window.addEventListener('mouseup', onUp)
     },
     onScroll(info) {
       this.scrollInfo = info
@@ -282,5 +313,19 @@ export default {
 .slide-down-leave-to {
   opacity: 0;
   transform: translateY(35px);
+}
+
+.drawer-resize-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: ew-resize;
+  z-index: 10;
+}
+.drawer-resize-handle:hover,
+.drawer-resize-handle:active {
+  background: rgba(83, 156, 237, 0.35);
 }
 </style>

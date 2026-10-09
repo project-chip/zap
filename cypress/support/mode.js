@@ -7,7 +7,8 @@
 export const Mode = Object.freeze({
   zigbee: 'zigbee',
   matter: 'matter',
-  multiprotocol: 'multiprotocol'
+  multiprotocol: 'multiprotocol',
+  silabsdemo: 'silabsdemo'
 })
 
 export const ModeValues = Object.freeze(Object.values(Mode))

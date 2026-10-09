@@ -321,12 +321,21 @@ function httpGetZclExtension(db) {
     zclComponents
       .getMergedSessionPackageExtensions(db, sessionId, entity)
       .then((exts) => {
+        // Studio maps clusters to UC components via a gen-templates
+        // "component" extension. Standalone ZAP does not ship that mapping.
+        let isStudioComponentMap =
+          entity === 'cluster' && extensionId === 'component'
         if (!exts.length) {
+          if (isStudioComponentMap) {
+            return response.status(StatusCodes.OK).json({})
+          }
           throw new Error('Unable to retrieve valid packageId!')
         }
         let clusterExt = util.getClusterExtension(exts, extensionId)
         if (clusterExt.length) {
           return response.status(StatusCodes.OK).json(clusterExt[0])
+        } else if (isStudioComponentMap) {
+          return response.status(StatusCodes.OK).json({})
         } else {
           throw new Error(`Unable to find cluster extension by ${extensionId}.`)
         }

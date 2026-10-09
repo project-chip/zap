@@ -85,4 +85,10 @@ describe('Notifications page functionality', () => {
       }
     })
   })
+
+  it('Should have a resizable notifications drawer', () => {
+    cy.dataCy('btn-notifications').click()
+    cy.wait(1000)
+    cy.dataCy('notification-drawer-resize').should('exist')
+  })
 })
