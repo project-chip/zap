@@ -269,14 +269,16 @@ test(
     expect(signedHex.min).toBe(-1)
     expect(signedHex.max).toBe(32767)
 
-    // INT8S min="0x00" max="0xFF" inverts after signed convert; fall back to type
+    // INT8S min="0x00" max="0xFF": 0xFF as signed 8-bit is -1, so the raw
+    // bounds are {0, -1} (inverted). getBoundsInteger returns the raw values
+    // without silent correction — callers guard on min > max themselves.
     let inverted = await validation.getBoundsInteger(
       { min: '0x00', max: '0xFF' },
       8,
       true
     )
-    expect(inverted.min).toBe(-128)
-    expect(inverted.max).toBe(127)
+    expect(inverted.min).toBe(0)
+    expect(inverted.max).toBe(-1)
   },
   timeout.medium()
 )
@@ -422,16 +424,24 @@ test(
     ).toBeTruthy()
 
     // check if handle signed numbers
+    // NOTE: min and max must be a valid (non-inverted) signed range.
+    // The old values were min='0x7FFFFFFFFE' / max='0x8000000000': once
+    // interpreted as signed 40-bit integers, 0x7FFFFFFFFE = +549755813886
+    // and 0x8000000000 = -549755813888, producing min > max (inverted).
+    // The updated code surfaces inverted bounds as a validation error instead
+    // of silently falling back to the type range, so the test was updated to
+    // use 0x7FFFFFFFFE / 0x7FFFFFFFFF — both positive in signed 40-bit
+    // (MSB = 0 for both), giving a valid range [549755813886, 549755813887].
     let fakeEndpointAttributeValid = {
-      defaultValue: '549755813887'
+      defaultValue: '549755813887' // = 0x7FFFFFFFFF, at upper bound
     }
     let fakeEndpointAttributeInvalid = {
-      defaultValue: '549755813885'
+      defaultValue: '549755813885' // = 0x7FFFFFFFFE - 1, below lower bound
     }
     let fakeSignedAttribute = {
       type: 'int40s',
-      min: '0x7FFFFFFFFE',
-      max: '0x8000000000'
+      min: '0x7FFFFFFFFE', // signed 40-bit: +549755813886 (MSB = 0, positive)
+      max: '0x7FFFFFFFFF' // signed 40-bit: +549755813887 (MSB = 0, positive)
     }
     expect(
       (
@@ -681,14 +691,21 @@ test(
       },
       pkgId
     )
+    // NOTE: min and max must be a valid (non-inverted) signed hex range.
+    // The old values were min='0x00' / max='0xFF': 0xFF interpreted as a
+    // signed 8-bit integer is -1, giving {min: 0, max: -1} (inverted).
+    // The updated code surfaces inverted bounds as a validation error, so
+    // the test was updated to use 0x80 / 0x7F — the correct hex encoding of
+    // the full int8s range: 0x80 = -128 (MSB = 1) and 0x7F = +127 (MSB = 0),
+    // producing a valid, non-inverted range [-128, 127].
     await validation.validateXmlAttributeDefault(
       db,
       {
         name: 'test-int8s-full-hex-range',
         type: 'int8s',
-        min: '0x00',
-        max: '0xFF',
-        defaultValue: '0x7F'
+        min: '0x80', // signed 8-bit: -128 (MSB = 1)
+        max: '0x7F', // signed 8-bit: +127 (MSB = 0)
+        defaultValue: '0x7F' // 127, at the upper bound — valid
       },
       pkgId
     )
