@@ -323,6 +323,7 @@ exports.map = {
       description: x.DESCRIPTION,
       descriminatorId: x.DISCRIMINATOR_REF,
       packageId: x.PACKAGE_REF,
+      packageRef: x.PACKAGE_REF,
       discriminatorName: x.DISCRIMINATOR_NAME,
       clusterCode: x.CLUSTER_CODE
     }
@@ -659,6 +660,7 @@ exports.map = {
       featureName: x.FEATURE_NAME,
       featureBit: x.FEATURE_BIT,
       clusterId: x.CLUSTER_REF,
+      clusterRef: x.CLUSTER_REF,
       composition: x.TYPE,
       conformance: x.DEVICE_TYPE_CLUSTER_CONFORMANCE
     }

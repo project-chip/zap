@@ -232,8 +232,10 @@ ORDER BY C.CODE
   return rows.map((row) => {
     return {
       clusterId: row['CLUSTER_ID'],
+      clusterRef: row['CLUSTER_ID'],
       id: row['CLUSTER_ID'],
       endpointTypeId: row['ENDPOINT_TYPE_REF'],
+      endpointTypeRef: row['ENDPOINT_TYPE_REF'],
       endpointTypeClusterId: row['ENDPOINT_TYPE_CLUSTER_ID'],
       hexCode: '0x' + bin.int16ToHex(row['CODE']),
       manufacturerCode: row['MANUFACTURER_CODE'],
@@ -316,6 +318,7 @@ ORDER BY A.MANUFACTURER_CODE, A.CODE
     return {
       id: row.ATTRIBUTE_ID,
       clusterId: clusterId,
+      clusterRef: clusterId,
       code: row.CODE,
       manufacturerCode: row.MANUFACTURER_CODE,
       hexCode: '0x' + bin.int16ToHex(row['CODE']),
@@ -424,6 +427,7 @@ ORDER BY CODE
       name: row['NAME'],
       code: row['CODE'],
       clusterId: row['CLUSTER_REF'],
+      clusterRef: row['CLUSTER_REF'],
       manufacturerCode: row['MANUFACTURER_CODE'],
       isOptional: dbApi.fromDbBool(row['IS_OPTIONAL']),
       mustUseTimedInvoke: dbApi.fromDbBool(row['MUST_USE_TIMED_INVOKE']),
