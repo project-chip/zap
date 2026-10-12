@@ -61,23 +61,6 @@ limitations under the License.
         >
           <q-tooltip> Cluster Specification </q-tooltip>
         </q-btn>
-        <q-btn
-          v-if="showEnableAllComponents"
-          class="full-height"
-          flat
-          rounded
-          label="Enable All Components"
-          color="primary"
-          :loading="enablingAllComponents"
-          :disable="enablingAllComponents"
-          data-cy="enable-all-components"
-          @click="enableAllMissingComponents"
-        >
-          <q-tooltip>
-            Enable the Simplicity Studio components required by every cluster
-            that does not have them enabled.
-          </q-tooltip>
-        </q-btn>
         <div class="v-step-7">
           <q-select
             outlined
@@ -89,6 +72,23 @@ limitations under the License.
             data-cy="cluster-domain-filter"
           />
         </div>
+        <q-btn
+          v-if="showEnableAllComponents"
+          class="full-height"
+          flat
+          rounded
+          label="Enable All Components"
+          color="primary"
+          :loading="enablingAllComponents"
+          :disable="enablingAllComponents || !clustersMissingComponents.length"
+          data-cy="enable-all-components"
+          @click="enableAllMissingComponents"
+        >
+          <q-tooltip>
+            Enable the Simplicity Studio components that are not installed for
+            clusters in this view.
+          </q-tooltip>
+        </q-btn>
 
         <div>
           <q-input
@@ -186,7 +186,7 @@ export default {
     enabledClusters() {
       this.changeDomainFilter(this.filter)
     },
-    clustersMissingComponents() {
+    clustersWithComponents() {
       this.changeDomainFilter(this.filter)
     },
     expanded() {
@@ -263,6 +263,17 @@ export default {
       }
     },
     /**
+     * Clusters that have a Simplicity Studio component mapping, whether or
+     * not that component is installed.
+     */
+    clustersWithComponents: {
+      get() {
+        return this.relevantClusters.filter((cluster) =>
+          this.clusterHasAssociatedComponent(cluster)
+        )
+      }
+    },
+    /**
      * Enabled clusters whose Simplicity Studio components are not installed.
      * Hidden until Studio has reported a component tree, matching the
      * per-cluster warning.
@@ -283,7 +294,7 @@ export default {
     showEnableAllComponents: {
       get() {
         return (
-          !this.standaloneMode() && this.clustersMissingComponents.length > 0
+          this.filter.label === 'Cluster Components' && !this.standaloneMode()
         )
       }
     },
@@ -295,7 +306,13 @@ export default {
     },
     filterOptions: {
       get() {
-        return this.$store.state.zap.clusterManager.filterOptions
+        let options = this.$store.state.zap.clusterManager.filterOptions
+        if (this.standaloneMode()) {
+          return options.filter(
+            (option) => option.label !== 'Cluster Components'
+          )
+        }
+        return options
       }
     },
     filter: {
@@ -382,6 +399,12 @@ export default {
     isCloseAllAction(actionOption) {
       return actionOption.label === restApi.closeAll
     },
+    clusterHasAssociatedComponent(cluster) {
+      return (
+        this.ucComponentRequiredByCluster(cluster, 'client').length > 0 ||
+        this.ucComponentRequiredByCluster(cluster, 'server').length > 0
+      )
+    },
     isClusterEnabled(clusterReference) {
       return (
         this.selectionClients.includes(clusterReference) ||
@@ -412,7 +435,7 @@ export default {
       return {
         enabledClusters: this.enabledClusters,
         relevantClusters: this.relevantClusters,
-        clustersMissingComponents: this.clustersMissingComponents,
+        clustersWithComponents: this.clustersWithComponents,
         deviceTypeRefsForSelectedEndpoint:
           this.endpointDeviceTypeRef[this.selectedEndpointId],
         deviceTypeClustersForSelectedEndpoint:

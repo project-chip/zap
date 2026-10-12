@@ -165,7 +165,7 @@ describe('Testing cluster filters', () => {
     }
   )
   it(
-    'offers a components not enabled filter',
+    'offers a cluster components filter outside standalone mode',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get('[data-test="filter-input"]').click()
@@ -174,7 +174,7 @@ describe('Testing cluster filters', () => {
       })
       cy.get('[data-test="filter-input"]').should(
         'contain',
-        'Components Not Enabled'
+        'Cluster Components'
       )
     }
   )

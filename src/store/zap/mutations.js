@@ -850,8 +850,8 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
         ? filter.domainFilterFn(domainName, state.clusterManager.openDomains, {
             enabledClusters: filterEnabledClusterPair.enabledClusters,
             relevantClusters: filterEnabledClusterPair.relevantClusters,
-            clustersMissingComponents:
-              filterEnabledClusterPair.clustersMissingComponents,
+            clustersWithComponents:
+              filterEnabledClusterPair.clustersWithComponents,
             deviceTypeRefsForSelectedEndpoint:
               filterEnabledClusterPair.deviceTypeRefsForSelectedEndpoint,
             deviceTypeClustersForSelectedEndpoint:
