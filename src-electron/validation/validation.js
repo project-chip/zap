@@ -234,7 +234,13 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
       } catch (e) {
         const msg = `Could not resolve float type size for attribute "${attribute.name}" (type: ${attribute.type}): ${e.message}`
         env.logWarning(msg)
-        queryNotification.setNotification(db, 'WARNING', msg, packageId, 2)
+        await queryNotification.setNotification(
+          db,
+          'WARNING',
+          msg,
+          packageId,
+          2
+        )
         size = undefined
       }
       if (!isValidFloat(attribute.defaultValue, size)) {
@@ -311,7 +317,13 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
   if (issues.length > 0) {
     let message = `XML validation issues for attribute "${attribute.name}" (type: ${attribute.type}, defaultvalue: ${attribute.defaultValue}): ${issues.join(', ')}`
     env.logWarning(message)
-    queryNotification.setNotification(db, 'WARNING', message, packageId, 2)
+    await queryNotification.setNotification(
+      db,
+      'WARNING',
+      message,
+      packageId,
+      2
+    )
   }
 }
 
