@@ -5753,6 +5753,16 @@ CREATE TABLE IF NOT EXISTS "SETTING" (
   UNIQUE(CATEGORY, KEY)
 );
 /*
+ RECENT_FILE table contains .zap files that were opened or saved,
+ shown on the config page. Rows are carried over when the schema reloads.
+ */
+CREATE TABLE IF NOT EXISTS "RECENT_FILE" (
+  "RECENT_FILE_ID" integer primary key autoincrement,
+  "PATH" text,
+  "LAST_USED" integer,
+  UNIQUE(PATH)
+);
+/*
  Session Notification table
  */
 CREATE TABLE IF NOT EXISTS "SESSION_NOTICE" (

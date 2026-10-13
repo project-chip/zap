@@ -42,12 +42,12 @@
                 data-cy="restore-session-radio"
               />
               <q-radio
-                v-if="recentFiles.length"
+                v-if="recentFiles.length || customConfig === 'recent'"
                 v-model="customConfig"
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
                 val="recent"
-                label="Open a recently used .zap file"
+                label="Open Recent ZAP files"
                 data-cy="recent-file-radio"
               />
             </div>
@@ -441,6 +441,24 @@
               </q-table>
             </template>
             <template v-else-if="customConfig === 'recent'">
+              <div class="row justify-end items-center q-mb-sm q-gutter-sm">
+                <q-input
+                  v-model.number="recentFileDays"
+                  type="number"
+                  min="1"
+                  dense
+                  outlined
+                  label="Days to keep"
+                  style="width: 140px"
+                  debounce="500"
+                  data-cy="recent-file-days"
+                  @update:model-value="saveRecentFileDays"
+                >
+                  <q-tooltip>
+                    Files opened or saved within this many days stay on the list
+                  </q-tooltip>
+                </q-input>
+              </div>
               <q-table
                 title="Recently used .zap files"
                 :rows="recentFiles"
@@ -617,7 +635,7 @@ export default {
       loadPreSessionData: [],
       sessionsToDelete: [],
       recentFiles: [],
-      recentFileDays: 21,
+      recentFileDays: null,
       pagination: {
         rowsPerPage: 10
       },
@@ -732,6 +750,15 @@ export default {
       url.searchParams.set('filePath', file.path)
       window.location.assign(url.pathname + url.search)
     },
+    saveRecentFileDays(days) {
+      if (!Number.isInteger(days) || days < 1) return Promise.resolve()
+      return this.$serverPost(restApi.uri.recentFileDays, { days }).then(
+        (result) => {
+          this.recentFileDays = result.data.recentFileDays
+          this.recentFiles = result.data.recentFiles || []
+        }
+      )
+    },
     afterSessionDeleted() {
       if (
         this.selectedZclSessionData &&
@@ -748,7 +775,7 @@ export default {
     deleteUnsavedSession(session) {
       if (!session?.id) return Promise.resolve()
       return this.$serverDelete(restApi.uri.deleteSession, {
-        params: { id: session.id }
+        params: { [restApi.param.sessionId]: session.id }
       }).then(() => {
         this.loadPreSessionData = this.loadPreSessionData.filter(
           (s) => s.id !== session.id
@@ -892,7 +919,7 @@ export default {
       this.currentZapFilePackages = result.data.zapFilePackages
       this.zapFileExtensions = result.data.zapFileExtensions
       this.recentFiles = result.data.recentFiles || []
-      this.recentFileDays = result.data.recentFileDays || 21
+      this.recentFileDays = result.data.recentFileDays
       let currentZapFileZclPackages = []
       let currentTopLevelZapFilePackages = []
       let currentZapFileTemplatePackages = []

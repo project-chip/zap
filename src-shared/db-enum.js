@@ -101,6 +101,19 @@ exports.zclType = {
   number: 'number'
 }
 
+// Rows in the SETTING table, keyed by CATEGORY and KEY.
+exports.settingCategory = {
+  app: 'APP',
+  recentFile: 'RECENT_FILE'
+}
+
+exports.settingKey = {
+  version: 'VERSION',
+  hash: 'HASH',
+  date: 'DATE',
+  recentFileDays: 'DAYS'
+}
+
 exports.sessionKey = {
   filePath: 'filePath',
   ideProjectPath: 'ideProjectPath',

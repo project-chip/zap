@@ -220,7 +220,7 @@ const environmentVariable = {
   recentFileDays: {
     name: 'ZAP_RECENT_FILE_DAYS',
     description:
-      'How many days a .zap file stays on the recent-files list on the config page. Default: 21'
+      'Default number of days a .zap file stays on the recent-files list on the config page. A value chosen on the config page takes precedence. Default: 21'
   }
 }
 

@@ -460,7 +460,7 @@ async function insertOrReplaceSetting(db, category, key, value) {
  */
 async function updateSetting(db, rows) {
   for (let i = 0; i < rows.length; i++) {
-    dbInsert(
+    await dbInsert(
       db,
       'INSERT OR REPLACE INTO SETTING ( CATEGORY, KEY, VALUE ) VALUES ( ?, ?, ? )',
       [rows[i].category, rows[i].key, rows[i].value]
@@ -478,6 +478,69 @@ async function selectSettings(db) {
   let rows = []
   rows = await dbAll(db, 'SELECT CATEGORY,KEY,VALUE FROM SETTING')
   return rows.map(dbMapping.map.settings)
+}
+
+/**
+ * Returns a promise resolving the value of one setting, or null if it is not set.
+ *
+ * @param {*} db
+ * @param {*} category
+ * @param {*} key
+ * @returns A promise that resolves with the setting value or null.
+ */
+async function selectSetting(db, category, key) {
+  let row = await dbGet(
+    db,
+    'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
+    [category, key]
+  )
+  return row == null ? null : row.VALUE
+}
+
+/**
+ * Returns a promise resolving to true if a table exists in the database.
+ *
+ * @param {*} db
+ * @param {*} tableName
+ * @returns A promise that resolves with true or false.
+ */
+async function tableExists(db, tableName) {
+  let row = await dbGet(
+    db,
+    "SELECT NAME FROM sqlite_master WHERE TYPE = 'table' AND NAME = ?",
+    [tableName]
+  )
+  return row != null
+}
+
+/**
+ * Returns a promise resolving the entire RECENT_FILE table.
+ * Resolves with an empty array when the table does not exist yet,
+ * which is the case for databases created before the table was added.
+ *
+ * @param {*} db
+ * @returns A promise resolving the entire RECENT_FILE table
+ */
+async function selectRecentFiles(db) {
+  if (!(await tableExists(db, 'RECENT_FILE'))) return []
+  let rows = await dbAll(db, 'SELECT PATH, LAST_USED FROM RECENT_FILE')
+  return rows.map(dbMapping.map.recentFile)
+}
+
+/**
+ * Inserts rows into the RECENT_FILE table.
+ *
+ * @param {*} db
+ * @param {*} rows array of objects containing 'path' and 'lastUsed'
+ * @returns A promise that resolves when the rows are inserted.
+ */
+async function insertRecentFiles(db, rows) {
+  if (rows.length == 0) return
+  return dbMultiInsert(
+    db,
+    'INSERT OR REPLACE INTO RECENT_FILE ( PATH, LAST_USED ) VALUES ( ?, ? )',
+    rows.map((row) => [row.path, row.lastUsed])
+  )
 }
 
 /**
@@ -551,7 +614,12 @@ async function performSchemaLoad(db, schemaContent) {
 }
 
 /**
- * Returns a promise to load schema into a blank database, and inserts a version to the settings table.j
+ * Returns a promise to load schema into a blank database, and inserts a version to the settings table.
+ *
+ * When the schema checksum changed and the database already has a schema,
+ * the old database file is moved aside and a new one is created. Rows of the
+ * SETTING and RECENT_FILE tables are read from the old database before it is
+ * closed and written into the new one, so they survive the reload.
  *
  * @export
  * @param {*} db
@@ -561,7 +629,8 @@ async function performSchemaLoad(db, schemaContent) {
  */
 async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   let schemaFileContent = await fsp.readFile(schemaPath, 'utf8')
-  let rows = []
+  let settingRows = []
+  let recentFileRows = []
   let context = {
     filePath: schemaPath,
     data: schemaFileContent,
@@ -573,6 +642,8 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
     context.crc
   )
   if (schemaStatus.mustLoad && schemaStatus.hasSchema) {
+    settingRows = await selectSettings(db)
+    recentFileRows = await selectRecentFiles(db)
     await closeDatabase(db)
     if (sqliteFile != null) util.createBackupFile(sqliteFile)
   }
@@ -586,18 +657,31 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   if (schemaStatus.mustLoad) {
     await performSchemaLoad(db, context.data)
     await updateCurrentSchemaCrc(db, context.filePath, context.crc)
-    if (schemaStatus.hasSchema) {
-      rows = await selectSettings(db)
-    }
-    await updateSetting(db, rows)
+    await updateSetting(db, settingRows)
+    await insertRecentFiles(db, recentFileRows)
   }
 
-  await insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
+  await insertOrReplaceSetting(
+    db,
+    dbEnum.settingCategory.app,
+    dbEnum.settingKey.version,
+    zapVersion.version
+  )
   if ('hash' in zapVersion) {
-    await insertOrReplaceSetting(db, 'APP', 'HASH', zapVersion.hash)
+    await insertOrReplaceSetting(
+      db,
+      dbEnum.settingCategory.app,
+      dbEnum.settingKey.hash,
+      zapVersion.hash
+    )
   }
   if ('date' in zapVersion) {
-    await insertOrReplaceSetting(db, 'APP', 'DATE', zapVersion.date)
+    await insertOrReplaceSetting(
+      db,
+      dbEnum.settingCategory.app,
+      dbEnum.settingKey.date,
+      zapVersion.date
+    )
   }
   return db
 }
@@ -663,6 +747,8 @@ exports.initRamDatabase = initRamDatabase
 exports.initDatabase = initDatabase
 exports.loadSchema = loadSchema
 exports.initDatabaseAndLoadSchema = initDatabaseAndLoadSchema
+exports.insertOrReplaceSetting = insertOrReplaceSetting
+exports.selectSetting = selectSetting
 exports.toDbBool = toDbBool
 exports.fromDbBool = fromDbBool
 exports.toInClause = toInClause

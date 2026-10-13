@@ -95,8 +95,13 @@ test(
       [dirty1, dirty2]
     )
 
+    let missing = await axiosInstance
+      .delete(restApi.uri.deleteSession)
+      .catch((err) => err.response)
+    expect(missing.status).toBe(400)
+
     let one = await axiosInstance.delete(restApi.uri.deleteSession, {
-      params: { id: dirty1 }
+      params: { [restApi.param.sessionId]: dirty1 }
     })
     expect(one.data.message).toContain('deleted')
     expect(
@@ -108,6 +113,26 @@ test(
     expect(
       await querySession.getSessionFromSessionId(db, dirty2)
     ).toBeUndefined()
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Set recent file days and reject invalid values',
+  async () => {
+    let ok = await axiosInstance.post(restApi.uri.recentFileDays, { days: 5 })
+    expect(ok.data.recentFileDays).toBe(5)
+    expect(Array.isArray(ok.data.recentFiles)).toBe(true)
+
+    let attempt = await axiosInstance.post(restApi.uri.sessionAttempt, {
+      search: ''
+    })
+    expect(attempt.data.recentFileDays).toBe(5)
+
+    let bad = await axiosInstance
+      .post(restApi.uri.recentFileDays, { days: -1 })
+      .catch((err) => err.response)
+    expect(bad.status).toBe(400)
   },
   testUtil.timeout.medium()
 )

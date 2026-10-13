@@ -90,6 +90,9 @@ can require it without pulling in Quasar, and so <code>tsc</code> / packaging in
 <dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
 <dd><p>This module provides queries related to packages.</p>
 </dd>
+<dt><a href="#module_DB API_ recent file queries.">DB API: recent file queries.</a></dt>
+<dd><p>This module provides queries for the RECENT_FILE table.</p>
+</dd>
 <dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
 <dd><p>This module provides session notification related queries.</p>
 </dd>
@@ -361,7 +364,10 @@ scripting functionality.</p>
 scripting functionality.</p>
 </dd>
 <dt><a href="#module_JS API_ recent files">JS API: recent files</a></dt>
-<dd><p>Recent .zap file list stored in the ZAP state directory.</p>
+<dd><p>Recent .zap file list, stored in the RECENT_FILE table of the ZAP database.</p>
+<p>The number of days a file stays on the list comes from the SETTING table
+when it was chosen on the config page, otherwise from the
+<code>--recentFileDays</code> option or its default.</p>
 </dd>
 <dt><a href="#module_JS API_ SDK utilities">JS API: SDK utilities</a></dt>
 <dd></dd>
@@ -621,6 +627,10 @@ This module provides generic DB functions for performing SQL queries.
     * [~insertOrReplaceSetting(db, version)](#module_JS API_ low level database access..insertOrReplaceSetting) ⇒
     * [~updateSetting(db, rows)](#module_JS API_ low level database access..updateSetting) ⇒
     * [~selectSettings(db)](#module_JS API_ low level database access..selectSettings) ⇒
+    * [~selectSetting(db, category, key)](#module_JS API_ low level database access..selectSetting) ⇒
+    * [~tableExists(db, tableName)](#module_JS API_ low level database access..tableExists) ⇒
+    * [~selectRecentFiles(db)](#module_JS API_ low level database access..selectRecentFiles) ⇒
+    * [~insertRecentFiles(db, rows)](#module_JS API_ low level database access..insertRecentFiles) ⇒
     * [~determineIfSchemaShouldLoad(db, context)](#module_JS API_ low level database access..determineIfSchemaShouldLoad) ⇒
     * [~updateCurrentSchemaCrc(db, filePath, crc)](#module_JS API_ low level database access..updateCurrentSchemaCrc) ⇒
     * [~performSchemaLoad(db, schemaContent)](#module_JS API_ low level database access..performSchemaLoad) ⇒
@@ -889,6 +899,60 @@ Returns a promise resolving the entire SETTING table
 | --- | --- |
 | db | <code>\*</code> | 
 
+<a name="module_JS API_ low level database access..selectSetting"></a>
+
+### JS API: low level database access~selectSetting(db, category, key) ⇒
+Returns a promise resolving the value of one setting, or null if it is not set.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+**Returns**: A promise that resolves with the setting value or null.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| category | <code>\*</code> | 
+| key | <code>\*</code> | 
+
+<a name="module_JS API_ low level database access..tableExists"></a>
+
+### JS API: low level database access~tableExists(db, tableName) ⇒
+Returns a promise resolving to true if a table exists in the database.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+**Returns**: A promise that resolves with true or false.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| tableName | <code>\*</code> | 
+
+<a name="module_JS API_ low level database access..selectRecentFiles"></a>
+
+### JS API: low level database access~selectRecentFiles(db) ⇒
+Returns a promise resolving the entire RECENT_FILE table.
+Resolves with an empty array when the table does not exist yet,
+which is the case for databases created before the table was added.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+**Returns**: A promise resolving the entire RECENT_FILE table  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_JS API_ low level database access..insertRecentFiles"></a>
+
+### JS API: low level database access~insertRecentFiles(db, rows) ⇒
+Inserts rows into the RECENT_FILE table.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+**Returns**: A promise that resolves when the rows are inserted.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| rows | <code>\*</code> | array of objects containing 'path' and 'lastUsed' |
+
 <a name="module_JS API_ low level database access..determineIfSchemaShouldLoad"></a>
 
 ### JS API: low level database access~determineIfSchemaShouldLoad(db, context) ⇒
@@ -932,7 +996,12 @@ Load SQL Schema
 <a name="module_JS API_ low level database access..loadSchema"></a>
 
 ### JS API: low level database access~loadSchema(db, schemaPath, zapVersion) ⇒
-Returns a promise to load schema into a blank database, and inserts a version to the settings table.j
+Returns a promise to load schema into a blank database, and inserts a version to the settings table.
+
+When the schema checksum changed and the database already has a schema,
+the old database file is moved aside and a new one is created. Rows of the
+SETTING and RECENT_FILE tables are read from the old database before it is
+closed and written into the new one, so they survive the reload.
 
 **Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
 **Returns**: A promise that resolves with the same db that got passed in, or rejects with an error.  
@@ -5035,6 +5104,11 @@ This module provides package notification related queries.
 
 ## DB API: package-based queries.
 This module provides queries related to packages.
+
+<a name="module_DB API_ recent file queries."></a>
+
+## DB API: recent file queries.
+This module provides queries for the RECENT_FILE table.
 
 <a name="module_DB API_ session related queries."></a>
 
@@ -17652,6 +17726,7 @@ This module provides the REST API to the session initialization
     * [~initializeSession(db, options:)](#module_REST API_ initialization functions..initializeSession) ⇒
     * [~loadPreviousSessions(db)](#module_REST API_ initialization functions..loadPreviousSessions) ⇒
     * [~deleteSession(db)](#module_REST API_ initialization functions..deleteSession) ⇒
+    * [~setRecentFileDays(db)](#module_REST API_ initialization functions..setRecentFileDays) ⇒
     * [~deleteAllDirtySessions(db)](#module_REST API_ initialization functions..deleteAllDirtySessions) ⇒
     * [~init(db)](#module_REST API_ initialization functions..init) ⇒
 
@@ -17723,6 +17798,19 @@ This function reloads previous session by user selected session's id
 
 ### REST API: initialization functions~deleteSession(db) ⇒
 Delete one unsaved session by id.
+
+**Kind**: inner method of [<code>REST API: initialization functions</code>](#module_REST API_ initialization functions)  
+**Returns**: An async function that handles HTTP requests.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ initialization functions..setRecentFileDays"></a>
+
+### REST API: initialization functions~setRecentFileDays(db) ⇒
+Set how many days a .zap file stays on the recent-files list and
+return the list filtered by the new window.
 
 **Kind**: inner method of [<code>REST API: initialization functions</code>](#module_REST API_ initialization functions)  
 **Returns**: An async function that handles HTTP requests.  
@@ -20369,47 +20457,55 @@ scripting functionality.
 <a name="module_JS API_ recent files"></a>
 
 ## JS API: recent files
-Recent .zap file list stored in the ZAP state directory.
+Recent .zap file list, stored in the RECENT_FILE table of the ZAP database.
+
+The number of days a file stays on the list comes from the SETTING table
+when it was chosen on the config page, otherwise from the
+`--recentFileDays` option or its default.
 
 
 * [JS API: recent files](#module_JS API_ recent files)
-    * [~recentFilesPath()](#module_JS API_ recent files..recentFilesPath) ⇒ <code>string</code>
-    * [~recentFileDays()](#module_JS API_ recent files..recentFileDays) ⇒ <code>number</code>
-    * [~readAll()](#module_JS API_ recent files..readAll) ⇒ <code>Array</code>
-    * [~writeAll(list)](#module_JS API_ recent files..writeAll)
+    * [~parseDays(days)](#module_JS API_ recent files..parseDays) ⇒ <code>number</code> \| <code>null</code>
+    * [~recentFileDays(db)](#module_JS API_ recent files..recentFileDays) ⇒ <code>Promise.&lt;number&gt;</code>
+    * [~setRecentFileDays(db, days)](#module_JS API_ recent files..setRecentFileDays) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
     * [~isZapFile(filePath)](#module_JS API_ recent files..isZapFile) ⇒ <code>boolean</code>
-    * [~recordRecentFile(filePath)](#module_JS API_ recent files..recordRecentFile)
-    * [~getRecentFiles([maxAgeDays])](#module_JS API_ recent files..getRecentFiles) ⇒ <code>Array</code>
+    * [~recordRecentFile(db, filePath)](#module_JS API_ recent files..recordRecentFile)
+    * [~getRecentFiles(db, [maxAgeDays])](#module_JS API_ recent files..getRecentFiles) ⇒ <code>Promise.&lt;Array&gt;</code>
 
-<a name="module_JS API_ recent files..recentFilesPath"></a>
+<a name="module_JS API_ recent files..parseDays"></a>
 
-### JS API: recent files~recentFilesPath() ⇒ <code>string</code>
-Absolute path of the recent-files JSON in the state directory.
+### JS API: recent files~parseDays(days) ⇒ <code>number</code> \| <code>null</code>
+Parse a days value. Returns null unless it is a positive integer.
 
 **Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
+
+| Param | Type |
+| --- | --- |
+| days | <code>\*</code> | 
+
 <a name="module_JS API_ recent files..recentFileDays"></a>
 
-### JS API: recent files~recentFileDays() ⇒ <code>number</code>
+### JS API: recent files~recentFileDays(db) ⇒ <code>Promise.&lt;number&gt;</code>
 How many days a file stays on the list.
 
 **Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
-<a name="module_JS API_ recent files..readAll"></a>
 
-### JS API: recent files~readAll() ⇒ <code>Array</code>
-Read the raw list from disk.
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
 
-**Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
-**Returns**: <code>Array</code> - list of {path, lastUsed}  
-<a name="module_JS API_ recent files..writeAll"></a>
+<a name="module_JS API_ recent files..setRecentFileDays"></a>
 
-### JS API: recent files~writeAll(list)
-Write the list to disk.
+### JS API: recent files~setRecentFileDays(db, days) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
+Store how many days a file stays on the list.
 
 **Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
+**Returns**: <code>Promise.&lt;(number\|null)&gt;</code> - the stored value, or null if days was invalid  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| list | <code>Array</code> | list of {path, lastUsed} |
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| days | <code>\*</code> | 
 
 <a name="module_JS API_ recent files..isZapFile"></a>
 
@@ -20424,27 +20520,30 @@ True if the path looks like a .zap file.
 
 <a name="module_JS API_ recent files..recordRecentFile"></a>
 
-### JS API: recent files~recordRecentFile(filePath)
+### JS API: recent files~recordRecentFile(db, filePath)
 Record that a .zap file was opened or saved.
+Failures are logged and do not interrupt the open or save.
 
 **Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
 
 | Param | Type |
 | --- | --- |
+| db | <code>\*</code> | 
 | filePath | <code>string</code> | 
 
 <a name="module_JS API_ recent files..getRecentFiles"></a>
 
-### JS API: recent files~getRecentFiles([maxAgeDays]) ⇒ <code>Array</code>
+### JS API: recent files~getRecentFiles(db, [maxAgeDays]) ⇒ <code>Promise.&lt;Array&gt;</code>
 Recent files still on disk and within the configured window.
-Stale or missing entries are dropped from disk.
+Stale or missing entries are removed from the database.
 
 **Kind**: inner method of [<code>JS API: recent files</code>](#module_JS API_ recent files)  
-**Returns**: <code>Array</code> - list of {path, lastUsed}  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - objects containing 'path' and 'lastUsed', newest first  
 
-| Param | Type |
-| --- | --- |
-| [maxAgeDays] | <code>number</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| [maxAgeDays] | <code>number</code> | overrides the configured window |
 
 <a name="module_JS API_ SDK utilities"></a>
 

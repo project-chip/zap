@@ -220,7 +220,7 @@ export function processCommandLineArguments(argv) {
         env.defaultFileFormat()
     })
     .option('recentFileDays', {
-      desc: 'How many days a .zap file stays on the recent-files list on the config page.',
+      desc: 'Default number of days a .zap file stays on the recent-files list on the config page. A value chosen on the config page takes precedence.',
       type: 'number',
       default:
         process.env[env.environmentVariable.recentFileDays.name] ||

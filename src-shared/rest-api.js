@@ -87,6 +87,7 @@ const uri = {
   reloadSession: '/zcl/reloadSession',
   deleteSession: '/zcl/deleteSession',
   deleteAllDirtySessions: '/zcl/deleteAllDirtySessions',
+  recentFileDays: '/zcl/recentFileDays',
   init: '/init',
   forcedExternal: '/zcl/forcedExternal',
   loadComposition: '/zcl/loadComposition',

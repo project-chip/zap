@@ -118,7 +118,7 @@ function httpPostFileOpen(db) {
           zapFilePath,
           options
         )
-        recentFiles.recordRecentFile(zapFilePath)
+        await recentFiles.recordRecentFile(db, zapFilePath)
 
         let response = {
           sessionId: importResult.sessionId,
@@ -206,7 +206,7 @@ function httpPostFileSave(db) {
           req.zapSessionId,
           actualPath
         )
-        recentFiles.recordRecentFile(filePath)
+        await recentFiles.recordRecentFile(db, filePath)
         res.status(StatusCodes.OK).send({ filePath: filePath })
       } catch (err) {
         let msg = `Unable to save project.`

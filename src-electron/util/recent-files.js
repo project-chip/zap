@@ -16,7 +16,11 @@
  */
 
 /**
- * Recent .zap file list stored in the ZAP state directory.
+ * Recent .zap file list, stored in the RECENT_FILE table of the ZAP database.
+ *
+ * The number of days a file stays on the list comes from the SETTING table
+ * when it was chosen on the config page, otherwise from the
+ * `--recentFileDays` option or its default.
  *
  * @module JS API: recent files
  */
@@ -24,51 +28,52 @@
 const fs = require('fs')
 const path = require('path')
 const env = require('./env')
+const dbApi = require('../db/db-api.js')
+const dbEnum = require('../../src-shared/db-enum.js')
+const queryRecentFile = require('../db/query-recent-file.js')
 
-const RECENT_FILES_NAME = 'recent-zap-files.json'
+const MS_PER_DAY = 24 * 60 * 60 * 1000
 
 /**
- * Absolute path of the recent-files JSON in the state directory.
- * @returns {string}
+ * Parse a days value. Returns null unless it is a positive integer.
+ * @param {*} days
+ * @returns {number|null}
  */
-function recentFilesPath() {
-  return path.join(env.appDirectory(), RECENT_FILES_NAME)
+function parseDays(days) {
+  let parsed = parseInt(days, 10)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null
 }
 
 /**
  * How many days a file stays on the list.
- * @returns {number}
+ * @param {*} db
+ * @returns {Promise<number>}
  */
-function recentFileDays() {
-  return env.getRecentFileDays()
+async function recentFileDays(db) {
+  let stored = await dbApi.selectSetting(
+    db,
+    dbEnum.settingCategory.recentFile,
+    dbEnum.settingKey.recentFileDays
+  )
+  return parseDays(stored) ?? env.getRecentFileDays()
 }
 
 /**
- * Read the raw list from disk.
- * @returns {Array} list of {path, lastUsed}
+ * Store how many days a file stays on the list.
+ * @param {*} db
+ * @param {*} days
+ * @returns {Promise<number|null>} the stored value, or null if days was invalid
  */
-function readAll() {
-  try {
-    let file = recentFilesPath()
-    if (!fs.existsSync(file)) return []
-    let data = JSON.parse(fs.readFileSync(file, 'utf8'))
-    return Array.isArray(data) ? data : []
-  } catch (err) {
-    env.logWarning(`Failed to read recent files list: ${err.message}`)
-    return []
-  }
-}
-
-/**
- * Write the list to disk.
- * @param {Array} list list of {path, lastUsed}
- */
-function writeAll(list) {
-  try {
-    fs.writeFileSync(recentFilesPath(), JSON.stringify(list, null, 2))
-  } catch (err) {
-    env.logWarning(`Failed to write recent files list: ${err.message}`)
-  }
+async function setRecentFileDays(db, days) {
+  let parsed = parseDays(days)
+  if (parsed == null) return null
+  await dbApi.insertOrReplaceSetting(
+    db,
+    dbEnum.settingCategory.recentFile,
+    dbEnum.settingKey.recentFileDays,
+    String(parsed)
+  )
+  return parsed
 }
 
 /**
@@ -82,41 +87,52 @@ function isZapFile(filePath) {
 
 /**
  * Record that a .zap file was opened or saved.
+ * Failures are logged and do not interrupt the open or save.
+ * @param {*} db
  * @param {string} filePath
  */
-function recordRecentFile(filePath) {
+async function recordRecentFile(db, filePath) {
   if (!isZapFile(filePath)) return
-  let normalized = path.resolve(filePath)
-  let now = Date.now()
-  let list = readAll().filter((entry) => entry.path !== normalized)
-  list.unshift({ path: normalized, lastUsed: now })
-  writeAll(list)
+  try {
+    await queryRecentFile.insertOrReplaceRecentFile(
+      db,
+      path.resolve(filePath),
+      Date.now()
+    )
+  } catch (err) {
+    env.logWarning(`Failed to record recent file: ${err.message}`)
+  }
 }
 
 /**
  * Recent files still on disk and within the configured window.
- * Stale or missing entries are dropped from disk.
- * @param {number} [maxAgeDays]
- * @returns {Array} list of {path, lastUsed}
+ * Stale or missing entries are removed from the database.
+ * @param {*} db
+ * @param {number} [maxAgeDays] overrides the configured window
+ * @returns {Promise<Array>} objects containing 'path' and 'lastUsed', newest first
  */
-function getRecentFiles(maxAgeDays) {
-  let days = maxAgeDays || recentFileDays()
-  let cutoff = Date.now() - days * 24 * 60 * 60 * 1000
-  let list = readAll()
-    .filter(
-      (entry) =>
-        entry &&
-        typeof entry.path === 'string' &&
-        typeof entry.lastUsed === 'number' &&
-        entry.lastUsed >= cutoff &&
-        fs.existsSync(entry.path)
-    )
-    .sort((a, b) => b.lastUsed - a.lastUsed)
-  writeAll(list)
-  return list
+async function getRecentFiles(db, maxAgeDays) {
+  try {
+    let days = parseDays(maxAgeDays) ?? (await recentFileDays(db))
+    let cutoff = Date.now() - days * MS_PER_DAY
+    await queryRecentFile.deleteRecentFilesBefore(db, cutoff)
+    let rows = await queryRecentFile.selectRecentFiles(db, cutoff)
+    let present = []
+    for (const row of rows) {
+      if (fs.existsSync(row.path)) {
+        present.push(row)
+      } else {
+        await queryRecentFile.deleteRecentFile(db, row.path)
+      }
+    }
+    return present
+  } catch (err) {
+    env.logWarning(`Failed to read recent files: ${err.message}`)
+    return []
+  }
 }
 
 exports.recordRecentFile = recordRecentFile
 exports.getRecentFiles = getRecentFiles
 exports.recentFileDays = recentFileDays
-exports.recentFilesPath = recentFilesPath
+exports.setRecentFileDays = setRecentFileDays

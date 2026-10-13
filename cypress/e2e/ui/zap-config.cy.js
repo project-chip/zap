@@ -406,6 +406,12 @@ describe('ZapConfig recent files and unsaved session delete', () => {
       statusCode: 200,
       body: { message: 'Unsaved sessions deleted successfully', count: 1 }
     }).as('deleteAllSessions')
+    cy.intercept('POST', '**/zcl/recentFileDays*', (req) => {
+      req.reply({
+        statusCode: 200,
+        body: { recentFileDays: req.body.days, recentFiles }
+      })
+    }).as('recentFileDays')
     cy.visit('/')
     cy.wait('@sessionAttempt')
     cy.url().should('include', '/config')
@@ -426,6 +432,11 @@ describe('ZapConfig recent files and unsaved session delete', () => {
     })
     cy.contains('recent-light.zap').should('be.visible')
     cy.dataCy('recent-file-row').should('exist')
+
+    cy.dataCy('recent-file-days').find('input').should('have.value', '21')
+    cy.dataCy('recent-file-days').find('input').clear().type('7')
+    cy.wait('@recentFileDays').its('request.body.days').should('eq', 7)
+    cy.contains('in the last 7 days').should('be.visible')
   })
 
   it('Should delete an unsaved session and support delete all', () => {

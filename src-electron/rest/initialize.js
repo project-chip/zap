@@ -28,6 +28,7 @@ const restApi = require('../../src-shared/rest-api.js')
 const util = require('../util/util.js')
 const env = require('../util/env.js')
 const recentFilesUtil = require('../util/recent-files.js')
+const { StatusCodes } = require('http-status-codes')
 const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
@@ -91,10 +92,12 @@ async function ensurePackageLoaded(db, packagePath, packageType) {
  */
 function sessionAttempt(db) {
   return async (req, res) => {
+    let recentFiles = await recentFilesUtil.getRecentFiles(db)
+    let recentFileDays = await recentFilesUtil.recentFileDays(db)
     const send = (payload) =>
       res.send({
-        recentFiles: recentFilesUtil.getRecentFiles(),
-        recentFileDays: recentFilesUtil.recentFileDays(),
+        recentFiles,
+        recentFileDays,
         ...payload
       })
     let search = req.body.search
@@ -378,13 +381,36 @@ function loadPreviousSessions(db) {
  */
 function deleteSession(db) {
   return async (req, res) => {
-    let sessionId = req.body?.id || req.query.id
+    let sessionId = req.query[restApi.param.sessionId]
     if (sessionId == null) {
-      return res.status(400).send({ error: 'Missing session id' })
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ error: `Missing ${restApi.param.sessionId}` })
     }
     await querySession.deleteSession(db, sessionId)
     return res.send({
       message: 'Session deleted successfully'
+    })
+  }
+}
+
+/**
+ * Set how many days a .zap file stays on the recent-files list and
+ * return the list filtered by the new window.
+ * @param {*} db
+ * @returns An async function that handles HTTP requests.
+ */
+function setRecentFileDays(db) {
+  return async (req, res) => {
+    let days = await recentFilesUtil.setRecentFileDays(db, req.body?.days)
+    if (days == null) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ error: 'days must be a positive integer' })
+    }
+    return res.send({
+      recentFileDays: days,
+      recentFiles: await recentFilesUtil.getRecentFiles(db)
     })
   }
 }
@@ -424,12 +450,17 @@ exports.initializeSession = initializeSession
 exports.loadPreviousSessions = loadPreviousSessions
 exports.deleteSession = deleteSession
 exports.deleteAllDirtySessions = deleteAllDirtySessions
+exports.setRecentFileDays = setRecentFileDays
 exports.init = init
 
 exports.post = [
   {
     uri: restApi.uri.reloadSession,
     callback: loadPreviousSessions
+  },
+  {
+    uri: restApi.uri.recentFileDays,
+    callback: setRecentFileDays
   },
   {
     uri: restApi.uri.initializeSession,
