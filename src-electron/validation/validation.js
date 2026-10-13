@@ -225,6 +225,10 @@ function isFloatAttributeType(atomic, typeName) {
 }
 
 /**
+ * Max allowed length for a ZCL string default. Short strings are 254,
+ * long strings 65534, unless the attribute declares maxLength.
+ * Prefers ATOMIC.isLong; bare type names use the long-string roots.
+ *
  * @param {object|null} atomic
  * @param {string} typeName
  * @param {*} maxLength
@@ -237,6 +241,20 @@ function maxAllowedStringLength(atomic, typeName, maxLength) {
       : types.isTwoBytePrefixedString(typeName)
   let fallback = isLong ? 65534 : 254
   return maxLength != null && maxLength !== '' ? maxLength : fallback
+}
+
+/**
+ * Length of a string default. A 0x-prefixed hex value is a byte encoding
+ * (CHAR_STRING default="0x00" is 1 byte), matching isValidHexString.
+ *
+ * @param {string} value
+ * @returns number
+ */
+function stringValueLength(value) {
+  if (/^0x/i.test(value) && isValidHexString(value)) {
+    return Math.ceil((value.length - 2) / 2)
+  }
+  return value.length
 }
 
 /**
@@ -351,21 +369,22 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
       }
     }
   }
-  // Validate string types (includes baseType string aliases via ATOMIC.isString)
+  // Validate string types (includes baseType string aliases via ATOMIC.isString).
+  // Hex defaults (e.g. CHAR_STRING default="0x00") encode bytes, not the
+  // literal characters "0x00".
   else if (isStringType) {
     let maxAllowedLength = maxAllowedStringLength(
       atomic,
       attribute.type,
       attribute.maxLength
     )
-
-    if (
-      typeof attribute.defaultValue === 'string' &&
-      attribute.defaultValue.length > maxAllowedLength
-    ) {
-      issues.push(
-        `String length ${attribute.defaultValue.length} exceeds maximum ${maxAllowedLength}`
-      )
+    if (typeof attribute.defaultValue === 'string') {
+      let encodedLength = stringValueLength(attribute.defaultValue)
+      if (encodedLength > maxAllowedLength) {
+        issues.push(
+          `String length ${encodedLength} exceeds maximum ${maxAllowedLength}`
+        )
+      }
     }
   }
 
@@ -457,7 +476,7 @@ async function validateSpecificAttribute(
   } else if (isStringType) {
     if (
       typeof endpointAttribute.defaultValue === 'string' &&
-      endpointAttribute.defaultValue.length >
+      stringValueLength(endpointAttribute.defaultValue) >
         maxAllowedStringLength(atomic, attribute.type, attribute.maxLength)
     ) {
       defaultAttributeIssues.push('String length out of range')
