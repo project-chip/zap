@@ -51,7 +51,17 @@ Following is the list of environment variables that zap tool honors:
 
 Zap repo is configured with husky git hooks, that perform some
 pre-commit actions, formatting code, checking the obvious problems and similar. If you properly ran `npm install`, all these hooks should
-be installed. You can make sure they are installed by running `npx husky install`. See `.husky/pre-commit` script to review the actions executed as a pre-commit hook.
+be installed. See `.husky/pre-commit` script to review the actions executed as a pre-commit hook.
+
+**GUI git clients (Sourcetree, Tower, GitHub Desktop, etc.)**
+
+GUI clients launch git without a full shell environment, so `node` and
+`npx` are not on `PATH`. Running `npm install` automatically creates
+`~/.config/husky/init.sh` (via `src-script/setup-husky-env.js`), which
+Husky v9 sources before every hook. No manual setup is required.
+
+If you ever switch Node.js versions, delete the file and re-run
+`npm install` to regenerate it pointing at the new version.
 
 **Format the files:**
 
