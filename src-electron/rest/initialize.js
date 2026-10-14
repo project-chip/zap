@@ -385,7 +385,7 @@ function deleteSession(db) {
     if (sessionId == null) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .send({ error: `Missing ${restApi.param.sessionId}` })
+        .send({ error: restApi.errorMessage.missingSessionId })
     }
     await querySession.deleteSession(db, sessionId)
     return res.send({
@@ -406,7 +406,7 @@ function setRecentFileDays(db) {
     if (days == null) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .send({ error: 'days must be a positive integer' })
+        .send({ error: restApi.errorMessage.invalidRecentFileDays })
     }
     return res.send({
       recentFileDays: days,

@@ -99,6 +99,7 @@ test(
       .delete(restApi.uri.deleteSession)
       .catch((err) => err.response)
     expect(missing.status).toBe(400)
+    expect(missing.data.error).toBe(restApi.errorMessage.missingSessionId)
 
     let one = await axiosInstance.delete(restApi.uri.deleteSession, {
       params: { [restApi.param.sessionId]: dirty1 }
@@ -133,6 +134,7 @@ test(
       .post(restApi.uri.recentFileDays, { days: -1 })
       .catch((err) => err.response)
     expect(bad.status).toBe(400)
+    expect(bad.data.error).toBe(restApi.errorMessage.invalidRecentFileDays)
   },
   testUtil.timeout.medium()
 )

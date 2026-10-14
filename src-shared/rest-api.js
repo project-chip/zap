@@ -148,6 +148,12 @@ exports.param = {
   templatePackageId: 'templatePackageId'
 }
 
+// Error messages returned in the body of 4xx responses.
+exports.errorMessage = {
+  missingSessionId: 'Missing sessionId',
+  invalidRecentFileDays: 'days must be a positive integer'
+}
+
 exports.uri = uri
 exports.uiMode = uiMode
 exports.uc = uc
