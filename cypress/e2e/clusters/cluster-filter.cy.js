@@ -164,4 +164,18 @@ describe('Testing cluster filters', () => {
       })
     }
   )
+  it(
+    'offers a cluster components filter outside standalone mode',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get('[data-test="filter-input"]').click()
+      cy.get('.q-virtual-scroll__content > :nth-child(5)').click({
+        force: true
+      })
+      cy.get('[data-test="filter-input"]').should(
+        'contain',
+        'Cluster Components'
+      )
+    }
+  )
 })
