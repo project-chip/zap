@@ -687,6 +687,17 @@ async function deleteSession(db, sessionId) {
 }
 
 /**
+ * Deletes every dirty (unsaved) session and cascaded rows.
+ *
+ * @export
+ * @param {*} db
+ * @returns A promise of the number of sessions removed.
+ */
+async function deleteDirtySessions(db) {
+  return dbApi.dbRemove(db, 'DELETE FROM SESSION WHERE DIRTY = 1', [])
+}
+
+/**
  * Write logs to the session log.
  *
  * @param {*} db database connection
@@ -860,6 +871,7 @@ exports.ensureZapSessionId = ensureZapSessionId
 exports.ensureZapUserAndSession = ensureZapUserAndSession
 exports.createBlankSession = createBlankSession
 exports.deleteSession = deleteSession
+exports.deleteDirtySessions = deleteDirtySessions
 exports.writeLog = writeLog
 exports.readLog = readLog
 exports.updateSessionKeyValue = updateSessionKeyValue

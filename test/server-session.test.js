@@ -26,6 +26,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader')
 const testUtil = require('./test-util')
 const restApi = require('../src-shared/rest-api')
 const queryZcl = require('../src-electron/db/query-zcl')
+const querySession = require('../src-electron/db/query-session')
 const util = require('../src-electron/util/util')
 
 let db
@@ -79,6 +80,61 @@ test.each([
   async (uri) => {
     let response = await axiosInstance.get(uri)
     expect(response.data).not.toBeNull()
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Delete one dirty session and then delete all remaining dirty sessions',
+  async () => {
+    let dirty1 = await querySession.createBlankSession(db)
+    let dirty2 = await querySession.createBlankSession(db)
+    await dbApi.dbUpdate(
+      db,
+      'UPDATE SESSION SET DIRTY = 1 WHERE SESSION_ID IN (?,?)',
+      [dirty1, dirty2]
+    )
+
+    let missing = await axiosInstance
+      .delete(restApi.uri.deleteSession)
+      .catch((err) => err.response)
+    expect(missing.status).toBe(400)
+    expect(missing.data.error).toBe(restApi.errorMessage.missingSessionId)
+
+    let one = await axiosInstance.delete(restApi.uri.deleteSession, {
+      params: { [restApi.param.sessionId]: dirty1 }
+    })
+    expect(one.data.message).toContain('deleted')
+    expect(
+      await querySession.getSessionFromSessionId(db, dirty1)
+    ).toBeUndefined()
+
+    let all = await axiosInstance.delete(restApi.uri.deleteAllDirtySessions)
+    expect(all.data.count).toBeGreaterThanOrEqual(1)
+    expect(
+      await querySession.getSessionFromSessionId(db, dirty2)
+    ).toBeUndefined()
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Set recent file days and reject invalid values',
+  async () => {
+    let ok = await axiosInstance.post(restApi.uri.recentFileDays, { days: 5 })
+    expect(ok.data.recentFileDays).toBe(5)
+    expect(Array.isArray(ok.data.recentFiles)).toBe(true)
+
+    let attempt = await axiosInstance.post(restApi.uri.sessionAttempt, {
+      search: ''
+    })
+    expect(attempt.data.recentFileDays).toBe(5)
+
+    let bad = await axiosInstance
+      .post(restApi.uri.recentFileDays, { days: -1 })
+      .catch((err) => err.response)
+    expect(bad.status).toBe(400)
+    expect(bad.data.error).toBe(restApi.errorMessage.invalidRecentFileDays)
   },
   testUtil.timeout.medium()
 )

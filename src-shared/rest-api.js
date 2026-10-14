@@ -85,6 +85,9 @@ const uri = {
   initializeSession: '/zcl/initializeSession',
   sessionCreate: '/zcl/sessionCreate',
   reloadSession: '/zcl/reloadSession',
+  deleteSession: '/zcl/deleteSession',
+  deleteAllDirtySessions: '/zcl/deleteAllDirtySessions',
+  recentFileDays: '/zcl/recentFileDays',
   init: '/init',
   forcedExternal: '/zcl/forcedExternal',
   loadComposition: '/zcl/loadComposition',
@@ -143,6 +146,12 @@ exports.param = {
   sessionId: 'sessionId',
   path: 'path',
   templatePackageId: 'templatePackageId'
+}
+
+// Error messages returned in the body of 4xx responses.
+exports.errorMessage = {
+  missingSessionId: 'Missing sessionId',
+  invalidRecentFileDays: 'days must be a positive integer'
 }
 
 exports.uri = uri

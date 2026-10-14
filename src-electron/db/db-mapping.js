@@ -963,6 +963,13 @@ exports.map = {
       value: x.VALUE
     }
   },
+  recentFile: (x) => {
+    if (x == null) return undefined
+    return {
+      path: x.PATH,
+      lastUsed: x.LAST_USED
+    }
+  },
   sessionNotifications: (x) => {
     if (x == null) return undefined
     return {
