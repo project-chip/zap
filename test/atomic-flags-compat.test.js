@@ -26,7 +26,8 @@ const overridable = require('../src-electron/generator/overridable')
 const validation = require('../src-electron/validation/validation')
 const testUtil = require('./test-util')
 const testQuery = require('./test-query')
-
+const dbCache = require('../src-electron/db/db-cache')
+const zclHelper = require('../src-electron/generator/helper-zcl')
 const atomicZclMetafile = path.join(__dirname, 'resource/atomic-flags/zcl.json')
 
 beforeAll(() => {
@@ -148,6 +149,46 @@ test(
       expect(hwadr.baseType).toBe('octet_string')
       expect(await queryZcl.selectStringByName(db, 'hwadr', pkgs)).toBeDefined()
 
+      let octet = await queryZcl.selectAtomicType(db, pkgs, 'octet_string')
+      expect(octet.isString).toBe(true)
+
+      // Wrong stored flags and an indirect baseType chain still resolve by name.
+      await dbApi.dbUpdate(
+        db,
+        `UPDATE ATOMIC SET IS_CHAR = 1, IS_LONG = 1, IS_STRING = 0, BASE_TYPE = 'ipv4adr' WHERE UPPER(NAME) = 'HWADR' AND PACKAGE_REF = ?`,
+        [packageId]
+      )
+      await dbApi.dbUpdate(
+        db,
+        `UPDATE ATOMIC SET IS_CHAR = 1, IS_LONG = 1, IS_STRING = 0 WHERE UPPER(NAME) IN ('IPV4ADR', 'OCTET_STRING') AND PACKAGE_REF = ?`,
+        [packageId]
+      )
+      dbCache.clear()
+
+      let helperContext = { global: { db, zclPackageIds: pkgs } }
+      const helperMatches = async (helperName, typeName) => {
+        let matched = false
+        await zclHelper[helperName].call(helperContext, typeName, {
+          fn() {
+            matched = true
+            return ''
+          },
+          inverse() {
+            matched = false
+            return ''
+          }
+        })
+        return matched
+      }
+      expect(await helperMatches('if_is_octet_string', 'hwadr')).toBe(true)
+      expect(await helperMatches('if_is_char_string', 'hwadr')).toBe(false)
+      expect(await helperMatches('if_is_short_string', 'hwadr')).toBe(true)
+      expect(await helperMatches('if_is_long_string', 'hwadr')).toBe(false)
+      expect(await helperMatches('if_is_char_string', 'char_string')).toBe(true)
+      expect(
+        await helperMatches('if_is_long_string', 'long_octet_string')
+      ).toBe(true)
+      expect(await helperMatches('if_is_octet_string', 'int8u')).toBe(false)
       expect(
         overridable.atomicType({
           name: 'hwadr',
@@ -162,9 +203,6 @@ test(
           size: null
         })
       ).toBe('uint8_t *')
-
-      let octet = await queryZcl.selectAtomicType(db, pkgs, 'octet_string')
-      expect(octet.isString).toBe(true)
     } finally {
       await dbApi.closeDatabase(db)
     }

@@ -10426,7 +10426,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~endpoint_attribute_long_defaults_count(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attribute_long_defaults_count) ⇒
     * [~endpoint_attribute_long_defaults(options)](#module_Templating API_ Matter endpoint config helpers..endpoint_attribute_long_defaults) ⇒
     * [~asMEI(manufacturerCode, code)](#module_Templating API_ Matter endpoint config helpers..asMEI) ⇒
-    * [~determineAttributeDefaultValue(specifiedDefault, type, typeSize, isNullable, db, sessionId)](#module_Templating API_ Matter endpoint config helpers..determineAttributeDefaultValue) ⇒
+    * [~determineAttributeDefaultValue(specifiedDefault, type, typeInfo, typeSize, isNullable, db, sessionId)](#module_Templating API_ Matter endpoint config helpers..determineAttributeDefaultValue) ⇒
     * [~keepDefaultValueKey(clusterName, attributeName)](#module_Templating API_ Matter endpoint config helpers..keepDefaultValueKey) ⇒
     * [~collectAttributesKeepingDefaultValue(db, zclPackageIds)](#module_Templating API_ Matter endpoint config helpers..collectAttributesKeepingDefaultValue) ⇒
     * [~keepsDefaultValueForExternalStorage(attribute, cluster, options)](#module_Templating API_ Matter endpoint config helpers..keepsDefaultValueForExternalStorage) ⇒
@@ -10868,7 +10868,7 @@ Get 32 bit code from the given code and manufacturer code.
 
 <a name="module_Templating API_ Matter endpoint config helpers..determineAttributeDefaultValue"></a>
 
-### Templating API: Matter endpoint config helpers~determineAttributeDefaultValue(specifiedDefault, type, typeSize, isNullable, db, sessionId) ⇒
+### Templating API: Matter endpoint config helpers~determineAttributeDefaultValue(specifiedDefault, type, typeInfo, typeSize, isNullable, db, sessionId) ⇒
 The representation of null depends on the type, so we can't use a single
 macro that's defined elsewhere for "null value".
 Get the default value of an attribute.
@@ -10880,6 +10880,7 @@ Get the default value of an attribute.
 | --- | --- |
 | specifiedDefault | <code>\*</code> | 
 | type | <code>\*</code> | 
+| typeInfo | <code>\*</code> | 
 | typeSize | <code>\*</code> | 
 | isNullable | <code>\*</code> | 
 | db | <code>\*</code> | 
@@ -13227,6 +13228,8 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~is_zcl_string(type)](#module_Templating API_ static zcl helpers..is_zcl_string)
     * [~if_is_number(type)](#module_Templating API_ static zcl helpers..if_is_number) ⇒
     * [~if_is_string(type)](#module_Templating API_ static zcl helpers..if_is_string) ⇒
+    * [~resolvedStringRoot(db, packageIds, type, [visited])](#module_Templating API_ static zcl helpers..resolvedStringRoot) ⇒ <code>Promise.&lt;(string\|null)&gt;</code>
+    * [~ifResolvedStringRoot(type, options, matches)](#module_Templating API_ static zcl helpers..ifResolvedStringRoot) ⇒
     * [~if_is_char_string(type)](#module_Templating API_ static zcl helpers..if_is_char_string) ⇒
     * [~if_is_octet_string(type)](#module_Templating API_ static zcl helpers..if_is_octet_string) ⇒
     * [~if_is_short_string(type)](#module_Templating API_ static zcl helpers..if_is_short_string) ⇒
@@ -14194,11 +14197,40 @@ type is not string
 | --- | --- |
 | type | <code>\*</code> | 
 
+<a name="module_Templating API_ static zcl helpers..resolvedStringRoot"></a>
+
+### Templating API: static zcl helpers~resolvedStringRoot(db, packageIds, type, [visited]) ⇒ <code>Promise.&lt;(string\|null)&gt;</code>
+Resolve a string type to char_string, octet_string, long_char_string, or
+long_octet_string. The type name is checked first. Otherwise BASE_TYPE is
+followed until a known string root is found. Stored isChar and isLong flags
+are not used, because older XML may not have populated them.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| type | <code>\*</code> | name or string id |
+| [visited] | <code>Set.&lt;string&gt;</code> |  |
+
+<a name="module_Templating API_ static zcl helpers..ifResolvedStringRoot"></a>
+
+### Templating API: static zcl helpers~ifResolvedStringRoot(type, options, matches) ⇒
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> |  |
+| options | <code>\*</code> |  |
+| matches | <code>function</code> | true when the resolved string root should match |
+
 <a name="module_Templating API_ static zcl helpers..if_is_char_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_char\_string(type) ⇒
-If helper that checks if a string type is present in the list of char strings
-i.e. characterStringTypes
+If helper that checks whether a string type is a character string.
+Aliases match when their baseType chain reaches char_string or long_char_string.
 
 example:
 {{#if_is_char_string type}}
@@ -14217,8 +14249,8 @@ type is not char string
 <a name="module_Templating API_ static zcl helpers..if_is_octet_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_octet\_string(type) ⇒
-If helper that checks if a string type is present in the list of octet strings
-i.e. octetStringTypes
+If helper that checks whether a string type is an octet string.
+Aliases match when their baseType chain reaches octet_string or long_octet_string.
 
 example:
 {{#if_is_octet_string type}}
@@ -14237,8 +14269,8 @@ type is not octet string
 <a name="module_Templating API_ static zcl helpers..if_is_short_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_short\_string(type) ⇒
-If helper that checks if a string type is present in the list of short strings
-i.e. stringShortTypes
+If helper that checks whether a string type uses a one-byte length prefix.
+Aliases match when their baseType chain reaches char_string or octet_string.
 
 example:
 {{#if_is_short_string type}}
@@ -14257,8 +14289,8 @@ type is not short string
 <a name="module_Templating API_ static zcl helpers..if_is_long_string"></a>
 
 ### Templating API: static zcl helpers~if\_is\_long\_string(type) ⇒
-If helper that checks if a string type is present in the list of long strings
-i.e. stringLongTypes
+If helper that checks whether a string type uses a two-byte length prefix.
+Aliases match when their baseType chain reaches long_char_string or long_octet_string.
 
 example:
 {{#if_is_long_string type}}
@@ -20716,14 +20748,14 @@ Extract project name from the Studio project path
     * [~typeSizeAttribute(db, zclPackageIds, at, [defaultValue])](#module_JS API_ type related utilities..typeSizeAttribute) ⇒
     * [~convertFloatToBigEndian(value, size)](#module_JS API_ type related utilities..convertFloatToBigEndian) ⇒
     * [~convertIntToBigEndian(value, size)](#module_JS API_ type related utilities..convertIntToBigEndian) ⇒
-    * [~longTypeDefaultValue(size, type, value)](#module_JS API_ type related utilities..longTypeDefaultValue) ⇒
+    * [~longTypeDefaultValue(size, typeInfo, value)](#module_JS API_ type related utilities..longTypeDefaultValue) ⇒
     * [~convertToCliType(str)](#module_JS API_ type related utilities..convertToCliType) ⇒
     * [~isString(type)](#module_JS API_ type related utilities..isString) ⇒
     * [~isFloat(type)](#module_JS API_ type related utilities..isFloat) ⇒
     * [~isSignedInteger(db, sessionId, type)](#module_JS API_ type related utilities..isSignedInteger) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [~isOneBytePrefixedString(type)](#module_JS API_ type related utilities..isOneBytePrefixedString) ⇒
     * [~isTwoBytePrefixedString(type)](#module_JS API_ type related utilities..isTwoBytePrefixedString) ⇒
-    * [~nullStringDefaultValue(type)](#module_JS API_ type related utilities..nullStringDefaultValue) ⇒ <code>string</code>
+    * [~nullStringDefaultValue(typeInfo)](#module_JS API_ type related utilities..nullStringDefaultValue) ⇒ <code>string</code>
     * [~processZclTypeSignAndSize(db, dataType, type, packageIds, options, clusterId, clusterName)](#module_JS API_ type related utilities..processZclTypeSignAndSize) ⇒
     * [~getSignAndSizeOfZclType(type, context, options)](#module_JS API_ type related utilities..getSignAndSizeOfZclType) ⇒
     * [~getSignAndSizeOfZclTypeAndClusterId(db, type, clusterId, packageIds, options)](#module_JS API_ type related utilities..getSignAndSizeOfZclTypeAndClusterId) ⇒ <code>size:&#x27;bits&#x27;</code>
@@ -20772,7 +20804,7 @@ the given size. The value is returned in hex format and prefixed with '0x'.
 
 <a name="module_JS API_ type related utilities..longTypeDefaultValue"></a>
 
-### JS API: type related utilities~longTypeDefaultValue(size, type, value) ⇒
+### JS API: type related utilities~longTypeDefaultValue(size, typeInfo, value) ⇒
 If the type is more than 2 bytes long, then this method creates
 the default byte array.
 
@@ -20782,7 +20814,7 @@ the default byte array.
 | Param | Type | Description |
 | --- | --- | --- |
 | size | <code>\*</code> | Size of bytes generated. |
-| type | <code>\*</code> | Type of the object. |
+| typeInfo | <code>object</code> \| <code>string</code> | Type metadata or the legacy type name. |
 | value | <code>\*</code> | Default value. |
 
 <a name="module_JS API_ type related utilities..convertToCliType"></a>
@@ -20862,7 +20894,7 @@ Checks if type is a two-byte lengh string.
 
 <a name="module_JS API_ type related utilities..nullStringDefaultValue"></a>
 
-### JS API: type related utilities~nullStringDefaultValue(type) ⇒ <code>string</code>
+### JS API: type related utilities~nullStringDefaultValue(typeInfo) ⇒ <code>string</code>
 Generates a default value for a null string based on its type.
 This function is designed to abstract away the specific null representation
 of strings from the longTypeDefaultValue function, ensuring that the latter
@@ -20877,7 +20909,7 @@ does not need to be aware of these details.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| type | <code>string</code> | The type of the string, which determines its null representation. |
+| typeInfo | <code>object</code> \| <code>string</code> | Type metadata or the legacy type name. |
 
 <a name="module_JS API_ type related utilities..processZclTypeSignAndSize"></a>
 

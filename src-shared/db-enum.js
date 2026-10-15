@@ -112,6 +112,8 @@ exports.settingKey = {
   hash: 'HASH',
   date: 'DATE',
   recentFileDays: 'DAYS'
+}
+
 /**
  * Canonical atomic type names as they appear in ZCL/Matter XML
  * `<type name="...">`. Use for comparisons and atomic root classification
