@@ -16,7 +16,7 @@
  */
 
 /**
- * Load / mutate / save lifecycle for the `zap edit` command line. This is the
+ * Load / mutate / save lifecycle for the `zap` command line. This is the
  * headless counterpart of what the HTTP server does for the GUI: it puts a
  * .zap file into a session in the database, hands that session to the
  * operations, and writes the result back out.
@@ -62,7 +62,7 @@ async function open(argv, options = {}) {
   }
 
   let db = await dbApi.initDatabaseAndLoadSchema(
-    env.sqliteFile('edit'),
+    env.sqliteFile('cli'),
     env.schemaFile(),
     env.zapVersion()
   )

@@ -18,6 +18,7 @@
 
 const scriptUtil = require('./script-util.js')
 const env = require('../src-electron/util/env')
+const cliSpec = require('../src-electron/cli/cli-spec.js')
 
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
@@ -42,6 +43,7 @@ scriptUtil
       case 'status':
       case 'analyze':
       case 'regenerateSdk':
+      case 'edit':
         executable = 'node'
         main = scriptUtil.mainPath(false)
         break
@@ -50,19 +52,24 @@ scriptUtil
         main = scriptUtil.mainPath(false)
         extraArgs = ['--noUi', '--noServer']
         break
-      case 'edit':
-        // No extraArgs here on purpose: they are prepended ahead of the
-        // command, and `edit` has to stay the first argument for the edit
-        // parser to recognize it. It runs headless regardless.
-        executable = 'node'
-        main = scriptUtil.mainPath(false)
-        break
       case 'convert':
         executable = 'node'
         main = scriptUtil.mainPath(false)
         extraArgs = ['--noUi', '--noServer', '--noZapFileLog']
         break
       default:
+        // Configuration commands (`endpoint list`, `new file.zap`, `help`)
+        // run headless. Nothing is prepended: the command itself has to stay
+        // the first argument. Bare `new` still opens a window.
+        if (
+          Object.hasOwn(cliSpec.groups, args[0]) ||
+          (Object.hasOwn(cliSpec.topLevel, args[0]) &&
+            (args[0] !== 'new' || args[1] != null))
+        ) {
+          executable = 'node'
+          main = scriptUtil.mainPath(false)
+          break
+        }
         executable = 'electron'
         main = scriptUtil.mainPath(true)
         break

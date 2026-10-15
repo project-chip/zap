@@ -16,7 +16,7 @@
  */
 
 /**
- * Error type used by the `zap edit` command line.
+ * Error type used by the `zap` command line.
  *
  * @module CLI API: errors
  */

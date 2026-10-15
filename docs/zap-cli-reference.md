@@ -1,44 +1,44 @@
-# The `zap edit` CLI: reference
+# Configuration commands: reference
 
-This is the reference for the `zap edit` command-line tool. If you are starting
+This is the reference for the configuration commands. If you are starting
 out, or want a worked example that ends in generated code, read [the
-guide](zap-edit-guide.md) first. For how the CLI is built and why, read [the
-architecture](zap-edit-architecture.md).
+guide](zap-cli-guide.md) first. For how the CLI is built and why, read [the
+architecture](zap-cli-architecture.md).
 
-`zap edit` performs the same edits on a configuration that the ZAP user
+`zap <group> <operation>` performs the same edits on a configuration that the ZAP user
 interface performs on a session: creating endpoints, managing their device
 types, enabling clusters, and configuring attributes, commands and events. It
 is built on the same database queries the REST layer uses, so a change made
 here is indistinguishable from the same change made in the GUI.
 
 ```
-zap edit <what> <operation> <file.zap> [options]
+zap <what> <operation> <file.zap> [options]
 ```
 
 ## Finding your way around
 
-`zap edit help` prints every operation and what it takes, in one page. It reads
+`zap help` prints every operation and what it takes, in one page. It reads
 nothing from disk, so it answers instantly:
 
 ```bash
-zap edit help                  # every operation, one line each
-zap edit help attribute        # options of every attribute operation
-zap edit help attribute set    # options of one operation
+zap help                  # every operation, one line each
+zap help attribute        # options of every attribute operation
+zap help attribute set    # options of one operation
 ```
 
-`zap edit --help` and `zap edit <what> <operation> --help` also work, in the
+`zap --help` and `zap <what> <operation> --help` also work, in the
 usual yargs way.
 
 Every command also ends by suggesting what usually comes next, built from the
 configuration in front of it so the suggestion can be run exactly as printed:
 
 ```
-$ zap edit endpoint create light.zap --endpoint 1 --device-type MA-dimmablelight
+$ zap endpoint create light.zap --endpoint 1 --device-type MA-dimmablelight
 Created endpoint 1 with device type(s) MA-dimmablelight (0x0101)
 The device type(s) enabled 6 cluster(s) on it
 Next:
-  zap edit cluster list light.zap --endpoint 1 --enabled-only
-  zap edit cluster enable light.zap --endpoint 1 --cluster "<name>" --side server
+  zap cluster list light.zap --endpoint 1 --enabled-only
+  zap cluster enable light.zap --endpoint 1 --cluster "<name>" --side server
 ```
 
 Listings suggest acting on something they actually found, choosing an entry
@@ -51,7 +51,7 @@ For anything driving the tool programmatically, `--format json` turns the same
 information into a schema:
 
 ```bash
-zap edit help --format json
+zap help --format json
 ```
 
 That schema lists every operation, every option with its type, whether it is
@@ -83,18 +83,18 @@ Every `list` command takes `--filter <text>` to narrow a long catalog down to
 the entries that mention something:
 
 ```bash
-zap edit cluster list light.zap --all --filter level
-zap edit attribute list light.zap --endpoint 1 --cluster On/Off --filter time
+zap cluster list light.zap --all --filter level
+zap attribute list light.zap --endpoint 1 --cluster On/Off --filter time
 ```
 
 ## Loading the right ZCL metadata
 
-Like every other ZAP command, `zap edit` needs to be told which ZCL metadata to
+Like every other ZAP command, `zap` needs to be told which ZCL metadata to
 load. It defaults to the built-in Zigbee metafile, so for Matter configurations
 pass `--zcl`:
 
 ```bash
-zap edit endpoint list light.zap --zcl ./zcl-builtin/matter/zcl.json
+zap endpoint list light.zap --zcl ./zcl-builtin/matter/zcl.json
 ```
 
 ## Multiprotocol configurations
@@ -115,7 +115,7 @@ ENDPOINT  CATEGORY  PROFILE  NETWORK  PARENT  DEVICETYPES
 also narrows name lookups to that half:
 
 ```bash
-zap edit cluster list mp.zap --endpoint 1 --category zigbee --enabled-only
+zap cluster list mp.zap --endpoint 1 --category zigbee --enabled-only
 ```
 
 Without it, an operation on an endpoint that exists twice is refused rather than
@@ -133,37 +133,37 @@ the existing endpoints works normally.
 
 ```bash
 # What is in this file?
-zap edit endpoint list light.zap
+zap endpoint list light.zap
 
 # Add an endpoint. The profile defaults to the device type's own profile.
-zap edit endpoint create light.zap --endpoint 1 --device-type "ZLL-onofflight"
+zap endpoint create light.zap --endpoint 1 --device-type "ZLL-onofflight"
 
 # A Matter endpoint with two device types, the first one being primary.
-zap edit endpoint create light.zap --endpoint 2 \
+zap endpoint create light.zap --endpoint 2 \
   --device-type MA-onofflight --device-type MA-dimmablelight \
   --device-version 1 --parent 0
 
 # Change identity.
-zap edit endpoint update light.zap --endpoint 1 --new-endpoint 5 --network 0
+zap endpoint update light.zap --endpoint 1 --new-endpoint 5 --network 0
 
 # Copy an endpoint with every cluster and element selection on it. Without
 # --new-endpoint the lowest free identifier is used.
-zap edit endpoint duplicate light.zap --endpoint 1
+zap endpoint duplicate light.zap --endpoint 1
 
-zap edit endpoint delete light.zap --endpoint 5
+zap endpoint delete light.zap --endpoint 5
 ```
 
 ## Device types
 
 ```bash
-zap edit devicetype list light.zap --endpoint 1
-zap edit devicetype list light.zap --all          # everything available
+zap devicetype list light.zap --endpoint 1
+zap devicetype list light.zap --all          # everything available
 
-zap edit devicetype add light.zap --endpoint 1 --device-type MA-dimmablelight
-zap edit devicetype remove light.zap --endpoint 1 --device-type MA-dimmablelight
+zap devicetype add light.zap --endpoint 1 --device-type MA-dimmablelight
+zap devicetype remove light.zap --endpoint 1 --device-type MA-dimmablelight
 
 # Replace the whole list. The first entry becomes the primary device type.
-zap edit devicetype set light.zap --endpoint 1 \
+zap devicetype set light.zap --endpoint 1 \
   --device-type MA-dimmablelight --device-version 2
 ```
 
@@ -174,11 +174,11 @@ does too.
 ## Clusters
 
 ```bash
-zap edit cluster list light.zap --endpoint 1 --enabled-only
-zap edit cluster list light.zap --all
+zap cluster list light.zap --endpoint 1 --enabled-only
+zap cluster list light.zap --all
 
-zap edit cluster enable light.zap --endpoint 1 --cluster "Level Control" --side server
-zap edit cluster disable light.zap --endpoint 1 --cluster Scenes --side client
+zap cluster enable light.zap --endpoint 1 --cluster "Level Control" --side server
+zap cluster disable light.zap --endpoint 1 --cluster Scenes --side client
 ```
 
 `--side` is required and takes `client`, `server` or `both`. There is no
@@ -198,19 +198,19 @@ same thing without depending on how you are looking at the file.
 ## Attributes
 
 ```bash
-zap edit attribute list light.zap --endpoint 1 --cluster On/Off
+zap attribute list light.zap --endpoint 1 --cluster On/Off
 
-zap edit attribute enable  light.zap --endpoint 1 --cluster On/Off --attribute OnOff
-zap edit attribute disable light.zap --endpoint 1 --cluster On/Off --attribute OnOff
+zap attribute enable  light.zap --endpoint 1 --cluster On/Off --attribute OnOff
+zap attribute disable light.zap --endpoint 1 --cluster On/Off --attribute OnOff
 
 # Anything the attribute table in the GUI can change, in one call.
-zap edit attribute set light.zap --endpoint 1 --cluster "Level Control" \
+zap attribute set light.zap --endpoint 1 --cluster "Level Control" \
   --attribute CurrentLevel \
   --enabled --default 10 --storage RAM --singleton \
   --reporting --min-interval 5 --max-interval 300 --reportable-change 1
 
 # Nullable attributes take the literal word null.
-zap edit attribute set light.zap --endpoint 1 --cluster "Level Control" \
+zap attribute set light.zap --endpoint 1 --cluster "Level Control" \
   --attribute CurrentLevel --default null
 ```
 
@@ -266,9 +266,9 @@ it rather than accept something it cannot keep.
 ## Commands
 
 ```bash
-zap edit command list light.zap --endpoint 1 --cluster On/Off
+zap command list light.zap --endpoint 1 --cluster On/Off
 
-zap edit command enable light.zap --endpoint 1 --cluster On/Off \
+zap command enable light.zap --endpoint 1 --cluster On/Off \
   --command Toggle --direction in
 ```
 
@@ -279,8 +279,8 @@ does the useful half on a cluster that is only enabled on one side.
 ## Events
 
 ```bash
-zap edit event list light.zap --endpoint 1 --cluster Switch
-zap edit event enable light.zap --endpoint 1 --cluster Switch --event InitialPress
+zap event list light.zap --endpoint 1 --cluster Switch
+zap event enable light.zap --endpoint 1 --cluster Switch --event InitialPress
 ```
 
 ## Features (Matter)
@@ -290,8 +290,8 @@ its conformance decides which attributes, commands and events have to come with
 it.
 
 ```bash
-zap edit feature list light.zap --endpoint 1 --cluster On/Off
-zap edit feature enable light.zap --endpoint 1 --cluster On/Off --feature Lighting
+zap feature list light.zap --endpoint 1 --cluster On/Off
+zap feature enable light.zap --endpoint 1 --cluster On/Off --feature Lighting
 ```
 
 `--feature` takes the feature name, its letter code (`LT`), or its bit number.
@@ -357,14 +357,14 @@ data model is, requires nothing and forbids nothing, so it toggles freely.
 
 The saved file format only keeps the attributes, commands and events of enabled
 clusters. Configuring an element of a cluster side you have not enabled would
-therefore be discarded on save, so `zap edit` refuses it and tells you which
+therefore be discarded on save, so `zap` refuses it and tells you which
 cluster to enable first. The GUI avoids the same problem by only showing the
 element checkboxes of clusters that are switched on.
 
 ## Doing several things at once
 
 Loading the ZCL metadata is by far the slowest part of an invocation, so
-chaining separate commands pays that cost every time. `zap edit apply` runs a
+chaining separate commands pays that cost every time. `zap apply` runs a
 whole list of operations in a single pass:
 
 ```yaml
@@ -393,7 +393,7 @@ whole list of operations in a single pass:
 ```
 
 ```bash
-zap edit apply light.zap --script changes.yaml
+zap apply light.zap --script changes.yaml
 ```
 
 Each entry names an operation and carries the same parameters as the matching
@@ -406,10 +406,10 @@ To build a configuration from nothing in a single pass, add `--new`, which
 starts from an empty configuration instead of reading the file:
 
 ```bash
-zap edit apply light.zap --new --script changes.yaml
+zap apply light.zap --new --script changes.yaml
 ```
 
-`zap edit new light.zap` on its own creates an empty configuration file.
+`zap new light.zap` on its own creates an empty configuration file.
 
 ## Endpoint composition
 
@@ -417,8 +417,8 @@ zap edit apply light.zap --new --script changes.yaml
 composed device:
 
 ```bash
-zap edit endpoint create fridge.zap --endpoint 1 --device-type MA-refrigerator
-zap edit endpoint create fridge.zap --endpoint 2 \
+zap endpoint create fridge.zap --endpoint 1 --device-type MA-refrigerator
+zap endpoint create fridge.zap --endpoint 2 \
   --device-type MA-temperature-controlled-cabinet --parent 1
 ```
 
@@ -433,7 +433,7 @@ than specific to this tool. Nothing checks that a device type which requires
 child endpoints actually has them: the requirement is recorded in the data model
 and reaches code generation, but neither tool enforces it. And duplicating an
 endpoint does not carry over its parent, so a copy of a child endpoint comes out
-detached and has to be re-parented with `zap edit endpoint update --parent`.
+detached and has to be re-parented with `zap endpoint update --parent`.
 
 ## Clusters shared between endpoints (Zigbee)
 
@@ -460,7 +460,7 @@ left exactly as they were.
 
 ## Where the result goes
 
-`zap edit new` and `--new` refuse to start from an empty configuration on top of
+`zap new` and `--new` refuse to start from an empty configuration on top of
 a file that already holds one, since that would replace it. Write elsewhere with
 `-o`, or pass `--force` if replacing it is what you meant.
 
@@ -468,7 +468,7 @@ By default the file you named is rewritten in place, and whatever it held
 before is kept alongside it with a `~` suffix. `-o <file>` writes somewhere else
 and leaves the input alone, and `--dry-run` applies everything and reports what
 would happen without writing anything. Operations that only read, such as the
-`list` commands and `zap edit info`, never write.
+`list` commands and `zap info`, never write.
 
 ## Validation
 
@@ -546,13 +546,13 @@ nothing is remembered from before.
 
 ## Checking a configuration
 
-`zap edit check` reports both accounts for a configuration as it stands, without
+`zap check` reports both accounts for a configuration as it stands, without
 changing anything:
 
 ```bash
-zap edit check light.zap
-zap edit check light.zap --format json
-zap edit check light.zap --strict   # exit 1 when there are errors
+zap check light.zap
+zap check light.zap --format json
+zap check light.zap --strict   # exit 1 when there are errors
 ```
 
 ```
@@ -576,7 +576,7 @@ by default because it is not something a configuration can fix.
 entry per operation and the rows of any listing:
 
 ```bash
-zap edit attribute list light.zap --endpoint 1 --cluster On/Off --format json |
+zap attribute list light.zap --endpoint 1 --cluster On/Off --format json |
   jq -r '.operations[0].rows[] | select(.enabled == "yes") | .name'
 ```
 
@@ -585,9 +585,9 @@ messages and warnings go to standard error. `--quiet` suppresses them entirely.
 The exit code is 0 on success and 1 on failure.
 
 A caller that has never seen this tool before can work out everything it needs
-from three calls: `zap edit help --format json` for the operations and their
+from three calls: `zap help --format json` for the operations and their
 parameters, then the discovery commands that schema recommends for the values a
-particular configuration accepts, then `zap edit apply` to make the changes.
+particular configuration accepts, then `zap apply` to make the changes.
 
 ## Packages
 
@@ -615,7 +615,7 @@ than doing it itself. Given the port of that server and the project the
 configuration belongs to, an edit here asks the same way:
 
 ```bash
-zap edit cluster enable light.zap --endpoint 1 --cluster "Color Control" \
+zap cluster enable light.zap --endpoint 1 --cluster "Color Control" \
   --gen gen-templates.json --studioHttpPort 8080 --ideProjectPath light.slcp
 ```
 
@@ -655,7 +655,7 @@ A configuration can define clusters of its own in a ZCL XML file. In the GUI
 that file is chosen on the Extensions page; here it is a package operation:
 
 ```bash
-zap edit package add light.zap --xml my-clusters.xml
+zap package add light.zap --xml my-clusters.xml
 ```
 
 Loading it says what came in, because a file that defines nothing usable
@@ -671,8 +671,8 @@ endpoint and their attributes, commands and events configured by name. The
 package is written into the `.zap` file when the session is saved, so the next
 run and the GUI both find it.
 
-`zap edit package list` shows every package the configuration carries, and
-`zap edit package remove --xml <file>` takes one back out. Removing is the one
+`zap package list` shows every package the configuration carries, and
+`zap package remove --xml <file>` takes one back out. Removing is the one
 that needs care: as in the GUI, the endpoint configuration that came from those
 clusters goes with it, so the CLI counts what would be lost and refuses until
 `--force` is passed.
@@ -681,7 +681,7 @@ clusters goes with it, so the CLI counts what would be lost and refuses until
 ⛔ my-clusters.xml defines 1 cluster(s) that this configuration uses
 Removing it deletes their endpoint configuration, as it does in the GUI:
   endpoint 1: Sample Custom Cluster (0xFFF1FC20) server
-  zap edit package remove light.zap --xml my-clusters.xml --force
+  zap package remove light.zap --xml my-clusters.xml --force
 ```
 
 ### When the XML is not there
@@ -700,12 +700,12 @@ So editing such a configuration is refused, and reading it is not:
   my-clusters.xml (no such file)
   /elsewhere/other.xml was loaded instead, though the file never names it
 Saving would write that difference back into the file. Point it at the file:
-  zap edit package add light.zap --xml <file.xml>
+  zap package add light.zap --xml <file.xml>
 or drop the reference:
-  zap edit package remove light.zap --xml my-clusters.xml
+  zap package remove light.zap --xml my-clusters.xml
 or pass --force to edit it as it loaded.
 ```
 
-`zap edit info` and `zap edit package list` still work and say the same thing,
+`zap info` and `zap package list` still work and say the same thing,
 the listing marking each package `loaded`, `missing`, or `loaded, not named by
 the file`.

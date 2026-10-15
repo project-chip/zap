@@ -1,6 +1,6 @@
-# `zap-cli edit` — QA Quick Start
+# `zap-cli` configuration commands — QA Quick Start
 
-A step-by-step guide to testing the `zap edit` command line from a built binary.
+A step-by-step guide to testing the configuration commands from a built binary.
 No ZAP knowledge needed. Follow the steps in order.
 
 ---
@@ -44,7 +44,7 @@ so your test runs never interfere with each other:
 Make a new Matter configuration file:
 
 ```bash
-./zap-cli edit new mytest.zap --force --zcl matter --stateDirectory ./qa-state
+./zap-cli new mytest.zap --force --zcl matter --stateDirectory ./qa-state
 ```
 
 **Expected:** it says it created an empty configuration and added endpoint 0
@@ -65,7 +65,7 @@ matching test templates automatically (`matter` → Matter test templates,
 ## 3. Add a light
 
 ```bash
-./zap-cli edit endpoint create mytest.zap --endpoint 1 --device-type MA-dimmablelight --zcl matter --stateDirectory ./qa-state
+./zap-cli endpoint create mytest.zap --endpoint 1 --device-type MA-dimmablelight --zcl matter --stateDirectory ./qa-state
 ```
 
 **Expected:** `Created endpoint 1 with device type(s) MA-dimmablelight (0x0101)`
@@ -74,7 +74,7 @@ and a line saying how many clusters the device type turned on.
 See what you have:
 
 ```bash
-./zap-cli edit endpoint list mytest.zap --zcl matter --stateDirectory ./qa-state
+./zap-cli endpoint list mytest.zap --zcl matter --stateDirectory ./qa-state
 ```
 
 **Expected:** a table with endpoint `0` (MA-rootdevice) and endpoint `1`
@@ -87,7 +87,7 @@ See what you have:
 Set the light's brightness default to 42:
 
 ```bash
-./zap-cli edit attribute set mytest.zap --endpoint 1 --cluster "Level Control" --attribute CurrentLevel --enabled --default 42 --zcl matter --stateDirectory ./qa-state
+./zap-cli attribute set mytest.zap --endpoint 1 --cluster "Level Control" --attribute CurrentLevel --enabled --default 42 --zcl matter --stateDirectory ./qa-state
 ```
 
 **Expected:** a line ending in `enabled, default=42`.
@@ -95,7 +95,7 @@ Set the light's brightness default to 42:
 Confirm it stuck:
 
 ```bash
-./zap-cli edit attribute list mytest.zap --endpoint 1 --cluster "Level Control" --enabled-only --zcl matter --stateDirectory ./qa-state
+./zap-cli attribute list mytest.zap --endpoint 1 --cluster "Level Control" --enabled-only --zcl matter --stateDirectory ./qa-state
 ```
 
 **Expected:** a table where `CurrentLevel` shows `42` in the DEFAULT column.
@@ -107,9 +107,9 @@ Confirm it stuck:
 Add a door lock, then turn on one of its events:
 
 ```bash
-./zap-cli edit endpoint create mytest.zap --endpoint 2 --device-type MA-doorlock --zcl matter --stateDirectory ./qa-state
+./zap-cli endpoint create mytest.zap --endpoint 2 --device-type MA-doorlock --zcl matter --stateDirectory ./qa-state
 
-./zap-cli edit event enable mytest.zap --endpoint 2 --cluster "Door Lock" --event DoorLockAlarm --zcl matter --stateDirectory ./qa-state
+./zap-cli event enable mytest.zap --endpoint 2 --cluster "Door Lock" --event DoorLockAlarm --zcl matter --stateDirectory ./qa-state
 ```
 
 **Expected:** `Enabled event DoorLockAlarm (0x00) on Door Lock of endpoint 2`.
@@ -117,7 +117,7 @@ Add a door lock, then turn on one of its events:
 Confirm:
 
 ```bash
-./zap-cli edit event list mytest.zap --endpoint 2 --cluster "Door Lock" --enabled-only --zcl matter --stateDirectory ./qa-state
+./zap-cli event list mytest.zap --endpoint 2 --cluster "Door Lock" --enabled-only --zcl matter --stateDirectory ./qa-state
 ```
 
 **Expected:** `DoorLockAlarm` listed with ENABLED `yes`.
@@ -129,7 +129,7 @@ Confirm:
 Features are optional chunks of behavior in a cluster.
 
 ```bash
-./zap-cli edit feature list mytest.zap --endpoint 1 --cluster On/Off --zcl matter --stateDirectory ./qa-state
+./zap-cli feature list mytest.zap --endpoint 1 --cluster On/Off --zcl matter --stateDirectory ./qa-state
 ```
 
 **Expected:** a table of features. `Lighting` (code `LT`) should show
@@ -141,7 +141,7 @@ shows a `featureMap` value.
 ## 7. Check the whole file
 
 ```bash
-./zap-cli edit check mytest.zap --zcl matter --stateDirectory ./qa-state
+./zap-cli check mytest.zap --zcl matter --stateDirectory ./qa-state
 ```
 
 **Expected:** a summary of errors and warnings. Some warnings are normal.
@@ -154,7 +154,7 @@ It should **not** crash or say the file cannot be read.
 Type a cluster name that does not exist:
 
 ```bash
-./zap-cli edit cluster enable mytest.zap --endpoint 1 --cluster "Not A Real Cluster" --side server --zcl matter --stateDirectory ./qa-state
+./zap-cli cluster enable mytest.zap --endpoint 1 --cluster "Not A Real Cluster" --side server --zcl matter --stateDirectory ./qa-state
 ```
 
 **Expected:** a clear `Unknown cluster` message, ideally suggesting close
@@ -167,20 +167,20 @@ silently succeed.
 
 ### Getting help without reading docs
 
-`zap-cli edit help` is the fastest way to see everything available. It reads
+`zap-cli help` is the fastest way to see everything available. It reads
 nothing from disk, so it answers instantly.
 
 ```bash
-./zap-cli edit help                     # every operation, one line each
-./zap-cli edit help attribute           # all attribute operations
-./zap-cli edit help attribute set       # options for just this one
+./zap-cli help                     # every operation, one line each
+./zap-cli help attribute           # all attribute operations
+./zap-cli help attribute set       # options for just this one
 ```
 
 Standard `--help` works too:
 
 ```bash
-./zap-cli edit --help
-./zap-cli edit endpoint create --help
+./zap-cli --help
+./zap-cli endpoint create --help
 ```
 
 ### Every command tells you what to do next

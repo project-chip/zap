@@ -1,7 +1,7 @@
-# The `zap edit` CLI: architecture
+# Configuration commands: architecture
 
-This is the architecture of the `zap edit` command-line tool — not the browser
-editor. It performs, from a terminal, the edits the ZAP user interface performs
+This is the architecture of the configuration commands (`zap endpoint create file.zap`, `zap new file.zap`) — not the browser
+editor. They perform, from a terminal, the edits the ZAP user interface performs
 in a browser: creating endpoints, composing them, enabling clusters, and
 configuring attributes, commands, events and Matter features. It is not a second
 implementation of those edits. It is a second front end onto the one that already
@@ -54,13 +54,13 @@ ZAP's editing model is simpler than it first appears. A `.zap` file is not the
 working state; it is a projection of one. Opening a file imports it into a
 **session** in a SQLite database, every edit is a row change in that session, and
 saving projects the session back out. The user interface is a browser onto a
-session over HTTP. `zap edit` is the same session without the browser.
+session over HTTP. `zap` is the same session without the browser.
 
 ```mermaid
 flowchart LR
   subgraph front["Front ends"]
     gui["Browser UI<br/>Vue components"]
-    cli["zap edit<br/>cli-commands"]
+    cli["zap<br/>cli-commands"]
   end
   subgraph shared["Shared core"]
     rest["REST handlers<br/>src-electron/rest"]
@@ -95,7 +95,7 @@ Everything follows from that picture:
 - **Ten modules, one direction.** No module depends on one that depends on it.
 
 By the numbers: 7 operation groups, 27 operations, 22 global options, ~5,700
-lines under `src-electron/cli`, and 65 tests in `test/cli-edit.test.js`.
+lines under `src-electron/cli`, and 65 tests in `test/cli.test.js`.
 
 ---
 
@@ -135,7 +135,7 @@ parser from it, and `cli-help.js` renders it — as a page for a person, or as J
 for a program:
 
 ```bash
-zap edit help --format json     # every operation, every option, with types
+zap help --format json     # every operation, every option, with types
 ```
 
 Because both come from one declaration, the parser and the help cannot disagree.
@@ -201,7 +201,7 @@ name is reported as ambiguous rather than resolved by luck
 
 #### 3.5 All or nothing
 
-`zap edit apply` reads a list of operations from YAML or JSON — a file, or stdin
+`zap apply` reads a list of operations from YAML or JSON — a file, or stdin
 with `--script -` — and applies them in one pass against one session. If any
 operation fails, nothing is written: the failure happens before the export, so
 the file on disk is byte-identical. A test asserts exactly that. `--dry-run`
@@ -264,7 +264,7 @@ is fixed knowledge; the rest are derived from the answers.
 
 ```mermaid
 flowchart LR
-  d["1. Describe<br/>zap edit help --format json"] --> v["2. Discover<br/>list --all --format json"]
+  d["1. Describe<br/>zap help --format json"] --> v["2. Discover<br/>list --all --format json"]
   v --> a["3. Apply<br/>apply --script - --format json"]
   a --> c["4. Check<br/>check --format json"]
   c -->|"findings"| v
@@ -276,7 +276,7 @@ flowchart LR
    configured, and which of its fields are fixed. The schema ships these recipes
    in its `discovery` section, so the agent does not have to invent them.
 3. **Apply** — one batch, atomically.
-4. **Check** — `zap edit check` reports validation findings and notifications for
+4. **Check** — `zap check` reports validation findings and notifications for
    the file as it stands, changing nothing, and with `--strict` exits non-zero
    when there are errors. Findings name the endpoint, cluster and element, which
    is enough to plan the next batch.
@@ -435,7 +435,7 @@ sequenceDiagram
   participant S as cli-session
   participant O as cli-operations
   participant D as SQLite
-  U->>C: zap edit attribute set file.zap …
+  U->>C: zap attribute set file.zap …
   C->>C: parse against cli-spec, route console if machine output
   C->>S: open
   S->>D: load ZCL packages, import file into a session
@@ -451,7 +451,7 @@ sequenceDiagram
 
 The order is the design:
 
-- **Parse before anything is loaded.** `zap edit help` must not pay for metadata
+- **Parse before anything is loaded.** `zap help` must not pay for metadata
   it does not use, and an invalid command line must fail before touching a file.
 - **Snapshot before editing.** The only way to report what _this_ run introduced
   is to know what was there when it started. The snapshot is taken after the
@@ -667,7 +667,7 @@ notification panel are exactly what they would have been had you made the same
 change by clicking. Undo it and they go away again. There is no drift to manage,
 because there is no stored state to drift.
 
-`test/cli-edit.test.js` asserts this end to end rather than by argument: it
+`test/cli.test.js` asserts this end to end rather than by argument: it
 disables a feature a device type requires through the CLI, then opens the saved
 file the way the interface opens it and reads the notification table and the
 unseen count.
@@ -681,7 +681,7 @@ surprises:
   nothing.
 - **The previous content is kept** alongside as `file~`. This is ZAP's own
   behaviour, not something added here.
-- **Starting fresh over a real file is refused.** `zap edit new` and
+- **Starting fresh over a real file is refused.** `zap new` and
   `apply --new` will not replace a configuration that exists unless `--force` is
   given or `-o` points elsewhere.
 - **Normalization is ZAP's.** Unselected elements are not written; mandatory ones
@@ -704,7 +704,7 @@ The cases worth knowing about, and what happens in each.
 | Package path on another Windows drive    | Imports, with a notification                                                                                  |
 | Empty batch script                       | Reported as "no operations, nothing to do", exit 0                                                            |
 | `--script -`                             | Reads stdin. A lone dash arrives as a positional from the parser, so it is put back                           |
-| Leading flags before `edit`              | Refused with the correct invocation, rather than crashing                                                     |
+| Leading flags before the command         | Refused with the correct invocation, rather than crashing                                                     |
 | Unknown operation in a batch             | Refused, listing the known operations; nothing is written                                                     |
 
 **Identity and structure**
@@ -780,7 +780,7 @@ it.
   `FEATURE.CONFORMANCE` alone says Lighting is conditional on On/Off; on an
   endpoint whose device type is a Dimmable Light it is mandatory. Read the cluster
   conformance only and you will judge the feature by the wrong rule.
-- **Session rows accumulate.** The edit database in the state directory keeps one
+- **Session rows accumulate.** The CLI database in the state directory keeps one
   session per invocation, and is reused as a metadata cache. It is disposable;
   `--tempState` gives a run its own, at the cost of reloading metadata.
 - **Protocol behaviour is asked of the data model, never inferred from a name.**
@@ -812,7 +812,7 @@ it.
 
 ### 15. How it is tested
 
-65 tests in `test/cli-edit.test.js`, in four kinds, deliberately weighted.
+65 tests in `test/cli.test.js`, in four kinds, deliberately weighted.
 
 | Kind                  | What it is for                                                                                            |
 | --------------------- | --------------------------------------------------------------------------------------------------------- |
@@ -867,7 +867,7 @@ configuration.
 - `endpoint duplicate` does not carry the parent. Shared with the interface.
 - Packages cannot be added to or removed from a configuration; they follow from
   the metadata passed on the command line.
-- The edit database grows by one session per invocation. Harmless, disposable,
+- The CLI database grows by one session per invocation. Harmless, disposable,
   and avoidable with `--tempState`.
 
 ---
@@ -889,7 +889,7 @@ configuration.
 
 ## Appendix B — the schema an agent reads
 
-`zap edit help --format json` returns:
+`zap help --format json` returns:
 
 | Key                               | Contents                                                                                                                                                               |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -908,5 +908,5 @@ that has read the schema can compose `apply` input without further guessing.
 
 ---
 
-_CLI reference: [`zap-edit-cli.md`](zap-edit-cli.md). CLI walkthrough:
-[`zap-edit-guide.md`](zap-edit-guide.md)._
+_CLI reference: [`zap-cli-reference.md`](zap-cli-reference.md). CLI walkthrough:
+[`zap-cli-guide.md`](zap-cli-guide.md)._

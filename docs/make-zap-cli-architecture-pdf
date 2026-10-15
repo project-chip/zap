@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Renders docs/zap-edit-architecture.md, with its mermaid diagrams, into
-# docs/zap-edit-architecture.pdf.
+# Renders docs/zap-cli-architecture.md, with its mermaid diagrams, into
+# docs/zap-cli-architecture.pdf.
 #
 # The markdown is the source of truth and is what lives in git. The PDF is a
 # local convenience for reading away from GitHub (which renders the diagrams
@@ -15,7 +15,7 @@
 
 set -u
 
-DOC=zap-edit-architecture
+DOC=zap-cli-architecture
 HERE=$(cd "$(dirname "$0")" && pwd)
 SOURCE=${HERE}/${DOC}.md
 PDF=${HERE}/${DOC}.pdf
@@ -84,7 +84,7 @@ const css = `
   @media print { body { max-width:none } h1 { break-after:avoid } }
 `
 const page = `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<title>The zap edit CLI: architecture</title><style>${css}</style></head>
+<title>The zap CLI: architecture</title><style>${css}</style></head>
 <body><div id="doc"></div>
 <script src="https://cdn.jsdelivr.net/npm/marked@14.1.2/marked.min.js"></script>
 <script type="module">

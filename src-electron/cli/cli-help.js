@@ -16,7 +16,7 @@
  */
 
 /**
- * `zap edit help`: describes the whole command surface, either as a page for a
+ * `zap help`: describes the whole command surface, either as a page for a
  * person or as a schema for a script.
  *
  * This answers the question "what can I do and what do I have to pass" without
@@ -58,7 +58,7 @@ function describeOperation(group, verb, definition) {
   )
   return {
     operation: definition.operation,
-    command: `zap edit ${path}${definition.noFile ? '' : ' <file.zap>'}`,
+    command: `zap ${path}${definition.noFile ? '' : ' <file.zap>'}`,
     path: path,
     group: group,
     verb: verb,
@@ -105,10 +105,10 @@ function describeCli() {
   )
 
   return {
-    command: 'zap edit',
+    command: 'zap',
     description:
       'Everything the ZAP user interface can do to a .zap configuration, from a terminal or a script.',
-    usage: 'zap edit <group> <operation> <file.zap> [options]',
+    usage: 'zap <group> <operation> <file.zap> [options]',
     groups: Object.entries(spec.groups).map(([name, definition]) => ({
       group: name,
       description: definition.describe,
@@ -218,9 +218,9 @@ function renderOverview(schema) {
   lines.push(
     '',
     'MORE',
-    "  zap edit help <group>             options of every operation in a group, e.g. 'zap edit help attribute'",
-    "  zap edit help <group> <operation> options of one operation, e.g. 'zap edit help attribute set'",
-    '  zap edit help --format json       the whole surface as a machine readable schema'
+    "  zap help <group>             options of every operation in a group, e.g. 'zap help attribute'",
+    "  zap help <group> <operation> options of one operation, e.g. 'zap help attribute set'",
+    '  zap help --format json       the whole surface as a machine readable schema'
   )
   return lines.join('\n')
 }
@@ -265,7 +265,7 @@ function renderHelp(schema, topic = []) {
 }
 
 /**
- * Produces the output of `zap edit help`.
+ * Produces the output of `zap help`.
  *
  * @param {*} argv Parsed arguments, for `format` and the topic positional.
  * @returns {string} the help output

@@ -16,9 +16,9 @@
  */
 
 /**
- * The `zap edit` command surface, described as data.
+ * The configuration command surface, described as data.
  *
- * The yargs command tree and the machine readable output of `zap edit help`
+ * The yargs command tree and the machine readable output of `zap help`
  * are both generated from this one description, so what the parser accepts and
  * what the help advertises cannot drift apart. That matters most for callers
  * that are not people: a script or an agent can read the schema, learn every
@@ -556,7 +556,7 @@ const groups = {
 }
 
 /**
- * Operations that sit directly under `zap edit` rather than in a group.
+ * Operations that sit directly under `zap` rather than in a group.
  */
 const topLevel = {
   info: {
@@ -779,74 +779,74 @@ const notes = [
 const discovery = [
   {
     question: 'Which device types can I use?',
-    command: 'zap edit devicetype list <file.zap> --all --format json'
+    command: 'zap devicetype list <file.zap> --all --format json'
   },
   {
     question: 'Which clusters can I use?',
-    command: 'zap edit cluster list <file.zap> --all --format json'
+    command: 'zap cluster list <file.zap> --all --format json'
   },
   {
     question: 'What is already in this configuration?',
-    command: 'zap edit endpoint list <file.zap> --format json'
+    command: 'zap endpoint list <file.zap> --format json'
   },
   {
     question: 'Which clusters are enabled on an endpoint?',
     command:
-      'zap edit cluster list <file.zap> --endpoint 1 --enabled-only --format json'
+      'zap cluster list <file.zap> --endpoint 1 --enabled-only --format json'
   },
   {
     question: 'Which attributes does a cluster have, and how are they set?',
     command:
-      'zap edit attribute list <file.zap> --endpoint 1 --cluster On/Off --format json'
+      'zap attribute list <file.zap> --endpoint 1 --cluster On/Off --format json'
   },
   {
     question: 'Which commands, events or features does a cluster have?',
     command:
-      'zap edit command list <file.zap> --endpoint 1 --cluster On/Off --format json'
+      'zap command list <file.zap> --endpoint 1 --cluster On/Off --format json'
   },
   {
     question: 'Is this configuration compliant?',
-    command: 'zap edit check <file.zap> --format json'
+    command: 'zap check <file.zap> --format json'
   }
 ]
 
 const examples = [
   {
     description: 'Look at a configuration',
-    command: 'zap edit endpoint list light.zap'
+    command: 'zap endpoint list light.zap'
   },
   {
     description: 'Add an endpoint',
     command:
-      'zap edit endpoint create light.zap --endpoint 1 --device-type "ZLL-onofflight"'
+      'zap endpoint create light.zap --endpoint 1 --device-type "ZLL-onofflight"'
   },
   {
     description: 'Enable a cluster',
     command:
-      'zap edit cluster enable light.zap --endpoint 1 --cluster "Level Control" --side server'
+      'zap cluster enable light.zap --endpoint 1 --cluster "Level Control" --side server'
   },
   {
     description: 'Configure an attribute',
     command:
-      'zap edit attribute set light.zap --endpoint 1 --cluster On/Off --attribute OnOff --enabled --default 1'
+      'zap attribute set light.zap --endpoint 1 --cluster On/Off --attribute OnOff --enabled --default 1'
   },
   {
     description: 'Make several changes in one pass',
-    command: 'zap edit apply light.zap --script changes.yaml'
+    command: 'zap apply light.zap --script changes.yaml'
   },
   {
     description: 'Check a configuration for compliance',
-    command: 'zap edit check light.zap'
+    command: 'zap check light.zap'
   },
   {
     description: 'Read the whole command surface as JSON',
-    command: 'zap edit help --format json'
+    command: 'zap help --format json'
   }
 ]
 
 const batchScript = {
   describe:
-    'zap edit apply reads a YAML or JSON list of operations and applies them in one pass. Each entry names an operation in its op field and carries the same parameters as the matching subcommand, using the camelCase parameter names reported for each option. A top level operations: key wrapping the list is also accepted, and --script - reads from stdin. Add --new to start from an empty configuration.',
+    'zap apply reads a YAML or JSON list of operations and applies them in one pass. Each entry names an operation in its op field and carries the same parameters as the matching subcommand, using the camelCase parameter names reported for each option. A top level operations: key wrapping the list is also accepted, and --script - reads from stdin. Add --new to start from an empty configuration.',
   example: [
     { op: 'endpoint.create', endpoint: 1, deviceType: 'ZLL-onofflight' },
     {
