@@ -16,7 +16,7 @@
  */
 
 /**
- * Rendering of `zap edit` results, either as text for a person or as JSON for
+ * Rendering of `zap` results, either as text for a person or as JSON for
  * a script.
  *
  * @module CLI API: output rendering

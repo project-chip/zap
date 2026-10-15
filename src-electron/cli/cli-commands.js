@@ -16,20 +16,20 @@
  */
 
 /**
- * The `zap edit` command line: everything the GUI can do to a configuration,
+ * The configuration command line: everything the GUI can do to a .zap file,
  * driven from a terminal or a script.
  *
- * The subcommands are organized as noun-verb pairs, mirroring the panels of
- * the GUI: `endpoint`, `devicetype`, `cluster`, `attribute`, `command`,
- * `event` and `feature`. `zap edit apply` runs a whole list of operations in
- * one process, which matters because loading the ZCL metadata is by far the
+ * The subcommands sit at the root and are organized as noun-verb pairs,
+ * mirroring the panels of the GUI: `zap endpoint create`, `zap cluster enable`,
+ * `zap attribute set`. `zap apply` runs a whole list of operations in one
+ * process, which matters because loading the ZCL metadata is by far the
  * slowest part of any invocation.
  *
  * The command tree here is generated from the description in `cli-spec`, which
- * is also what `zap edit help` reports, so the parser and the help cannot
- * disagree about what exists.
+ * is also what `zap help` reports, so the parser and the help cannot disagree
+ * about what exists.
  *
- * @module CLI API: edit command line
+ * @module CLI API: command line
  */
 
 const fs = require('fs')
@@ -44,8 +44,6 @@ const cliHelp = require('./cli-help.js')
 const spec = require('./cli-spec.js')
 
 const CliError = cliError.CliError
-
-const EDIT_COMMAND = 'edit'
 
 /**
  * Translates one option from the spec into the shape yargs wants.
@@ -94,13 +92,13 @@ function registerOperation(y, verb, definition) {
     definition.describe,
     (b) => applyOptions(b, definition.options),
     (argv) => {
-      argv.editOperation = definition.operation
+      argv.cliOperation = definition.operation
     }
   )
 }
 
 /**
- * Builds the whole `zap edit` command tree onto a yargs instance.
+ * Builds the whole `zap` command tree onto a yargs instance.
  *
  * @param {*} y yargs instance
  * @returns {*} the yargs instance
@@ -122,12 +120,12 @@ function buildCommandTree(y) {
 
   return y.demandCommand(
     1,
-    'Specify what to edit. Try: zap edit help, or zap edit --help'
+    'Specify what to do. Try: zap help, or zap endpoint --help'
   )
 }
 
 /**
- * Parses `zap edit help [topic...]`.
+ * Parses `zap help [topic...]`.
  *
  * yargs claims a bare `help` positional for its own usage screen, and there is
  * no way to register a command that outranks it. Since describing the command
@@ -135,39 +133,71 @@ function buildCommandTree(y) {
  * instead of fighting over the word.
  *
  * @param {string[]} args Arguments after the `help` word.
- * @returns {*} parsed arguments, tagged with `editOperation`
+ * @returns {*} parsed arguments, tagged with `cliOperation`
  */
 function parseHelpCommandLine(args) {
   let parser = yargs(args)
-    .scriptName('zap edit help')
+    .scriptName('zap help')
     .usage(
-      `Usage: zap edit help [topic] [--format json]
+      `Usage: zap help [topic] [--format json]
 
-Describes what zap edit can do and which options each operation takes.
+Describes what the configuration commands can do and which options each one takes.
 
-  zap edit help                      every operation, one line each
-  zap edit help attribute            options of every attribute operation
-  zap edit help attribute set        options of one operation
-  zap edit help --format json        the whole surface as a machine readable schema`
+  zap help                      every operation, one line each
+  zap help attribute            options of every attribute operation
+  zap help attribute set        options of one operation
+  zap help --format json        the whole surface as a machine readable schema`
     )
     .wrap(null)
   applyOptions(parser, spec.globalOptions)
 
   let parsed = parser.parseSync()
   parsed.topic = parsed._.map((word) => `${word}`)
-  parsed.editOperation = 'help'
-  parsed._ = [EDIT_COMMAND, 'help']
+  parsed.cliOperation = 'help'
+  parsed._ = ['help']
   return parsed
 }
 
 /**
- * True when the raw process arguments ask for the `edit` command.
+ * True when the raw process arguments ask for a configuration command.
+ *
+ * Those commands live at the root (`zap endpoint list`, `zap new file.zap`).
  *
  * @param {string[]} argv Raw `process.argv`.
- * @returns {boolean} whether this is a `zap edit` invocation
+ * @returns {boolean} whether this is a configuration-command invocation
  */
-function isEditCommandLine(argv) {
-  return indexOfEditCommand(argv) >= 0
+function isCliCommandLine(argv) {
+  return indexOfCliCommand(argv) >= 0
+}
+
+/**
+ * Names that start a configuration command: the groups and the top-level
+ * operations.
+ *
+ * @returns {Set<string>} command names
+ */
+function configurationCommands() {
+  return new Set([...Object.keys(spec.groups), ...Object.keys(spec.topLevel)])
+}
+
+/**
+ * True when something after `index` is a positional argument rather than a flag.
+ *
+ * @param {string[]} argv
+ * @param {number} index
+ * @returns {boolean} whether a positional follows
+ */
+function hasPositionalAfter(argv, index) {
+  for (let i = index + 1; i < argv.length; i++) {
+    let arg = argv[i]
+    if (typeof arg !== 'string') continue
+    if (arg.startsWith('-')) {
+      if (optionTakesValue(arg) && i + 1 < argv.length) i++
+      continue
+    }
+    return true
+  }
+  return false
 }
 
 /**
@@ -189,11 +219,11 @@ function isInterpreterOrScriptPath(arg) {
 /**
  * True when a leading flag takes a following value token.
  *
- * Built from the edit command's own global options so that
- * `--stateDirectory /tmp edit …` skips `/tmp` rather than mistaking it for a
- * command, while a boolean such as `--logToStdout` leaves `edit` in place.
- * Unknown flags are treated as boolean: consuming their next token would hide
- * a legitimate `edit` that follows.
+ * Built from the configuration commands' own global options so that
+ * `--stateDirectory /tmp endpoint list …` skips `/tmp` rather than mistaking
+ * it for a command, while a boolean such as `--logToStdout` leaves `endpoint`
+ * in place. Unknown flags are treated as boolean: consuming their next token
+ * would hide a legitimate command that follows.
  *
  * @param {string} flag A token that starts with `-`.
  * @returns {boolean} whether the next argv token is this flag's value
@@ -214,18 +244,21 @@ function optionTakesValue(flag) {
 }
 
 /**
- * Finds where the `edit` command starts in the raw arguments.
+ * Finds where a configuration command starts in the raw arguments.
  *
- * Global options may precede `edit` (`zap --logToStdout edit …`). Flags are
- * skipped, and a following value is skipped when the flag is known to take
- * one, so that `--output edit` (the word as a value) is not mistaken for the
- * command. The first non-option, non-path token must still be `edit` itself;
- * `zap generate …` does not engage this parser.
+ * The command is the group or operation itself (`zap endpoint list`,
+ * `zap new file.zap`). Global options may precede it
+ * (`zap --logToStdout endpoint list …`). Flags are skipped, and a following
+ * value is skipped when the flag is known to take one, so that
+ * `--output info` is not mistaken for the command. `zap generate …` does not
+ * engage this parser. Bare `zap new`, with no file after it, opens a window
+ * and is left to the general parser.
  *
  * @param {string[]} argv Raw `process.argv`, with or without its leading paths.
- * @returns {number} index of 'edit', or -1
+ * @returns {number} index of the configuration command, or -1
  */
-function indexOfEditCommand(argv) {
+function indexOfCliCommand(argv) {
+  let commands = configurationCommands()
   for (let i = 0; i < argv.length; i++) {
     let arg = argv[i]
     if (typeof arg !== 'string') continue
@@ -234,25 +267,26 @@ function indexOfEditCommand(argv) {
       continue
     }
     if (isInterpreterOrScriptPath(arg)) continue
-    return arg === EDIT_COMMAND ? i : -1
+    if (!commands.has(arg)) return -1
+    if (arg === 'new' && !hasPositionalAfter(argv, i)) return -1
+    return i
   }
   return -1
 }
 
 /**
- * Options that appeared before the `edit` token.
+ * Options that appeared before the command token.
  *
- * Detection allows `zap --logToStdout edit …`, but the edit parser only sees
- * what follows `edit` unless those leading flags are carried across. Skip the
- * interpreter and script paths; everything else before `edit` is an option.
+ * Detection allows `zap --logToStdout endpoint list …`. Skip the interpreter
+ * and script paths; everything else before the command is an option.
  *
  * @param {string[]} argv
- * @param {number} editIndex
+ * @param {number} commandIndex
  * @returns {string[]} preceding option tokens
  */
-function precedingEditOptions(argv, editIndex) {
+function precedingCliOptions(argv, commandIndex) {
   let out = []
-  for (let i = 0; i < editIndex; i++) {
+  for (let i = 0; i < commandIndex; i++) {
     let arg = argv[i]
     if (typeof arg !== 'string') continue
     if (isInterpreterOrScriptPath(arg)) continue
@@ -262,29 +296,28 @@ function precedingEditOptions(argv, editIndex) {
 }
 
 /**
- * Parses a `zap edit ...` command line.
+ * Parses a configuration command line (`zap endpoint list file.zap`, and so on).
  *
  * This uses its own yargs instance rather than the general purpose one so that
  * the nested subcommands, their per-command help and their required options
  * all behave the way a person would expect.
  *
  * @param {string[]} argv Raw `process.argv`.
- * @returns {*} parsed arguments, tagged with `editOperation`
+ * @returns {*} parsed arguments, tagged with `cliOperation`
  */
-function parseEditCommandLine(argv) {
-  let start = indexOfEditCommand(argv)
-  let afterEdit = start < 0 ? argv : argv.slice(start + 1)
-  let preceding = start < 0 ? [] : precedingEditOptions(argv, start)
-  // `help` is the first token after `edit`, not after any leading globals.
-  if (afterEdit[0] === 'help') {
-    return parseHelpCommandLine([...preceding, ...afterEdit.slice(1)])
+function parseCliCommandLine(argv) {
+  let start = indexOfCliCommand(argv)
+  let afterCommand = start < 0 ? argv : argv.slice(start)
+  let preceding = start < 0 ? [] : precedingCliOptions(argv, start)
+  if (afterCommand[0] === 'help') {
+    return parseHelpCommandLine([...preceding, ...afterCommand.slice(1)])
   }
-  let args = [...preceding, ...afterEdit]
+  let args = [...preceding, ...afterCommand]
 
   let parser = yargs(args)
-    .scriptName('zap edit')
+    .scriptName('zap')
     .usage(
-      `Usage: zap edit <group> <operation> <file.zap> [options]
+      `Usage: zap <group> <operation> <file.zap> [options]
 
 Everything the ZAP user interface can do to a configuration, from a terminal.
 Names are matched loosely, so "On/Off", ON_OFF and 0x0006 all select the same
@@ -293,8 +326,8 @@ cluster.
 Examples:
 ${spec.examples.map((e) => `  ${e.command}`).join('\n')}
 
-Run 'zap edit help' for every operation and the options it takes, or
-'zap edit help --format json' for the same thing as a machine readable schema.`
+Run 'zap help' for every operation and the options it takes, or
+'zap help --format json' for the same thing as a machine readable schema.`
     )
     .help()
     .alias({ help: ['h', '?'] })
@@ -303,7 +336,6 @@ Run 'zap edit help' for every operation and the options it takes, or
   buildCommandTree(parser)
 
   let parsed = parser.parseSync()
-  parsed._ = [EDIT_COMMAND, ...parsed._]
   return normalizeStdinScript(parsed)
 }
 
@@ -430,9 +462,9 @@ function requireResolvedPackages(ctx, operations) {
   )
   hints.push(
     `Saving would write that difference back into the file. Point it at the file:`,
-    `  zap edit package add ${ctx.zapFile} --xml <file.xml>`,
+    `  zap package add ${ctx.zapFile} --xml <file.xml>`,
     `or drop the reference:`,
-    `  zap edit package remove ${ctx.zapFile} --xml ${unresolved[0].declared}`,
+    `  zap package remove ${ctx.zapFile} --xml ${unresolved[0].declared}`,
     `or pass --force to edit it as it loaded.`
   )
   throw new CliError(
@@ -442,9 +474,9 @@ function requireResolvedPackages(ctx, operations) {
 }
 
 /**
- * Runs a parsed `zap edit` command line.
+ * Runs a parsed `zap` command line.
  *
- * @param {*} argv Result of `parseEditCommandLine`.
+ * @param {*} argv Result of `parseCliCommandLine`.
  * @param {*} options `logger` and `printer` overrides, used by tests.
  * @returns {Promise<number>} process exit code
  */
@@ -456,24 +488,24 @@ async function run(argv, options = {}) {
 
   // Describing the command surface must not pay for loading the ZCL metadata,
   // which is the whole reason it is worth asking for separately.
-  if (argv.editOperation === 'help') {
+  if (argv.cliOperation === 'help') {
     printer(cliHelp.help(argv))
     return 0
   }
 
-  // Reachable only if arguments arrive from somewhere other than the edit
+  // Reachable only if arguments arrive from somewhere other than the command
   // parser, which tags every command it recognizes. Better to say so than to
   // fail further in on a missing operation name.
-  if (argv.editOperation == null) {
+  if (argv.cliOperation == null) {
     throw new CliError('No operation to run', [
-      `'edit' has to be the first argument. Try: zap edit help`
+      `Name a configuration command. Try: zap help`
     ])
   }
 
   let report = new cliOutput.Report(argv.format, argv.suggest !== false)
   let ctx = null
   try {
-    let startFromBlank = argv.editOperation === 'new' || argv.new === true
+    let startFromBlank = argv.cliOperation === 'new' || argv.new === true
     if (startFromBlank) requireNothingToOverwrite(argv)
     ctx = await cliSession.open(argv, {
       logger: logger,
@@ -481,7 +513,7 @@ async function run(argv, options = {}) {
     })
 
     let operations
-    if (argv.editOperation === 'apply') {
+    if (argv.cliOperation === 'apply') {
       operations = await cliScript.load(argv.script)
       if (operations.length === 0) {
         report.add('apply', {
@@ -489,18 +521,18 @@ async function run(argv, options = {}) {
           messages: [`${argv.script} contains no operations, nothing to do`]
         })
       }
-    } else if (argv.editOperation === 'new') {
+    } else if (argv.cliOperation === 'new') {
       operations = []
       report.add('new', {
         changed: true,
         messages: [`Created an empty configuration`],
         next: [
-          `zap edit devicetype list ${argv.zapFile} --all`,
-          `zap edit endpoint create ${argv.zapFile} --endpoint 1 --device-type <name>`
+          `zap devicetype list ${argv.zapFile} --all`,
+          `zap endpoint create ${argv.zapFile} --endpoint 1 --device-type <name>`
         ]
       })
     } else {
-      operations = [{ op: argv.editOperation, params: argv }]
+      operations = [{ op: argv.cliOperation, params: argv }]
     }
 
     // A Matter configuration is not valid without its Root Node, and the user
@@ -599,7 +631,7 @@ async function run(argv, options = {}) {
   }
 }
 
-exports.isEditCommandLine = isEditCommandLine
-exports.parseEditCommandLine = parseEditCommandLine
+exports.isCliCommandLine = isCliCommandLine
+exports.parseCliCommandLine = parseCliCommandLine
 exports.routeConsoleForMachineOutput = routeConsoleForMachineOutput
 exports.run = run

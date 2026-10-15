@@ -17,10 +17,10 @@
  */
 
 /**
- * Smoke test for `zap edit` on a packaged zap-cli binary.
+ * Smoke test for `zap` on a packaged zap-cli binary.
  *
  * The release build already checks that zap-cli exists and reports a version.
- * That does not prove the edit command works: the data model has to load out of
+ * That does not prove the configuration commands work: the data model has to load out of
  * the binary's own bundle, the database has to be created in a writable state
  * directory, and a .zap file has to survive a save and a reload. This exercises
  * that path the way a person would.
@@ -175,19 +175,19 @@ const common = ['--stateDirectory', stateDir, '--noZapFileLog', '--quiet']
 const matter = ['--zcl', 'matter']
 
 console.log(
-  `zap edit smoke test: ${argv.binary ? path.resolve(argv.binary) : 'source tree'}`
+  `zap smoke test: ${argv.binary ? path.resolve(argv.binary) : 'source tree'}`
 )
 console.log(`scratch: ${workDir}`)
 
 step('reports a version', ['--version'], { contains: ['Version'] })
 
-step('edit help lists the operations', ['edit', 'help'], {
+step('help lists the operations', ['help'], {
   contains: ['endpoint create', 'cluster enable', 'attribute set']
 })
 
 let schema = step(
-  'edit help emits a machine readable schema',
-  ['edit', 'help', '--format', 'json'],
+  'help emits a machine readable schema',
+  ['help', '--format', 'json'],
   { contains: ['"operations"'] }
 )
 if (schema.status === 0) {
@@ -199,7 +199,7 @@ if (schema.status === 0) {
     if (parsed.operations == null) {
       failures.push({
         what: 'help schema has an operations key',
-        display: 'edit help --format json',
+        display: 'help --format json',
         problems: ['no operations key'],
         output: schema.stdout.slice(0, 500)
       })
@@ -208,7 +208,7 @@ if (schema.status === 0) {
   } catch (e) {
     failures.push({
       what: 'help schema is valid JSON',
-      display: 'edit help --format json',
+      display: 'help --format json',
       problems: [e.message],
       output: schema.stdout.slice(0, 500)
     })
@@ -218,7 +218,7 @@ if (schema.status === 0) {
 
 step(
   'creates a Matter configuration from a bundled data model',
-  ['edit', 'new', zapFile, '--force', ...matter, ...common],
+  ['new', zapFile, '--force', ...matter, ...common],
   { contains: ['MA-rootdevice'] }
 )
 
@@ -226,14 +226,13 @@ step(
 // templates that ship with the binary whenever --zcl matter is used alone.
 step(
   'attaches the matching test templates when --gen is omitted',
-  ['edit', 'package', 'list', zapFile, ...matter, ...common],
+  ['package', 'list', zapFile, ...matter, ...common],
   { contains: ['gen-templates-json', 'test-matter'] }
 )
 
 step(
   'creates an endpoint with a device type',
   [
-    'edit',
     'endpoint',
     'create',
     zapFile,
@@ -250,7 +249,6 @@ step(
 step(
   'sets an attribute default',
   [
-    'edit',
     'attribute',
     'set',
     zapFile,
@@ -272,7 +270,6 @@ step(
 step(
   'lists features with their conformance',
   [
-    'edit',
     'feature',
     'list',
     zapFile,
@@ -289,7 +286,6 @@ step(
 step(
   'enables an event',
   [
-    'edit',
     'endpoint',
     'create',
     zapFile,
@@ -306,7 +302,6 @@ step(
 step(
   'enables a cluster event',
   [
-    'edit',
     'event',
     'enable',
     zapFile,
@@ -324,14 +319,13 @@ step(
 
 step(
   'reads the file back with the edits in it',
-  ['edit', 'endpoint', 'list', zapFile, ...matter, ...common],
+  ['endpoint', 'list', zapFile, ...matter, ...common],
   { contains: ['MA-dimmablelight', 'MA-doorlock'] }
 )
 
 step(
   'reports an unknown cluster instead of failing silently',
   [
-    'edit',
     'cluster',
     'enable',
     zapFile,
@@ -386,12 +380,12 @@ if (fs.existsSync(zapFile)) {
 
 console.log('')
 if (failures.length === 0) {
-  console.log('zap edit smoke test: PASS')
+  console.log('zap smoke test: PASS')
   if (!argv.keep) fs.rmSync(workDir, { recursive: true, force: true })
   process.exit(0)
 }
 
-console.log(`zap edit smoke test: FAIL (${failures.length})`)
+console.log(`zap smoke test: FAIL (${failures.length})`)
 for (let f of failures) {
   console.log('')
   console.log(`- ${f.what}`)

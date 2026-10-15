@@ -272,15 +272,16 @@ function applyEnvironmentSettings(ret) {
  * @returns parsed argv object
  */
 export function processCommandLineArguments(argv) {
-  // `edit` has a nested subcommand tree of its own, so it gets parsed by a
+  // The configuration commands (`endpoint list`, `new file.zap`, `help`, ...)
+  // have a nested subcommand tree of their own, so they get parsed by a
   // dedicated parser instead of the flat one below. That keeps per-subcommand
   // help and required-option checking working.
-  if (cliCommands.isEditCommandLine(argv)) {
+  if (cliCommands.isCliCommandLine(argv)) {
     // The console has to be routed before anything else prints, because the
     // state directory notice below already goes to stdout.
     return applyEnvironmentSettings(
       cliCommands.routeConsoleForMachineOutput(
-        cliCommands.parseEditCommandLine(argv)
+        cliCommands.parseCliCommandLine(argv)
       )
     )
   }
@@ -294,13 +295,12 @@ export function processCommandLineArguments(argv) {
     ['status', 'Query the status of a zap server.'],
     ['server', 'Run zap in a server mode.'],
     ['stop', 'Stop zap server if one is running.'],
-    ['new', 'If in client mode, start a new window on a main instance.'],
-    ['regenerateSdk', 'Perform full SDK regeneration.'],
-    ['validate', 'Validate ZCL/Data-Model elements in one or more .zap files.'],
     [
-      'edit',
-      'Edit a .zap file: endpoints, device types, clusters, attributes, commands and events. See: zap edit --help'
-    ]
+      'new',
+      'With a .zap file, create an empty configuration (`zap new file.zap`). Without one, start a new window on a main instance.'
+    ],
+    ['regenerateSdk', 'Perform full SDK regeneration.'],
+    ['validate', 'Validate ZCL/Data-Model elements in one or more .zap files.']
   ])
   let y = yargs
   for (let cmd of commands.entries()) {
@@ -502,7 +502,9 @@ export function processCommandLineArguments(argv) {
       type: 'boolean',
       default: false
     })
-    .usage('Usage: $0 <command> [options] ... [file.zap] ...')
+    .usage(
+      'Usage: $0 <command> [options] ... [file.zap] ...\n\nTo change a .zap file: $0 <group> <operation> <file.zap> [options], for example $0 endpoint list app.zap. See: $0 help'
+    )
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${
         zapVersion.featureLevel

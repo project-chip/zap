@@ -1,10 +1,10 @@
-# The `zap edit` CLI: a guide
+# Configuration commands: a guide
 
-This is a walkthrough of the `zap edit` command-line tool. If you already know
-what you want and just need the flag, [the reference](zap-edit-cli.md) is
-shorter, and `zap edit help` is shorter still.
+This is a walkthrough of the configuration commands. If you already know
+what you want and just need the flag, [the reference](zap-cli-reference.md) is
+shorter, and `zap help` is shorter still.
 
-`zap edit` does to a `.zap` file what the ZAP user interface does to a session.
+`zap endpoint create`, `zap new`, and the other commands do to a `.zap` file what the ZAP user interface does to a session.
 It runs the same code underneath, so a configuration you build here is the same
 configuration you would have built by clicking, and it generates the same code.
 Reach for it when there is no display, when the change belongs in a script or a
@@ -29,30 +29,30 @@ review, or when you would rather type than click.
 
 ### How to run it
 
-If you have ZAP installed, the command is `zap edit`. From a source checkout,
+If you have ZAP installed, the commands sit at the root, for example `zap endpoint list light.zap`. From a source checkout,
 use the start script so your flags are passed straight through:
 
 ```bash
-node src-script/zap-start.js edit endpoint list light.zap
+node src-script/zap-start.js endpoint list light.zap
 ```
 
 There is also an npm script, which needs `--` before the arguments so that npm
 forwards them rather than eating them:
 
 ```bash
-npm run zap-edit -- endpoint list light.zap
+npm run zap-cli -- endpoint list light.zap
 ```
 
-Every example below is written as `zap edit ...`. Substitute whichever form you
+Every example below is written as `zap ...`. Substitute whichever form you
 are using.
 
 ### The one thing everyone gets wrong
 
-`zap edit` has to be told which ZCL data model to load, and **it defaults to
+A configuration command has to be told which ZCL data model to load, and **it defaults to
 Zigbee**. For a Matter configuration, pass `--zcl`:
 
 ```bash
-zap edit endpoint list light.zap --zcl ./zcl-builtin/matter/zcl.json
+zap endpoint list light.zap --zcl ./zcl-builtin/matter/zcl.json
 ```
 
 Forget it on a Matter file and device type and cluster names will not be found,
@@ -65,7 +65,7 @@ shell variable:
 
 ```bash
 MATTER="--zcl ./zcl-builtin/matter/zcl.json --gen ./test/gen-template/matter/gen-test.json"
-zap edit endpoint list light.zap $MATTER
+zap endpoint list light.zap $MATTER
 ```
 
 ### Ask the tool, not the internet
@@ -74,8 +74,8 @@ Two commands answer almost every question about the tool itself, and neither
 reads your files, so both are instant:
 
 ```bash
-zap edit help                    # every operation, one line each
-zap edit help attribute set      # the options of one operation
+zap help                    # every operation, one line each
+zap help attribute set      # the options of one operation
 ```
 
 ## Part 1: build a configuration from nothing
@@ -86,14 +86,14 @@ output below is real.
 ### Step 1: an empty configuration
 
 ```bash
-zap edit new light.zap $MATTER
+zap new light.zap $MATTER
 ```
 
 ```
 Created an empty configuration
 Next:
-  zap edit devicetype list light.zap --all
-  zap edit endpoint create light.zap --endpoint 1 --device-type <name>
+  zap devicetype list light.zap --all
+  zap endpoint create light.zap --endpoint 1 --device-type <name>
 Created endpoint 0 with the Root Node device type MA-rootdevice (0x0016)
 Saved light.zap
 ```
@@ -113,7 +113,7 @@ with `--no-suggest`.
 Names come from the data model, not from your imagination, so look:
 
 ```bash
-zap edit devicetype list light.zap --all --filter dimmablelight $MATTER
+zap devicetype list light.zap --all --filter dimmablelight $MATTER
 ```
 
 ```
@@ -132,7 +132,7 @@ CODE    NAME                   DOMAIN  PROFILE
 ### Step 3: add the endpoint
 
 ```bash
-zap edit endpoint create light.zap --endpoint 1 \
+zap endpoint create light.zap --endpoint 1 \
   --device-type MA-dimmablelight $MATTER
 ```
 
@@ -153,13 +153,13 @@ either with `--profile` and `--network` if you need to.
 Look before you leap:
 
 ```bash
-zap edit attribute list light.zap --endpoint 1 --cluster "Level Control" $MATTER
+zap attribute list light.zap --endpoint 1 --cluster "Level Control" $MATTER
 ```
 
 That prints every attribute with its current state. Then set one:
 
 ```bash
-zap edit attribute set light.zap --endpoint 1 --cluster "Level Control" \
+zap attribute set light.zap --endpoint 1 --cluster "Level Control" \
   --attribute CurrentLevel --enabled --default 25 $MATTER
 ```
 
@@ -170,7 +170,7 @@ Attribute CurrentLevel (0x0000) on Level Control/server of endpoint 1: enabled, 
 One `attribute set` can change everything the attribute table in the UI can:
 
 ```bash
-zap edit attribute set light.zap --endpoint 1 --cluster "Level Control" \
+zap attribute set light.zap --endpoint 1 --cluster "Level Control" \
   --attribute CurrentLevel \
   --enabled --default 25 --storage NVM --singleton \
   --reporting --min-interval 5 --max-interval 300 --reportable-change 1 $MATTER
@@ -193,7 +193,7 @@ at External and its value comes from application code rather than from a default
 here. Ask for something else and you are told why:
 
 ```bash
-zap edit attribute set light.zap --endpoint 1 --cluster "Access Control" \
+zap attribute set light.zap --endpoint 1 --cluster "Access Control" \
   --attribute ACL --storage RAM $MATTER
 ```
 
@@ -210,7 +210,7 @@ time a file is read: the write would have looked like it worked and then vanishe
 ### Step 5: enable a command
 
 ```bash
-zap edit command enable light.zap --endpoint 1 --cluster "Level Control" \
+zap command enable light.zap --endpoint 1 --cluster "Level Control" \
   --command MoveToLevel --direction in $MATTER
 ```
 
@@ -248,14 +248,14 @@ Control, which the device type switched on for us.
 Read first. All five of these commands are read-only and never write:
 
 ```bash
-zap edit info light.zap $MATTER                      # packages and endpoint count
-zap edit check light.zap $MATTER                     # what is already wrong with it
-zap edit endpoint list light.zap $MATTER             # endpoints and their device types
-zap edit cluster list light.zap --endpoint 1 --enabled-only $MATTER
-zap edit attribute list light.zap --endpoint 1 --cluster On/Off $MATTER
+zap info light.zap $MATTER                      # packages and endpoint count
+zap check light.zap $MATTER                     # what is already wrong with it
+zap endpoint list light.zap $MATTER             # endpoints and their device types
+zap cluster list light.zap --endpoint 1 --enabled-only $MATTER
+zap attribute list light.zap --endpoint 1 --cluster On/Off $MATTER
 ```
 
-`zap edit info` is the first thing to run on an unfamiliar file, because it tells
+`zap info` is the first thing to run on an unfamiliar file, because it tells
 you which data model it expects:
 
 ```
@@ -271,9 +271,9 @@ If the category says `matter`, that is your `--zcl`.
 ### Changing an endpoint
 
 ```bash
-zap edit endpoint update light.zap --endpoint 1 --new-endpoint 5 $MATTER
-zap edit endpoint duplicate light.zap --endpoint 1 --new-endpoint 2 $MATTER
-zap edit endpoint delete light.zap --endpoint 2 $MATTER
+zap endpoint update light.zap --endpoint 1 --new-endpoint 5 $MATTER
+zap endpoint duplicate light.zap --endpoint 1 --new-endpoint 2 $MATTER
+zap endpoint delete light.zap --endpoint 2 $MATTER
 ```
 
 Duplicating copies every cluster, attribute, command and event selection.
@@ -339,10 +339,10 @@ so twenty commands means twenty loads. Put the operations in a file instead:
 ```
 
 ```bash
-zap edit apply light.zap --script light.yaml $MATTER
+zap apply light.zap --script light.yaml $MATTER
 ```
 
-The `op` names are the ones `zap edit help` lists, with a dot instead of the
+The `op` names are the ones `zap help` lists, with a dot instead of the
 space. Parameters are the command line flags in camelCase, so `--device-type`
 becomes `deviceType` and `--min-interval` becomes `minInterval`. JSON works as
 well as YAML.
@@ -350,13 +350,13 @@ well as YAML.
 To build a file from nothing in a single pass, add `--new`:
 
 ```bash
-zap edit apply light.zap --new --script light.yaml $MATTER
+zap apply light.zap --new --script light.yaml $MATTER
 ```
 
 And you can pipe the script in, which is handy when generating it:
 
 ```bash
-./make-changes.sh | zap edit apply light.zap --script - $MATTER
+./make-changes.sh | zap apply light.zap --script - $MATTER
 ```
 
 **If any step fails, nothing is written.** The file is left exactly as it was, so
@@ -368,7 +368,7 @@ A Matter feature is a bit of its cluster's `FeatureMap` attribute, and its
 conformance decides which attributes and commands have to come with it.
 
 ```bash
-zap edit feature list light.zap --endpoint 1 --cluster On/Off $MATTER
+zap feature list light.zap --endpoint 1 --cluster On/Off $MATTER
 ```
 
 ```
@@ -389,7 +389,7 @@ Toggling runs the same conformance check the UI runs before it shows you a
 confirmation dialog, and then does what the check says:
 
 ```bash
-zap edit feature enable light.zap --endpoint 1 --cluster On/Off \
+zap feature enable light.zap --endpoint 1 --cluster On/Off \
   --feature OffOnly $MATTER
 ```
 
@@ -411,9 +411,9 @@ why rather than leaving something the specification does not allow.
 Matter composed devices are expressed with `--parent`:
 
 ```bash
-zap edit endpoint create fridge.zap --endpoint 1 \
+zap endpoint create fridge.zap --endpoint 1 \
   --device-type MA-refrigerator $MATTER
-zap edit endpoint create fridge.zap --endpoint 2 \
+zap endpoint create fridge.zap --endpoint 2 \
   --device-type MA-temperature-controlled-cabinet --parent 1 $MATTER
 ```
 
@@ -434,7 +434,7 @@ the listing tells you which is which:
 
 ```bash
 MP="--zcl ./zcl-builtin/silabs/zcl.json --zcl ./zcl-builtin/matter/zcl.json"
-zap edit endpoint list mp.zap $MP
+zap endpoint list mp.zap $MP
 ```
 
 ```
@@ -449,7 +449,7 @@ ENDPOINT  CATEGORY  PROFILE  NETWORK  PARENT  DEVICETYPES
 to that half of the configuration:
 
 ```bash
-zap edit cluster list mp.zap --endpoint 1 --category zigbee --enabled-only $MP
+zap cluster list mp.zap --endpoint 1 --category zigbee --enabled-only $MP
 ```
 
 Leave it out and the command refuses rather than guessing, because editing the
@@ -464,11 +464,11 @@ the behaviour its own protocol has.
 
 ```bash
 # Both zigbee endpoints that enable On/off end up with this storage.
-zap edit attribute set mp.zap --endpoint 1 --category zigbee \
+zap attribute set mp.zap --endpoint 1 --category zigbee \
   --cluster On/off --attribute on/off --enabled --storage NVM $MP
 
 # The matter endpoint 1 beside it is untouched.
-zap edit attribute list mp.zap --endpoint 1 --category matter --cluster On/Off $MP
+zap attribute list mp.zap --endpoint 1 --category matter --cluster On/Off $MP
 ```
 
 ## Part 8: scripts and agents
@@ -478,7 +478,7 @@ zap edit attribute list mp.zap --endpoint 1 --category matter --cluster On/Off $
 `--format json` replaces the tables with structured output:
 
 ```bash
-zap edit attribute list light.zap --endpoint 1 --cluster On/Off \
+zap attribute list light.zap --endpoint 1 --cluster On/Off \
   --format json $MATTER |
   jq -r '.operations[0].rows[] | select(.enabled == "yes") | .name'
 ```
@@ -490,7 +490,7 @@ reason on stderr.
 
 ### Discovering the tool programmatically
 
-`zap edit help --format json` describes the entire command surface: every
+`zap help --format json` describes the entire command surface: every
 operation, every option with its type, whether it is required, its permitted
 values, and the camelCase name to use in a batch script. It also carries the
 behaviours that are otherwise learned by trial and error, and the commands to run
@@ -502,10 +502,10 @@ nothing from disk.
 
 A reasonable loop for something driving this without prior knowledge:
 
-1. `zap edit help --format json` — learn the operations and their parameters.
-2. `zap edit info <file> --format json` — learn which data model the file wants.
-3. `zap edit cluster list <file> --all --format json` — learn the legal names.
-4. `zap edit apply <file> --script -` — make the changes in one pass.
+1. `zap help --format json` — learn the operations and their parameters.
+2. `zap info <file> --format json` — learn which data model the file wants.
+3. `zap cluster list <file> --all --format json` — learn the legal names.
+4. `zap apply <file> --script -` — make the changes in one pass.
 
 Each result also carries a `nextSteps` array, the structured form of the `Next:`
 suggestions.
@@ -538,7 +538,7 @@ means something specific.
 happen without touching any file:
 
 ```bash
-zap edit cluster enable light.zap --endpoint 1 --cluster Scenes --side server \
+zap cluster enable light.zap --endpoint 1 --cluster Scenes --side server \
   --dry-run $MATTER
 ```
 
@@ -576,12 +576,12 @@ Notifications: 1 new (10 pre-existing)
 
 Enabling that response command afterwards reports `1 resolved`.
 
-**Ask at any time.** `zap edit check` reports both accounts for a file as it
+**Ask at any time.** `zap check` reports both accounts for a file as it
 stands, and changes nothing:
 
 ```bash
-zap edit check light.zap $MATTER
-zap edit check light.zap --strict $MATTER   # exits 1 if there are errors
+zap check light.zap $MATTER
+zap check light.zap --strict $MATTER   # exits 1 if there are errors
 ```
 
 **Fail the build on regressions.** `--strict` refuses to save when your edit
@@ -589,7 +589,7 @@ introduced errors, and ignores pre-existing ones, so an unrelated change to an
 imperfect file still goes through:
 
 ```bash
-zap edit attribute set light.zap --endpoint 1 --cluster On/Off \
+zap attribute set light.zap --endpoint 1 --cluster On/Off \
   --attribute OnOff --default 0xFFFFFFFF --strict $MATTER   # exits 1, saves nothing
 ```
 
@@ -597,40 +597,40 @@ zap edit attribute set light.zap --endpoint 1 --cluster On/Off \
 
 ```bash
 # orientation
-zap edit help                                   # every operation
-zap edit help attribute set                     # one operation's options
-zap edit info f.zap                             # what data model does this file want
-zap edit check f.zap                            # what is wrong with this file
+zap help                                   # every operation
+zap help attribute set                     # one operation's options
+zap info f.zap                             # what data model does this file want
+zap check f.zap                            # what is wrong with this file
 
 # looking
-zap edit endpoint list f.zap
-zap edit cluster   list f.zap --endpoint 1 --enabled-only
-zap edit attribute list f.zap --endpoint 1 --cluster On/Off
-zap edit command   list f.zap --endpoint 1 --cluster On/Off
-zap edit event     list f.zap --endpoint 1 --cluster Switch
-zap edit feature   list f.zap --endpoint 1 --cluster On/Off
-zap edit devicetype list f.zap --all --filter light      # the catalog
-zap edit cluster    list f.zap --all --filter level      # the catalog
+zap endpoint list f.zap
+zap cluster   list f.zap --endpoint 1 --enabled-only
+zap attribute list f.zap --endpoint 1 --cluster On/Off
+zap command   list f.zap --endpoint 1 --cluster On/Off
+zap event     list f.zap --endpoint 1 --cluster Switch
+zap feature   list f.zap --endpoint 1 --cluster On/Off
+zap devicetype list f.zap --all --filter light      # the catalog
+zap cluster    list f.zap --all --filter level      # the catalog
 
 # building
-zap edit new f.zap
-zap edit endpoint create f.zap --endpoint 1 --device-type MA-onofflight
-zap edit cluster  enable f.zap --endpoint 1 --cluster "Level Control" --side server
-zap edit attribute set   f.zap --endpoint 1 --cluster On/Off --attribute OnOff --enabled --default 1
-zap edit command  enable f.zap --endpoint 1 --cluster On/Off --command Toggle --direction in
-zap edit event    enable f.zap --endpoint 1 --cluster Switch --event InitialPress
-zap edit feature  enable f.zap --endpoint 1 --cluster On/Off --feature Lighting
+zap new f.zap
+zap endpoint create f.zap --endpoint 1 --device-type MA-onofflight
+zap cluster  enable f.zap --endpoint 1 --cluster "Level Control" --side server
+zap attribute set   f.zap --endpoint 1 --cluster On/Off --attribute OnOff --enabled --default 1
+zap command  enable f.zap --endpoint 1 --cluster On/Off --command Toggle --direction in
+zap event    enable f.zap --endpoint 1 --cluster Switch --event InitialPress
+zap feature  enable f.zap --endpoint 1 --cluster On/Off --feature Lighting
 
 # changing endpoints
-zap edit endpoint update    f.zap --endpoint 1 --new-endpoint 5
-zap edit endpoint duplicate f.zap --endpoint 1
-zap edit endpoint delete    f.zap --endpoint 5
-zap edit devicetype add     f.zap --endpoint 1 --device-type MA-dimmablelight
+zap endpoint update    f.zap --endpoint 1 --new-endpoint 5
+zap endpoint duplicate f.zap --endpoint 1
+zap endpoint delete    f.zap --endpoint 5
+zap devicetype add     f.zap --endpoint 1 --device-type MA-dimmablelight
 
 # doing a lot at once
-zap edit apply f.zap --script changes.yaml
-zap edit apply f.zap --new --script changes.yaml
-generate-changes | zap edit apply f.zap --script -
+zap apply f.zap --script changes.yaml
+zap apply f.zap --new --script changes.yaml
+generate-changes | zap apply f.zap --script -
 
 # staying safe
 --dry-run          apply and report, write nothing
@@ -644,7 +644,7 @@ generate-changes | zap edit apply f.zap --script -
 
 ## Where to go next
 
-- [The `zap edit` CLI reference](zap-edit-cli.md), for every option in detail.
-- `zap edit help --format json`, if you are writing something that drives this.
-- [The `zap edit` CLI architecture](zap-edit-architecture.md), for how it is built and why.
+- [The `zap` CLI reference](zap-cli-reference.md), for every option in detail.
+- `zap help --format json`, if you are writing something that drives this.
+- [The `zap` CLI architecture](zap-cli-architecture.md), for how it is built and why.
 - [Validating `.zap` files](validating-zap-files.md), for checking without editing.

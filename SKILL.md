@@ -30,9 +30,9 @@ $HOME/.silabs/slt/installs/archive/zap/zap-cli
 Self-describing — start here rather than guessing:
 
 ```bash
-zap-cli edit help                  # every operation, one line each
-zap-cli edit help attribute set    # options for one operation
-zap-cli edit help --format json    # whole surface as a machine readable schema
+zap-cli help                  # every operation, one line each
+zap-cli help attribute set    # options for one operation
+zap-cli help --format json    # whole surface as a machine readable schema
 ```
 
 Most commands print a `Next:` section with ready-to-run follow-ups.
@@ -44,7 +44,7 @@ expanding the `zcl.*` properties declared in ZAP's `apack.json`. SLC also
 writes those resolved paths next to the `.zap` as `slc_args.json`.
 
 **Current `zap-cli`** (this tree): if you omit `--zcl` / `--gen` and
-`slc_args.json` sits beside the `.zap`, edit fills them in from that file —
+`slc_args.json` sits beside the `.zap`, zap-cli fills them in from that file —
 same answer Studio gets. It picks the protocol(s) from the file's
 `zcl-properties` package categories (Matter vs Zigbee), not from a corrupt
 template entry. Explicit `--zcl` / `--gen` still win.
@@ -75,7 +75,7 @@ Never substitute ZAP builtins (`--zcl matter` / `--zcl zigbee`, or bundled
 Canonical invocation (works on old and new `zap-cli`):
 
 ```bash
-zap-cli edit <op> app.zap … \
+zap-cli <op> app.zap … \
   --zcl "$ZCL" --gen "$GEN" --packageMatch strict \
   --stateDirectory /tmp/zap-state-$$
 ```
@@ -128,9 +128,9 @@ independently, so they drift. Check `CONFORMANCE` / `REQUIREDBY` from
 ```bash
 # CT-only light: change the contract too, not just the feature
 ZAP_PKG=(--zcl "$ZCL" --gen "$GEN" --packageMatch strict --stateDirectory /tmp/zap-state-$$)
-zap-cli edit devicetype set app.zap --endpoint 1 \
+zap-cli devicetype set app.zap --endpoint 1 \
   --device-type MA-colortemperaturelight "${ZAP_PKG[@]}"
-zap-cli edit feature disable app.zap --endpoint 1 --cluster "Color Control" \
+zap-cli feature disable app.zap --endpoint 1 --cluster "Color Control" \
   --feature XY "${ZAP_PKG[@]}"
 ```
 
@@ -143,7 +143,7 @@ edit as a failed customization unless a non-conformant config is wanted.
 - Malformed endpoints and out-of-range defaults are **errors**; conformance
   findings are **warnings** (a spec-incomplete config is a valid intermediate).
 - `--strict` on an edit refuses to save when _that edit_ introduced errors;
-  `edit check --strict` exits 1 when errors exist. `--no-validate` skips it.
+  `check --strict` exits 1 when errors exist. `--no-validate` skips it.
 - Output separates **new** from **pre-existing**. Stock Matter examples already
   carry out-of-range and provisional-cluster findings — do not confuse that debt
   with your regression.
@@ -220,7 +220,7 @@ the component, so the `.slcp` is updated for you:
 
 ```bash
 PORT=$(lsof -nP -iTCP -sTCP:LISTEN | awk '/sts_back/ {sub(/.*:/,"",$9); print $9; exit}')
-zap-cli edit cluster enable app.zap --endpoint 1 --cluster "Barrier Control" --side server \
+zap-cli cluster enable app.zap --endpoint 1 --cluster "Barrier Control" --side server \
   --packageMatch strict --stateDirectory /tmp/zap-state-$$ \
   --studioHttpPort "$PORT" --ideProjectPath /abs/path/app.slcp
 ```
@@ -259,7 +259,7 @@ below, not an error.
 Both routes get the same three checks:
 
 1. **Component recorded** — `grep -n "id: <component>" app.slcp`.
-2. **`.zap` still sane** — `zap-cli edit check app.zap --packageMatch strict
+2. **`.zap` still sane** — `zap-cli check app.zap --packageMatch strict
 --stateDirectory /tmp/zap-state-$$` (plus `package list`, as above), and read
    the validation lines the edit printed. New device-type clusters commonly
    land with mandatory attributes out of range; fix those before building.
@@ -287,7 +287,7 @@ repeatedly. `apply` runs a list in one pass (YAML or JSON, flags in camelCase,
 ```
 
 ```bash
-zap-cli edit apply app.zap --script changes.yaml \
+zap-cli apply app.zap --script changes.yaml \
   --zcl "$ZCL" --gen "$GEN" --packageMatch strict \
   --stateDirectory /tmp/zap-state-$$
 ```

@@ -16,9 +16,9 @@
  */
 
 /**
- * Reads the batch scripts consumed by `zap edit apply`.
+ * Reads the batch scripts consumed by `zap apply`.
  *
- * Loading the ZCL metadata dominates the cost of any single `zap edit`
+ * Loading the ZCL metadata dominates the cost of any single `zap`
  * invocation, so applying a list of operations in one process is the
  * recommended way to make more than a couple of changes.
  *

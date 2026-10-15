@@ -99,7 +99,7 @@ const bothSdks = {
 }
 
 test(
-  'edit: packages come from slc_args.json for the protocol the file names',
+  'cli: packages come from slc_args.json for the protocol the file names',
   () => {
     // Both SDKs are installed, so the file has to be what decides. Otherwise a
     // Matter application is edited against the Zigbee data model, and package
@@ -108,7 +108,6 @@ test(
     let a = args.processCommandLineArguments([
       'node',
       'main.js',
-      'edit',
       'endpoint',
       'list',
       zapFile
@@ -120,13 +119,12 @@ test(
 )
 
 test(
-  'edit: a multiprotocol file gets both protocols',
+  'cli: a multiprotocol file gets both protocols',
   () => {
     let zapFile = project('multi-app', ['zigbee', 'matter'], bothSdks)
     let a = args.processCommandLineArguments([
       'node',
       'main.js',
-      'edit',
       'endpoint',
       'list',
       zapFile
@@ -140,13 +138,12 @@ test(
 )
 
 test(
-  'edit: what the command line names wins over slc_args.json',
+  'cli: what the command line names wins over slc_args.json',
   () => {
     let zapFile = project('explicit-app', ['matter'], bothSdks)
     let a = args.processCommandLineArguments([
       'node',
       'main.js',
-      'edit',
       'endpoint',
       'list',
       zapFile,
@@ -162,7 +159,7 @@ test(
 )
 
 test(
-  'edit: without slc_args.json the bundled test packages are still used',
+  'cli: without slc_args.json the bundled test packages are still used',
   () => {
     let dir = path.join(workDir, 'bare')
     fs.mkdirSync(dir, { recursive: true })
@@ -171,7 +168,6 @@ test(
     let a = args.processCommandLineArguments([
       'node',
       'main.js',
-      'edit',
       'endpoint',
       'list',
       zapFile

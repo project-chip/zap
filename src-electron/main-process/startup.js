@@ -768,7 +768,7 @@ async function startValidate(argv, options) {
 }
 
 /**
- * Runs the `zap edit` command line, which performs the same edits on a .zap
+ * Runs a configuration command, which performs the same edits on a .zap
  * file that a person would perform in the user interface.
  *
  * Failures are reported through `options.errorPrinter`, which defaults to
@@ -779,7 +779,7 @@ async function startValidate(argv, options) {
  * @param {*} options
  * @returns exit code, 0 on success
  */
-async function startEdit(argv, options = {}) {
+async function startCli(argv, options = {}) {
   let errorPrinter = options.errorPrinter || env.printToStderr
   try {
     return await cliCommands.run(argv, options)
@@ -1428,16 +1428,15 @@ async function startUpMainInstance(argv, callbacks) {
         env.printToStderr(`Zap validation error: ${err}`)
         cleanExit(argv.cleanupDelay, 1)
       })
-  } else if (argv.editOperation != null) {
-    return startEdit(argv).then((code) => cleanExit(argv.cleanupDelay, code))
+  } else if (argv.cliOperation != null) {
+    return startCli(argv).then((code) => cleanExit(argv.cleanupDelay, code))
   } else if (argv._.includes('edit')) {
-    // The word reached the general parser instead of the edit one, which only
-    // happens when something precedes it on the command line. Say so, rather
-    // than falling through and treating 'edit' as a file to open.
+    // `edit` is not a command. Without this it would be taken for a file to
+    // open, which is a confusing way to learn that.
     env.printToStderr(
       env.formatEmojiMessage(
         '⛔',
-        `'edit' has to be the first argument. Try: zap edit ${argv._.filter(
+        `'edit' is not a command; configuration commands start at the root. Try: zap ${argv._.filter(
           (a) => typeof a === 'string' && a !== 'edit' && !a.endsWith('.js')
         )
           .slice(1)
@@ -1531,7 +1530,7 @@ exports.clearDatabaseFile = clearDatabaseFile
 exports.startConvert = startConvert
 exports.startAnalyze = startAnalyze
 exports.startValidate = startValidate
-exports.startEdit = startEdit
+exports.startCli = startCli
 exports.startUpMainInstance = startUpMainInstance
 exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown

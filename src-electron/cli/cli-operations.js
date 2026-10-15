@@ -16,7 +16,7 @@
  */
 
 /**
- * Every edit and query that `zap edit` can perform on a configuration.
+ * Every edit and query the configuration commands can perform.
  *
  * These are deliberately written on top of the same `query-*` modules that the
  * REST layer uses, so that a change made from the command line is
@@ -84,7 +84,7 @@ function shellQuote(value) {
 }
 
 /**
- * Builds a runnable `zap edit` command line against the configuration in hand.
+ * Builds a runnable configuration command against the file in hand.
  *
  * Suggestions are only worth printing if they can be run without editing them
  * first, so the real file name goes in and values are quoted.
@@ -95,7 +95,7 @@ function shellQuote(value) {
  * @returns {string} the command line
  */
 function suggestion(ctx, operation, options = {}) {
-  let parts = [`zap edit ${operation}`, shellQuote(ctx.zapFile || '<file.zap>')]
+  let parts = [`zap ${operation}`, shellQuote(ctx.zapFile || '<file.zap>')]
   for (let [flag, value] of Object.entries(options)) {
     if (value === undefined || value === null) continue
     parts.push(value === true ? `--${flag}` : `--${flag} ${shellQuote(value)}`)
@@ -328,7 +328,7 @@ async function endpointCreate(ctx, params) {
     // ZAP calls invalid, so it is refused and the reason given.
     let categories = await resolver.sessionCategories(ctx)
     throw new CliError(`Endpoint ${identifier} already exists`, [
-      `Use 'zap edit endpoint update' to change it, or pick a free identifier.`,
+      `Use 'zap endpoint update' to change it, or pick a free identifier.`,
       ...(categories.length > 1
         ? [
             `This configuration spans ${categories.join(' and ')}, and identifiers`,

@@ -43,7 +43,7 @@ let repoScratchFiles = []
 
 beforeAll(() => {
   env.setDevelopmentEnv()
-  workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zap-cli-edit-'))
+  workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zap-cli-'))
 })
 
 afterAll(() => {
@@ -111,10 +111,10 @@ function args(overrides) {
  * @param {*} overrides
  * @returns {Promise<*>} `{ code, output }`
  */
-async function edit(overrides) {
+async function runCli(overrides) {
   let output = ''
   let errors = ''
-  let code = await startup.startEdit(args(overrides), {
+  let code = await startup.startCli(args(overrides), {
     printer: (text) => {
       output += text + '\n'
     },
@@ -170,7 +170,7 @@ function siblingCopy(source, name) {
  */
 async function onAFreshMachine(body) {
   let previous = env.appDirectory()
-  let temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'zap-cli-edit-state-'))
+  let temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'zap-cli-state-'))
   env.setAppDirectory(temporary)
   try {
     return await body()
@@ -197,11 +197,10 @@ function declareCustomXml(file, xmlName) {
   fs.writeFileSync(file, JSON.stringify(json, null, 2))
 }
 
-test('cli edit: parses a nested subcommand into an operation', () => {
-  let argv = cliCommands.parseEditCommandLine([
+test('cli: parses a nested subcommand into an operation', () => {
+  let argv = cliCommands.parseCliCommandLine([
     '/usr/bin/node',
     '/somewhere/main.js',
-    'edit',
     'cluster',
     'enable',
     'light.zap',
@@ -212,19 +211,18 @@ test('cli edit: parses a nested subcommand into an operation', () => {
     '--side',
     'server'
   ])
-  expect(argv.editOperation).toBe('cluster.enable')
+  expect(argv.cliOperation).toBe('cluster.enable')
   expect(argv.zapFile).toBe('light.zap')
   expect(argv.endpoint).toBe(1)
   expect(argv.cluster).toBe('On/Off')
   expect(argv.side).toBe('server')
-  expect(argv._).toContain('edit')
+  expect(argv._).toEqual(['cluster', 'enable'])
 })
 
-test('cli edit: parses repeated device types and hyphenated options', () => {
-  let argv = cliCommands.parseEditCommandLine([
+test('cli: parses repeated device types and hyphenated options', () => {
+  let argv = cliCommands.parseCliCommandLine([
     'node',
     'main.js',
-    'edit',
     'endpoint',
     'create',
     'light.zap',
@@ -237,18 +235,17 @@ test('cli edit: parses repeated device types and hyphenated options', () => {
     '--device-version',
     '1'
   ])
-  expect(argv.editOperation).toBe('endpoint.create')
+  expect(argv.cliOperation).toBe('endpoint.create')
   expect(argv.deviceType).toEqual(['MA-onofflight', 'MA-dimmablelight'])
   expect(argv.deviceVersion).toEqual([1])
 })
 
-test('cli edit: reads a batch script from stdin when asked with a dash', () => {
+test('cli: reads a batch script from stdin when asked with a dash', () => {
   // yargs-parser treats a lone dash as a positional rather than the value of
   // the option before it, so this needs putting back together.
-  let spaced = cliCommands.parseEditCommandLine([
+  let spaced = cliCommands.parseCliCommandLine([
     'node',
     'main.js',
-    'edit',
     'apply',
     'light.zap',
     '--script',
@@ -257,10 +254,9 @@ test('cli edit: reads a batch script from stdin when asked with a dash', () => {
   expect(spaced.script).toBe('-')
   expect(spaced._).not.toContain('-')
 
-  let joined = cliCommands.parseEditCommandLine([
+  let joined = cliCommands.parseCliCommandLine([
     'node',
     'main.js',
-    'edit',
     'apply',
     'light.zap',
     '--script=-'
@@ -268,10 +264,9 @@ test('cli edit: reads a batch script from stdin when asked with a dash', () => {
   expect(joined.script).toBe('-')
 
   // An genuinely empty value is still an error rather than stdin.
-  let empty = cliCommands.parseEditCommandLine([
+  let empty = cliCommands.parseCliCommandLine([
     'node',
     'main.js',
-    'edit',
     'apply',
     'light.zap',
     '--script',
@@ -281,18 +276,18 @@ test('cli edit: reads a batch script from stdin when asked with a dash', () => {
 })
 
 test(
-  'cli edit: arguments that never reached the edit parser are reported',
+  'cli: arguments that never reached the command parser are reported',
   async () => {
-    // `edit` is parsed by its own parser. Reaching the runner with no
-    // operation attached (for example via `zap --flag edit` without a nested
-    // subcommand) used to fail with a type error deep inside it.
+    // Configuration commands are parsed by their own parser. Reaching the
+    // runner with no operation attached used to fail with a type error deep
+    // inside it.
     let argv = args({ zapFile: testUtil.zigbeeTestFile.onOff })
-    delete argv.editOperation
+    delete argv.cliOperation
 
     let { code, errors } = await (async () => {
       let out = ''
       let err = ''
-      let result = await startup.startEdit(argv, {
+      let result = await startup.startCli(argv, {
         printer: (t) => (out += t + '\n'),
         errorPrinter: (t) => (err += t + '\n'),
         logger: () => {}
@@ -306,87 +301,98 @@ test(
   testUtil.timeout.long()
 )
 
-test('cli edit: recognizes the edit command among leading global options', () => {
+test('cli: recognizes a configuration command among leading global options', () => {
   expect(
-    cliCommands.isEditCommandLine([
+    cliCommands.isCliCommandLine([
       '/usr/bin/node',
       '/opt/zap/main.js',
-      'edit',
       'endpoint',
       'list'
     ])
   ).toBeTruthy()
   // Callers do not agree on whether the interpreter and script are included.
+  expect(cliCommands.isCliCommandLine(['endpoint', 'list'])).toBeTruthy()
   expect(
-    cliCommands.isEditCommandLine(['edit', 'endpoint', 'list'])
+    cliCommands.isCliCommandLine(['/opt/zap/zap-cli.exe', 'info'])
   ).toBeTruthy()
-  expect(
-    cliCommands.isEditCommandLine(['/opt/zap/zap-cli.exe', 'edit', 'info'])
-  ).toBeTruthy()
+  expect(cliCommands.isCliCommandLine(['node', 'main.js', 'help'])).toBeTruthy()
 
-  // Global options may precede edit; boolean flags leave the command in place,
+  // `new` with a file creates a configuration; bare `new` still opens a window.
+  expect(
+    cliCommands.isCliCommandLine(['node', 'main.js', 'new', 'light.zap'])
+  ).toBeTruthy()
+  expect(cliCommands.isCliCommandLine(['node', 'main.js', 'new'])).toBeFalsy()
+
+  // `edit` is not a command.
+  expect(
+    cliCommands.isCliCommandLine([
+      'node',
+      'main.js',
+      'edit',
+      'endpoint',
+      'list'
+    ])
+  ).toBeFalsy()
+
+  // Global options may precede the command; boolean flags leave it in place,
   // and flags that take a value consume their following token.
   expect(
-    cliCommands.isEditCommandLine([
+    cliCommands.isCliCommandLine([
       'node',
       'main.js',
       '--logToStdout',
-      'edit',
       'endpoint',
       'list'
     ])
   ).toBeTruthy()
   expect(
-    cliCommands.isEditCommandLine([
+    cliCommands.isCliCommandLine([
       'node',
       'main.js',
       '--stateDirectory',
       '/tmp/zap-state',
-      'edit',
       'endpoint',
       'list'
     ])
   ).toBeTruthy()
   expect(
-    cliCommands.isEditCommandLine([
+    cliCommands.isCliCommandLine([
       'node',
       'main.js',
       '--stateDirectory=/tmp/zap-state',
-      'edit',
       'endpoint',
       'list'
     ])
   ).toBeTruthy()
 
-  let withLeading = cliCommands.parseEditCommandLine([
+  let withLeading = cliCommands.parseCliCommandLine([
     'node',
     'main.js',
     '--logToStdout',
     '--format',
     'json',
-    'edit',
     'endpoint',
     'list',
     'light.zap'
   ])
-  expect(withLeading.editOperation).toBe('endpoint.list')
+  expect(withLeading.cliOperation).toBe('endpoint.list')
   expect(withLeading.logToStdout).toBe(true)
   expect(withLeading.format).toBe('json')
   expect(withLeading.zapFile).toBe('light.zap')
 
   expect(
-    cliCommands.isEditCommandLine(['node', 'main.js', 'generate', 'a.zap'])
+    cliCommands.isCliCommandLine(['node', 'main.js', 'generate', 'a.zap'])
   ).toBeFalsy()
   expect(
-    cliCommands.isEditCommandLine(['node', 'main.js', 'light.zap'])
+    cliCommands.isCliCommandLine(['node', 'main.js', 'light.zap'])
   ).toBeFalsy()
-  // The word edit as the value of an option is not the edit command.
+  // A command name as the value of an option is not the command.
   expect(
-    cliCommands.isEditCommandLine(['node', 'main.js', '--output', 'edit'])
+    cliCommands.isCliCommandLine(['node', 'main.js', '--output', 'info'])
   ).toBeFalsy()
 })
 
-test('cli edit: reports only the validation findings an edit introduces', () => {
+test('cli: reports only the validation findings an edit introduces', () => {
   let before = {
     endpoints: [],
     attributes: [
@@ -428,7 +434,7 @@ test('cli edit: reports only the validation findings an edit introduces', () => 
   expect(unchanged.headline).toContain('no new issues')
 })
 
-test('cli edit: describes every operation it can actually run', () => {
+test('cli: describes every operation it can actually run', () => {
   let schema = cliHelp.describeCli()
   let described = schema.operations
     .map((o) => o.operation)
@@ -442,7 +448,7 @@ test('cli edit: describes every operation it can actually run', () => {
   expect(described.sort()).toEqual(implemented.sort())
 })
 
-test('cli edit: the modules depend on each other in one direction only', () => {
+test('cli: the modules depend on each other in one direction only', () => {
   // The layering is the load-bearing part of this design: nothing here writes
   // SQL, so every module has to be reachable from the entry point without
   // passing through a cycle. Read the requires and check that, rather than
@@ -483,7 +489,7 @@ test('cli edit: the modules depend on each other in one direction only', () => {
   expect(dependencies['cli-spec']).toEqual([])
 })
 
-test('cli edit: reports the flag and the batch script name of every option', () => {
+test('cli: reports the flag and the batch script name of every option', () => {
   let schema = cliHelp.describeCli()
   let set = schema.operations.find((o) => o.operation === 'attribute.set')
 
@@ -506,14 +512,14 @@ test('cli edit: reports the flag and the batch script name of every option', () 
   ).toEqual(['text', 'json'])
 })
 
-test('cli edit: help narrows to a group or a single operation', () => {
+test('cli: help narrows to a group or a single operation', () => {
   let overview = cliHelp.help({ format: 'text' })
   expect(overview).toContain('attribute set')
   expect(overview).toContain('feature enable')
 
   let group = cliHelp.help({ format: 'text', topic: ['attribute'] })
-  expect(group).toContain('zap edit attribute set <file.zap>')
-  expect(group).not.toContain('zap edit cluster enable')
+  expect(group).toContain('zap attribute set <file.zap>')
+  expect(group).not.toContain('zap cluster enable')
 
   // A topic can be written the way it is typed or the way it is scripted.
   let spaced = cliHelp.help({ format: 'text', topic: ['attribute', 'set'] })
@@ -533,24 +539,24 @@ test('cli edit: help narrows to a group or a single operation', () => {
 })
 
 test(
-  'cli edit: help answers without opening a configuration',
+  'cli: help answers without opening a configuration',
   async () => {
     // No zapFile, and deliberately a ZCL metafile that does not exist: asking
     // what the commands are must not pay for loading any metadata.
-    let { code, output } = await edit({
-      editOperation: 'help',
+    let { code, output } = await runCli({
+      cliOperation: 'help',
       format: 'json',
       zclProperties: ['/nonexistent/zcl.json']
     })
     expect(code).toBe(0)
     let schema = JSON.parse(output)
     expect(schema.operations.length).toBeGreaterThan(20)
-    expect(schema.usage).toContain('zap edit')
+    expect(schema.usage).toContain('zap <group> <operation>')
   },
   testUtil.timeout.short()
 )
 
-test('cli edit: keeps stdout clean when the output is machine readable', () => {
+test('cli: keeps stdout clean when the output is machine readable', () => {
   let realLog = console.log
   let realError = console.error
   let onError = []
@@ -574,10 +580,10 @@ test('cli edit: keeps stdout clean when the output is machine readable', () => {
 })
 
 test(
-  'cli edit: lists endpoints of an existing configuration',
+  'cli: lists endpoints of an existing configuration',
   async () => {
-    let { code, output } = await edit({
-      editOperation: 'endpoint.list',
+    let { code, output } = await runCli({
+      cliOperation: 'endpoint.list',
       zapFile: testUtil.zigbeeTestFile.onOff
     })
     expect(code).toBe(0)
@@ -589,19 +595,16 @@ test(
 )
 
 test(
-  'cli edit: preserves packages and endpoints across a save',
+  'cli: preserves packages and endpoints across a save',
   async () => {
     // Copied next to the original so the relative package paths in the file
     // still point at the ZCL metafile and the generation templates.
-    let file = siblingCopy(
-      testUtil.zigbeeTestFile.onOff,
-      'cli-edit-round-trip.zap'
-    )
+    let file = siblingCopy(testUtil.zigbeeTestFile.onOff, 'cli-round-trip.zap')
     let before = JSON.parse(fs.readFileSync(file, 'utf8'))
 
     // A query does not save, so force a write with a no-change edit.
-    let { code } = await edit({
-      editOperation: 'endpoint.update',
+    let { code } = await runCli({
+      cliOperation: 'endpoint.update',
       zapFile: file,
       endpoint: 1,
       network: before.endpoints[0].networkId
@@ -625,16 +628,16 @@ test(
 )
 
 test(
-  'cli edit: creates a configuration and builds an endpoint on it',
+  'cli: creates a configuration and builds an endpoint on it',
   async () => {
     let file = path.join(workDir, 'built-from-scratch.zap')
 
-    let created = await edit({ editOperation: 'new', zapFile: file })
+    let created = await runCli({ cliOperation: 'new', zapFile: file })
     expect(created.code).toBe(0)
     expect(fs.existsSync(file)).toBeTruthy()
 
-    let added = await edit({
-      editOperation: 'endpoint.create',
+    let added = await runCli({
+      cliOperation: 'endpoint.create',
       zapFile: file,
       endpoint: 1,
       deviceType: ['ZLL-onofflight']
@@ -642,7 +645,7 @@ test(
     expect(added.code).toBe(0)
     expect(added.output).toContain('Created endpoint 1')
 
-    let listed = await edit({ editOperation: 'endpoint.list', zapFile: file })
+    let listed = await runCli({ cliOperation: 'endpoint.list', zapFile: file })
     expect(listed.output).toContain('1 endpoint(s)')
     expect(listed.output).toContain('ZLL-onofflight')
   },
@@ -650,14 +653,14 @@ test(
 )
 
 test(
-  'cli edit: enables a cluster and configures one of its attributes',
+  'cli: enables a cluster and configures one of its attributes',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'attributes.zap')
 
     // Endpoint 1 is the switch side of this configuration and has On/off as a
     // client, so it starts without a Level Control server.
-    let enabled = await edit({
-      editOperation: 'cluster.enable',
+    let enabled = await runCli({
+      cliOperation: 'cluster.enable',
       zapFile: file,
       endpoint: 1,
       cluster: 'Level Control',
@@ -667,8 +670,8 @@ test(
     expect(enabled.output).toContain('Enabled cluster Level Control')
 
     // Endpoint 2 is the light and already has On/off on the server side.
-    let set = await edit({
-      editOperation: 'attribute.set',
+    let set = await runCli({
+      cliOperation: 'attribute.set',
       zapFile: file,
       endpoint: 2,
       cluster: 'On/off',
@@ -681,8 +684,8 @@ test(
     expect(set.output).toContain('default=1')
     expect(set.output).toContain('storage=RAM')
 
-    let listed = await edit({
-      editOperation: 'attribute.list',
+    let listed = await runCli({
+      cliOperation: 'attribute.list',
       zapFile: file,
       endpoint: 2,
       cluster: 'On/off',
@@ -698,13 +701,13 @@ test(
 )
 
 test(
-  'cli edit: rejects an out of range default value under --strict',
+  'cli: rejects an out of range default value under --strict',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'strict.zap')
     let before = fs.readFileSync(file, 'utf8')
 
-    let { code, output } = await edit({
-      editOperation: 'attribute.set',
+    let { code, output } = await runCli({
+      cliOperation: 'attribute.set',
       zapFile: file,
       endpoint: 2,
       cluster: 'On/off',
@@ -721,15 +724,15 @@ test(
 )
 
 test(
-  'cli edit: refuses to configure an element of a disabled cluster side',
+  'cli: refuses to configure an element of a disabled cluster side',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'disabled-side.zap')
 
     // Endpoint 1 carries On/off as a client only. The saved file format drops
     // everything hanging off a disabled cluster, so this has to be refused
     // rather than accepted and quietly lost.
-    let attribute = await edit({
-      editOperation: 'attribute.set',
+    let attribute = await runCli({
+      cliOperation: 'attribute.set',
       zapFile: file,
       endpoint: 1,
       cluster: 'On/off',
@@ -737,10 +740,10 @@ test(
       enabled: true
     })
     expect(attribute.code).toBe(1)
-    expect(attribute.errors).toContain('zap edit cluster enable')
+    expect(attribute.errors).toContain('zap cluster enable')
 
-    let command = await edit({
-      editOperation: 'command.enable',
+    let command = await runCli({
+      cliOperation: 'command.enable',
       zapFile: file,
       endpoint: 1,
       cluster: 'On/off',
@@ -750,8 +753,8 @@ test(
     expect(command.code).toBe(1)
 
     // Asking for both directions still does the half that fits.
-    let both = await edit({
-      editOperation: 'command.enable',
+    let both = await runCli({
+      cliOperation: 'command.enable',
       zapFile: file,
       endpoint: 1,
       cluster: 'On/off',
@@ -763,8 +766,8 @@ test(
 
     // Zigbee still has a Configure page for client-only clusters. Listing the
     // client side has to keep working; the Matter-only guard must not fire.
-    let listed = await edit({
-      editOperation: 'attribute.list',
+    let listed = await runCli({
+      cliOperation: 'attribute.list',
       zapFile: file,
       endpoint: 1,
       cluster: 'On/off',
@@ -780,20 +783,20 @@ test(
 )
 
 test(
-  'cli edit: refuses Matter client-only clusters the way the Configure button does',
+  'cli: refuses Matter client-only clusters the way the Configure button does',
   async () => {
     // The GUI greys out Configure when enableServerOnly is on and the cluster
     // is Client only. That flag is Matter features, not Zigbee. The CLI has to
     // refuse the same surface so a script cannot edit what the page never shows.
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-matter-client-only.zap'
+      'cli-matter-client-only.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 21,
       deviceType: ['MA-onofflight']
     })
@@ -802,35 +805,35 @@ test(
     // Device types usually bring the server. Leave the client on and take the
     // server off so the cluster is exactly the Client-only state the button
     // disables for.
-    await edit({
+    await runCli({
       ...matter,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       endpoint: 21,
       cluster: 'On/Off',
       side: 'client'
     })
-    let clientOnly = await edit({
+    let clientOnly = await runCli({
       ...matter,
-      editOperation: 'cluster.disable',
+      cliOperation: 'cluster.disable',
       endpoint: 21,
       cluster: 'On/Off',
       side: 'server'
     })
     expect(clientOnly.code).toBe(0)
 
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'attribute.list',
+      cliOperation: 'attribute.list',
       endpoint: 21,
       cluster: 'On/Off'
     })
     expect(listed.code).toBe(1)
     expect(listed.errors).toContain('client only')
-    expect(listed.errors).toContain('zap edit cluster enable')
+    expect(listed.errors).toContain('zap cluster enable')
 
-    let set = await edit({
+    let set = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 21,
       cluster: 'On/Off',
       attribute: 'OnOff',
@@ -839,9 +842,9 @@ test(
     expect(set.code).toBe(1)
     expect(set.errors).toContain('client only')
 
-    let command = await edit({
+    let command = await runCli({
       ...matter,
-      editOperation: 'command.list',
+      cliOperation: 'command.list',
       endpoint: 21,
       cluster: 'On/Off'
     })
@@ -849,18 +852,18 @@ test(
     expect(command.errors).toContain('client only')
 
     // Turning the server back on restores the page, and listing works again.
-    let restored = await edit({
+    let restored = await runCli({
       ...matter,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       endpoint: 21,
       cluster: 'On/Off',
       side: 'server'
     })
     expect(restored.code).toBe(0)
 
-    let again = await edit({
+    let again = await runCli({
       ...matter,
-      editOperation: 'attribute.list',
+      cliOperation: 'attribute.list',
       endpoint: 21,
       cluster: 'On/Off',
       format: 'json'
@@ -874,13 +877,13 @@ test(
 )
 
 test(
-  'cli edit: matches names loosely and reports unknown ones helpfully',
+  'cli: matches names loosely and reports unknown ones helpfully',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'lookup.zap')
 
     // 'onoff' has neither the slash nor the casing of the real cluster name.
-    let loose = await edit({
-      editOperation: 'cluster.enable',
+    let loose = await runCli({
+      cliOperation: 'cluster.enable',
       zapFile: file,
       endpoint: 1,
       cluster: 'onoff',
@@ -890,8 +893,8 @@ test(
     expect(loose.output).toContain('0x0006')
 
     // The same cluster addressed by its code.
-    let byCode = await edit({
-      editOperation: 'cluster.enable',
+    let byCode = await runCli({
+      cliOperation: 'cluster.enable',
       zapFile: file,
       endpoint: 1,
       cluster: '0x0006',
@@ -899,8 +902,8 @@ test(
     })
     expect(byCode.code).toBe(0)
 
-    let missing = await edit({
-      editOperation: 'cluster.enable',
+    let missing = await runCli({
+      cliOperation: 'cluster.enable',
       zapFile: file,
       endpoint: 1,
       cluster: 'Not A Real Cluster',
@@ -913,12 +916,12 @@ test(
 )
 
 test(
-  'cli edit: enables and disables commands',
+  'cli: enables and disables commands',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'commands.zap')
 
-    let enabled = await edit({
-      editOperation: 'command.enable',
+    let enabled = await runCli({
+      cliOperation: 'command.enable',
       zapFile: file,
       endpoint: 2,
       cluster: 'On/off',
@@ -928,8 +931,8 @@ test(
     expect(enabled.code).toBe(0)
     expect(enabled.output).toContain('Enabled command Toggle')
 
-    let listed = await edit({
-      editOperation: 'command.list',
+    let listed = await runCli({
+      cliOperation: 'command.list',
       zapFile: file,
       endpoint: 2,
       cluster: 'On/off',
@@ -940,8 +943,8 @@ test(
     )
     expect(toggle.in).toBe('yes')
 
-    let disabled = await edit({
-      editOperation: 'command.disable',
+    let disabled = await runCli({
+      cliOperation: 'command.disable',
       zapFile: file,
       endpoint: 2,
       cluster: 'On/off',
@@ -950,8 +953,8 @@ test(
     })
     expect(disabled.code).toBe(0)
 
-    let afterDisable = await edit({
-      editOperation: 'command.list',
+    let afterDisable = await runCli({
+      cliOperation: 'command.list',
       zapFile: file,
       endpoint: 2,
       cluster: 'On/off',
@@ -967,20 +970,20 @@ test(
 )
 
 test(
-  'cli edit: adds and removes device types on an endpoint',
+  'cli: adds and removes device types on an endpoint',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'devicetypes.zap')
 
-    let added = await edit({
-      editOperation: 'devicetype.add',
+    let added = await runCli({
+      cliOperation: 'devicetype.add',
       zapFile: file,
       endpoint: 1,
       deviceType: ['ZLL-onofflight']
     })
     expect(added.code).toBe(0)
 
-    let listed = await edit({
-      editOperation: 'devicetype.list',
+    let listed = await runCli({
+      cliOperation: 'devicetype.list',
       zapFile: file,
       endpoint: 1,
       format: 'json'
@@ -988,8 +991,8 @@ test(
     let rows = JSON.parse(listed.output).operations[0].rows
     expect(rows.some((r) => r.name === 'ZLL-onofflight')).toBeTruthy()
 
-    let removed = await edit({
-      editOperation: 'devicetype.remove',
+    let removed = await runCli({
+      cliOperation: 'devicetype.remove',
       zapFile: file,
       endpoint: 1,
       deviceType: ['ZLL-onofflight']
@@ -1002,54 +1005,54 @@ test(
 )
 
 test(
-  'cli edit: adding a device type brings in everything it would have brought in at creation',
+  'cli: adding a device type brings in everything it would have brought in at creation',
   async () => {
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-devicetype-defaults.zap'
+      'cli-devicetype-defaults.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
     // One endpoint built with both device types at once, and one built with
     // the first and extended with the second afterwards. The two paths run
     // through different queries, so they are compared rather than assumed.
-    let together = await edit({
+    let together = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 11,
       deviceType: ['MA-onofflight', 'MA-dimmablelight']
     })
     expect(together.code).toBe(0)
 
-    let stepwise = await edit({
+    let stepwise = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 12,
       deviceType: ['MA-onofflight']
     })
     expect(stepwise.code).toBe(0)
 
-    let beforeAdd = await edit({
+    let beforeAdd = await runCli({
       ...matter,
-      editOperation: 'cluster.list',
+      cliOperation: 'cluster.list',
       endpoint: 12,
       enabledOnly: true,
       format: 'json'
     })
     let clustersBefore = JSON.parse(beforeAdd.output).operations[0].rows.length
 
-    let added = await edit({
+    let added = await runCli({
       ...matter,
-      editOperation: 'devicetype.add',
+      cliOperation: 'devicetype.add',
       endpoint: 12,
       deviceType: ['MA-dimmablelight']
     })
     expect(added.code).toBe(0)
 
     let enabledClusters = async (endpoint) => {
-      let listed = await edit({
+      let listed = await runCli({
         ...matter,
-        editOperation: 'cluster.list',
+        cliOperation: 'cluster.list',
         endpoint: endpoint,
         enabledOnly: true,
         format: 'json'
@@ -1059,9 +1062,9 @@ test(
         .sort()
     }
     let enabledAttributes = async (endpoint, cluster) => {
-      let listed = await edit({
+      let listed = await runCli({
         ...matter,
-        editOperation: 'attribute.list',
+        cliOperation: 'attribute.list',
         endpoint: endpoint,
         cluster: cluster,
         enabledOnly: true,
@@ -1087,12 +1090,12 @@ test(
 )
 
 test(
-  'cli edit: duplicates and deletes endpoints',
+  'cli: duplicates and deletes endpoints',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'endpoints.zap')
 
-    let duplicated = await edit({
-      editOperation: 'endpoint.duplicate',
+    let duplicated = await runCli({
+      cliOperation: 'endpoint.duplicate',
       zapFile: file,
       endpoint: 1
     })
@@ -1101,8 +1104,8 @@ test(
     let afterDuplicate = JSON.parse(fs.readFileSync(file, 'utf8'))
     expect(afterDuplicate.endpoints.length).toBe(4)
 
-    let deleted = await edit({
-      editOperation: 'endpoint.delete',
+    let deleted = await runCli({
+      cliOperation: 'endpoint.delete',
       zapFile: file,
       endpoint: 1,
       force: true
@@ -1117,23 +1120,20 @@ test(
 )
 
 test(
-  'cli edit: refuses edits that would corrupt the configuration',
+  'cli: refuses edits that would corrupt the configuration',
   async () => {
-    let file = siblingCopy(
-      testUtil.matterTestFile.matterTest,
-      'cli-edit-guards.zap'
-    )
+    let file = siblingCopy(testUtil.matterTestFile.matterTest, 'cli-guards.zap')
     let matter = { ...matterPackages, zapFile: file }
 
-    await edit({
+    await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 3,
       deviceType: ['MA-onofflight']
     })
-    await edit({
+    await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 4,
       deviceType: ['MA-onofflight'],
       parent: 3
@@ -1141,18 +1141,18 @@ test(
 
     // Endpoint composition is a tree. Putting 3 under its own child 4 would
     // make walking the parent chain during generation loop forever.
-    let cycle = await edit({
+    let cycle = await runCli({
       ...matter,
-      editOperation: 'endpoint.update',
+      cliOperation: 'endpoint.update',
       endpoint: 3,
       parent: 4
     })
     expect(cycle.code).toBe(1)
     expect(cycle.errors).toContain('loop')
 
-    let self = await edit({
+    let self = await runCli({
       ...matter,
-      editOperation: 'endpoint.update',
+      cliOperation: 'endpoint.update',
       endpoint: 3,
       parent: 3
     })
@@ -1161,17 +1161,17 @@ test(
     // Deleting a parent orphans its children, so it needs --force. The rows
     // from selectAllEndpoints expose the link as parentRef (not
     // parentEndpointRef), and this refusal is how that mapping is pinned.
-    let blocked = await edit({
+    let blocked = await runCli({
       ...matter,
-      editOperation: 'endpoint.delete',
+      cliOperation: 'endpoint.delete',
       endpoint: 3
     })
     expect(blocked.code).toBe(1)
     expect(blocked.errors).toContain('parent')
     expect(blocked.errors).toContain('--force')
-    let stillThere = await edit({
+    let stillThere = await runCli({
       ...matter,
-      editOperation: 'endpoint.list',
+      cliOperation: 'endpoint.list',
       format: 'json'
     })
     expect(
@@ -1179,16 +1179,16 @@ test(
     ).toEqual(expect.arrayContaining([3, 4]))
 
     // Detaching is allowed, and is how you break out of the above.
-    let detach = await edit({
+    let detach = await runCli({
       ...matter,
-      editOperation: 'endpoint.update',
+      cliOperation: 'endpoint.update',
       endpoint: 4,
       parent: ''
     })
     expect(detach.code).toBe(0)
-    let after = await edit({
+    let after = await runCli({
       ...matter,
-      editOperation: 'endpoint.list',
+      cliOperation: 'endpoint.list',
       format: 'json'
     })
     expect(
@@ -1198,9 +1198,9 @@ test(
 
     // The column write turns an empty string into 0, so an empty default has
     // to be refused rather than quietly storing a different value.
-    let emptyDefault = await edit({
+    let emptyDefault = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 3,
       cluster: 'On/Off',
       attribute: 'OnOff',
@@ -1212,7 +1212,7 @@ test(
 )
 
 test(
-  'cli edit: a failing step in a batch leaves the file untouched',
+  'cli: a failing step in a batch leaves the file untouched',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'atomic.zap')
     let before = fs.readFileSync(file, 'utf8')
@@ -1230,8 +1230,8 @@ test(
 `
     )
 
-    let applied = await edit({
-      editOperation: 'apply',
+    let applied = await runCli({
+      cliOperation: 'apply',
       zapFile: file,
       script: script
     })
@@ -1242,8 +1242,8 @@ test(
 
     let empty = path.join(workDir, 'empty.yaml')
     fs.writeFileSync(empty, '')
-    let nothing = await edit({
-      editOperation: 'apply',
+    let nothing = await runCli({
+      cliOperation: 'apply',
       zapFile: file,
       script: empty
     })
@@ -1254,7 +1254,7 @@ test(
 )
 
 test(
-  'cli edit: explains a command direction that cannot be recorded',
+  'cli: explains a command direction that cannot be recorded',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'either-source.zap')
     // Some commands are declared with source "either", which leaves the
@@ -1265,33 +1265,33 @@ test(
       cluster: 'ISO 7816 Protocol Tunnel',
       command: 'TransferApdu'
     }
-    await edit({
-      editOperation: 'cluster.enable',
+    await runCli({
+      cliOperation: 'cluster.enable',
       zapFile: file,
       endpoint: 2,
       cluster: 'ISO 7816 Protocol Tunnel',
       side: 'both'
     })
 
-    let incoming = await edit({
+    let incoming = await runCli({
       ...selector,
-      editOperation: 'command.enable',
+      cliOperation: 'command.enable',
       direction: 'in'
     })
     expect(incoming.code).toBe(0)
 
-    let outgoing = await edit({
+    let outgoing = await runCli({
       ...selector,
-      editOperation: 'command.enable',
+      cliOperation: 'command.enable',
       direction: 'out'
     })
     expect(outgoing.code).toBe(1)
     expect(outgoing.errors).toContain("source 'either'")
 
     // Asking for both still does the half that can be expressed.
-    let both = await edit({
+    let both = await runCli({
       ...selector,
-      editOperation: 'command.enable',
+      cliOperation: 'command.enable',
       direction: 'both'
     })
     expect(both.code).toBe(0)
@@ -1300,12 +1300,12 @@ test(
 )
 
 test(
-  'cli edit: says what is wrong with a file it cannot read',
+  'cli: says what is wrong with a file it cannot read',
   async () => {
     let notAConfiguration = path.join(workDir, 'not-a-configuration.zap')
     fs.writeFileSync(notAConfiguration, '{"hello":"world"}')
-    let json = await edit({
-      editOperation: 'endpoint.list',
+    let json = await runCli({
+      cliOperation: 'endpoint.list',
       zapFile: notAConfiguration
     })
     expect(json.code).toBe(1)
@@ -1313,15 +1313,15 @@ test(
 
     let corrupt = path.join(workDir, 'corrupt.zap')
     fs.writeFileSync(corrupt, '{ not json at all')
-    let broken = await edit({
-      editOperation: 'endpoint.list',
+    let broken = await runCli({
+      cliOperation: 'endpoint.list',
       zapFile: corrupt
     })
     expect(broken.code).toBe(1)
     expect(broken.errors).toContain('could not be read as a configuration')
 
-    let missing = await edit({
-      editOperation: 'endpoint.list',
+    let missing = await runCli({
+      cliOperation: 'endpoint.list',
       zapFile: path.join(workDir, 'nowhere.zap')
     })
     expect(missing.code).toBe(1)
@@ -1331,11 +1331,11 @@ test(
 )
 
 test(
-  'cli edit: refuses to create an endpoint that already exists',
+  'cli: refuses to create an endpoint that already exists',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'duplicate-id.zap')
-    let { code } = await edit({
-      editOperation: 'endpoint.create',
+    let { code } = await runCli({
+      cliOperation: 'endpoint.create',
       zapFile: file,
       endpoint: 1,
       deviceType: ['ZLL-onofflight']
@@ -1346,7 +1346,7 @@ test(
 )
 
 test(
-  'cli edit: applies a batch script in one pass',
+  'cli: applies a batch script in one pass',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'batch.zap')
     let script = path.join(workDir, 'changes.yaml')
@@ -1370,8 +1370,8 @@ test(
 `
     )
 
-    let applied = await edit({
-      editOperation: 'apply',
+    let applied = await runCli({
+      cliOperation: 'apply',
       zapFile: file,
       script: script
     })
@@ -1385,14 +1385,14 @@ test(
 )
 
 test(
-  'cli edit: rejects a batch script naming an unknown operation',
+  'cli: rejects a batch script naming an unknown operation',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'bad-batch.zap')
     let script = path.join(workDir, 'bad.yaml')
     fs.writeFileSync(script, `- op: cluster.explode\n  endpoint: 1\n`)
 
-    let { code } = await edit({
-      editOperation: 'apply',
+    let { code } = await runCli({
+      cliOperation: 'apply',
       zapFile: file,
       script: script
     })
@@ -1402,13 +1402,13 @@ test(
 )
 
 test(
-  'cli edit: dry run reports the change but leaves the file alone',
+  'cli: dry run reports the change but leaves the file alone',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'dry-run.zap')
     let before = fs.readFileSync(file, 'utf8')
 
-    let { code, output } = await edit({
-      editOperation: 'cluster.enable',
+    let { code, output } = await runCli({
+      cliOperation: 'cluster.enable',
       zapFile: file,
       endpoint: 1,
       cluster: 'Level Control',
@@ -1424,14 +1424,14 @@ test(
 )
 
 test(
-  'cli edit: writes elsewhere when an output file is given',
+  'cli: writes elsewhere when an output file is given',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'source.zap')
     let target = path.join(workDir, 'nested', 'target.zap')
     let before = fs.readFileSync(file, 'utf8')
 
-    let { code } = await edit({
-      editOperation: 'cluster.enable',
+    let { code } = await runCli({
+      cliOperation: 'cluster.enable',
       zapFile: file,
       endpoint: 1,
       cluster: 'Level Control',
@@ -1446,12 +1446,12 @@ test(
 )
 
 test(
-  'cli edit: suggests a runnable next command built from real values',
+  'cli: suggests a runnable next command built from real values',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'suggestions.zap')
 
-    let listed = await edit({
-      editOperation: 'cluster.list',
+    let listed = await runCli({
+      cliOperation: 'cluster.list',
       zapFile: file,
       endpoint: 2,
       enabledOnly: true
@@ -1461,13 +1461,13 @@ test(
     // this endpoint, so it can be run exactly as printed.
     let suggested = listed.output
       .split('\n')
-      .find((line) => line.trim().startsWith('zap edit attribute list'))
+      .find((line) => line.trim().startsWith('zap attribute list'))
     expect(suggested).toContain(file)
     expect(suggested).toMatch(/--endpoint 2/)
 
     // Names with spaces have to come back quoted.
-    let quoted = await edit({
-      editOperation: 'attribute.list',
+    let quoted = await runCli({
+      cliOperation: 'attribute.list',
       zapFile: file,
       endpoint: 2,
       cluster: 'Level Control'
@@ -1476,8 +1476,8 @@ test(
 
     // A filter that matches nothing should offer to widen the search rather
     // than suggest acting on a row that is not there.
-    let empty = await edit({
-      editOperation: 'attribute.list',
+    let empty = await runCli({
+      cliOperation: 'attribute.list',
       zapFile: file,
       endpoint: 2,
       cluster: 'On/off',
@@ -1487,8 +1487,8 @@ test(
     expect(empty.output).toContain('Next:')
     expect(empty.output).not.toContain('--filter')
 
-    let silent = await edit({
-      editOperation: 'cluster.list',
+    let silent = await runCli({
+      cliOperation: 'cluster.list',
       zapFile: file,
       endpoint: 2,
       suggest: false
@@ -1499,24 +1499,24 @@ test(
 )
 
 test(
-  'cli edit: never suggests turning off something the device type requires',
+  'cli: never suggests turning off something the device type requires',
   async () => {
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-safe-suggestions.zap'
+      'cli-safe-suggestions.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    await edit({
+    await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 9,
       deviceType: ['MA-dimmablelight']
     })
 
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'feature.list',
+      cliOperation: 'feature.list',
       endpoint: 9,
       cluster: 'Level Control',
       format: 'json'
@@ -1536,10 +1536,10 @@ test(
 )
 
 test(
-  'cli edit: filters a catalog listing down to what was asked for',
+  'cli: filters a catalog listing down to what was asked for',
   async () => {
-    let everything = await edit({
-      editOperation: 'cluster.list',
+    let everything = await runCli({
+      cliOperation: 'cluster.list',
       zapFile: testUtil.zigbeeTestFile.onOff,
       all: true,
       format: 'json'
@@ -1547,8 +1547,8 @@ test(
     let all = JSON.parse(everything.output).operations[0].rows
     expect(all.length).toBeGreaterThan(50)
 
-    let filtered = await edit({
-      editOperation: 'cluster.list',
+    let filtered = await runCli({
+      cliOperation: 'cluster.list',
       zapFile: testUtil.zigbeeTestFile.onOff,
       all: true,
       filter: 'level',
@@ -1563,10 +1563,10 @@ test(
 )
 
 test(
-  'cli edit: emits machine readable output on request',
+  'cli: emits machine readable output on request',
   async () => {
-    let { code, output } = await edit({
-      editOperation: 'endpoint.list',
+    let { code, output } = await runCli({
+      cliOperation: 'endpoint.list',
       zapFile: testUtil.zigbeeTestFile.onOff,
       format: 'json'
     })
@@ -1580,28 +1580,25 @@ test(
 )
 
 test(
-  'cli edit: toggles a matter feature and the elements its conformance requires',
+  'cli: toggles a matter feature and the elements its conformance requires',
   async () => {
     // Copied next to the original so the .zap file's own package references
     // still resolve, which is what makes the Matter conformance data load.
-    let file = siblingCopy(
-      testUtil.matterTestFile.switch,
-      'cli-edit-features.zap'
-    )
+    let file = siblingCopy(testUtil.matterTestFile.switch, 'cli-features.zap')
     let matter = { ...matterPackages, zapFile: file }
 
-    let enabledCluster = await edit({
+    let enabledCluster = await runCli({
       ...matter,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       endpoint: 1,
       cluster: 'On/Off',
       side: 'server'
     })
     expect(enabledCluster.code).toBe(0)
 
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'feature.list',
+      cliOperation: 'feature.list',
       endpoint: 1,
       cluster: 'On/Off',
       format: 'json'
@@ -1611,9 +1608,9 @@ test(
 
     // OffOnly means the cluster stops accepting On and Toggle, so turning it
     // on has to disable those commands the way the GUI's confirmation does.
-    let enabled = await edit({
+    let enabled = await runCli({
       ...matter,
-      editOperation: 'feature.enable',
+      cliOperation: 'feature.enable',
       endpoint: 1,
       cluster: 'On/Off',
       feature: 'OffOnly'
@@ -1622,9 +1619,9 @@ test(
     expect(enabled.output).toContain('disabled command On')
     expect(enabled.output).toContain('disabled command Toggle')
 
-    let after = await edit({
+    let after = await runCli({
       ...matter,
-      editOperation: 'feature.list',
+      cliOperation: 'feature.list',
       endpoint: 1,
       cluster: 'On/Off',
       format: 'json'
@@ -1636,9 +1633,9 @@ test(
     ).toBe('yes')
 
     // Lighting and OffOnly exclude each other, so this one has to be refused.
-    let conflicting = await edit({
+    let conflicting = await runCli({
       ...matter,
-      editOperation: 'feature.enable',
+      cliOperation: 'feature.enable',
       endpoint: 1,
       cluster: 'On/Off',
       feature: 'LT'
@@ -1649,25 +1646,25 @@ test(
 )
 
 test(
-  'cli edit: judges a feature by the conformance of the endpoint device type',
+  'cli: judges a feature by the conformance of the endpoint device type',
   async () => {
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-dt-conformance.zap'
+      'cli-dt-conformance.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 7,
       deviceType: ['MA-dimmablelight']
     })
     expect(created.code).toBe(0)
 
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'feature.list',
+      cliOperation: 'feature.list',
       endpoint: 7,
       cluster: 'On/Off',
       format: 'json'
@@ -1681,9 +1678,9 @@ test(
     expect(lighting.requiredBy).toContain('Dimmable Light')
     expect(lighting.enabled).toBe('yes')
 
-    let disabled = await edit({
+    let disabled = await runCli({
       ...matter,
-      editOperation: 'feature.disable',
+      cliOperation: 'feature.disable',
       endpoint: 7,
       cluster: 'On/Off',
       feature: 'LT'
@@ -1695,7 +1692,7 @@ test(
 )
 
 test(
-  'cli edit: counts what a feature toggle drags along, and stops warning once it is satisfied',
+  'cli: counts what a feature toggle drags along, and stops warning once it is satisfied',
   async () => {
     // The GUI says how much a feature costs by listing the elements in its
     // confirmation dialog. A count of them is the same answer in the form a
@@ -1707,22 +1704,22 @@ test(
     // happened, which is exactly the false belief an agent would build on.
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-feature-counts.zap'
+      'cli-feature-counts.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 8,
       deviceType: ['MA-dimmablelight']
     })
     expect(created.code).toBe(0)
 
     let lighting = (enabled) =>
-      edit({
+      runCli({
         ...matter,
-        editOperation: enabled ? 'feature.enable' : 'feature.disable',
+        cliOperation: enabled ? 'feature.enable' : 'feature.disable',
         endpoint: 8,
         cluster: 'On/Off',
         feature: 'LT'
@@ -1760,7 +1757,7 @@ test(
   testUtil.timeout.long()
 )
 
-test('cli edit: a feature that declares no conformance requires nothing', () => {
+test('cli: a feature that declares no conformance requires nothing', () => {
   // Much of the newer Matter data model leaves conformance off a feature
   // altogether. Reading that as an expression to evaluate crashed the toggle
   // with a type error, which is the one outcome a command line must never
@@ -1799,14 +1796,14 @@ test('cli edit: a feature that declares no conformance requires nothing', () => 
 })
 
 test(
-  'cli edit: will not start fresh on top of an existing configuration',
+  'cli: will not start fresh on top of an existing configuration',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'occupied.zap')
     let before = fs.readFileSync(file, 'utf8')
 
     // Starting from empty and saving would replace what is there, which is not
     // something to do on the strength of a mistyped file name.
-    let refused = await edit({ editOperation: 'new', zapFile: file })
+    let refused = await runCli({ cliOperation: 'new', zapFile: file })
     expect(refused.code).toBe(1)
     expect(refused.errors).toContain('already holds a configuration')
     expect(fs.readFileSync(file, 'utf8')).toBe(before)
@@ -1814,8 +1811,8 @@ test(
     // The same protection covers building from scratch with a script.
     let script = path.join(workDir, 'nothing.yaml')
     fs.writeFileSync(script, '[]')
-    let alsoRefused = await edit({
-      editOperation: 'apply',
+    let alsoRefused = await runCli({
+      cliOperation: 'apply',
       zapFile: file,
       script: script,
       new: true
@@ -1825,8 +1822,8 @@ test(
 
     // Writing elsewhere is fine, and leaves the original alone.
     let elsewhere = path.join(workDir, 'fresh.zap')
-    let allowed = await edit({
-      editOperation: 'new',
+    let allowed = await runCli({
+      cliOperation: 'new',
       zapFile: file,
       output: elsewhere
     })
@@ -1834,8 +1831,8 @@ test(
     expect(fs.readFileSync(file, 'utf8')).toBe(before)
 
     // And --force is the way to say you meant it.
-    let forced = await edit({
-      editOperation: 'new',
+    let forced = await runCli({
+      cliOperation: 'new',
       zapFile: file,
       force: true
     })
@@ -1846,12 +1843,12 @@ test(
 )
 
 test(
-  'cli edit: gives a new matter configuration its root node',
+  'cli: gives a new matter configuration its root node',
   async () => {
     let matterFile = path.join(workDir, 'root-node.zap')
-    let created = await edit({
+    let created = await runCli({
       ...matterPackages,
-      editOperation: 'new',
+      cliOperation: 'new',
       zapFile: matterFile
     })
     expect(created.code).toBe(0)
@@ -1867,9 +1864,9 @@ test(
 
     // Opting out has to leave the configuration genuinely empty.
     let bare = path.join(workDir, 'root-node-opt-out.zap')
-    let optedOut = await edit({
+    let optedOut = await runCli({
       ...matterPackages,
-      editOperation: 'new',
+      cliOperation: 'new',
       zapFile: bare,
       rootNode: false
     })
@@ -1878,7 +1875,7 @@ test(
 
     // Zigbee declares no root node device type, so nothing should appear.
     let zigbeeFile = path.join(workDir, 'zigbee-no-root-node.zap')
-    let zigbee = await edit({ editOperation: 'new', zapFile: zigbeeFile })
+    let zigbee = await runCli({ cliOperation: 'new', zapFile: zigbeeFile })
     expect(zigbee.code).toBe(0)
     expect(zigbee.output).not.toContain('Root Node')
     expect(
@@ -1889,29 +1886,29 @@ test(
 )
 
 test(
-  'cli edit: keeps the parent of a composed endpoint across an edit',
+  'cli: keeps the parent of a composed endpoint across an edit',
   async () => {
     let file = siblingCopy(
       testUtil.matterTestFile.endpointComposition,
-      'cli-edit-composition.zap'
+      'cli-composition.zap'
     )
     let before = JSON.parse(fs.readFileSync(file, 'utf8'))
     expect(
       before.endpoints.find((e) => e.endpointId === 2).parentEndpointIdentifier
     ).toBe(1)
 
-    let listed = await edit({
+    let listed = await runCli({
       ...matterPackages,
-      editOperation: 'endpoint.list',
+      cliOperation: 'endpoint.list',
       zapFile: file,
       format: 'json'
     })
     let rows = JSON.parse(listed.output).operations[0].rows
     expect(rows.find((r) => r.endpoint === 2).parent).toBe(1)
 
-    let edited = await edit({
+    let edited = await runCli({
       ...matterPackages,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       zapFile: file,
       endpoint: 2,
       cluster: 'Identify',
@@ -1930,7 +1927,7 @@ test(
 )
 
 test(
-  'cli edit: shares the state of a zigbee cluster across the endpoints that enable it',
+  'cli: shares the state of a zigbee cluster across the endpoints that enable it',
   async () => {
     // In Zigbee a cluster's configuration is one global thing: the same cluster
     // on two endpoints includes the same attributes, with the same storage and
@@ -1939,14 +1936,14 @@ test(
     // files the interface would never have produced.
     let file = siblingCopy(
       testUtil.zigbeeTestFile.threeEp,
-      'cli-edit-shared-zigbee.zap'
+      'cli-shared-zigbee.zap'
     )
     let zigbee = { ...zigbeePackages, zapFile: file }
 
     let identifyTime = async (endpoint) => {
-      let listed = await edit({
+      let listed = await runCli({
         ...zigbee,
-        editOperation: 'attribute.list',
+        cliOperation: 'attribute.list',
         endpoint: endpoint,
         cluster: 'Identify',
         side: 'server',
@@ -1963,9 +1960,9 @@ test(
     expect((await identifyTime(42)).storage).toBe('RAM')
     expect((await identifyTime(43)).storage).toBe('RAM')
 
-    let changed = await edit({
+    let changed = await runCli({
       ...zigbee,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 42,
       cluster: 'Identify',
       attribute: 'identify time',
@@ -1987,7 +1984,7 @@ test(
 )
 
 test(
-  'cli edit: shares nothing when no loaded template asks for it',
+  'cli: shares nothing when no loaded template asks for it',
   async () => {
     // The companion of the test above, and the one that shows what decides.
     // Same Zigbee data model, same two endpoints, same cluster: only the
@@ -1995,26 +1992,26 @@ test(
     // from the word "zigbee".
     let templates = siblingCopy(
       env.locateProjectResource(testUtil.testTemplate.zigbee),
-      'cli-edit-templates-without-sharing.json'
+      'cli-templates-without-sharing.json'
     )
     let metafile = JSON.parse(fs.readFileSync(templates, 'utf8'))
     delete metafile.options.generator.shareClusterStatesAcrossEndpoints
     fs.writeFileSync(templates, JSON.stringify(metafile, null, 2))
 
-    let file = path.join(workDir, 'cli-edit-unshared-zigbee.zap')
+    let file = path.join(workDir, 'cli-unshared-zigbee.zap')
     let zigbee = {
       zclProperties: [env.builtinSilabsZclMetafile()],
       generationTemplate: [templates],
       zapFile: file
     }
 
-    expect((await edit({ ...zigbee, editOperation: 'new' })).code).toBe(0)
+    expect((await runCli({ ...zigbee, cliOperation: 'new' })).code).toBe(0)
     for (let endpoint of [1, 2]) {
       expect(
         (
-          await edit({
+          await runCli({
             ...zigbee,
-            editOperation: 'endpoint.create',
+            cliOperation: 'endpoint.create',
             endpoint: endpoint,
             deviceType: ['HA-onofflight']
           })
@@ -2023,9 +2020,9 @@ test(
     }
 
     let identifyTime = async (endpoint) => {
-      let listed = await edit({
+      let listed = await runCli({
         ...zigbee,
-        editOperation: 'attribute.list',
+        cliOperation: 'attribute.list',
         endpoint: endpoint,
         cluster: 'Identify',
         side: 'server',
@@ -2037,9 +2034,9 @@ test(
       )
     }
 
-    let changed = await edit({
+    let changed = await runCli({
       ...zigbee,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 1,
       cluster: 'Identify',
       attribute: 'identify time',
@@ -2057,19 +2054,19 @@ test(
 )
 
 test(
-  'cli edit: leaves matter endpoints alone, where an attribute is per endpoint',
+  'cli: leaves matter endpoints alone, where an attribute is per endpoint',
   async () => {
     // The mirror image of the test above. Matter does not share cluster state,
     // so a change to one endpoint must not reach another, and the Matter
     // storage policy must not be applied to Zigbee either.
-    let matterFile = path.join(workDir, 'cli-edit-unshared-matter.zap')
+    let matterFile = path.join(workDir, 'cli-unshared-matter.zap')
     let matter = { ...matterPackages, zapFile: matterFile }
 
     expect(
       (
-        await edit({
+        await runCli({
           ...matter,
-          editOperation: 'new',
+          cliOperation: 'new',
           zapFile: matterFile
         })
       ).code
@@ -2077,9 +2074,9 @@ test(
     for (let endpoint of [1, 2]) {
       expect(
         (
-          await edit({
+          await runCli({
             ...matter,
-            editOperation: 'endpoint.create',
+            cliOperation: 'endpoint.create',
             endpoint: endpoint,
             deviceType: ['MA-onofflight']
           })
@@ -2088,9 +2085,9 @@ test(
     }
 
     let onOff = async (endpoint) => {
-      let listed = await edit({
+      let listed = await runCli({
         ...matter,
-        editOperation: 'attribute.list',
+        cliOperation: 'attribute.list',
         endpoint: endpoint,
         cluster: 'On/Off',
         side: 'server',
@@ -2101,9 +2098,9 @@ test(
       )
     }
 
-    let changed = await edit({
+    let changed = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 1,
       cluster: 'On/Off',
       attribute: 'OnOff',
@@ -2120,19 +2117,19 @@ test(
 )
 
 test(
-  'cli edit: shares only the zigbee half of a multiprotocol configuration',
+  'cli: shares only the zigbee half of a multiprotocol configuration',
   async () => {
     let file = siblingCopy(
       testUtil.zigbeeTestFile.multiProtocol,
-      'cli-edit-shared-multiprotocol.zap'
+      'cli-shared-multiprotocol.zap'
     )
     let mp = { ...multiprotocolPackages, zapFile: file }
 
     // The shipped file has one Zigbee endpoint, so a second one is needed
     // before anything can be shared with it.
-    let added = await edit({
+    let added = await runCli({
       ...mp,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 7,
       deviceType: ['LO-dimmablelight'],
       category: 'zigbee'
@@ -2140,9 +2137,9 @@ test(
     expect(added.code).toBe(0)
 
     let onOff = async (endpoint, category, name) => {
-      let listed = await edit({
+      let listed = await runCli({
         ...mp,
-        editOperation: 'attribute.list',
+        cliOperation: 'attribute.list',
         endpoint: endpoint,
         cluster: 'On/Off',
         side: 'server',
@@ -2155,9 +2152,9 @@ test(
       )
     }
 
-    let changed = await edit({
+    let changed = await runCli({
       ...mp,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 1,
       cluster: 'On/Off',
       attribute: 'on/off',
@@ -2177,19 +2174,19 @@ test(
 )
 
 test(
-  'cli edit: tells apart the two endpoint 1s of a multiprotocol configuration',
+  'cli: tells apart the two endpoint 1s of a multiprotocol configuration',
   async () => {
     // Zigbee and Matter each number their endpoints from scratch, so a
     // multiprotocol file legitimately holds two endpoints called 1.
     let file = siblingCopy(
       testUtil.zigbeeTestFile.multiProtocol,
-      'cli-edit-multiprotocol.zap'
+      'cli-multiprotocol.zap'
     )
     let mp = { ...multiprotocolPackages, zapFile: file }
 
-    let listed = await edit({
+    let listed = await runCli({
       ...mp,
-      editOperation: 'endpoint.list',
+      cliOperation: 'endpoint.list',
       format: 'json'
     })
     let rows = JSON.parse(listed.output).operations[0].rows
@@ -2199,18 +2196,18 @@ test(
 
     // Without a category there is no honest answer, so it must refuse rather
     // than pick one and edit the wrong protocol's endpoint.
-    let ambiguous = await edit({
+    let ambiguous = await runCli({
       ...mp,
-      editOperation: 'cluster.list',
+      cliOperation: 'cluster.list',
       endpoint: 1,
       enabledOnly: true
     })
     expect(ambiguous.code).toBe(1)
     expect(ambiguous.errors).toContain('--category')
 
-    let zigbee = await edit({
+    let zigbee = await runCli({
       ...mp,
-      editOperation: 'cluster.list',
+      cliOperation: 'cluster.list',
       endpoint: 1,
       enabledOnly: true,
       category: 'zigbee',
@@ -2218,9 +2215,9 @@ test(
     })
     expect(zigbee.code).toBe(0)
 
-    let matter = await edit({
+    let matter = await runCli({
       ...mp,
-      editOperation: 'cluster.list',
+      cliOperation: 'cluster.list',
       endpoint: 1,
       enabledOnly: true,
       category: 'matter',
@@ -2236,9 +2233,9 @@ test(
     expect(clustersOf(zigbee.output)).not.toEqual(clustersOf(matter.output))
 
     // Callers write Matter and Zigbee as often as the lowercase package names.
-    let mixedCase = await edit({
+    let mixedCase = await runCli({
       ...mp,
-      editOperation: 'cluster.list',
+      cliOperation: 'cluster.list',
       endpoint: 1,
       enabledOnly: true,
       category: 'Matter',
@@ -2247,9 +2244,9 @@ test(
     expect(mixedCase.code).toBe(0)
     expect(clustersOf(mixedCase.output)).toEqual(clustersOf(matter.output))
 
-    let nonsense = await edit({
+    let nonsense = await runCli({
       ...mp,
-      editOperation: 'cluster.list',
+      cliOperation: 'cluster.list',
       all: true,
       category: 'nonsense'
     })
@@ -2259,12 +2256,12 @@ test(
 )
 
 test(
-  'cli edit: enables and disables the remaining element kinds',
+  'cli: enables and disables the remaining element kinds',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'toggles.zap')
     let enabledAttribute = async () => {
-      let listed = await edit({
-        editOperation: 'attribute.list',
+      let listed = await runCli({
+        cliOperation: 'attribute.list',
         zapFile: file,
         endpoint: 2,
         cluster: 'On/off',
@@ -2275,8 +2272,8 @@ test(
       ).enabled
     }
 
-    let disabled = await edit({
-      editOperation: 'attribute.disable',
+    let disabled = await runCli({
+      cliOperation: 'attribute.disable',
       zapFile: file,
       endpoint: 2,
       cluster: 'On/off',
@@ -2285,8 +2282,8 @@ test(
     expect(disabled.code).toBe(0)
     expect(await enabledAttribute()).toBe('no')
 
-    let reenabled = await edit({
-      editOperation: 'attribute.enable',
+    let reenabled = await runCli({
+      cliOperation: 'attribute.enable',
       zapFile: file,
       endpoint: 2,
       cluster: 'On/off',
@@ -2295,16 +2292,16 @@ test(
     expect(reenabled.code).toBe(0)
     expect(await enabledAttribute()).toBe('yes')
 
-    let clusterOff = await edit({
-      editOperation: 'cluster.disable',
+    let clusterOff = await runCli({
+      cliOperation: 'cluster.disable',
       zapFile: file,
       endpoint: 2,
       cluster: 'Scenes',
       side: 'server'
     })
     expect(clusterOff.code).toBe(0)
-    let clusters = await edit({
-      editOperation: 'cluster.list',
+    let clusters = await runCli({
+      cliOperation: 'cluster.list',
       zapFile: file,
       endpoint: 2,
       enabledOnly: true,
@@ -2318,33 +2315,33 @@ test(
 )
 
 test(
-  'cli edit: replaces the whole device type list of an endpoint',
+  'cli: replaces the whole device type list of an endpoint',
   async () => {
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-devicetype-set.zap'
+      'cli-devicetype-set.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    await edit({
+    await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 4,
       deviceType: ['MA-onofflight']
     })
 
-    let replaced = await edit({
+    let replaced = await runCli({
       ...matter,
-      editOperation: 'devicetype.set',
+      cliOperation: 'devicetype.set',
       endpoint: 4,
       deviceType: ['MA-dimmablelight', 'MA-onofflight'],
       deviceVersion: [2]
     })
     expect(replaced.code).toBe(0)
 
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'devicetype.list',
+      cliOperation: 'devicetype.list',
       endpoint: 4,
       format: 'json'
     })
@@ -2360,42 +2357,42 @@ test(
 )
 
 test(
-  'cli edit: disables a matter event',
+  'cli: disables a matter event',
   async () => {
     let file = siblingCopy(
       testUtil.matterTestFile.switch,
-      'cli-edit-event-disable.zap'
+      'cli-event-disable.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let events = await edit({
+    let events = await runCli({
       ...matter,
-      editOperation: 'event.list',
+      cliOperation: 'event.list',
       endpoint: 1,
       cluster: 'Switch',
       format: 'json'
     })
     let name = JSON.parse(events.output).operations[0].rows[0].name
 
-    await edit({
+    await runCli({
       ...matter,
-      editOperation: 'event.enable',
+      cliOperation: 'event.enable',
       endpoint: 1,
       cluster: 'Switch',
       event: name
     })
-    let off = await edit({
+    let off = await runCli({
       ...matter,
-      editOperation: 'event.disable',
+      cliOperation: 'event.disable',
       endpoint: 1,
       cluster: 'Switch',
       event: name
     })
     expect(off.code).toBe(0)
 
-    let after = await edit({
+    let after = await runCli({
       ...matter,
-      editOperation: 'event.list',
+      cliOperation: 'event.list',
       endpoint: 1,
       cluster: 'Switch',
       format: 'json'
@@ -2409,26 +2406,26 @@ test(
 )
 
 test(
-  'cli edit: will not pretend to toggle a feature it cannot record',
+  'cli: will not pretend to toggle a feature it cannot record',
   async () => {
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-featuremap.zap'
+      'cli-featuremap.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 33,
       deviceType: ['MA-dimmablelight']
     })
     expect(created.code).toBe(0)
 
     let featureCodes = async () => {
-      let listed = await edit({
+      let listed = await runCli({
         ...matter,
-        editOperation: 'feature.list',
+        cliOperation: 'feature.list',
         endpoint: 33,
         cluster: 'On/Off',
         format: 'json'
@@ -2442,9 +2439,9 @@ test(
     // A feature is a bit of the FeatureMap attribute's value, and the saved
     // format only keeps attributes that are included, so excluding it throws
     // the whole feature selection away.
-    let excluded = await edit({
+    let excluded = await runCli({
       ...matter,
-      editOperation: 'attribute.disable',
+      cliOperation: 'attribute.disable',
       endpoint: 33,
       cluster: 'On/Off',
       attribute: 'FeatureMap'
@@ -2454,9 +2451,9 @@ test(
 
     // Having lost its home, a toggle must be refused rather than reported as
     // done and silently dropped on the next save.
-    let toggled = await edit({
+    let toggled = await runCli({
       ...matter,
-      editOperation: 'feature.enable',
+      cliOperation: 'feature.enable',
       endpoint: 33,
       cluster: 'On/Off',
       feature: 'DF'
@@ -2465,9 +2462,9 @@ test(
     expect(toggled.errors).toContain('cannot be saved')
 
     // And the listing has to say why everything reads as off.
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'feature.list',
+      cliOperation: 'feature.list',
       endpoint: 33,
       cluster: 'On/Off'
     })
@@ -2477,40 +2474,40 @@ test(
 )
 
 test(
-  'cli edit: a duplicated endpoint matches the one it came from',
+  'cli: a duplicated endpoint matches the one it came from',
   async () => {
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-duplicate-fidelity.zap'
+      'cli-duplicate-fidelity.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    await edit({
+    await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 41,
       deviceType: ['MA-dimmablelight']
     })
-    await edit({
+    await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 41,
       cluster: 'On/Off',
       attribute: 'OnOff',
       default: '1'
     })
-    let duplicated = await edit({
+    let duplicated = await runCli({
       ...matter,
-      editOperation: 'endpoint.duplicate',
+      cliOperation: 'endpoint.duplicate',
       endpoint: 41,
       newEndpoint: 42
     })
     expect(duplicated.code).toBe(0)
 
     let listing = async (operation, endpoint, extra) => {
-      let listed = await edit({
+      let listed = await runCli({
         ...matter,
-        editOperation: operation,
+        cliOperation: operation,
         endpoint: endpoint,
         format: 'json',
         ...extra
@@ -2532,23 +2529,23 @@ test(
 )
 
 test(
-  'cli edit: attribute settings survive a save and reload',
+  'cli: attribute settings survive a save and reload',
   async () => {
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-persistence.zap'
+      'cli-persistence.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    await edit({
+    await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 51,
       deviceType: ['MA-dimmablelight']
     })
-    let set = await edit({
+    let set = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 51,
       cluster: 'Level Control',
       attribute: 'CurrentLevel',
@@ -2566,9 +2563,9 @@ test(
 
     // Read back through a fresh load of the saved file, so this covers the
     // export and import as well as the write.
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'attribute.list',
+      cliOperation: 'attribute.list',
       endpoint: 51,
       cluster: 'Level Control',
       format: 'json'
@@ -2592,7 +2589,7 @@ test(
 )
 
 test(
-  'cli edit: a configuration built here generates the code it should',
+  'cli: a configuration built here generates the code it should',
   async () => {
     // Every other test checks the CLI against itself: it writes something and
     // reads it back. This one checks the thing that actually matters, which is
@@ -2601,21 +2598,21 @@ test(
     // way in are looked for in the generated C.
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-generation.zap'
+      'cli-generation.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 61,
       deviceType: ['MA-dimmablelight']
     })
     expect(created.code).toBe(0)
 
-    let set = await edit({
+    let set = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 61,
       cluster: 'Level Control',
       attribute: 'CurrentLevel',
@@ -2626,7 +2623,7 @@ test(
     expect(set.code).toBe(0)
 
     let db = await dbApi.initDatabaseAndLoadSchema(
-      env.sqliteTestFile('cli-edit-generation'),
+      env.sqliteTestFile('cli-generation'),
       env.schemaFile(),
       env.zapVersion()
     )
@@ -2672,21 +2669,21 @@ test(
 )
 
 test(
-  'cli edit: manages matter clusters and events',
+  'cli: manages matter clusters and events',
   async () => {
     let file = scratchCopy(testUtil.matterTestFile.switch, 'matter.zap')
 
-    let info = await edit({
+    let info = await runCli({
       ...matterPackages,
-      editOperation: 'config.info',
+      cliOperation: 'config.info',
       zapFile: file
     })
     expect(info.code).toBe(0)
     expect(info.output).toContain('endpoint(s)')
 
-    let events = await edit({
+    let events = await runCli({
       ...matterPackages,
-      editOperation: 'event.list',
+      cliOperation: 'event.list',
       zapFile: file,
       endpoint: 1,
       cluster: 'Switch',
@@ -2696,9 +2693,9 @@ test(
     let rows = JSON.parse(events.output).operations[0].rows
     expect(rows.length).toBeGreaterThan(0)
 
-    let enabled = await edit({
+    let enabled = await runCli({
       ...matterPackages,
-      editOperation: 'event.enable',
+      cliOperation: 'event.enable',
       zapFile: file,
       endpoint: 1,
       cluster: 'Switch',
@@ -2711,7 +2708,7 @@ test(
 )
 
 test(
-  'cli edit: will not move an attribute the data model serves externally',
+  'cli: will not move an attribute the data model serves externally',
   async () => {
     // The Matter data model names cluster and attribute pairs that are reached
     // through the Attribute Access Interface: their value lives in application
@@ -2726,16 +2723,16 @@ test(
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 71,
       deviceType: ['MA-rootdevice']
     })
     expect(created.code).toBe(0)
-    let enabled = await edit({
+    let enabled = await runCli({
       ...matter,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       endpoint: 71,
       cluster: 'Access Control',
       side: 'server'
@@ -2743,9 +2740,9 @@ test(
     expect(enabled.code).toBe(0)
 
     // The listing says which fields are not the caller's to set.
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'attribute.list',
+      cliOperation: 'attribute.list',
       endpoint: 71,
       cluster: 'Access Control',
       filter: 'ACL',
@@ -2758,9 +2755,9 @@ test(
     expect(acl.storage).toBe('External')
     expect(acl.fixed).toContain('storage')
 
-    let moved = await edit({
+    let moved = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 71,
       cluster: 'Access Control',
       attribute: 'ACL',
@@ -2771,9 +2768,9 @@ test(
     expect(moved.errors).toContain('Attribute Access Interface')
 
     // Asking for the storage the model already gives it is not a fight.
-    let agreed = await edit({
+    let agreed = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 71,
       cluster: 'Access Control',
       attribute: 'ACL',
@@ -2782,9 +2779,9 @@ test(
     })
     expect(agreed.code).toBe(0)
 
-    let valued = await edit({
+    let valued = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 71,
       cluster: 'Access Control',
       attribute: 'ACL',
@@ -2795,9 +2792,9 @@ test(
 
     // An attribute of the same cluster that is not one of the pairs stays
     // free, which is the whole point of matching on the pair.
-    let ordinary = await edit({
+    let ordinary = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 71,
       cluster: 'Basic Information',
       attribute: 'NodeLabel',
@@ -2812,7 +2809,7 @@ test(
 )
 
 test(
-  'cli edit: will not configure an attribute that is not included',
+  'cli: will not configure an attribute that is not included',
   async () => {
     // Storage, default value, singleton and bounded say how an attribute is
     // kept, and one that is not included is not kept at all, which is why the
@@ -2823,25 +2820,25 @@ test(
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 72,
       deviceType: ['MA-onofflight']
     })
     expect(created.code).toBe(0)
-    let enabled = await edit({
+    let enabled = await runCli({
       ...matter,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       endpoint: 72,
       cluster: 'Basic Information',
       side: 'server'
     })
     expect(enabled.code).toBe(0)
 
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'attribute.list',
+      cliOperation: 'attribute.list',
       endpoint: 72,
       cluster: 'Basic Information',
       format: 'json'
@@ -2851,9 +2848,9 @@ test(
     )
     expect(excluded).toBeDefined()
 
-    let configured = await edit({
+    let configured = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 72,
       cluster: 'Basic Information',
       attribute: excluded.name,
@@ -2863,9 +2860,9 @@ test(
     expect(configured.errors).toContain('is not enabled')
 
     // Including it as part of the same change is enough.
-    let together = await edit({
+    let together = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 72,
       cluster: 'Basic Information',
       attribute: excluded.name,
@@ -2879,7 +2876,7 @@ test(
 )
 
 test(
-  'cli edit: will not fight the reporting policy',
+  'cli: will not fight the reporting policy',
   async () => {
     // Matter makes reporting mandatory for most attributes, and ZAP forces it
     // back on when the file is read, so refusing is the only honest answer.
@@ -2889,9 +2886,9 @@ test(
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'attribute.list',
+      cliOperation: 'attribute.list',
       endpoint: 1,
       cluster: 'On/Off',
       format: 'json'
@@ -2901,9 +2898,9 @@ test(
     )
     expect(mandatory).toBeDefined()
 
-    let off = await edit({
+    let off = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 1,
       cluster: 'On/Off',
       attribute: mandatory.name,
@@ -2912,9 +2909,9 @@ test(
     expect(off.code).toBe(1)
     expect(off.errors).toContain('mandatory reporting')
 
-    let on = await edit({
+    let on = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 1,
       cluster: 'On/Off',
       attribute: mandatory.name,
@@ -2925,7 +2922,7 @@ test(
   testUtil.timeout.long()
 )
 
-test('cli edit: knows what to say about each thing the data model fixes', () => {
+test('cli: knows what to say about each thing the data model fixes', () => {
   // The rules themselves, away from any configuration: which fields a listing
   // should mark, and which changes a caller is not making.
   let where = {
@@ -2973,7 +2970,7 @@ test('cli edit: knows what to say about each thing the data model fixes', () => 
   ).not.toThrow()
 })
 
-test('cli edit: refuses a feature the specification leaves no choice about', () => {
+test('cli: refuses a feature the specification leaves no choice about', () => {
   // No shipped data model has one, so the rule is checked directly rather than
   // through a configuration. The GUI greys these toggles out.
   let cluster = { name: 'On/Off' }
@@ -3001,7 +2998,7 @@ test('cli edit: refuses a feature the specification leaves no choice about', () 
 })
 
 test(
-  'cli edit: reports the notifications an edit introduces',
+  'cli: reports the notifications an edit introduces',
   async () => {
     // The GUI keeps a count of these in its toolbar and it goes up as you
     // work: enabling a command whose response command is not enabled is
@@ -3013,17 +3010,17 @@ test(
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 73,
       deviceType: ['MA-onofflight']
     })
     expect(created.code).toBe(0)
 
-    let enabled = await edit({
+    let enabled = await runCli({
       ...matter,
-      editOperation: 'command.enable',
+      cliOperation: 'command.enable',
       endpoint: 73,
       cluster: 'Scenes',
       command: 'EnhancedAddScene',
@@ -3036,9 +3033,9 @@ test(
     )
 
     // Doing as it says takes the notification away again.
-    let answered = await edit({
+    let answered = await runCli({
       ...matter,
-      editOperation: 'command.enable',
+      cliOperation: 'command.enable',
       endpoint: 73,
       cluster: 'Scenes',
       command: 'EnhancedAddSceneResponse',
@@ -3052,7 +3049,7 @@ test(
 )
 
 test(
-  'cli edit: switching off an element a feature requires is reported as such',
+  'cli: switching off an element a feature requires is reported as such',
   async () => {
     // Two different rules can want the same attribute, and the interface shows
     // both: the device type requires it, and the cluster's feature selection
@@ -3060,22 +3057,22 @@ test(
     // so an edit that leaves it unmet has to say which feature and why.
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-element-conformance.zap'
+      'cli-element-conformance.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 10,
       deviceType: ['MA-onofflight']
     })
     expect(created.code).toBe(0)
 
     // OnTime conforms to Lighting, which this device type has on.
-    let off = await edit({
+    let off = await runCli({
       ...matter,
-      editOperation: 'attribute.disable',
+      cliOperation: 'attribute.disable',
       endpoint: 10,
       cluster: 'On/Off',
       attribute: 'OnTime'
@@ -3086,9 +3083,9 @@ test(
     )
 
     // The same for a command, and both survive into the standing report.
-    let command = await edit({
+    let command = await runCli({
       ...matter,
-      editOperation: 'command.disable',
+      cliOperation: 'command.disable',
       endpoint: 10,
       cluster: 'On/Off',
       command: 'OnWithTimedOff',
@@ -3099,9 +3096,9 @@ test(
       'command: OnWithTimedOff has mandatory conformance to LT'
     )
 
-    let checked = await edit({
+    let checked = await runCli({
       ...matter,
-      editOperation: 'config.check',
+      cliOperation: 'config.check',
       format: 'json'
     })
     let messages = JSON.parse(checked.output).operations[0].rows.map(
@@ -3114,23 +3111,25 @@ test(
     // Putting them back takes both accounts of the problem away.
     for (let repair of [
       {
-        editOperation: 'attribute.enable',
+        cliOperation: 'attribute.enable',
         cluster: 'On/Off',
         attribute: 'OnTime'
       },
       {
-        editOperation: 'command.enable',
+        cliOperation: 'command.enable',
         cluster: 'On/Off',
         command: 'OnWithTimedOff',
         direction: 'in'
       }
     ]) {
-      expect((await edit({ ...matter, endpoint: 10, ...repair })).code).toBe(0)
+      expect((await runCli({ ...matter, endpoint: 10, ...repair })).code).toBe(
+        0
+      )
     }
 
-    let clean = await edit({
+    let clean = await runCli({
       ...matter,
-      editOperation: 'config.check',
+      cliOperation: 'config.check',
       format: 'json'
     })
     expect(
@@ -3143,7 +3142,7 @@ test(
 )
 
 test(
-  'cli edit: the interface sees the non-compliance a command line edit leaves behind',
+  'cli: the interface sees the non-compliance a command line edit leaves behind',
   async () => {
     // The count in the interface toolbar is the one thing that tells a person
     // their configuration stopped meeting the specification, and none of it is
@@ -3156,13 +3155,13 @@ test(
     // interface does on open, and looks.
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-gui-notifications.zap'
+      'cli-gui-notifications.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 9,
       deviceType: ['MA-onofflight']
     })
@@ -3170,9 +3169,9 @@ test(
 
     // Lighting is mandatory for this device type, so switching it off is a
     // configuration that no longer meets the specification.
-    let broken = await edit({
+    let broken = await runCli({
       ...matter,
-      editOperation: 'feature.disable',
+      cliOperation: 'feature.disable',
       endpoint: 9,
       cluster: 'On/Off',
       feature: 'LT'
@@ -3181,7 +3180,7 @@ test(
     expect(broken.output).toContain('Notifications:')
 
     let db = await dbApi.initDatabaseAndLoadSchema(
-      env.sqliteTestFile('cli-edit-gui-notifications'),
+      env.sqliteTestFile('cli-gui-notifications'),
       env.schemaFile(),
       env.zapVersion()
     )
@@ -3224,18 +3223,18 @@ test(
 
     // Undoing it takes them away again, so the count follows the configuration
     // rather than accumulating.
-    let repaired = await edit({
+    let repaired = await runCli({
       ...matter,
-      editOperation: 'feature.enable',
+      cliOperation: 'feature.enable',
       endpoint: 9,
       cluster: 'On/Off',
       feature: 'LT'
     })
     expect(repaired.code).toBe(0)
 
-    let checked = await edit({
+    let checked = await runCli({
       ...matter,
-      editOperation: 'config.check',
+      cliOperation: 'config.check',
       format: 'json'
     })
     let rows = JSON.parse(checked.output).operations[0].rows
@@ -3247,7 +3246,7 @@ test(
 )
 
 test(
-  'cli edit: checks a configuration without changing it',
+  'cli: checks a configuration without changing it',
   async () => {
     let file = scratchCopy(
       testUtil.matterTestFile.matterTest,
@@ -3255,9 +3254,9 @@ test(
     )
     let before = fs.readFileSync(file, 'utf8')
 
-    let checked = await edit({
+    let checked = await runCli({
       ...matterPackages,
-      editOperation: 'config.check',
+      cliOperation: 'config.check',
       zapFile: file,
       format: 'json'
     })
@@ -3282,9 +3281,9 @@ test(
     })
 
     // Errors only fail the run when asked to.
-    let strict = await edit({
+    let strict = await runCli({
       ...matterPackages,
-      editOperation: 'config.check',
+      cliOperation: 'config.check',
       zapFile: file,
       strict: true
     })
@@ -3294,10 +3293,10 @@ test(
     // An empty configuration has nothing wrong with it, and still answers with
     // a list of findings rather than with nothing at all.
     let empty = path.join(workDir, 'empty-check.zap')
-    let created = await edit({ editOperation: 'new', zapFile: empty })
+    let created = await runCli({ cliOperation: 'new', zapFile: empty })
     expect(created.code).toBe(0)
-    let clean = await edit({
-      editOperation: 'config.check',
+    let clean = await runCli({
+      cliOperation: 'config.check',
       zapFile: empty,
       strict: true,
       format: 'json'
@@ -3309,9 +3308,9 @@ test(
     expect(cleanReport.messages[0]).toContain('0 error(s), 0 warning(s)')
 
     // The data model's own complaints are kept out of the way until asked for.
-    let withPackages = await edit({
+    let withPackages = await runCli({
       ...matterPackages,
-      editOperation: 'config.check',
+      cliOperation: 'config.check',
       zapFile: file,
       packages: true,
       format: 'json'
@@ -3325,7 +3324,7 @@ test(
 )
 
 test(
-  'cli edit: adds custom xml and configures the clusters it brings',
+  'cli: adds custom xml and configures the clusters it brings',
   async () => {
     // The Extensions page loads a ZCL XML file into the session, and its
     // clusters then behave like any other. This is that, headless: the file
@@ -3333,14 +3332,14 @@ test(
     // usable and survives the save.
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-package-add.zap'
+      'cli-package-add.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
     let xml = path.resolve(testUtil.testMatterCustomXml)
 
-    let created = await edit({
+    let created = await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 31,
       deviceType: ['MA-onofflight']
     })
@@ -3348,9 +3347,9 @@ test(
 
     // Before the XML is loaded the cluster does not exist, and saying so with
     // the near misses is the whole point of the lookup.
-    let missing = await edit({
+    let missing = await runCli({
       ...matter,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       endpoint: 31,
       cluster: 'Sample Custom Cluster',
       side: 'server'
@@ -3358,9 +3357,9 @@ test(
     expect(missing.code).toBe(1)
     expect(missing.errors).toContain('Unknown cluster')
 
-    let added = await edit({
+    let added = await runCli({
       ...matter,
-      editOperation: 'package.add',
+      cliOperation: 'package.add',
       xml: [xml]
     })
     expect(added.code).toBe(0)
@@ -3371,18 +3370,18 @@ test(
     let packages = JSON.parse(fs.readFileSync(file, 'utf8')).package
     expect(packages.some((p) => p.type === 'zcl-xml-standalone')).toBe(true)
 
-    let enabled = await edit({
+    let enabled = await runCli({
       ...matter,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       endpoint: 31,
       cluster: 'Sample Custom Cluster',
       side: 'server'
     })
     expect(enabled.code).toBe(0)
 
-    let set = await edit({
+    let set = await runCli({
       ...matter,
-      editOperation: 'attribute.set',
+      cliOperation: 'attribute.set',
       endpoint: 31,
       cluster: 'Sample Custom Cluster',
       attribute: 'FlipFlop',
@@ -3391,9 +3390,9 @@ test(
     })
     expect(set.code).toBe(0)
 
-    let listed = await edit({
+    let listed = await runCli({
       ...matter,
-      editOperation: 'attribute.list',
+      cliOperation: 'attribute.list',
       endpoint: 31,
       cluster: 'Sample Custom Cluster',
       enabledOnly: true,
@@ -3407,9 +3406,9 @@ test(
     expect(flipFlop.default).toBe('1')
 
     // The listing names the custom XML alongside the built-in packages.
-    let inventory = await edit({
+    let inventory = await runCli({
       ...matter,
-      editOperation: 'package.list',
+      cliOperation: 'package.list',
       format: 'json'
     })
     expect(inventory.code).toBe(0)
@@ -3420,17 +3419,17 @@ test(
 
     // Only an XML file will do, and saying which file is wrong beats a parse
     // error from further in.
-    let wrongKind = await edit({
+    let wrongKind = await runCli({
       ...matter,
-      editOperation: 'package.add',
+      cliOperation: 'package.add',
       xml: [matterPackages.zclProperties[0]]
     })
     expect(wrongKind.code).toBe(1)
     expect(wrongKind.errors).toContain('not an XML file')
 
-    let absent = await edit({
+    let absent = await runCli({
       ...matter,
-      editOperation: 'package.add',
+      cliOperation: 'package.add',
       xml: [path.join(workDir, 'no-such-file.xml')]
     })
     expect(absent.code).toBe(1)
@@ -3440,7 +3439,7 @@ test(
 )
 
 test(
-  'cli edit: removing custom xml takes the endpoint configuration with it',
+  'cli: removing custom xml takes the endpoint configuration with it',
   async () => {
     // Disabling a custom XML package makes database triggers delete the
     // endpoint clusters that came from it. The GUI does that on a button press
@@ -3448,30 +3447,30 @@ test(
     // twice, because it is not recoverable from the file afterwards.
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-package-remove.zap'
+      'cli-package-remove.zap'
     )
     let matter = { ...matterPackages, zapFile: file }
     let xml = path.resolve(testUtil.testMatterCustomXml)
 
-    await edit({
+    await runCli({
       ...matter,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       endpoint: 41,
       deviceType: ['MA-onofflight']
     })
-    await edit({ ...matter, editOperation: 'package.add', xml: [xml] })
-    let enabled = await edit({
+    await runCli({ ...matter, cliOperation: 'package.add', xml: [xml] })
+    let enabled = await runCli({
       ...matter,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       endpoint: 41,
       cluster: 'Sample Custom Cluster',
       side: 'server'
     })
     expect(enabled.code).toBe(0)
 
-    let refused = await edit({
+    let refused = await runCli({
       ...matter,
-      editOperation: 'package.remove',
+      cliOperation: 'package.remove',
       xml: 'matter-custom.xml'
     })
     expect(refused.code).toBe(1)
@@ -3479,9 +3478,9 @@ test(
     expect(refused.errors).toContain('--force')
 
     // And the refusal changed nothing.
-    let still = await edit({
+    let still = await runCli({
       ...matter,
-      editOperation: 'cluster.list',
+      cliOperation: 'cluster.list',
       endpoint: 41,
       enabledOnly: true,
       format: 'json'
@@ -3492,9 +3491,9 @@ test(
       )
     ).toBe(true)
 
-    let removed = await edit({
+    let removed = await runCli({
       ...matter,
-      editOperation: 'package.remove',
+      cliOperation: 'package.remove',
       xml: 'matter-custom.xml',
       force: true
     })
@@ -3512,9 +3511,9 @@ test(
     expect(clusters).toEqual([])
 
     // An unknown name is a lookup failure like any other.
-    let unknown = await edit({
+    let unknown = await runCli({
       ...matter,
-      editOperation: 'package.remove',
+      cliOperation: 'package.remove',
       xml: 'not-a-package.xml'
     })
     expect(unknown.code).toBe(1)
@@ -3524,7 +3523,7 @@ test(
 )
 
 test(
-  'cli edit: refuses to edit a configuration whose custom xml it does not have',
+  'cli: refuses to edit a configuration whose custom xml it does not have',
   async () => {
     // The importer answers a custom XML it cannot load by moving on, and says
     // nothing: the package is dropped from the configuration, so a save writes
@@ -3533,15 +3532,15 @@ test(
     // is not, since that is how anyone finds out.
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-package-missing.zap'
+      'cli-package-missing.zap'
     )
-    declareCustomXml(file, 'cli-edit-nowhere.xml')
+    declareCustomXml(file, 'cli-nowhere.xml')
     let matter = { ...matterPackages, zapFile: file }
 
     await onAFreshMachine(async () => {
-      let blocked = await edit({
+      let blocked = await runCli({
         ...matter,
-        editOperation: 'cluster.enable',
+        cliOperation: 'cluster.enable',
         endpoint: 1,
         cluster: 'Identify',
         side: 'server'
@@ -3551,16 +3550,16 @@ test(
         'custom XML package(s) this session does not have'
       )
       expect(blocked.errors).toContain('no such file')
-      expect(blocked.errors).toContain('zap edit package remove')
+      expect(blocked.errors).toContain('zap package remove')
 
       // Reading works, and says what is wrong rather than pretending.
-      let info = await edit({ ...matter, editOperation: 'config.info' })
+      let info = await runCli({ ...matter, cliOperation: 'config.info' })
       expect(info.code).toBe(0)
       expect(info.output).toContain('custom XML not loaded')
 
-      let listed = await edit({
+      let listed = await runCli({
         ...matter,
-        editOperation: 'package.list',
+        cliOperation: 'package.list',
         format: 'json'
       })
       expect(listed.code).toBe(0)
@@ -3571,9 +3570,9 @@ test(
       ).toBe(true)
 
       // --force is the way through for someone who means it.
-      let forced = await edit({
+      let forced = await runCli({
         ...matter,
-        editOperation: 'cluster.enable',
+        cliOperation: 'cluster.enable',
         endpoint: 1,
         cluster: 'Identify',
         side: 'server',
@@ -3595,7 +3594,7 @@ test(
 )
 
 test(
-  'cli edit: will not edit against a custom xml quietly put in place of another',
+  'cli: will not edit against a custom xml quietly put in place of another',
   async () => {
     // The worse half of the same problem. When the database holds a custom XML
     // of its own, the importer hands that one over instead of the one the file
@@ -3604,29 +3603,29 @@ test(
     // it.
     let file = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-package-substituted.zap'
+      'cli-package-substituted.zap'
     )
-    declareCustomXml(file, 'cli-edit-nowhere.xml')
+    declareCustomXml(file, 'cli-nowhere.xml')
     let matter = { ...matterPackages, zapFile: file }
 
     let other = siblingCopy(
       testUtil.matterTestFile.matterTest,
-      'cli-edit-package-other.zap'
+      'cli-package-other.zap'
     )
 
     await onAFreshMachine(async () => {
       // Something else of the same type, which is all it takes.
-      let primed = await edit({
+      let primed = await runCli({
         ...matterPackages,
         zapFile: other,
-        editOperation: 'package.add',
+        cliOperation: 'package.add',
         xml: [path.resolve(testUtil.testMatterCustomXml)]
       })
       expect(primed.code).toBe(0)
 
-      let blocked = await edit({
+      let blocked = await runCli({
         ...matter,
-        editOperation: 'cluster.enable',
+        cliOperation: 'cluster.enable',
         endpoint: 1,
         cluster: 'Identify',
         side: 'server'
@@ -3637,9 +3636,9 @@ test(
 
       // The listing tells the two apart: one named and absent, one present and
       // unnamed.
-      let listed = await edit({
+      let listed = await runCli({
         ...matter,
-        editOperation: 'package.list',
+        cliOperation: 'package.list',
         format: 'json'
       })
       let rows = JSON.parse(listed.output).operations[0].rows
@@ -3650,24 +3649,24 @@ test(
 
       // Repairing means both: drop the reference that goes nowhere, and the
       // package that arrived uninvited.
-      let dropped = await edit({
+      let dropped = await runCli({
         ...matter,
-        editOperation: 'package.remove',
-        xml: 'cli-edit-nowhere.xml'
+        cliOperation: 'package.remove',
+        xml: 'cli-nowhere.xml'
       })
       expect(dropped.code).toBe(0)
       expect(dropped.output).toContain('never loaded')
 
-      let uninvited = await edit({
+      let uninvited = await runCli({
         ...matter,
-        editOperation: 'package.remove',
+        cliOperation: 'package.remove',
         xml: 'matter-custom.xml'
       })
       expect(uninvited.code).toBe(0)
 
-      let allowed = await edit({
+      let allowed = await runCli({
         ...matter,
-        editOperation: 'cluster.enable',
+        cliOperation: 'cluster.enable',
         endpoint: 1,
         cluster: 'Identify',
         side: 'server'
@@ -3692,31 +3691,31 @@ const componentPackages = {
 }
 
 test(
-  'cli edit: names the UC components an enabled cluster needs',
+  'cli: names the UC components an enabled cluster needs',
   async () => {
     // Built here rather than copied from a test resource: a resource names its
     // own generation templates, and fuzzy package matching prefers those over
     // the ones passed in, so which templates the session ends up with would
     // depend on what the state database has already seen.
     let file = path.join(workDir, 'components.zap')
-    let created = await edit({
+    let created = await runCli({
       ...componentPackages,
-      editOperation: 'new',
+      cliOperation: 'new',
       zapFile: file
     })
     expect(created.code).toBe(0)
-    let endpoint = await edit({
+    let endpoint = await runCli({
       ...componentPackages,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       zapFile: file,
       endpoint: 1,
       deviceType: ['ZLL-onofflight']
     })
     expect(endpoint.code).toBe(0)
 
-    let enabled = await edit({
+    let enabled = await runCli({
       ...componentPackages,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       zapFile: file,
       endpoint: 1,
       cluster: 'Level Control',
@@ -3730,9 +3729,9 @@ test(
 
     // Switching it back off is not a reason to talk about components: removal
     // is Studio's decision and the data model has to ask for it.
-    let disabled = await edit({
+    let disabled = await runCli({
       ...componentPackages,
-      editOperation: 'cluster.disable',
+      cliOperation: 'cluster.disable',
       zapFile: file,
       endpoint: 1,
       cluster: 'Level Control',
@@ -3745,19 +3744,19 @@ test(
 )
 
 test(
-  'cli edit: reports the components of a whole device type once',
+  'cli: reports the components of a whole device type once',
   async () => {
     let file = path.join(workDir, 'component-endpoint.zap')
-    let created = await edit({
+    let created = await runCli({
       ...componentPackages,
-      editOperation: 'new',
+      cliOperation: 'new',
       zapFile: file
     })
     expect(created.code).toBe(0)
 
-    let added = await edit({
+    let added = await runCli({
       ...componentPackages,
-      editOperation: 'endpoint.create',
+      cliOperation: 'endpoint.create',
       zapFile: file,
       endpoint: 1,
       deviceType: ['ZLL-onofflight']
@@ -3775,15 +3774,15 @@ test(
 )
 
 test(
-  'cli edit: refuses when Studio integration was asked for but is not there',
+  'cli: refuses when Studio integration was asked for but is not there',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'no-studio.zap')
 
     // Nothing listens on port 1. Before, this saved the edit and quietly
     // installed nothing, which looks exactly like success.
-    let attempted = await edit({
+    let attempted = await runCli({
       ...componentPackages,
-      editOperation: 'cluster.enable',
+      cliOperation: 'cluster.enable',
       zapFile: file,
       endpoint: 1,
       cluster: 'Level Control',

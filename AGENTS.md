@@ -1,10 +1,10 @@
 # Notes for agents working on ZAP
 
-Short orientation for the `zap edit` command line, which is the part of this
+Short orientation for the configuration commands (`zap endpoint list`, `zap new`), which are the part of this
 repository most likely to be handed to an agent. Everything here is the sort of
 thing that costs an hour to rediscover.
 
-## What `zap edit` is
+## What the configuration commands are
 
 Everything the ZAP user interface can do to a `.zap` file, from a terminal.
 Ten modules under `src-electron/cli`, layered one way with no cycles, and a test
@@ -23,10 +23,10 @@ cli-commands      entry point, yargs tree, the run loop
 └── cli-output    tables, JSON, the validation and notification diffs
 ```
 
-Read [`docs/zap-edit-architecture.md`](docs/zap-edit-architecture.md) before
+Read [`docs/zap-cli-architecture.md`](docs/zap-cli-architecture.md) before
 changing any of it. The reference is
-[`docs/zap-edit-cli.md`](docs/zap-edit-cli.md) and the walkthrough is
-[`docs/zap-edit-guide.md`](docs/zap-edit-guide.md).
+[`docs/zap-cli-reference.md`](docs/zap-cli-reference.md) and the walkthrough is
+[`docs/zap-cli-guide.md`](docs/zap-cli-guide.md).
 
 ## Rules that hold the design together
 
@@ -61,15 +61,15 @@ importer and by `validate-all` as a file is read. So a CLI edit and a click
 produce the same toolbar count when the file is next opened, and there is no
 stored state to keep in step. Do not add a cached copy.
 
-An edit reports only what it introduced; `zap edit check` reports everything.
+An edit reports only what it introduced; `zap check` reports everything.
 
 ## Traps
 
 - **`node src-electron/main-process/main.js` does not run.** `util/args.js` uses
   `export function`, so Node loads it as ESM and the `require` calls throw. Use
-  `npm run zap-edit -- <args>` (it builds the backend first), or drive
-  `startup.startEdit(argv, { printer, errorPrinter, logger })` from a jest test,
-  which is how `test/cli-edit.test.js` does it.
+  `npm run zap-cli -- endpoint list <file.zap>` (it builds the backend first), or drive
+  `startup.startCli(argv, { printer, errorPrinter, logger })` from a jest test,
+  which is how `test/cli.test.js` does it.
 - **`checkElementConformance` composes a warning it does not always mean to
   show.** `displayWarning` is a separate field on the result. Print the message
   without consulting it and every successful enable claims to have failed.
@@ -86,7 +86,7 @@ An edit reports only what it introduced; `zap edit check` reports everything.
 ## Running things
 
 ```bash
-npx jest test/cli-edit.test.js --collectCoverage=false   # ~5 min, 65 tests
+npx jest test/cli.test.js --collectCoverage=false   # ~5 min, 65 tests
 npx jest --collectCoverage=false                         # full suite, ~15 min
 npm run lint
 ```
