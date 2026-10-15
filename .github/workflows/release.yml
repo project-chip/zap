@@ -1,7 +1,8 @@
-name: Build and release packages
+name: Build ZAP apps
 
 permissions:
   contents: write
+  actions: write
 
 on:
   push:
@@ -9,8 +10,6 @@ on:
   workflow_dispatch:
 
 env:
-  ZAP_TEST_TIMEOUT: 3600000
-  ZAP_TEMPSTATE: 1
   BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
   P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
   TRUSTED_CERTIFICATE_BASE64: ${{ secrets.TRUSTED_CERTIFICATE_BASE64 }}
@@ -18,154 +17,10 @@ env:
   KEYCHAIN_PASSWORD: silabs
 
 jobs:
-  cypress-zigbee:
-    name: Cypress UI tests with Zigbee data
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node-version: [20.x]
-        os: [ubuntu-22.04]
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: 1160321
-        id: chrome-116
-      - run: echo ${{steps.chrome-116.outputs.chrome-path }}
-      - run: sudo ./src-script/install-packages-ubuntu
-      - run: sudo apt-get install --fix-missing xvfb
-      - run: npm ci
-      - run: npm run version-stamp
-      - run: npm rebuild canvas --update-binary
-      - run: npm rebuild libxmljs --update-binary
-      - run: npm run build-spa
-      - run: npm run test:e2e-ci -- ${{steps.chrome-116.outputs.chrome-path }}
-
-  cypress-matter:
-    name: Cypress UI tests with Matter data
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node-version: [20.x]
-        os: [ubuntu-22.04]
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: 1160321
-        id: chrome-116
-      - run: sudo ./src-script/install-packages-ubuntu
-      - run: sudo apt-get install --fix-missing xvfb
-      - run: npm ci
-      - run: npm run version-stamp
-      - run: npm rebuild canvas --update-binary
-      - run: npm rebuild libxmljs --update-binary
-      - run: npm run build-spa
-      - run: npm run test:e2e-matter-ci -- ${{steps.chrome-116.outputs.chrome-path }}
-
-  generate-and-backend-tests:
-    name: Generation and back-end tests
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        node-version: [20.x]
-        os: [ubuntu-22.04]
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - run: sudo ./src-script/install-packages-ubuntu
-      - run: sudo apt-get install --fix-missing libxml2-utils
-      - run: node --version
-      - run: npm --version
-      - run: npm ci
-      - run: npm run metafile-check
-      - run: npm run version-stamp
-      - run: npm rebuild canvas --update-binary
-      - run: npm rebuild libxmljs --update-binary
-      - run: npm run lic
-      - run: npm run build-spa
-      - run: npm run lint
-      - run: npm run xml-validate
-      - run: npm run self-check
-      - run: npm run test:unit
-      - name: Upload code coverage artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: jest-coverage
-          path: jest-coverage/coverage-final.json
-      - run: npm run test:gen
-
-  code-coverage:
-    name: Code coverage
-    needs: [cypress-zigbee, cypress-matter, generate-and-backend-tests]
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        node-version: [20.x]
-        os: [ubuntu-22.04]
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      # Download Jest coverage from generate-and-backend-tests job
-      - name: Download jest coverage artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: jest-coverage
-          path: jest-coverage/
-
-      # Download Cypress coverage from cypress-zigbee job
-      - name: Download cypress-zigbee coverage artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: cypress-zigbee-coverage
-          path: cypress-coverage/
-        continue-on-error: true
-
-      - run: sudo ./src-script/install-packages-ubuntu
-      - run: sudo apt-get install --fix-missing xvfb
-      - run: npm ci
-      - run: npm run version-stamp
-      - run: npm rebuild canvas --update-binary
-      - run: npm rebuild libxmljs --update-binary
-
-      # Combine Jest and Cypress coverage and enforce 80% threshold
-      - name: Combine coverage and check 80% threshold
-        run: npm run coverage:combine
-
-      - name: Codecov
-        uses: codecov/codecov-action@v3.1.1
-
   build-zap:
     name: Build ZAP
-    needs: [cypress-zigbee, cypress-matter, generate-and-backend-tests]
     runs-on: ${{ matrix.os }}
 
-    # Platforms to build on/for
     strategy:
       matrix:
         os: [macos-15, ubuntu-22.04]
@@ -180,6 +35,7 @@ jobs:
         with:
           node-version: 20.x
           cache: 'npm'
+
       - name: pip
         run: pip install setuptools
 
@@ -195,20 +51,16 @@ jobs:
       - name: Prepare macOS certificate
         if: startsWith(matrix.os, 'macos')
         run: |
-          # create variables
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           if [ -n "$P12_PASSWORD" ]; then
-            # import certificate and provisioning profile from secrets
             echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output ${RUNNER_TEMP}/build_certificate.p12
             echo -n "$TRUSTED_CERTIFICATE_BASE64" | base64 --decode --output ${RUNNER_TEMP}/trusted_certificate.cer
 
-            # create temporary keychain
             security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
             security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
             security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-            # import certificate to keychain
             security import ${RUNNER_TEMP}/trusted_certificate.cer -P "$P12_PASSWORD" -k $KEYCHAIN_PATH -A
             security import ${RUNNER_TEMP}/build_certificate.p12 -P "$P12_PASSWORD" -k $KEYCHAIN_PATH -A
 
@@ -237,10 +89,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.github_token }}
 
-          # macOS notarization API key
-          # CSC_LINK: ${{ secrets.api_key_id }}
-          # CSC_KEY_PASSWORD: ${{ secrets.api_key_issuer_id }}
-
       - name: Build & Release for Linux
         if: startsWith(matrix.os, 'ubuntu')
         run: |
@@ -251,267 +99,6 @@ jobs:
 
         env:
           GH_TOKEN: ${{ secrets.github_token }}
-
-          # macOS notarization API key
-          # CSC_LINK: ${{ secrets.api_key_id }}
-          # CSC_KEY_PASSWORD: ${{ secrets.api_key_issuer_id }}
-
-      - name: Verify zap-cli exists in Linux x64 .zip package
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          output=$(./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip)
-          expression=zap-cli
-          if [[ $output == *"$expression"* ]]; then
-            echo "Output contains $expression"
-          else
-            echo "Output does not contain $expression"
-            exit 1
-          fi
-      - name: Verify zap-cli exists in Linux arm64 .zip package
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          output=$(./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-arm64.zip)
-          expression=zap-cli
-          if [[ $output == *"$expression"* ]]; then
-            echo "Output contains $expression"
-          else
-            echo "Output does not contain $expression"
-            exit 1
-          fi
-      - name: Verify zap-cli exists in Windows x64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          output=$(7za l ./dist/zap-win-x64.zip)
-          expression=zap-cli
-          if [[ $output == *"$expression"* ]]; then
-            echo "Output contains $expression"
-          else
-            echo "Output does not contain $expression"
-            exit 1
-          fi
-      - name: Verify zap-cli exists in Windows arm64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          output=$(7za l ./dist/zap-win-arm64.zip)
-          expression=zap-cli
-          if [[ $output == *"$expression"* ]]; then
-            echo "Output contains $expression"
-          else
-            echo "Output does not contain $expression"
-            exit 1
-          fi
-      - name: Verify zap-cli exists in macOS x64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          output=$(7za l ./dist/zap-mac-x64.zip | grep zap-cli)
-          expression=zap-cli
-          if [[ $output == *"$expression"* ]]; then
-            echo "Output contains $expression"
-          else
-            echo "Output does not contain $expression"
-            exit 1
-          fi
-
-      - name: ZAP binary check (macOS x64) - unzip
-        if: startsWith(matrix.os, 'macos')
-        run: unzip dist/zap-mac-x64.zip -d dist/zap-mac
-      - name: ZAP binary check (macOS x64) - check version is set
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: ./dist/zap-mac/zap.app/Contents/MacOS/zap --version
-          contains: '0.0.0'
-          expected_result: FAILED
-      - name: ZAP binary check (macOS x64) - check version is set via CLI
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: ./dist/zap-mac/zap-cli --version
-          contains: '0.0.0'
-          expected_result: FAILED
-      - name: ZAP binary check (macOS x64) - zap edit smoke test
-        if: startsWith(matrix.os, 'macos')
-        run: npm run smoke:cli:mac
-      - name: ZAP binary check (macOS x64) - unzip cleanup
-        if: startsWith(matrix.os, 'macos')
-        run: rm -rf dist/zap-mac
-
-      - name: ZAP binary check (Linux) - unzip
-        if: startsWith(matrix.os, 'ubuntu')
-        run: unzip dist/zap-linux-x64.zip -d dist/zap-linux
-      - name: ZAP binary check (Linux) - check version is set
-        if: startsWith(matrix.os, 'ubuntu')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: ./dist/zap-linux/zap --version
-          contains: '0.0.0'
-          expected_result: FAILED
-      - name: ZAP binary check (Linux) - check version is set via CLI
-        if: startsWith(matrix.os, 'ubuntu')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: ./dist/zap-linux/zap-cli --version
-          contains: '0.0.0'
-          expected_result: FAILED
-      - name: ZAP binary check (Linux) - zap edit smoke test
-        if: startsWith(matrix.os, 'ubuntu')
-        run: node ./src-script/smoke-test-cli.js --binary ./dist/zap-linux/zap-cli
-      - name: ZAP binary check (Linux) - unzip cleanup
-        if: startsWith(matrix.os, 'ubuntu')
-        run: rm -rf dist/zap-linux
-      - name: Verify SKILL.md exists in package's base directory
-        if: startsWith(matrix.os, 'ubuntu')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: ./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip | grep SKILL.md
-          contains: 'SKILL.md'
-
-      - name: Verify SKILL.md exists in macOS x64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-mac-x64.zip | grep SKILL.md
-          contains: 'SKILL.md'
-
-      - name: Verify SKILL.md exists in Windows x64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-win-x64.zip | grep SKILL.md
-          contains: 'SKILL.md'
-
-      - name: Verify zap.png exists in package's base directory
-        if: startsWith(matrix.os, 'ubuntu')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: ./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip | grep zap.png
-          contains: 'zap.png'
-
-      - name: Verify zap.png exists in package's app.asar archive
-        if: startsWith(matrix.os, 'ubuntu')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/linux-unpacked/resources/app.asar | grep zap.png
-          contains: 'zap.png'
-
-      - name: Verify zap.png exists in Windows x64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-win-x64.zip | grep zap.png
-          contains: 'zap.png'
-
-      - name: Verify zap.png exists in Windows x64 .zip package's app.asar archive
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/win-unpacked/resources/app.asar | grep zap.png
-          contains: 'zap.png'
-
-      - name: Verify zap.png exists in Windows arm64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-win-arm64.zip | grep zap.png
-          contains: 'zap.png'
-
-      - name: Verify zap.png exists in Windows arm64 .zip package's app.asar archive
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/win-arm64-unpacked/resources/app.asar | grep zap.png
-          contains: 'zap.png'
-
-      - name: Verify zap.png exists in macOS x64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-mac-x64.zip | grep zap.png
-          contains: 'zap.png'
-
-      - name: Verify zap.png exists in macOS x64 .zip package's app-x64.asar archive
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/mac/zap.app/Contents/Resources/app-x64.asar | grep zap.png
-          contains: 'zap.png'
-
-      - name: Verify zap.png exists in macOS arm64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-mac-arm64.zip | grep zap.png
-          contains: 'zap.png'
-
-      - name: Verify zap.png exists in macOS arm64 .zip package's app-arm64.asar archive
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/mac-arm64/zap.app/Contents/Resources/app-arm64.asar | grep zap.png
-          contains: 'zap.png'
-
-      - name: Verify apack.json exists in package's base directory
-        if: startsWith(matrix.os, 'ubuntu')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: ./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip | grep apack.json
-          contains: 'apack.json'
-      - name: Verify apack.json exists in package's app.asar archive
-        if: startsWith(matrix.os, 'ubuntu')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/linux-unpacked/resources/app.asar | grep apack.json
-          contains: 'apack.json'
-
-      - name: Verify apack.json exists in Windows x64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-win-x64.zip | grep apack.json
-          contains: 'apack.json'
-      - name: Verify apack.json exists in Windows x64 .zip package's app.asar archive
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/win-unpacked/resources/app.asar | grep apack.json
-          contains: 'apack.json'
-      - name: Verify apack.json exists in Windows arm64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-win-arm64.zip | grep apack.json
-          contains: 'apack.json'
-      - name: Verify apack.json exists in Windows arm64 .zip package's app.asar archive
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/win-arm64-unpacked/resources/app.asar | grep apack.json
-          contains: 'apack.json'
-
-      - name: Verify apack.json exists in macOS x64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-mac-x64.zip | grep apack.json
-          contains: 'apack.json'
-      - name: Verify apack.json exists in macOS x64 .zip package's app-x64.asar archive
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/mac/zap.app/Contents/Resources/app-x64.asar | grep apack.json
-          contains: 'apack.json'
-      - name: Verify apack.json exists in macOS arm64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-mac-arm64.zip | grep apack.json
-          contains: 'apack.json'
-      - name: Verify apack.json exists in macOS arm64 .zip package's app-arm64.asar archive
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/mac-arm64/zap.app/Contents/Resources/app-arm64.asar | grep apack.json
-          contains: 'apack.json'
 
       - name: Archive Windows (x64) .zip file
         uses: actions/upload-artifact@v4
@@ -561,89 +148,6 @@ jobs:
         with:
           name: zap-linux-x64-deb
           path: dist/zap-linux-x64.deb
-
-  test-linux-arm64:
-    name: Test ZAP on Linux arm64 (${{ matrix.os }})
-    needs: [build-zap]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        # ubuntu-20.04-arm is not offered by GitHub Actions; Ubuntu 20.04 arm64
-        # is covered below via a native arm64 Docker container step.
-        os: [ubuntu-22.04-arm, ubuntu-24.04-arm]
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: 'npm'
-      - run: sudo ./src-script/install-packages-ubuntu
-      - run: npm ci
-      - run: npm run version-stamp
-      - run: npm rebuild canvas --update-binary
-      - run: npm rebuild libxmljs --update-binary
-      - run: npm run build-spa
-      - name: Self-check on arm64
-        run: npm run self-check
-
-      - name: Download arm64 zip artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: zap-linux-arm64-zip
-          path: dist/
-      - name: ZAP binary check (Linux arm64) - unzip
-        run: unzip dist/zap-linux-arm64.zip -d dist/zap-linux-arm64
-      - name: ZAP binary check (Linux arm64) - check version is set via CLI
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: ./dist/zap-linux-arm64/zap-cli --version
-          contains: '0.0.0'
-          expected_result: FAILED
-      # Run the same arm64 binary inside an Ubuntu 20.04 arm64 container.
-      # The runner is already arm64 so Docker runs natively — no QEMU needed.
-      # Only do this once (on the 22.04-arm leg) to avoid duplicate pulls.
-      - name: ZAP binary check - Ubuntu 20.04 arm64 (via Docker)
-        if: matrix.os == 'ubuntu-22.04-arm'
-        run: |
-          VERSION=$(docker run --rm \
-            -v ${{ github.workspace }}/dist/zap-linux-arm64:/zap \
-            ubuntu:20.04 /zap/zap-cli --version 2>&1)
-          echo "zap-cli arm64 on Ubuntu 20.04 reported: $VERSION"
-          if echo "$VERSION" | grep -qE '^v?0\.0\.0'; then
-            echo "FAIL: version stamp missing on Ubuntu 20.04 arm64"
-            exit 1
-          fi
-      - name: ZAP binary check (Linux arm64) - unzip cleanup
-        run: rm -rf dist/zap-linux-arm64
-
-  test-linux-x64-compat:
-    name: ZAP x64 binary on ${{ matrix.os }}
-    needs: [build-zap]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-22.04, ubuntu-24.04]
-
-    steps:
-      - name: Download x64 zip artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: zap-linux-x64-zip
-          path: dist/
-      - name: Unzip
-        run: unzip dist/zap-linux-x64.zip -d dist/zap-linux-x64
-      - name: ZAP binary check (Linux x64) - check version is set via CLI
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: ./dist/zap-linux-x64/zap-cli --version
-          contains: '0.0.0'
-          expected_result: FAILED
-      - name: Cleanup
-        run: rm -rf dist/zap-linux-x64
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
