@@ -22,6 +22,7 @@
  */
 
 const env = require('../util/env')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 // Local utility function
 
@@ -94,6 +95,9 @@ function atomicType(arg = { name: 'unknown', size: 0, no_warning: 0 }) {
     return cleanseUints(`uint${name.slice(4)}_t`, name.slice(4), false)
   } else if (name.startsWith('bitmap')) {
     return cleanseUints(`uint${name.slice(6)}_t`, name.slice(6), false)
+  } else if (arg.isString) {
+    // ATOMIC.IS_STRING (existing XML attrs / baseType inheritance / atomic roots)
+    return 'uint8_t *'
   } else {
     switch (name) {
       case 'utc_time':
@@ -105,17 +109,21 @@ function atomicType(arg = { name: 'unknown', size: 0, no_warning: 0 }) {
       case 'cluster_id':
         return 'uint16_t'
       case 'no_data':
-      case 'octet_string':
-      case 'char_string':
+      case dbEnum.atomicTypeName.octetString:
+      case dbEnum.atomicTypeName.charString:
       case 'ieee_address':
         return 'uint8_t *'
-      case 'boolean':
+      case dbEnum.atomicTypeName.boolean:
         return 'uint8_t'
-      case 'array':
+      case dbEnum.zclType.array:
         return no_warning
           ? `uint8_t *`
           : `/* TYPE WARNING: ${name} array defaults to */ uint8_t * `
       default:
+        // XML baseType alias: resolve C type from the declared base.
+        if (arg.baseType) {
+          return atomicType({ ...arg, name: arg.baseType, baseType: null })
+        }
         return no_warning
           ? `uint8_t *`
           : `/* TYPE WARNING: ${name} defaults to */ uint8_t * `

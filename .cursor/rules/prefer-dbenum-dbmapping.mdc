@@ -1,0 +1,38 @@
+---
+description: Prefer dbEnum and dbMapping over hardcoded magic strings
+globs: "{src,src-electron,src-shared,test}/**/*.{js,cjs,mjs,vue}"
+alwaysApply: false
+---
+
+# No hardcoded domain strings; use dbEnum / dbMapping
+
+Do not scatter magic strings for ZCL/domain concepts (type kinds, sides, storage options, package types, etc.). Use shared enums and mappers.
+
+## Required pattern
+
+1. **Read/compare** domain values via `dbEnum` from `src-shared/db-enum.js` (e.g. `dbEnum.zclType.string`, `dbEnum.side.server`, `dbEnum.storageOption.ram`).
+2. **Map DB rows → JS objects** via `dbMapping` in `src-electron/db/db-mapping.js` (or existing `query-*.js` helpers that already use it). Do not re-parse column names or reinvent row shapes inline.
+3. **If no constant or mapper exists**, add one to `db-enum.js` / `db-mapping.js` (or the appropriate existing enum/map object) and use that — do not leave a new literal at the call site.
+
+```javascript
+// ❌ BAD — hardcoded type / side / storage strings
+if (name.includes('string')) { ... }
+if (side === 'server') { ... }
+if (storage === 'External') { ... }
+
+// ✅ GOOD — shared enums
+if (atomicZclType(a, byName) === dbEnum.zclType.string) { ... }
+if (side === dbEnum.side.server) { ... }
+if (storage === dbEnum.storageOption.external) { ... }
+
+// ❌ BAD — hand-rolled row shaping
+return { name: row.NAME, isString: row.IS_STRING === 1 }
+
+// ✅ GOOD — existing mapper
+return dbMapping.map.atomic(row)
+```
+
+## Exceptions
+
+- User-facing UI copy, log messages, and template output text may be plain strings.
+- Protocol/XML wire values required by an external schema may stay as literals **only** at the parse/serialize boundary; map them to `dbEnum` as soon as they enter ZAP logic.

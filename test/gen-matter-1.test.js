@@ -31,6 +31,7 @@ const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 const testQuery = require('./test-query')
 const dbEnum = require('../src-shared/db-enum')
+const validation = require('../src-electron/validation/validation')
 
 let db
 let templateContext
@@ -77,6 +78,45 @@ test('Validate loading', async () => {
   )
   expect(cluster).not.toBe(null)
   expect(cluster.name).toBe('OTA Software Update Provider')
+
+  // Octet-string aliases inherit IS_STRING and land in STRING, not NUMBER
+  let hwadr = await queryZcl.selectAtomicType(db, [zclPackageId], 'hwadr')
+  expect(hwadr).toBeDefined()
+  expect(hwadr.isString).toBe(true)
+  expect(hwadr.baseType).toBe('octet_string')
+  let ipadrString = await queryZcl.selectStringByName(db, 'ipadr', [
+    zclPackageId
+  ])
+  expect(ipadrString).toBeDefined()
+  expect(ipadrString.name).toBe('ipadr')
+  let ipadrNumber = await queryZcl.selectNumberByName(
+    db,
+    [zclPackageId],
+    'ipadr'
+  )
+  expect(ipadrNumber).toBeUndefined()
+
+  // String defaults for octet-string aliases must not be flagged as Invalid Integer
+  let sid = await testQuery.createSession(
+    db,
+    'USER',
+    'SESSION',
+    env.builtinMatterZclMetafile()
+  )
+  let hwadrIssues = await validation.validateSpecificAttribute(
+    { defaultValue: 'aabbccddeeff' },
+    { type: 'hwadr', name: 'HardwareAddress', isNullable: false },
+    db,
+    sid
+  )
+  expect(hwadrIssues.defaultValue).not.toContain('Invalid Integer')
+  let ipadrIssues = await validation.validateSpecificAttribute(
+    { defaultValue: '192.168.1.1' },
+    { type: 'ipadr', name: 'IpAddress', isNullable: false },
+    db,
+    sid
+  )
+  expect(ipadrIssues.defaultValue).not.toContain('Invalid Integer')
 })
 
 test('Validate loading of features as bitmap', async () => {
@@ -240,7 +280,14 @@ test(
     expect(simpleTest).toContain('Base type for bitmap64 : int64u')
     expect(simpleTest).toContain('Base type for enum8 : int8u')
     expect(simpleTest).toContain('Base type for enum16 : int16u')
-    expect(simpleTest).toContain('Base type for ipv6adr : long_octet_string')
+    expect(simpleTest).toContain('Base type for ipadr : octet_string')
+    expect(simpleTest).toContain('Base type for ipv4adr : octet_string')
+    expect(simpleTest).toContain('Base type for ipv6adr : octet_string')
+    expect(simpleTest).toContain('Base type for ipv6pre : octet_string')
+    expect(simpleTest).toContain('Base type for hwadr : octet_string')
+    // Aliased octet-string types resolve C type via baseType (no TYPE WARNING)
+    expect(simpleTest).toContain('Underlying type for hwadr : uint8_t *')
+    expect(simpleTest).not.toContain('TYPE WARNING: hwadr')
 
     let deviceType = genResult.content['device-types.txt']
 
