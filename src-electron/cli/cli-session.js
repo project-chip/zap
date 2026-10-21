@@ -45,6 +45,100 @@ const cliError = require('./cli-error.js')
 
 const CliError = cliError.CliError
 
+/** @type {*} reused under Jest to avoid reloading ZCL metadata every runCli */
+let testDatabaseCache = null
+/** @type {string|null} */
+let testDatabaseCacheKey = null
+
+/**
+ * @returns {boolean}
+ */
+function useTestDatabaseCache() {
+  return process.env.TEST === 'true'
+}
+
+/**
+ * @param {*} argv
+ * @returns {string}
+ */
+function testDatabaseCacheKeyFor(argv) {
+  let zcl = argv.zclProperties
+  let gen = argv.generationTemplate
+  let zclKey = Array.isArray(zcl) ? zcl.join('\0') : String(zcl)
+  let genKey =
+    gen == null ? '' : Array.isArray(gen) ? gen.join('\0') : String(gen)
+  return `${zclKey}\0${genKey}`
+}
+
+/**
+ * @param {*} db
+ * @param {*} argv
+ * @param {Function} logger
+ */
+async function loadPackagesIntoDatabase(db, argv, logger) {
+  await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+    failOnLoadingError: !argv.noLoadingFailure
+  })
+  logger(
+    env.formatEmojiMessage('🔧', `zcl package loaded: ${argv.zclProperties}`)
+  )
+  if (argv.generationTemplate != null) {
+    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
+      failOnLoadingError: !argv.noLoadingFailure
+    })
+    if (ctx.error && !argv.noLoadingFailure) {
+      throw new Error(ctx.error)
+    }
+  }
+}
+
+/**
+ * @param {*} argv
+ * @param {Function} logger
+ * @returns {Promise<*>}
+ */
+async function openDatabase(argv, logger) {
+  if (!useTestDatabaseCache()) {
+    let db = await dbApi.initDatabaseAndLoadSchema(
+      env.sqliteFile('cli'),
+      env.schemaFile(),
+      env.zapVersion()
+    )
+    logger(env.formatEmojiMessage('🐝', 'database and schema initialized'))
+    await loadPackagesIntoDatabase(db, argv, logger)
+    return db
+  }
+
+  let key = testDatabaseCacheKeyFor(argv)
+  if (testDatabaseCache != null && testDatabaseCacheKey === key) {
+    return testDatabaseCache
+  }
+  if (testDatabaseCache != null) {
+    await dbApi.closeDatabase(testDatabaseCache)
+    testDatabaseCache = null
+    testDatabaseCacheKey = null
+  }
+  let db = await dbApi.initRamDatabase()
+  await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+  await loadPackagesIntoDatabase(db, argv, logger)
+  testDatabaseCache = db
+  testDatabaseCacheKey = key
+  return db
+}
+
+/**
+ * Drops the in-memory database kept for unit tests.
+ *
+ * @returns {Promise<void>}
+ */
+async function resetTestDatabaseCache() {
+  if (testDatabaseCache != null) {
+    await dbApi.closeDatabase(testDatabaseCache)
+    testDatabaseCache = null
+    testDatabaseCacheKey = null
+  }
+}
+
 /**
  * Opens a .zap file into a fresh session, or creates an empty configuration
  * when `zapFile` is null.
@@ -61,28 +155,7 @@ async function open(argv, options = {}) {
     throw new CliError(`No such file: ${zapFile}`)
   }
 
-  let db = await dbApi.initDatabaseAndLoadSchema(
-    env.sqliteFile('cli'),
-    env.schemaFile(),
-    env.zapVersion()
-  )
-  logger(env.formatEmojiMessage('🐝', 'database and schema initialized'))
-
-  await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
-    failOnLoadingError: !argv.noLoadingFailure
-  })
-  logger(
-    env.formatEmojiMessage('🔧', `zcl package loaded: ${argv.zclProperties}`)
-  )
-
-  if (argv.generationTemplate != null) {
-    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
-      failOnLoadingError: !argv.noLoadingFailure
-    })
-    if (ctx.error && !argv.noLoadingFailure) {
-      throw new Error(ctx.error)
-    }
-  }
+  let db = await openDatabase(argv, logger)
 
   let sessionId
   if (zapFile == null) {
@@ -95,7 +168,9 @@ async function open(argv, options = {}) {
         defaultZclMetafile: argv.zclProperties,
         defaultTemplateFile: argv.generationTemplate,
         packageMatch: argv.packageMatch,
-        postImportScript: argv.postImportScript
+        postImportScript: argv.postImportScript,
+        // CLI edits load the file as-is; SDK upgrade scripts belong on `zap upgrade`.
+        upgradeRuleScripts: []
       })
     } catch (err) {
       // The importer assumes it was handed something already known to be a
@@ -426,11 +501,16 @@ async function close(ctx) {
   // process open long after the edit is done.
   studio.deinitIdeIntegration()
   if (ctx != null && ctx.db != null) {
+    if (useTestDatabaseCache() && ctx.db === testDatabaseCache) {
+      await querySession.deleteSession(ctx.db, ctx.sessionId)
+      return
+    }
     return dbApi.closeDatabase(ctx.db)
   }
 }
 
 exports.open = open
+exports.resetTestDatabaseCache = resetTestDatabaseCache
 exports.save = save
 exports.close = close
 exports.notifications = notifications

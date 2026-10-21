@@ -31,6 +31,7 @@ const genEngine = require('../src-electron/generator/generation-engine')
 const importJs = require('../src-electron/importexport/import')
 const querySessionNotification = require('../src-electron/db/query-session-notification')
 const cliCommands = require('../src-electron/cli/cli-commands')
+const cliSession = require('../src-electron/cli/cli-session')
 const cliOutput = require('../src-electron/cli/cli-output')
 const cliHelp = require('../src-electron/cli/cli-help')
 const cliOperations = require('../src-electron/operations')
@@ -46,7 +47,8 @@ beforeAll(() => {
   workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zap-cli-'))
 })
 
-afterAll(() => {
+afterAll(async () => {
+  await cliSession.resetTestDatabaseCache()
   fs.rmSync(workDir, { recursive: true, force: true })
   repoScratchFiles.forEach((f) => {
     fs.rmSync(f, { force: true })
@@ -87,13 +89,16 @@ const zigbeePackages = {
  * @param {*} overrides
  * @returns {*} argv-like object
  */
+// Post-edit validation is expensive; turn on only where output is asserted.
+const withValidation = { validate: true }
+
 function args(overrides) {
   return {
     zclProperties: [env.builtinSilabsZclMetafile()],
     generationTemplate: [env.builtinTemplateMetafile()],
     packageMatch: 'fuzzy',
     format: 'text',
-    validate: true,
+    validate: false,
     strict: false,
     dryRun: false,
     backup: false,
@@ -169,6 +174,7 @@ function siblingCopy(source, name) {
  * @returns {Promise} whatever the body returns
  */
 async function onAFreshMachine(body) {
+  await cliSession.resetTestDatabaseCache()
   let previous = env.appDirectory()
   let temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'zap-cli-state-'))
   env.setAppDirectory(temporary)
@@ -707,6 +713,7 @@ test(
     let before = fs.readFileSync(file, 'utf8')
 
     let { code, output } = await runCli({
+      ...withValidation,
       cliOperation: 'attribute.set',
       zapFile: file,
       endpoint: 2,
@@ -1680,6 +1687,7 @@ test(
 
     let disabled = await runCli({
       ...matter,
+      ...withValidation,
       cliOperation: 'feature.disable',
       endpoint: 7,
       cluster: 'On/Off',
@@ -1719,6 +1727,7 @@ test(
     let lighting = (enabled) =>
       runCli({
         ...matter,
+        ...withValidation,
         cliOperation: enabled ? 'feature.enable' : 'feature.disable',
         endpoint: 8,
         cluster: 'On/Off',
@@ -2441,6 +2450,7 @@ test(
     // the whole feature selection away.
     let excluded = await runCli({
       ...matter,
+      ...withValidation,
       cliOperation: 'attribute.disable',
       endpoint: 33,
       cluster: 'On/Off',
@@ -3020,6 +3030,7 @@ test(
 
     let enabled = await runCli({
       ...matter,
+      ...withValidation,
       cliOperation: 'command.enable',
       endpoint: 73,
       cluster: 'Scenes',
@@ -3035,6 +3046,7 @@ test(
     // Doing as it says takes the notification away again.
     let answered = await runCli({
       ...matter,
+      ...withValidation,
       cliOperation: 'command.enable',
       endpoint: 73,
       cluster: 'Scenes',
@@ -3072,6 +3084,7 @@ test(
     // OnTime conforms to Lighting, which this device type has on.
     let off = await runCli({
       ...matter,
+      ...withValidation,
       cliOperation: 'attribute.disable',
       endpoint: 10,
       cluster: 'On/Off',
@@ -3085,6 +3098,7 @@ test(
     // The same for a command, and both survive into the standing report.
     let command = await runCli({
       ...matter,
+      ...withValidation,
       cliOperation: 'command.disable',
       endpoint: 10,
       cluster: 'On/Off',
@@ -3171,6 +3185,7 @@ test(
     // configuration that no longer meets the specification.
     let broken = await runCli({
       ...matter,
+      ...withValidation,
       cliOperation: 'feature.disable',
       endpoint: 9,
       cluster: 'On/Off',
@@ -3690,109 +3705,115 @@ const componentPackages = {
   generationTemplate: [env.locateProjectResource(testUtil.testTemplate.zigbee2)]
 }
 
-test(
-  'cli: names the UC components an enabled cluster needs',
-  async () => {
-    // Built here rather than copied from a test resource: a resource names its
-    // own generation templates, and fuzzy package matching prefers those over
-    // the ones passed in, so which templates the session ends up with would
-    // depend on what the state database has already seen.
-    let file = path.join(workDir, 'components.zap')
-    let created = await runCli({
-      ...componentPackages,
-      cliOperation: 'new',
-      zapFile: file
-    })
-    expect(created.code).toBe(0)
-    let endpoint = await runCli({
-      ...componentPackages,
-      cliOperation: 'endpoint.create',
-      zapFile: file,
-      endpoint: 1,
-      deviceType: ['ZLL-onofflight']
-    })
-    expect(endpoint.code).toBe(0)
+describe('cli UC component reporting', () => {
+  beforeAll(async () => {
+    await cliSession.resetTestDatabaseCache()
+  })
 
-    let enabled = await runCli({
-      ...componentPackages,
-      cliOperation: 'cluster.enable',
-      zapFile: file,
-      endpoint: 1,
-      cluster: 'Level Control',
-      side: 'server'
-    })
-    expect(enabled.code).toBe(0)
-    // Only Studio writes the project file, so the edit cannot install it. It
-    // can say what is now missing, which is the part a caller cannot work out.
-    expect(enabled.output).toContain('UC component(s) not installed')
-    expect(enabled.output).toContain('zigbee_zll_level_control_server')
+  test(
+    'cli: names the UC components an enabled cluster needs',
+    async () => {
+      // Built here rather than copied from a test resource: a resource names its
+      // own generation templates, and fuzzy package matching prefers those over
+      // the ones passed in, so which templates the session ends up with would
+      // depend on what the state database has already seen.
+      let file = path.join(workDir, 'components.zap')
+      let created = await runCli({
+        ...componentPackages,
+        cliOperation: 'new',
+        zapFile: file
+      })
+      expect(created.code).toBe(0)
+      let endpoint = await runCli({
+        ...componentPackages,
+        cliOperation: 'endpoint.create',
+        zapFile: file,
+        endpoint: 1,
+        deviceType: ['ZLL-onofflight']
+      })
+      expect(endpoint.code).toBe(0)
 
-    // Switching it back off is not a reason to talk about components: removal
-    // is Studio's decision and the data model has to ask for it.
-    let disabled = await runCli({
-      ...componentPackages,
-      cliOperation: 'cluster.disable',
-      zapFile: file,
-      endpoint: 1,
-      cluster: 'Level Control',
-      side: 'server'
-    })
-    expect(disabled.code).toBe(0)
-    expect(disabled.output).not.toContain('UC component(s)')
-  },
-  testUtil.timeout.long()
-)
+      let enabled = await runCli({
+        ...componentPackages,
+        cliOperation: 'cluster.enable',
+        zapFile: file,
+        endpoint: 1,
+        cluster: 'Level Control',
+        side: 'server'
+      })
+      expect(enabled.code).toBe(0)
+      // Only Studio writes the project file, so the edit cannot install it. It
+      // can say what is now missing, which is the part a caller cannot work out.
+      expect(enabled.output).toContain('UC component(s) not installed')
+      expect(enabled.output).toContain('zigbee_zll_level_control_server')
 
-test(
-  'cli: reports the components of a whole device type once',
-  async () => {
-    let file = path.join(workDir, 'component-endpoint.zap')
-    let created = await runCli({
-      ...componentPackages,
-      cliOperation: 'new',
-      zapFile: file
-    })
-    expect(created.code).toBe(0)
+      // Switching it back off is not a reason to talk about components: removal
+      // is Studio's decision and the data model has to ask for it.
+      let disabled = await runCli({
+        ...componentPackages,
+        cliOperation: 'cluster.disable',
+        zapFile: file,
+        endpoint: 1,
+        cluster: 'Level Control',
+        side: 'server'
+      })
+      expect(disabled.code).toBe(0)
+      expect(disabled.output).not.toContain('UC component(s)')
+    },
+    testUtil.timeout.long()
+  )
 
-    let added = await runCli({
-      ...componentPackages,
-      cliOperation: 'endpoint.create',
-      zapFile: file,
-      endpoint: 1,
-      deviceType: ['ZLL-onofflight']
-    })
-    expect(added.code).toBe(0)
-    // A device type switches on a handful of clusters at once. One line for the
-    // lot, not one per cluster.
-    expect(added.output).toContain('UC component(s) not installed')
-    expect(added.output.match(/UC component\(s\) not installed/g)).toHaveLength(
-      1
-    )
-    expect(added.output).toContain('zigbee_on_off')
-  },
-  testUtil.timeout.long()
-)
+  test(
+    'cli: reports the components of a whole device type once',
+    async () => {
+      let file = path.join(workDir, 'component-endpoint.zap')
+      let created = await runCli({
+        ...componentPackages,
+        cliOperation: 'new',
+        zapFile: file
+      })
+      expect(created.code).toBe(0)
 
-test(
-  'cli: refuses when Studio integration was asked for but is not there',
-  async () => {
-    let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'no-studio.zap')
+      let added = await runCli({
+        ...componentPackages,
+        cliOperation: 'endpoint.create',
+        zapFile: file,
+        endpoint: 1,
+        deviceType: ['ZLL-onofflight']
+      })
+      expect(added.code).toBe(0)
+      // A device type switches on a handful of clusters at once. One line for the
+      // lot, not one per cluster.
+      expect(added.output).toContain('UC component(s) not installed')
+      expect(
+        added.output.match(/UC component\(s\) not installed/g)
+      ).toHaveLength(1)
+      expect(added.output).toContain('zigbee_on_off')
+    },
+    testUtil.timeout.long()
+  )
 
-    // Nothing listens on port 1. Before, this saved the edit and quietly
-    // installed nothing, which looks exactly like success.
-    let attempted = await runCli({
-      ...componentPackages,
-      cliOperation: 'cluster.enable',
-      zapFile: file,
-      endpoint: 1,
-      cluster: 'Level Control',
-      side: 'server',
-      studioHttpPort: 1,
-      ideProjectPath: path.join(workDir, 'nowhere.slcp')
-    })
-    expect(attempted.code).toBe(1)
-    expect(attempted.errors).toContain('Studio integration was requested')
-    expect(attempted.errors).toContain('nothing is answering on port 1')
-  },
-  testUtil.timeout.long()
-)
+  test(
+    'cli: refuses when Studio integration was asked for but is not there',
+    async () => {
+      let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'no-studio.zap')
+
+      // Nothing listens on port 1. Before, this saved the edit and quietly
+      // installed nothing, which looks exactly like success.
+      let attempted = await runCli({
+        ...componentPackages,
+        cliOperation: 'cluster.enable',
+        zapFile: file,
+        endpoint: 1,
+        cluster: 'Level Control',
+        side: 'server',
+        studioHttpPort: 1,
+        ideProjectPath: path.join(workDir, 'nowhere.slcp')
+      })
+      expect(attempted.code).toBe(1)
+      expect(attempted.errors).toContain('Studio integration was requested')
+      expect(attempted.errors).toContain('nothing is answering on port 1')
+    },
+    testUtil.timeout.long()
+  )
+})
