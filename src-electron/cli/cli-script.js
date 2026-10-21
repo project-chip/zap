@@ -28,7 +28,7 @@
 const fs = require('fs')
 const YAML = require('yaml')
 const cliError = require('./cli-error.js')
-const cliOperations = require('./cli-operations.js')
+const cliOperations = require('../operations.js')
 
 const CliError = cliError.CliError
 

@@ -16,11 +16,13 @@
  */
 
 /**
- * Turns the human friendly identifiers that a person types on a command line
- * ("On/Off", "0x0006", "MA-onofflight") into the database references that the
- * rest of ZAP works with.
+ * Turns human-friendly identifiers ("On/Off", "0x0006", "MA-onofflight") into
+ * the database rows the configuration engine works with. A command line passes
+ * flag values here; a post-load script passes the same strings; policy asks
+ * which ZCL packages belong to the session. Nothing here belongs to one front
+ * end.
  *
- * @module CLI API: entity resolution
+ * @module JS API: entity resolution
  */
 
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -30,7 +32,7 @@ const queryEvent = require('../db/query-event.js')
 const queryDeviceType = require('../db/query-device-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryPackage = require('../db/query-package.js')
-const cliError = require('./cli-error.js')
+const cliError = require('../cli/cli-error.js')
 
 const CliError = cliError.CliError
 

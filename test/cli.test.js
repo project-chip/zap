@@ -33,8 +33,8 @@ const querySessionNotification = require('../src-electron/db/query-session-notif
 const cliCommands = require('../src-electron/cli/cli-commands')
 const cliOutput = require('../src-electron/cli/cli-output')
 const cliHelp = require('../src-electron/cli/cli-help')
-const cliOperations = require('../src-electron/cli/cli-operations')
-const cliPolicy = require('../src-electron/cli/cli-policy')
+const cliOperations = require('../src-electron/operations')
+const cliPolicy = require('../src-electron/util/policy')
 const conformChecker = require('../src-electron/validation/conformance-checker')
 const conformEvaluator = require('../src-electron/validation/conformance-expression-evaluator')
 

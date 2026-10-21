@@ -22,19 +22,24 @@
  * The user interface expresses this by greying out a control: the storage of an
  * attribute served through the Attribute Access Interface is fixed at External,
  * and the reporting switch of an attribute whose reporting the specification
- * makes mandatory or forbids cannot be moved. A command line has no grey, so it
- * says no instead, which is better than the alternative. ZAP re-applies these
- * policies whenever a configuration is read back in, so a write that disagrees
- * with them does not survive the round trip: without these checks the command
- * line reports a change that the next read silently undoes.
+ * makes mandatory or forbids cannot be moved. A caller with no grey says no
+ * instead, which is better than the alternative. ZAP re-applies these policies
+ * whenever a configuration is read back in, so a write that disagrees with
+ * them does not survive the round trip.
  *
- * @module CLI API: data model policy
+ * Nothing here belongs to one front end. The configuration commands and a
+ * post-load script both reach it through `session-edit`, and a listing reads
+ * it directly to say which fields are fixed. The refusal text names the
+ * command-line flags that would work, because that is the most specific thing
+ * a caller can be told; a script prints the same sentences.
+ *
+ * @module JS API: data model policy
  */
 
 const dbEnum = require('../../src-shared/db-enum.js')
 const matterSdk = require('../sdk/matter.js')
-const resolver = require('./cli-resolver.js')
-const cliError = require('./cli-error.js')
+const resolver = require('./resolver.js')
+const cliError = require('../cli/cli-error.js')
 
 const CliError = cliError.CliError
 
