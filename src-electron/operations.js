@@ -16,46 +16,57 @@
  */
 
 /**
- * Every edit and query the configuration commands can perform.
- *
- * These are deliberately written on top of the same `query-*` modules that the
- * REST layer uses, so that a change made from the command line is
- * indistinguishable from the same change made in the GUI.
+ * The configuration engine. The command line and a post-load script are both
+ * interfaces over it: one parses flags and renders tables, the other parses a
+ * script's arguments and prints a line. The edits, the lookups and the
+ * refusals are here, so the two interfaces cannot do a different thing.
  *
  * Each operation takes `(ctx, params)` and returns
  * `{ changed, messages, table, next }`: whether the configuration was
  * modified, lines describing what happened, optional tabular output, and the
- * commands that are the natural thing to run afterwards.
+ * commands that are the natural thing to run afterwards. `execute` runs one
+ * by its dotted name, which is how a batch and a post-load script invoke it.
  *
- * @module CLI API: operations
+ * @module JS API: operations
  */
 
 const fs = require('fs')
 const path = require('path')
 
-const dbEnum = require('../../src-shared/db-enum.js')
-const restApi = require('../../src-shared/rest-api.js')
-const queryConfig = require('../db/query-config.js')
-const queryEndpoint = require('../db/query-endpoint.js')
-const queryEndpointType = require('../db/query-endpoint-type.js')
-const queryDeviceType = require('../db/query-device-type.js')
-const queryZcl = require('../db/query-zcl.js')
-const queryPackage = require('../db/query-package.js')
-const querySession = require('../db/query-session.js')
-const queryFeature = require('../db/query-feature.js')
-const validation = require('../validation/validation.js')
-const conformChecker = require('../validation/conformance-checker.js')
-const sharedClusterState = require('../util/shared-cluster-state.js')
-const studio = require('../ide-integration/studio-rest-api.js')
-const zclComponents = require('../ide-integration/zcl-components.js')
+const dbEnum = require('../src-shared/db-enum.js')
+const restApi = require('../src-shared/rest-api.js')
+const queryConfig = require('./db/query-config.js')
+const queryEndpoint = require('./db/query-endpoint.js')
+const queryEndpointType = require('./db/query-endpoint-type.js')
+const queryDeviceType = require('./db/query-device-type.js')
+const queryZcl = require('./db/query-zcl.js')
+const queryPackage = require('./db/query-package.js')
+const querySession = require('./db/query-session.js')
+const querySessionZcl = require('./db/query-session-zcl.js')
+const validation = require('./validation/validation.js')
+const sharedClusterState = require('./util/shared-cluster-state.js')
+const sessionEdit = require('./util/session-edit.js')
+const studio = require('./ide-integration/studio-rest-api.js')
+const zclComponents = require('./ide-integration/zcl-components.js')
 const { StatusCodes } = require('http-status-codes')
-const resolver = require('./cli-resolver.js')
-const cliError = require('./cli-error.js')
-const cliOutput = require('./cli-output.js')
-const cliPolicy = require('./cli-policy.js')
-const cliSession = require('./cli-session.js')
+const resolver = require('./util/resolver.js')
+const cliError = require('./cli/cli-error.js')
+const cliOutput = require('./cli/cli-output.js')
+const dataModelPolicy = require('./util/policy.js')
 
 const CliError = cliError.CliError
+
+/**
+ * The load and save lifecycle. Required on use rather than here: this module
+ * is the engine a post-load script calls, and the lifecycle loads the
+ * importer, which loads that script. A top-level require would cycle.
+ *
+ * @returns {*} the session module
+ */
+function sessionLifecycle() {
+  return require('./cli/cli-session.js')
+}
+
 const asHex = resolver.asHex
 
 /**
@@ -110,14 +121,7 @@ function suggestion(ctx, operation, options = {}) {
  * @param {*} value
  * @returns {boolean | undefined} the boolean, or undefined when unset
  */
-function optionalBoolean(value) {
-  if (value === undefined || value === null) return undefined
-  if (typeof value === 'boolean') return value
-  let s = String(value).toLowerCase()
-  if (['true', '1', 'yes', 'on'].includes(s)) return true
-  if (['false', '0', 'no', 'off'].includes(s)) return false
-  throw new CliError(`Expected a boolean, got '${value}'`)
-}
+const optionalBoolean = sessionEdit.optionalBoolean
 
 /**
  * Normalizes a parameter that may be given once or several times into an
@@ -129,16 +133,6 @@ function optionalBoolean(value) {
 function asArray(value) {
   if (value === undefined || value === null) return []
   return Array.isArray(value) ? value : [value]
-}
-
-/**
- * The ZCL packages a session can pull cluster defaults from.
- *
- * @param {*} ctx
- * @returns {Promise<number[]>} package ids
- */
-async function defaultsPackageIds(ctx) {
-  return resolver.zclPackageIds(ctx)
 }
 
 /**
@@ -1220,30 +1214,15 @@ async function clusterSetEnabled(ctx, params, enabled) {
   let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
   let cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
   let sides = resolver.expandSides(params.side)
-  let packageIds = await defaultsPackageIds(ctx)
 
   for (let side of sides) {
-    let previous = await queryConfig.selectClusterState(
-      ctx.db,
-      endpoint.endpointTypeRef,
-      cluster.id,
-      side
-    )
-    await queryConfig.insertOrReplaceClusterState(
-      ctx.db,
-      endpoint.endpointTypeRef,
-      cluster.id,
+    await sessionEdit.setClusterSideEnabled(
+      ctx,
+      endpoint,
+      cluster,
       side,
       enabled
     )
-    if (previous == null && enabled) {
-      await queryConfig.insertClusterDefaults(
-        ctx.db,
-        endpoint.endpointTypeRef,
-        packageIds,
-        { clusterRef: cluster.id, side: side }
-      )
-    }
   }
 
   let messages = [
@@ -1285,23 +1264,32 @@ async function clusterSetEnabled(ctx, params, enabled) {
  * @param {string} side
  * @returns {Promise<boolean>} whether the side is enabled
  */
-async function isClusterSideEnabled(ctx, endpoint, cluster, side) {
-  let state = await queryConfig.selectClusterState(
-    ctx.db,
-    endpoint.endpointTypeRef,
-    cluster.id,
-    side
-  )
-  return state != null && state.enabled === true
+const isClusterSideEnabled = sessionEdit.isClusterSideEnabled
+
+/**
+ * The paste-able command that enables a cluster side, for the refusals the
+ * shared layer raises when a side is off. Only the command line knows what
+ * the user typed to get here, which is why the hint is composed on this side.
+ *
+ * @param {*} ctx
+ * @param {*} endpoint
+ * @param {*} cluster
+ * @param {string} side
+ * @returns {string[]} one indented line
+ */
+function clusterEnableRemedy(ctx, endpoint, cluster, side) {
+  return [
+    `  ${suggestion(ctx, 'cluster enable', {
+      endpoint: endpoint.endpointIdentifier,
+      cluster: cluster.name,
+      side: side
+    })}`
+  ]
 }
 
 /**
- * Refuses to touch an element of a cluster side that is not enabled.
- *
- * The saved file format only keeps the elements of enabled clusters, so such
- * an edit would be silently discarded on the next save. The user interface
- * avoids the problem by only offering the element checkboxes of clusters that
- * are switched on; here we say so out loud instead.
+ * Refuses to touch an element of a cluster side that is not enabled, naming
+ * the command that would enable it.
  *
  * @param {*} ctx
  * @param {*} endpoint
@@ -1310,31 +1298,18 @@ async function isClusterSideEnabled(ctx, endpoint, cluster, side) {
  * @returns {Promise} resolves when the side is enabled, throws otherwise
  */
 async function requireClusterSideEnabled(ctx, endpoint, cluster, side) {
-  if (await isClusterSideEnabled(ctx, endpoint, cluster, side)) return
-  throw new CliError(
-    `Cluster ${cluster.name} (${asHex(cluster.code)}) is not enabled on the ${side} side of endpoint ${endpoint.endpointIdentifier}`,
-    [
-      `Elements of a disabled cluster are not written to the .zap file. Enable it first:`,
-      `  ${suggestion(ctx, 'cluster enable', {
-        endpoint: endpoint.endpointIdentifier,
-        cluster: cluster.name,
-        side: side
-      })}`
-    ]
+  return sessionEdit.requireClusterSideEnabled(
+    ctx,
+    endpoint,
+    cluster,
+    side,
+    clusterEnableRemedy(ctx, endpoint, cluster, side)
   )
 }
 
 /**
  * Refuses to open the element surface of a Matter cluster that is enabled as
- * a client only.
- *
- * The user interface greys out Configure in exactly this case
- * (`enableServerOnly`, which is the Matter features flag): a Matter client
- * cluster has no attributes, commands, events or features page. Zigbee does
- * not have that restriction, and a Matter cluster that also has its server
- * side on is configurable as usual. Matching the selected endpoint's category
- * is what keeps multiprotocol honest — a Zigbee endpoint in the same file is
- * left alone.
+ * a client only, naming the command that would enable its server side.
  *
  * @param {*} ctx
  * @param {*} endpoint
@@ -1342,36 +1317,11 @@ async function requireClusterSideEnabled(ctx, endpoint, cluster, side) {
  * @returns {Promise} resolves when the cluster is configurable, throws otherwise
  */
 async function requireClusterConfigurable(ctx, endpoint, cluster) {
-  let categories = await resolver.endpointCategories(ctx, endpoint)
-  let matter = categories.some((c) =>
-    resolver.sameCategory(c, dbEnum.helperCategory.matter)
-  )
-  if (!matter) return
-
-  let client = await isClusterSideEnabled(
+  return sessionEdit.requireClusterConfigurable(
     ctx,
     endpoint,
     cluster,
-    dbEnum.side.client
-  )
-  let server = await isClusterSideEnabled(
-    ctx,
-    endpoint,
-    cluster,
-    dbEnum.side.server
-  )
-  if (!(client && !server)) return
-
-  throw new CliError(
-    `Cluster ${cluster.name} (${asHex(cluster.code)}) is enabled as a client only on endpoint ${endpoint.endpointIdentifier}, which has no configuration page`,
-    [
-      `Matter does not offer a page for attributes, commands, events or features of a client-only cluster. Enable the server side to configure it:`,
-      `  ${suggestion(ctx, 'cluster enable', {
-        endpoint: endpoint.endpointIdentifier,
-        cluster: cluster.name,
-        side: dbEnum.side.server
-      })}`
-    ]
+    clusterEnableRemedy(ctx, endpoint, cluster, dbEnum.side.server)
   )
 }
 
@@ -1456,7 +1406,11 @@ async function attributeList(ctx, params) {
       let state = byRef.get(attribute.id)
       let enabled = state != null && state.included
       if (params.enabledOnly === true && !enabled) continue
-      let policy = await cliPolicy.attributePolicy(ctx, cluster, attribute)
+      let policy = await dataModelPolicy.attributePolicy(
+        ctx,
+        cluster,
+        attribute
+      )
       rows.push({
         code: asHex(attribute.code),
         name: attribute.name,
@@ -1465,7 +1419,7 @@ async function attributeList(ctx, params) {
         storage: state != null ? state.storageOption : '',
         // Which of the columns to its left the data model decides, so that a
         // caller can tell a value it may change from one it may not.
-        fixed: cliPolicy.fixedFields(policy),
+        fixed: dataModelPolicy.fixedFields(policy),
         default: state != null ? state.defaultValue : attribute.defaultValue,
         singleton: state != null && state.singleton ? 'yes' : '',
         bounded: state != null && state.bounded ? 'yes' : '',
@@ -1524,100 +1478,13 @@ async function attributeList(ctx, params) {
 }
 
 /**
- * How one attribute is currently configured on an endpoint, or null when the
- * configuration has nothing recorded about it.
- *
- * The attribute reference is enough to name it precisely, including for the
- * global attributes that belong to every cluster: those are defined once per
- * side, so FeatureMap on the server and FeatureMap on the client are two
- * attributes and not one asked about twice.
- *
- * @param {*} ctx
- * @param {*} endpoint
- * @param {*} cluster
- * @param {*} attribute
- * @returns {Promise<*>} the endpoint type attribute, or null
- */
-async function attributeState(ctx, endpoint, cluster, attribute) {
-  let states = await queryZcl.selectEndpointTypeAttributesByEndpointId(
-    ctx.db,
-    endpoint.endpointTypeRef
-  )
-  let state = states.find(
-    (s) => s.clusterRef === cluster.id && s.attributeRef === attribute.id
-  )
-  return state === undefined ? null : state
-}
-
-/**
- * Refuses the attribute changes the user interface does not offer.
- *
- * Three kinds of thing are checked, all of them things the interface expresses
- * by greying a control out. Storage and reporting can be fixed by the data
- * model. An external attribute has nowhere to keep a default value. And how an
- * attribute is kept only means anything once the attribute is included.
- *
- * @param {*} ctx
- * @param {*} endpoint
- * @param {*} cluster
- * @param {string} side
- * @param {*} attribute
- * @param {*} requested What the command line asked for, undefined per field where it did not.
- * @returns {Promise<undefined>} nothing, throws when a change is not the caller's to make
- */
-async function requireAttributeChangeAllowed(
-  ctx,
-  endpoint,
-  cluster,
-  side,
-  attribute,
-  requested
-) {
-  let where = {
-    attribute: attribute,
-    cluster: cluster,
-    side: side,
-    endpoint: endpoint.endpointIdentifier
-  }
-  let policy = await cliPolicy.attributePolicy(ctx, cluster, attribute)
-  let state = await attributeState(ctx, endpoint, cluster, attribute)
-
-  // The four fields the interface greys out until the attribute is switched on.
-  let fieldsNeedingInclusion = [
-    requested.storage !== undefined ? '--storage' : null,
-    requested.default !== undefined ? '--default' : null,
-    requested.singleton !== undefined ? '--singleton' : null,
-    requested.bounded !== undefined ? '--bounded' : null
-  ].filter((field) => field != null)
-  if (fieldsNeedingInclusion.length > 0) {
-    let included =
-      requested.enabled !== undefined
-        ? requested.enabled
-        : state != null && !!state.included
-    cliPolicy.requireIncluded(included, fieldsNeedingInclusion, where)
-  }
-
-  cliPolicy.requirePolicyRespected(policy, requested, where)
-
-  if (requested.default !== undefined) {
-    // The storage that will apply, which is what decides whether a default has
-    // anywhere to live: what was asked for, else what is already set, else what
-    // enabling the attribute would give it.
-    let storage = requested.storage
-    if (storage === undefined && state != null && state.storageOption != null) {
-      storage = state.storageOption
-    }
-    if (storage === undefined) {
-      storage =
-        policy.storage != null ? policy.storage : dbEnum.storageOption.ram
-    }
-    cliPolicy.requireDefaultCanBeKept(requested.default, storage, policy, where)
-  }
-}
-
-/**
  * Applies any combination of attribute settings: inclusion, default value,
  * storage, singleton, bounded and the four reporting fields.
+ *
+ * The command line's share of the work is reading the flags. Which of the
+ * settings the data model allows, and the write itself, are the shared
+ * layer's, so that a post-load script setting the same thing is refused or
+ * recorded exactly as this is.
  *
  * @param {*} ctx
  * @param {*} params
@@ -1639,189 +1506,39 @@ async function attributeSet(ctx, params, forceEnabled = undefined) {
   let side = found.side
   await requireClusterSideEnabled(ctx, endpoint, cluster, side)
 
-  let updates = []
-  let described = []
-
-  let enabled =
-    forceEnabled !== undefined ? forceEnabled : optionalBoolean(params.enabled)
-  if (enabled !== undefined) {
-    updates.push({
-      key: restApi.updateKey.attributeSelected,
-      value: enabled,
-      type: ''
-    })
-    described.push(enabled ? 'enabled' : 'disabled')
+  let changes = {
+    enabled: forceEnabled !== undefined ? forceEnabled : params.enabled,
+    default: params.default,
+    storage: params.storage === null ? undefined : params.storage,
+    singleton: params.singleton,
+    bounded: params.bounded,
+    reporting: params.reporting,
+    minInterval: params.minInterval,
+    maxInterval: params.maxInterval,
+    reportableChange: params.reportableChange
   }
-
-  if (params.default !== undefined) {
-    let value = params.default
-    if (value !== null && `${value}` === '') {
-      // The column write turns an empty string into 0, so accepting this would
-      // quietly set a different value than the one asked for.
-      throw new CliError('An empty --default is not a value', [
-        `Pass the value you want, or 'null' for a nullable attribute.`
-      ])
-    }
-    if (value === null || `${value}`.toLowerCase() === 'null') {
-      if (!attribute.isNullable) {
-        throw new CliError(`Attribute ${attribute.name} is not nullable`)
-      }
-      updates.push({
-        key: restApi.updateKey.attributeDefault,
-        value: null,
-        type: 'text'
-      })
-      described.push('default=null')
-    } else {
-      updates.push({
-        key: restApi.updateKey.attributeDefault,
-        value: `${value}`,
-        type: 'text'
-      })
-      described.push(`default=${value}`)
-    }
-  }
-
-  let requestedStorage
-  if (params.storage !== undefined && params.storage !== null) {
-    let allowed = Object.values(dbEnum.storageOption)
-    requestedStorage = allowed.find(
-      (s) => s.toLowerCase() === `${params.storage}`.toLowerCase()
-    )
-    if (requestedStorage == null) {
-      throw new CliError(
-        `Invalid --storage '${params.storage}', expected one of ${allowed.join(', ')}`
-      )
-    }
-    updates.push({
-      key: restApi.updateKey.attributeStorage,
-      value: requestedStorage,
-      type: 'text'
-    })
-    described.push(`storage=${requestedStorage}`)
-  }
-
-  let singleton = optionalBoolean(params.singleton)
-  if (singleton !== undefined) {
-    updates.push({
-      key: restApi.updateKey.attributeSingleton,
-      value: singleton,
-      type: ''
-    })
-    described.push(`singleton=${singleton}`)
-  }
-
-  let bounded = optionalBoolean(params.bounded)
-  if (bounded !== undefined) {
-    updates.push({
-      key: restApi.updateKey.attributeBounded,
-      value: bounded,
-      type: ''
-    })
-    described.push(`bounded=${bounded}`)
-  }
-
-  let reporting = optionalBoolean(params.reporting)
-  if (reporting !== undefined) {
-    updates.push({
-      key: restApi.updateKey.attributeReporting,
-      value: reporting,
-      type: ''
-    })
-    described.push(`reporting=${reporting}`)
-  }
-
-  if (params.minInterval != null) {
-    let value = resolver.requireInteger(params.minInterval, 'Min interval')
-    updates.push({
-      key: restApi.updateKey.attributeReportMin,
-      value: value,
-      type: ''
-    })
-    described.push(`minInterval=${value}`)
-  }
-  if (params.maxInterval != null) {
-    let value = resolver.requireInteger(params.maxInterval, 'Max interval')
-    updates.push({
-      key: restApi.updateKey.attributeReportMax,
-      value: value,
-      type: ''
-    })
-    described.push(`maxInterval=${value}`)
-  }
-  if (params.reportableChange != null) {
-    let value = resolver.requireInteger(
-      params.reportableChange,
-      'Reportable change'
-    )
-    updates.push({
-      key: restApi.updateKey.attributeReportChange,
-      value: value,
-      type: ''
-    })
-    described.push(`reportableChange=${value}`)
-  }
-
-  if (updates.length === 0) {
+  if (Object.values(changes).every((v) => v === undefined || v === null)) {
     throw new CliError('Nothing to set', [
       'Pass at least one of --enabled, --default, --storage, --singleton,',
       '--bounded, --reporting, --min-interval, --max-interval, --reportable-change.'
     ])
   }
 
-  await requireAttributeChangeAllowed(ctx, endpoint, cluster, side, attribute, {
-    enabled: enabled,
-    storage: requestedStorage,
-    reporting: reporting,
-    default: params.default,
-    singleton: singleton,
-    bounded: bounded
-  })
-
-  await queryConfig.insertOrUpdateAttributeState(
-    ctx.db,
-    endpoint.endpointTypeRef,
-    cluster.id,
+  let outcome = await sessionEdit.setAttribute(
+    ctx,
+    endpoint,
+    cluster,
     side,
-    attribute.id,
-    updates,
-    attribute.reportMinInterval,
-    attribute.reportMaxInterval,
-    attribute.reportableChange
+    attribute,
+    changes
   )
 
-  let messages = [
+  return result(true, [
     `Attribute ${attribute.name} (${asHex(attribute.code)}) on ${cluster.name}/${side} of endpoint ${
       endpoint.endpointIdentifier
-    }: ${described.join(', ')}`
-  ]
-
-  // Excluding FeatureMap discards the cluster's whole feature selection,
-  // because that selection is the attribute's value.
-  if (
-    enabled === false &&
-    attribute.code === dbEnum.featureMapAttribute.code &&
-    attribute.name === dbEnum.featureMapAttribute.name
-  ) {
-    let features = await featuresOfCluster(ctx, endpoint, cluster)
-    if (features.length > 0) {
-      messages.push(
-        `warning: ${cluster.name} keeps its feature selection in FeatureMap, so excluding the attribute drops it`
-      )
-    }
-  }
-
-  let issues = await validation.validateAttribute(
-    ctx.db,
-    endpoint.endpointTypeRef,
-    attribute.id,
-    cluster.id,
-    ctx.sessionId
-  )
-  let defaultIssues = (issues && issues.defaultValue) || []
-  defaultIssues.forEach((issue) => messages.push(`warning: ${issue}`))
-
-  return result(true, messages)
+    }: ${outcome.described.join(', ')}`,
+    ...outcome.warnings.map((w) => `warning: ${w}`)
+  ])
 }
 
 // ---------------------------------------------------------------------------
@@ -1844,46 +1561,12 @@ function expandDirections(direction) {
 }
 
 /**
- * The cluster side a command direction is recorded against. A command the
- * device sends belongs to the side that is its source; one it receives belongs
- * to the opposite side.
- *
- * This deliberately mirrors the calculation inside `insertOrUpdateCommandState`
- * so that the side checked before writing is the side actually written to. It
- * inherits one quirk from it: a command declared with source `either` has no
- * opposite, so the outgoing direction lands on `either`, which is not a side a
- * cluster can have. `describeUnwritableDirection` explains that rather than
- * letting the caller puzzle over it.
- *
- * @param {*} command
- * @param {boolean} isIncoming
- * @returns {string} the cluster side, or the command source when it has none
+ * The cluster side a command direction is recorded against. See the shared
+ * layer for the reasoning; the command line only needs the answer to work out
+ * which of `--direction both` an endpoint can hold.
  */
-function commandSide(command, isIncoming) {
-  if (!isIncoming) return command.source
-  return command.source === dbEnum.source.client
-    ? dbEnum.source.server
-    : dbEnum.source.client
-}
-
-/**
- * Explains a direction that cannot be recorded at all, as opposed to one whose
- * cluster side merely happens to be switched off.
- *
- * @param {*} command
- * @param {boolean} isIncoming
- * @returns {*} a CliError, or null when the direction is expressible
- */
-function describeUnwritableDirection(command, isIncoming) {
-  let side = commandSide(command, isIncoming)
-  if (side === dbEnum.source.client || side === dbEnum.source.server) {
-    return null
-  }
-  return new CliError(
-    `Command ${command.name} is declared with source '${command.source}', so ZAP has no cluster side to record its outgoing direction against`,
-    [`Enable it as an incoming command instead:`, `  --direction in`]
-  )
-}
+const commandSide = sessionEdit.commandSide
+const describeUnwritableDirection = sessionEdit.describeUnwritableDirection
 
 /**
  * Lists the commands of a cluster on an endpoint with their incoming and
@@ -1950,6 +1633,45 @@ async function commandList(ctx, params) {
 }
 
 /**
+ * Resolves the command an operation names. With no source, this is the command
+ * line's own lookup. A source, which a post-load script passes because a code
+ * can exist once per source, narrows the lookup to commands declared with it.
+ *
+ * @param {*} ctx
+ * @param {*} cluster
+ * @param {*} params
+ * @returns {Promise<*>} the command
+ */
+async function resolveCommandParam(ctx, cluster, params) {
+  if (params.source == null) {
+    return resolver.resolveCommand(ctx, cluster, params.command)
+  }
+  let all = await resolver.commandsOfCluster(ctx, cluster)
+  let code = resolver.parseCode(params.command)
+  let normalized = resolver.normalizeName(params.command)
+  let matches = all.filter((command) => {
+    if (command.source !== params.source) return false
+    if (code != null) return command.code === code
+    return resolver.normalizeName(command.name) === normalized
+  })
+  let describe = (command) =>
+    `${command.name} (${resolver.asHex(command.code, 2)}, source: ${command.source})`
+  if (matches.length === 1) return matches[0]
+  if (matches.length === 0) {
+    throw cliError.notFound(
+      `command of cluster ${cluster.name} with source '${params.source}'`,
+      params.command,
+      all.filter((command) => command.source === params.source).map(describe)
+    )
+  }
+  throw cliError.ambiguous(
+    `command of cluster ${cluster.name}`,
+    params.command,
+    matches.map(describe)
+  )
+}
+
+/**
  * Enables or disables a command in the incoming and/or outgoing direction.
  *
  * @param {*} ctx
@@ -1961,7 +1683,7 @@ async function commandSetEnabled(ctx, params, enabled) {
   let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
   let cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
   await requireClusterConfigurable(ctx, endpoint, cluster)
-  let command = await resolver.resolveCommand(ctx, cluster, params.command)
+  let command = await resolveCommandParam(ctx, cluster, params)
   let directions = expandDirections(params.direction)
 
   // 'both' means "whichever of the two the endpoint can actually hold", so
@@ -2002,14 +1724,19 @@ async function commandSetEnabled(ctx, params, enabled) {
   }
 
   for (let isIncoming of applicable) {
-    await queryConfig.insertOrUpdateCommandState(
-      ctx.db,
-      endpoint.endpointTypeRef,
-      cluster.id,
-      command.source,
-      command.id,
+    await sessionEdit.setCommandEnabled(
+      ctx,
+      endpoint,
+      cluster,
+      command,
+      isIncoming,
       enabled,
-      isIncoming
+      clusterEnableRemedy(
+        ctx,
+        endpoint,
+        cluster,
+        commandSide(command, isIncoming)
+      )
     )
   }
 
@@ -2096,15 +1823,15 @@ async function eventSetEnabled(ctx, params, enabled) {
   await requireClusterConfigurable(ctx, endpoint, cluster)
   let event = await resolver.resolveEvent(ctx, cluster, params.event)
   let side = params.side || event.side || dbEnum.side.server
-  await requireClusterSideEnabled(ctx, endpoint, cluster, side)
 
-  await queryConfig.insertOrUpdateEventState(
-    ctx.db,
-    endpoint.endpointTypeRef,
-    cluster.id,
+  await sessionEdit.setEventEnabled(
+    ctx,
+    endpoint,
+    cluster,
+    event,
     side,
-    event.id,
-    enabled
+    enabled,
+    clusterEnableRemedy(ctx, endpoint, cluster, side)
   )
 
   return result(true, [
@@ -2120,108 +1847,17 @@ async function eventSetEnabled(ctx, params, enabled) {
 // ---------------------------------------------------------------------------
 
 /**
- * The features a cluster defines, as they apply to one endpoint.
- *
- * A feature carries two conformances: the one the cluster specification gives
- * it, and the one the endpoint's device type gives it, which is often stricter.
- * Lighting on the On/Off cluster is conditional in general but mandatory on a
- * Dimmable Light. The device type has the final say, so where one exists it
- * replaces the cluster conformance, exactly as the user interface does before
- * it runs a conformance check.
- *
- * @param {*} ctx
- * @param {*} endpoint
- * @param {*} cluster
- * @returns {Promise<Array>} features, in bit order
+ * Feature lookups and the FeatureMap attribute, shared with post-load scripts
+ * so that a feature toggled from either place drags the same elements along.
  */
-async function featuresOfCluster(ctx, endpoint, cluster) {
-  let features = await queryFeature.selectFeaturesByClusterId(
-    ctx.db,
-    cluster.id
-  )
-  let deviceTypeRefs = (
-    await queryDeviceType.selectDeviceTypesByEndpointTypeId(
-      ctx.db,
-      endpoint.endpointTypeRef
-    )
-  ).map((d) => d.deviceTypeRef)
-  let deviceTypeFeatures =
-    deviceTypeRefs.length > 0
-      ? await queryFeature.getFeaturesByDeviceTypeRefs(
-          ctx.db,
-          deviceTypeRefs,
-          endpoint.endpointTypeRef
-        )
-      : []
-
-  return features.map((feature) => {
-    let fromDeviceType = deviceTypeFeatures.find(
-      (dtf) =>
-        dtf.featureId === feature.featureId &&
-        dtf.clusterRef === feature.clusterRef
-    )
-    return {
-      ...feature,
-      cluster: cluster.name,
-      clusterConformance: feature.conformance,
-      conformance: fromDeviceType
-        ? fromDeviceType.conformance
-        : feature.conformance,
-      deviceTypes: fromDeviceType ? fromDeviceType.deviceTypes : undefined
-    }
-  })
-}
+const featuresOfCluster = sessionEdit.featuresOfCluster
+const featureMapAttribute = sessionEdit.featureMapAttribute
+const featureMapFromValue = sessionEdit.featureMapFromValue
+const matchFeature = sessionEdit.matchFeature
 
 /**
- * Finds the FeatureMap attribute of a cluster and its state on an endpoint.
- * Features are represented as bits of this attribute's value.
- *
- * @param {*} ctx
- * @param {*} endpoint
- * @param {*} cluster
- * @returns {Promise<*>} `{ definition, state, value }`
- */
-async function featureMapAttribute(ctx, endpoint, cluster) {
-  let attributes = await resolver.attributesOfCluster(
-    ctx,
-    cluster,
-    dbEnum.side.server
-  )
-  let definition = attributes.find(
-    (a) =>
-      a.code === dbEnum.featureMapAttribute.code &&
-      a.name === dbEnum.featureMapAttribute.name
-  )
-  if (definition == null) {
-    throw new CliError(
-      `Cluster ${cluster.name} has no FeatureMap attribute, so it has no features to toggle`
-    )
-  }
-  let state = await queryZcl.selectEndpointTypeAttribute(
-    ctx.db,
-    endpoint.endpointTypeRef,
-    definition.id,
-    cluster.id
-  )
-  let raw = state != null ? state.defaultValue : definition.defaultValue
-  let value = resolver.parseCode(raw)
-  return {
-    definition: definition,
-    state: state,
-    value: value == null ? 0 : value,
-    // Features live in this attribute's value, so if the attribute is not part
-    // of the configuration the features have nowhere to be recorded.
-    included: state != null && state.included === true
-  }
-}
-
-/**
- * Refuses a feature change that could not be recorded.
- *
- * A feature is a bit of the FeatureMap attribute's value, and the saved file
- * format only keeps attributes that are part of the configuration. Toggling a
- * feature while that attribute is excluded looks like it works and is gone by
- * the next load, so it is refused instead.
+ * Refuses a feature change that could not be recorded, naming the command
+ * that would enable the FeatureMap attribute.
  *
  * @param {*} ctx
  * @param {*} endpoint
@@ -2230,34 +1866,13 @@ async function featureMapAttribute(ctx, endpoint, cluster) {
  * @returns {undefined} nothing, throws when the change could not be kept
  */
 function requireFeatureMapIncluded(ctx, endpoint, cluster, map) {
-  if (map.included) return
-  throw new CliError(
-    `The FeatureMap attribute of ${cluster.name} is not enabled on endpoint ${endpoint.endpointIdentifier}, so feature changes cannot be saved`,
-    [
-      `Features are bits of that attribute's value. Enable it first:`,
-      `  ${suggestion(ctx, 'attribute enable', {
-        endpoint: endpoint.endpointIdentifier,
-        cluster: cluster.name,
-        attribute: dbEnum.featureMapAttribute.name
-      })}`
-    ]
-  )
-}
-
-/**
- * Builds the `{ featureCode: boolean }` map the conformance checker works
- * with, out of a FeatureMap value.
- *
- * @param {Array} features
- * @param {number} value
- * @returns {*} the feature map
- */
-function featureMapFromValue(features, value) {
-  let map = {}
-  features.forEach((f) => {
-    map[f.code] = (value & (1 << f.bit)) !== 0
-  })
-  return map
+  return sessionEdit.requireFeatureMapIncluded(endpoint, cluster, map, [
+    `  ${suggestion(ctx, 'attribute enable', {
+      endpoint: endpoint.endpointIdentifier,
+      cluster: cluster.name,
+      attribute: dbEnum.featureMapAttribute.name
+    })}`
+  ])
 }
 
 /**
@@ -2352,116 +1967,23 @@ async function featureSetEnabled(ctx, params, enabled) {
     throw new CliError(`Cluster ${cluster.name} defines no features`)
   }
   let feature = matchFeature(params.feature, features)
-  cliPolicy.requireToggleableFeature(
-    feature,
-    cluster,
-    endpoint.endpointIdentifier
-  )
-
   let map = await featureMapAttribute(ctx, endpoint, cluster)
   requireFeatureMapIncluded(ctx, endpoint, cluster, map)
-  let newValue = enabled
-    ? map.value | (1 << feature.bit)
-    : map.value & ~(1 << feature.bit)
-  if (newValue === map.value) {
+
+  let outcome = await sessionEdit.setFeatureEnabled(
+    ctx,
+    endpoint,
+    cluster,
+    feature,
+    enabled
+  )
+  if (!outcome.changed) {
     return result(false, [
       `Feature ${feature.name} (${feature.code}) is already ${enabled ? 'enabled' : 'disabled'} on ${cluster.name} of endpoint ${endpoint.endpointIdentifier}`
     ])
   }
 
-  let endpointTypeClusterId =
-    await conformChecker.getEndpointTypeClusterIdFromFeatureData(
-      ctx.db,
-      feature,
-      endpoint.endpointTypeRef
-    )
-  let elements = await queryEndpointType.getEndpointTypeElements(
-    ctx.db,
-    endpointTypeClusterId
-  )
-  let conformance = conformChecker.checkElementConformance(
-    elements,
-    featureMapFromValue(features, newValue),
-    feature,
-    endpoint.endpointIdentifier,
-    features
-  )
-
-  if (conformance.disableChange) {
-    throw new CliError(
-      `Feature ${feature.name} (${feature.code}) cannot be ${enabled ? 'enabled' : 'disabled'} on ${cluster.name} of endpoint ${endpoint.endpointIdentifier}`,
-      [].concat(conformance.warningMessage || [])
-    )
-  }
-
-  let messages = []
-  for (let attribute of conformance.attributesToUpdate || []) {
-    await queryConfig.insertOrUpdateAttributeState(
-      ctx.db,
-      endpoint.endpointTypeRef,
-      attribute.clusterRef,
-      attribute.side,
-      attribute.id,
-      [
-        {
-          key: restApi.updateKey.attributeSelected,
-          value: attribute.value,
-          type: ''
-        }
-      ],
-      attribute.reportMinInterval,
-      attribute.reportMaxInterval,
-      attribute.reportableChange
-    )
-    messages.push(
-      `  ${attribute.value ? 'enabled' : 'disabled'} attribute ${attribute.name}`
-    )
-  }
-  for (let command of conformance.commandsToUpdate || []) {
-    await queryConfig.insertOrUpdateCommandState(
-      ctx.db,
-      endpoint.endpointTypeRef,
-      command.clusterRef,
-      command.source,
-      command.id,
-      command.value,
-      command.source === dbEnum.source.client
-    )
-    messages.push(
-      `  ${command.value ? 'enabled' : 'disabled'} command ${command.name}`
-    )
-  }
-  for (let event of conformance.eventsToUpdate || []) {
-    await queryConfig.insertOrUpdateEventState(
-      ctx.db,
-      endpoint.endpointTypeRef,
-      event.clusterRef,
-      event.side,
-      event.id,
-      event.value
-    )
-    messages.push(
-      `  ${event.value ? 'enabled' : 'disabled'} event ${event.name}`
-    )
-  }
-
-  await queryConfig.insertOrUpdateAttributeState(
-    ctx.db,
-    endpoint.endpointTypeRef,
-    cluster.id,
-    dbEnum.side.server,
-    map.definition.id,
-    [
-      {
-        key: restApi.updateKey.attributeDefault,
-        value: `${newValue}`,
-        type: 'text'
-      }
-    ],
-    map.state != null ? map.state.minInterval : undefined,
-    map.state != null ? map.state.maxInterval : undefined,
-    map.state != null ? map.state.reportableChange : undefined
-  )
+  let conformance = outcome.conformance
 
   // The confirmation dialog is the only place the user interface says how much
   // a feature drags along with it, and it does so by listing the elements. A
@@ -2472,9 +1994,11 @@ async function featureSetEnabled(ctx, params, enabled) {
   return result(
     true,
     [
-      `${enabled ? 'Enabled' : 'Disabled'} feature ${feature.name} (${feature.code}, bit ${feature.bit}) on ${cluster.name} of endpoint ${endpoint.endpointIdentifier}, featureMap ${asHex(map.value, 8)} -> ${asHex(newValue, 8)}`,
+      `${enabled ? 'Enabled' : 'Disabled'} feature ${feature.name} (${feature.code}, bit ${feature.bit}) on ${cluster.name} of endpoint ${endpoint.endpointIdentifier}, featureMap ${asHex(outcome.map.value, 8)} -> ${asHex(outcome.newValue, 8)}`,
       counted,
-      ...messages,
+      ...outcome.applied.map(
+        (a) => `  ${a.value ? 'enabled' : 'disabled'} ${a.kind} ${a.name}`
+      ),
       // The interface pops up this warning only when displayWarning says to.
       // The message is composed either way, and after an enable that satisfies
       // a mandatory conformance it reads as though the enable had not happened.
@@ -2518,35 +2042,6 @@ function countElements(conformance) {
     .filter(([text]) => text != null)
     .map(([text, state]) => `${text} ${state}`)
   return phrases.length === 0 ? null : `Its conformance ${phrases.join(', ')}:`
-}
-
-/**
- * Resolves `--feature`. Feature codes are short letter codes such as LT rather
- * than numbers, so a bare number is read as a bit position.
- *
- * @param {*} spec
- * @param {Array} features
- * @returns {*} the feature
- */
-function matchFeature(spec, features) {
-  let bit = resolver.parseCode(spec)
-  let describe = (f) => `${f.name} (${f.code}, bit ${f.bit})`
-  let matches
-  if (bit != null) {
-    matches = features.filter((f) => f.bit === bit)
-  } else {
-    let normalized = resolver.normalizeName(spec)
-    matches = features.filter(
-      (f) =>
-        resolver.normalizeName(f.name) === normalized ||
-        resolver.normalizeName(f.code) === normalized
-    )
-  }
-  if (matches.length === 1) return matches[0]
-  if (matches.length === 0) {
-    throw cliError.notFound('feature', spec, features.map(describe))
-  }
-  throw cliError.ambiguous('feature', spec, matches.map(describe))
 }
 
 // ---------------------------------------------------------------------------
@@ -2614,7 +2109,7 @@ async function endpointUseOfPackage(ctx, packageId) {
  */
 async function packageList(ctx, params) {
   let substituted = ctx.substitutedCustomXml || []
-  let rows = (await cliSession.packages(ctx)).map((p) => ({
+  let rows = (await sessionLifecycle().packages(ctx)).map((p) => ({
     type: p.pkg.type,
     category: p.pkg.category || '',
     version: p.pkg.version || '',
@@ -2681,7 +2176,7 @@ async function packageAdd(ctx, params) {
       ])
     }
 
-    let outcome = await cliSession.addCustomXml(ctx, path.resolve(file))
+    let outcome = await sessionLifecycle().addCustomXml(ctx, path.resolve(file))
     if (!outcome.succeeded) {
       throw new CliError(`Could not load ${file}`, [
         `  ${outcome.err ? outcome.err.message || outcome.err : 'unknown error'}`
@@ -2726,11 +2221,11 @@ async function packageRemove(ctx, params) {
     throw new CliError('--xml is required')
   }
 
-  let custom = (await cliSession.packages(ctx))
+  let custom = (await sessionLifecycle().packages(ctx))
     .map((p) => p.pkg)
     .filter((p) => p.type === dbEnum.packageType.zclXmlStandalone)
   let match =
-    custom.find((p) => cliSession.samePath(p.path, spec)) ||
+    custom.find((p) => sessionLifecycle().samePath(p.path, spec)) ||
     custom.find((p) => path.basename(p.path) === path.basename(`${spec}`))
 
   if (match == null) {
@@ -2738,7 +2233,7 @@ async function packageRemove(ctx, params) {
     // reference is what is wrong with the configuration.
     let declared = (ctx.unresolvedCustomXml || []).find(
       (p) =>
-        cliSession.samePath(p.path, spec) ||
+        sessionLifecycle().samePath(p.path, spec) ||
         path.basename(p.path) === path.basename(`${spec}`)
     )
     if (declared != null) {
@@ -2771,7 +2266,7 @@ async function packageRemove(ctx, params) {
     )
   }
 
-  let removed = await cliSession.removeCustomXml(ctx, match.id)
+  let removed = await sessionLifecycle().removeCustomXml(ctx, match.id)
   if (!removed) {
     throw new CliError(`${match.path} is not attached to this configuration`)
   }
@@ -2850,17 +2345,17 @@ async function configInfo(ctx) {
  * @returns {Promise<*>} operation result
  */
 async function configCheck(ctx, params) {
-  let issues = cliOutput.collectIssues(await cliSession.validate(ctx))
+  let issues = cliOutput.collectIssues(await sessionLifecycle().validate(ctx))
   let rows = issues.map((issue) => ({
     kind: issue.kind,
     source: 'validation',
     message: issue.text
   }))
 
-  let notifications = await cliSession.notifications(ctx)
+  let notifications = await sessionLifecycle().notifications(ctx)
   if (params.packages === true) {
     notifications = notifications.concat(
-      await cliSession.packageNotifications(ctx)
+      await sessionLifecycle().packageNotifications(ctx)
     )
   }
   let reported = issues.map((issue) => cliOutput.complianceKey(issue.text))
@@ -3007,6 +2502,186 @@ async function unifySharedClusterStates(ctx) {
 }
 
 /**
+ * The endpoints of a session, optionally narrowed to one package category.
+ * This is the row shape a post-load script walks; the command line renders
+ * its own table from the same query.
+ *
+ * @param {*} ctx
+ * @param {string} [category]
+ * @returns {Promise<Array>} endpoints
+ */
+async function readEndpoints(ctx, category = null) {
+  return queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId, category)
+}
+
+/**
+ * The clusters enabled on an endpoint.
+ *
+ * @param {*} ctx
+ * @param {*} endpoint
+ * @returns {Promise<Array>} clusters
+ */
+async function readClusters(ctx, endpoint) {
+  return queryEndpoint.selectEndpointClusters(ctx.db, endpoint.endpointTypeRef)
+}
+
+/**
+ * The attributes of one cluster side on an endpoint, as stored. Codes stay
+ * numeric: upgrade scripts parse them, and the command line's listing formats
+ * them as hex instead.
+ *
+ * @param {*} ctx
+ * @param {*} endpoint
+ * @param {*} cluster A row from `readClusters`, carrying `clusterId` and `side`.
+ * @returns {Promise<Array>} attributes
+ */
+async function readAttributes(ctx, endpoint, cluster) {
+  return queryEndpoint.selectEndpointClusterAttributes(
+    ctx.db,
+    cluster.clusterId,
+    cluster.side,
+    endpoint.endpointTypeRef
+  )
+}
+
+/**
+ * The commands of one cluster on an endpoint, as stored.
+ *
+ * @param {*} ctx
+ * @param {*} endpoint
+ * @param {*} cluster A row from `readClusters`, carrying `clusterId`.
+ * @returns {Promise<Array>} commands
+ */
+async function readCommands(ctx, endpoint, cluster) {
+  return queryEndpoint.selectEndpointClusterCommands(
+    ctx.db,
+    cluster.clusterId,
+    endpoint.endpointTypeRef
+  )
+}
+
+/**
+ * Every cluster the session's packages define.
+ *
+ * @param {*} ctx
+ * @returns {Promise<Array>} clusters
+ */
+async function readAvailableClusters(ctx) {
+  return querySessionZcl.selectAllSessionClusters(ctx.db, ctx.sessionId)
+}
+
+/**
+ * The features a cluster defines on an endpoint, each marked with whether its
+ * bit is set. This is the row a post-load script walks; the command line
+ * renders the same facts as a table.
+ *
+ * @param {*} ctx
+ * @param {*} endpoint
+ * @param {*} cluster A cluster row, as `readClusters` returns it, or a
+ *   resolved cluster definition. Either carries the id the feature query uses.
+ * @returns {Promise<Array>} features
+ */
+async function readFeatures(ctx, endpoint, cluster) {
+  let features = await featuresOfCluster(ctx, endpoint, cluster)
+  if (features.length === 0) return []
+  let map = await featureMapAttribute(ctx, endpoint, cluster)
+  let enabled = featureMapFromValue(features, map.value)
+  return features.map((f) => ({ ...f, enabled: enabled[f.code] === true }))
+}
+
+/**
+ * True when a cluster carries the manufacturer code being asked for. No code
+ * means a standard cluster, whose manufacturer code is null.
+ *
+ * @param {*} cluster
+ * @param {*} mfgCode
+ * @returns {boolean} whether the cluster matches
+ */
+function manufacturerMatches(cluster, mfgCode) {
+  if (mfgCode == null || mfgCode === 0) {
+    return cluster.manufacturerCode == null || cluster.manufacturerCode === 0
+  }
+  return cluster.manufacturerCode === mfgCode
+}
+
+/**
+ * Finds a cluster by name or by code. A manufacturer code narrows the search
+ * to that manufacturer's clusters; without one, the command line's own lookup
+ * is used.
+ *
+ * @param {*} ctx
+ * @param {*} spec Name, define or code.
+ * @param {*} [mfgCode]
+ * @returns {Promise<*>} the cluster
+ */
+async function findCluster(ctx, spec, mfgCode = null) {
+  if (mfgCode == null || mfgCode === 0) {
+    return resolver.resolveCluster(ctx, spec)
+  }
+  let all = (await resolver.allClusters(ctx)).filter((cluster) =>
+    manufacturerMatches(cluster, mfgCode)
+  )
+  let code = resolver.parseCode(spec)
+  let describe = (cluster) =>
+    `${cluster.name} (${resolver.asHex(cluster.code)})`
+  let matches
+  if (code != null) {
+    matches = all.filter((cluster) => cluster.code === code)
+  } else {
+    let normalized = resolver.normalizeName(spec)
+    matches = all.filter(
+      (cluster) =>
+        resolver.normalizeName(cluster.name) === normalized ||
+        resolver.normalizeName(cluster.define) === normalized
+    )
+  }
+  if (matches.length === 1) return matches[0]
+  if (matches.length === 0) {
+    throw cliError.notFound('cluster', spec, all.map(describe))
+  }
+  throw cliError.ambiguous('cluster', spec, matches.map(describe))
+}
+
+/**
+ * Finds an attribute of a cluster by name or by code.
+ *
+ * @param {*} ctx
+ * @param {*} cluster
+ * @param {*} spec Name, define or code.
+ * @param {string} side
+ * @returns {Promise<*>} the attribute
+ */
+async function lookupAttribute(ctx, cluster, spec, side) {
+  return resolver.resolveAttribute(ctx, cluster, spec, side)
+}
+
+/**
+ * Finds a command of a cluster by name or by code. A source narrows the
+ * lookup the same way `command.enable` does when `params.source` is set.
+ *
+ * @param {*} ctx
+ * @param {*} cluster
+ * @param {*} spec Name or code.
+ * @param {string} [source]
+ * @returns {Promise<*>} the command
+ */
+async function findCommand(ctx, cluster, spec, source) {
+  return resolveCommandParam(ctx, cluster, { command: spec, source: source })
+}
+
+/**
+ * Finds an event of a cluster by name or by code.
+ *
+ * @param {*} ctx
+ * @param {*} cluster
+ * @param {*} spec Name or code.
+ * @returns {Promise<*>} the event
+ */
+async function findEvent(ctx, cluster, spec) {
+  return resolver.resolveEvent(ctx, cluster, spec)
+}
+
+/**
  * Runs a single operation by name.
  *
  * @param {*} ctx
@@ -3029,3 +2704,13 @@ exports.execute = execute
 exports.createRootNode = createRootNode
 exports.unifySharedClusterStates = unifySharedClusterStates
 exports.operationNames = () => Object.keys(operations)
+exports.readEndpoints = readEndpoints
+exports.readClusters = readClusters
+exports.readAttributes = readAttributes
+exports.readCommands = readCommands
+exports.readAvailableClusters = readAvailableClusters
+exports.readFeatures = readFeatures
+exports.findCluster = findCluster
+exports.findAttribute = lookupAttribute
+exports.findCommand = findCommand
+exports.findEvent = findEvent

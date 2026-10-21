@@ -62,7 +62,7 @@ const enabledOnlyOption = {
 /**
  * The groups of operations, mirroring the panels of the user interface.
  *
- * Each operation names the `cli-operations` entry it runs, describes itself,
+ * Each operation names the `operations` entry it runs, describes itself,
  * and lists its options by command line flag. Option keys are the flag spelling
  * (`device-type`); the schema also reports the camelCase spelling that batch
  * scripts use (`deviceType`).

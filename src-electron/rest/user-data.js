@@ -36,6 +36,7 @@ const queryEndpoint = require('../db/query-endpoint.js')
 const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
 const sharedClusterState = require('../util/shared-cluster-state.js')
+const sessionEdit = require('../util/session-edit.js')
 const asyncValidation = require('../validation/async-validation.js')
 const validation = require('../validation/validation.js')
 const validateAll = require('../validation/validate-all.js')
@@ -351,37 +352,14 @@ function httpPostCluster(db) {
     let sessionId = request.zapSessionId
 
     try {
-      let pkgs = await queryPackage.getSessionPackagesWithTypes(db, sessionId)
-      pkgs = pkgs.filter(
-        (pkg) =>
-          pkg.type == dbEnum.packageType.zclProperties ||
-          pkg.type == dbEnum.packageType.zclXmlStandalone
-      )
-      let packageIds = pkgs.map((pkg) => pkg.packageRef)
-
-      let insertDefault = await queryConfig
-        .selectClusterState(db, endpointTypeId, id, side)
-        .then((state) => state == null)
-
-      await queryConfig.insertOrReplaceClusterState(
+      await sessionEdit.writeClusterState(
         db,
         endpointTypeId,
         id,
         side,
-        flag
+        flag,
+        await sessionEdit.sessionZclPackageIds(db, sessionId)
       )
-
-      if (insertDefault) {
-        await queryConfig.insertClusterDefaults(
-          db,
-          endpointTypeId,
-          packageIds,
-          {
-            clusterRef: id,
-            side: side
-          }
-        )
-      }
 
       response
         .status(StatusCodes.OK)
