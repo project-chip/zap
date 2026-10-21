@@ -358,6 +358,16 @@ export function updateSelectedComponent(context, payload) {
 }
 
 /**
+ * Enable UC components for multiple clusters in one backend request.
+ * @param {*} context
+ * @param {{ clusterSelections: Array<{clusterId: number, side: string[]}>, added: boolean }} payload
+ * @returns
+ */
+export function updateSelectedComponentsBatch(context, payload) {
+  return axiosRequests.$serverPost(restApi.uc.componentAddBatch, payload)
+}
+
+/**
  * Update the selected server side clusters.
  * @param {*} context
  * @param {*} selectionContext

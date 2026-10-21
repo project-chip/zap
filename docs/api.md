@@ -17501,6 +17501,7 @@ This module provides the REST API to the generation.
     * [~httpGetComponentTree(db)](#module_REST API_ generation functions..httpGetComponentTree) ⇒
     * [~httpPostComponentUpdateHandler(db, request, response, add)](#module_REST API_ generation functions..httpPostComponentUpdateHandler)
     * [~httpPostComponentAdd(db)](#module_REST API_ generation functions..httpPostComponentAdd)
+    * [~httpPostComponentAddBatch(db)](#module_REST API_ generation functions..httpPostComponentAddBatch)
     * [~httpPostComponentRemove(db)](#module_REST API_ generation functions..httpPostComponentRemove) ⇒
 
 <a name="module_REST API_ generation functions..httpGetPreviewNameIndex"></a>
@@ -17581,6 +17582,17 @@ Update component.
 
 ### REST API: generation functions~httpPostComponentAdd(db)
 Enable components by 'componentId' or corresponding components specified, via 'defaults', by 'clusterId' / 'roles'
+
+**Kind**: inner method of [<code>REST API: generation functions</code>](#module_REST API_ generation functions)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ generation functions..httpPostComponentAddBatch"></a>
+
+### REST API: generation functions~httpPostComponentAddBatch(db)
+Enable UC components for multiple clusters in one request.
 
 **Kind**: inner method of [<code>REST API: generation functions</code>](#module_REST API_ generation functions)  
 
@@ -17614,6 +17626,7 @@ This module provides the REST API to the IDE component handling.
     * [~httpGetComponentTree(db)](#module_REST API_ generation functions..httpGetComponentTree) ⇒
     * [~httpPostComponentUpdateHandler(db, request, response, add)](#module_REST API_ generation functions..httpPostComponentUpdateHandler)
     * [~httpPostComponentAdd(db)](#module_REST API_ generation functions..httpPostComponentAdd)
+    * [~httpPostComponentAddBatch(db)](#module_REST API_ generation functions..httpPostComponentAddBatch)
     * [~httpPostComponentRemove(db)](#module_REST API_ generation functions..httpPostComponentRemove) ⇒
 
 <a name="module_REST API_ generation functions..httpGetPreviewNameIndex"></a>
@@ -17694,6 +17707,17 @@ Update component.
 
 ### REST API: generation functions~httpPostComponentAdd(db)
 Enable components by 'componentId' or corresponding components specified, via 'defaults', by 'clusterId' / 'roles'
+
+**Kind**: inner method of [<code>REST API: generation functions</code>](#module_REST API_ generation functions)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ generation functions..httpPostComponentAddBatch"></a>
+
+### REST API: generation functions~httpPostComponentAddBatch(db)
+Enable UC components for multiple clusters in one request.
 
 **Kind**: inner method of [<code>REST API: generation functions</code>](#module_REST API_ generation functions)  
 

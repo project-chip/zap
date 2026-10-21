@@ -73,14 +73,20 @@ limitations under the License.
           />
         </div>
         <q-btn
-          v-if="showEnableAllComponents"
+          v-if="!standaloneMode()"
           class="full-height"
+          :class="{ invisible: !showEnableAllComponents }"
           flat
           rounded
-          label="Enable All Components"
+          no-caps
+          label="Enable all components"
           color="primary"
           :loading="enablingAllComponents"
-          :disable="enablingAllComponents || !clustersMissingComponents.length"
+          :disable="
+            !showEnableAllComponents ||
+            enablingAllComponents ||
+            !clustersMissingComponents.length
+          "
           data-cy="enable-all-components"
           @click="enableAllMissingComponents"
         >
@@ -449,30 +455,29 @@ export default {
       })
     },
     /**
-     * Ask Studio to enable the components for every cluster that is missing
-     * them. One request per cluster; Studio adds each component itself.
+     * Ask Studio to enable missing components for every cluster in this view
+     * in one ZAP request (deduplicated component ids on the backend).
      */
     async enableAllMissingComponents() {
+      const clusterSelections = []
+      for (const cluster of this.clustersMissingComponents) {
+        const side = []
+        if (this.selectionClients.includes(cluster.id)) side.push('client')
+        if (this.selectionServers.includes(cluster.id)) side.push('server')
+        if (side.length) {
+          clusterSelections.push({ clusterId: cluster.id, side })
+        }
+      }
+      if (!clusterSelections.length) return
+
       this.enablingAllComponents = true
       try {
-        for (const cluster of this.clustersMissingComponents) {
-          const side = []
-          if (this.selectionClients.includes(cluster.id)) side.push('client')
-          if (this.selectionServers.includes(cluster.id)) side.push('server')
-          if (!side.length) continue
-          try {
-            await this.updateSelectedComponentRequest({
-              clusterId: cluster.id,
-              side,
-              added: true
-            })
-          } catch (err) {
-            console.log(
-              `Failed to enable Studio components for ${cluster.label}`,
-              err
-            )
-          }
-        }
+        await this.$store.dispatch('zap/updateSelectedComponentsBatch', {
+          clusterSelections,
+          added: true
+        })
+      } catch (err) {
+        console.log('Failed to enable Studio components', err)
       } finally {
         this.enablingAllComponents = false
       }

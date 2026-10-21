@@ -269,6 +269,66 @@ async function updateComponentByClusterIdAndComponentId(
 }
 
 /**
+ * Enable or disable UC components for several clusters in one ZAP request.
+ * Resolves and deduplicates component ids, then updates Studio once per id.
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {Array<{clusterId: number, side: string[]}>} clusterSelections
+ * @param {*} add
+ */
+async function updateComponentsByClusterSelections(
+  db,
+  sessionId,
+  clusterSelections,
+  add
+) {
+  if (!(await integrationEnabled(db, sessionId))) {
+    let isUserDisabled = await isComponentTogglingDisabled(db, sessionId)
+    if (!isUserDisabled) {
+      env.logWarning(
+        `StudioUC(): Failed to update component due to invalid Studio project path.`
+      )
+      queryNotification.setNotification(
+        db,
+        'WARNING',
+        `StudioUC(): Failed to update component due to invalid Studio project path.`,
+        sessionId,
+        2,
+        0
+      )
+    }
+    return Promise.resolve({ componentIds: [], added: add })
+  }
+
+  let ids = []
+  for (const selection of clusterSelections || []) {
+    if (!selection?.clusterId || !selection?.side?.length) continue
+    let mappedIds = await zclComponents.getComponentIdsByCluster(
+      db,
+      sessionId,
+      selection.clusterId,
+      selection.side
+    )
+    ids = ids.concat(mappedIds)
+  }
+
+  ids = [...new Set(ids.filter((x) => x))]
+
+  if (!add) {
+    ids = await zclComponents.filterOutComponentsStillRequired(
+      db,
+      sessionId,
+      ids
+    )
+  }
+
+  return updateComponentByComponentIds(db, sessionId, ids, add).catch((err) => {
+    env.logInfo(err)
+    return err
+  })
+}
+
+/**
  *  Send HTTP Post to update UC component state in Studio
  * @param {*} project - local Studio project path
  * @param {*} componentIds - a list of component Ids
@@ -581,6 +641,8 @@ exports.getProjectInfo = getProjectInfo
 exports.updateComponentByComponentIds = updateComponentByComponentIds
 exports.updateComponentByClusterIdAndComponentId =
   updateComponentByClusterIdAndComponentId
+exports.updateComponentsByClusterSelections =
+  updateComponentsByClusterSelections
 exports.projectName = projectName
 exports.integrationEnabled = integrationEnabled
 exports.initIdeIntegration = initIdeIntegration
