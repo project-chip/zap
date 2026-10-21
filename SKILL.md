@@ -1,6 +1,12 @@
 ---
 name: zap-zcl-configurator
-description: Use ZAP (zap-cli) to read or change .zap files — the Zigbee/Matter endpoint, cluster, attribute, command, event and feature configuration for an application. Use whenever a task involves a .zap file or adding/changing endpoints, device types or clusters.
+description: >-
+  Configures Zigbee/Matter ZCL by running zap-cli on .zap files (endpoints,
+  device types, clusters, attributes, commands, events, features). For any ZAP-,
+  .zap-, endpoint-, cluster-, or zcl_config-related task, agents must read this
+  skill and execute zap-cli — never hand-edit .zap JSON or use Write/StrReplace
+  on a .zap path. Triggers include ZAP, zap-cli, .zap, zcl_config, Matter device
+  types, Zigbee profiles, and UC/ZCL configuration changes.
 ---
 
 # ZAP — ZCL Advanced Platform
@@ -10,32 +16,101 @@ attributes, commands, events and features. Generated source is produced from it,
 so it is the source of truth for what the application supports. The release
 ships `zap` (graphical editor) and `zap-cli` (same engine, headless).
 
+## Agent rules (read first)
+
+1. **Load this skill** for every question or change involving a `.zap` file or
+   ZCL/Matter/Zigbee endpoint configuration.
+2. **Run `zap-cli`** via `silabs-tool-exec` (`tool_id: zap`, `tool_name:
+zap-cli`, `context_folder` = project root). Use `resolvedExecutable` from the
+   MCP result; do not search the filesystem for the binary.
+3. **Never hand-edit a `.zap` file** — not with the editor, not with
+   Write/StrReplace, not by patching JSON. Reads use list/check commands; writes
+   use `zap-cli` edit operations.
+4. **Read before write** — `endpoint list`, `cluster list`, `attribute list`
+   (add `--format json` when parsing).
+5. **Batch multiple edits in one CLI run** — loading ZCL metadata dominates
+   every invocation. For **two or more writes**, use **`apply`** with a YAML or
+   JSON script (`--script <file>`), not a chain of separate `zap-cli` commands.
+   A single `apply` can mix any operations (endpoints, clusters, attributes,
+   features, …) in one pass.
+6. **One metadata load per task** — one `apply` (or one single-op command when
+   there is only one change).
+
 ## Locating `zap-cli`
 
-Usually **not** on `PATH`. Resolve it with `silabs-tool-exec` (`tool_id: zap`,
-`tool_name: zap-cli`) or `slt-find` (`tool_id: zap`) from the
-`silabs-tool-locator` MCP server. Typical install (versioned, may move):
+Usually **not** on `PATH`. Resolve and run with **one** `silabs-tool-exec` call
+from the `silabs-tool-locator` MCP server (`tool_id: zap`, `tool_name: zap-cli`).
+See `slab-tool-find`. Typical install (versioned, may move):
 
 ```text
 $HOME/.silabs/slt/installs/archive/zap/zap-cli
 ```
+
+When `silabs-tool-exec` succeeds, use `resolvedExecutable` — do not re-locate,
+shell-probe, or search the install tree.
 
 ## Locating the `.zap` file
 
 - Zigbee: `config/zcl/zcl_config.zap`
 - Matter: `config/common/<app>.zap`
 
-## Discovering the commands
+When the project came from `slc example list` (`slab-example-find`), derive the
+`.zap` from the `Installed at:` `.slcp` path: parent directory + the paths
+above. **Do not** Glob or Grep under `~/.silabs` or SDK install trees to find
+`.zap` files — use the derived path or report it missing.
 
-Self-describing — start here rather than guessing:
+Many DMP examples have **no** `.zap` (BLE-only side). Only Zigbee/Matter
+endpoints use ZAP; skip non-ZAP examples instead of searching for one.
+
+## Command surface and token use
+
+**Default:** use the operation index below to pick the right command. That keeps
+help output out of the chat context (~1.5k tokens for full text help, ~12k for
+`help --format json` on current builds).
+
+**When flags are unclear**, ask the installed CLI for one operation only:
 
 ```bash
-zap-cli help                  # every operation, one line each
-zap-cli help attribute set    # options for one operation
-zap-cli help --format json    # whole surface as a machine readable schema
+zap-cli help attribute set          # new CLI: config commands at top level
+zap-cli edit help attribute set     # older packages: same under `edit`
 ```
 
-Most commands print a `Next:` section with ready-to-run follow-ups.
+**When the index is not enough** (new CLI version, custom wrapper), run full
+help once — not `--format json` unless you are generating tooling:
+
+```bash
+zap-cli help                        # or: zap-cli edit help
+```
+
+**Discovery of legal values** belongs on the `.zap` file, not in help:
+
+```bash
+zap-cli endpoint list app.zap --format json
+zap-cli cluster list app.zap --endpoint 1 --enabled-only --format json
+```
+
+Most commands print a `Next:` section (or JSON `nextSteps`) with follow-ups.
+
+### Operation index (same as `zap-cli help`)
+
+| Group      | Operations                              |
+| ---------- | --------------------------------------- |
+| endpoint   | list, create, update, delete, duplicate |
+| devicetype | list, add, remove, set                  |
+| cluster    | list, enable, disable                   |
+| attribute  | list, set, enable, disable              |
+| command    | list, enable, disable                   |
+| event      | list, enable, disable                   |
+| feature    | list, enable, disable                   |
+| package    | list, add, remove                       |
+| (top)      | info, check, new, **apply**, help       |
+
+Syntax: `zap-cli <group> <operation> <file.zap> [options]` (prepend `edit` on
+older builds: `zap-cli edit cluster enable …`).
+
+**Multiple writes:** use top-level **`apply`** with `--script` — not repeated
+`<group> <operation>` calls. Each list entry uses `op: group.operation` and
+camelCase parameters (same as subcommand flags).
 
 ## Packages: prefer `slc_args.json`, else pass `--zcl` and `--gen`
 
@@ -77,11 +152,12 @@ Canonical invocation (works on old and new `zap-cli`):
 ```bash
 zap-cli <op> app.zap … \
   --zcl "$ZCL" --gen "$GEN" --packageMatch strict \
-  --stateDirectory /tmp/zap-state-$$
+  --tempState
 ```
 
 With a current build and `slc_args.json` present, `--zcl` / `--gen` may be
-omitted; keep `--packageMatch strict` and `--stateDirectory`.
+omitted; keep `--packageMatch strict` and `--tempState` (or a unique
+`--stateDirectory` per job).
 
 ### Sanity checks after every write
 
@@ -101,18 +177,19 @@ zap-cli convert broken.zap -o fixed.zap --zcl "$ZCL" --gen "$GEN"
 # verify: package list on fixed.zap shows matter app-templates.json
 ```
 
-## Always isolate `--stateDirectory`
+## Always isolate CLI state
 
 Default state is shared (`~/.zap`), so concurrent `zap-cli` edits **or**
 concurrent `slc generate` / `slc example create` (which also run ZAP) fail with
-`SQLITE_BUSY: database is locked`. Pass a unique directory per job (see
-invocation above).
+`SQLITE_BUSY: database is locked`. Pass **`--tempState`** on every invocation
+(unique directory under the OS temp dir), or `--stateDirectory /tmp/zap-state-$$`.
 
 ## Do not hand-edit the `.zap` file
 
 It is JSON, but ZAP re-applies storage, reporting and conformance rules on load,
 so hand-written changes are commonly dropped and row relationships are easy to
-break. A `zap-cli` change is identical to the same change in the GUI.
+break. A `zap-cli` change is identical to the same change in the GUI. **Using
+editor tools on a `.zap` path is always wrong** — use this skill and `zap-cli`.
 
 ## Read before you write
 
@@ -127,7 +204,7 @@ independently, so they drift. Check `CONFORMANCE` / `REQUIREDBY` from
 
 ```bash
 # CT-only light: change the contract too, not just the feature
-ZAP_PKG=(--zcl "$ZCL" --gen "$GEN" --packageMatch strict --stateDirectory /tmp/zap-state-$$)
+ZAP_PKG=(--zcl "$ZCL" --gen "$GEN" --packageMatch strict --tempState)
 zap-cli devicetype set app.zap --endpoint 1 \
   --device-type MA-colortemperaturelight "${ZAP_PKG[@]}"
 zap-cli feature disable app.zap --endpoint 1 --cluster "Color Control" \
@@ -221,7 +298,7 @@ the component, so the `.slcp` is updated for you:
 ```bash
 PORT=$(lsof -nP -iTCP -sTCP:LISTEN | awk '/sts_back/ {sub(/.*:/,"",$9); print $9; exit}')
 zap-cli cluster enable app.zap --endpoint 1 --cluster "Barrier Control" --side server \
-  --packageMatch strict --stateDirectory /tmp/zap-state-$$ \
+  --packageMatch strict --tempState \
   --studioHttpPort "$PORT" --ideProjectPath /abs/path/app.slcp
 ```
 
@@ -260,7 +337,7 @@ Both routes get the same three checks:
 
 1. **Component recorded** — `grep -n "id: <component>" app.slcp`.
 2. **`.zap` still sane** — `zap-cli check app.zap --packageMatch strict
---stateDirectory /tmp/zap-state-$$` (plus `package list`, as above), and read
+--tempState` (plus `package list`, as above), and read
    the validation lines the edit printed. New device-type clusters commonly
    land with mandatory attributes out of range; fix those before building.
 3. **It compiles** — `slc generate -p app.slcp -d .` then build. This is the
@@ -268,11 +345,38 @@ Both routes get the same three checks:
    component typically surfaces as an undefined-symbol link failure for that
    cluster's callbacks.
 
-## Batch edits with `apply`
+## Batch commands with `apply` (default for agents)
 
-Loading the ZCL metadata dominates every invocation, so chained commands pay it
-repeatedly. `apply` runs a list in one pass (YAML or JSON, flags in camelCase,
-`--script -` for stdin, `--new` to build from empty):
+This is the **normal way to make several configuration changes**: one `zap-cli`
+invocation, one ZCL load, many operations. `apply` runs a YAML or JSON list in
+a single pass. Each entry names an operation (`op: cluster.enable`, …) and uses
+**camelCase** parameter names (`deviceType`, `side`, `default`, …) matching
+`zap-cli help <group> <operation>`.
+
+Use **`apply` whenever you would otherwise run two or more edit subcommands** in
+a row. Use a lone subcommand only for a single read (`list`, `check`) or a
+single write.
+
+`--new` starts from an empty configuration instead of reading the file.
+**`silabs-tool-exec` cannot feed stdin** — always `--script <file>`, never
+`--script -`.
+
+### Where to put the script (and cleanup)
+
+Prefer the **OS temp directory** so user projects do not accumulate agent files:
+
+```bash
+SCRIPT=$(mktemp /tmp/zap-apply.XXXXXX.yaml)
+trap 'rm -f "$SCRIPT"' EXIT
+# write YAML to "$SCRIPT", run apply, trap deletes the script on exit
+```
+
+If the script must live under the project (e.g. tooling restrictions), use
+`tmp/zap-apply-<reason>.yaml` under the project root, **`rm -f` that file after
+a successful `apply`**, and remove `tmp/` when empty. Do not commit these files;
+add `tmp/zap-*.yaml` to `.gitignore` if the project keeps a `tmp/` directory.
+
+Example batch:
 
 ```yaml
 - op: endpoint.create
@@ -287,13 +391,11 @@ repeatedly. `apply` runs a list in one pass (YAML or JSON, flags in camelCase,
 ```
 
 ```bash
-zap-cli apply app.zap --script changes.yaml \
+zap-cli apply app.zap --script "$SCRIPT" \
   --zcl "$ZCL" --gen "$GEN" --packageMatch strict \
-  --stateDirectory /tmp/zap-state-$$
+  --tempState
+rm -f "$SCRIPT"   # when not using mktemp+trap
 ```
-
-`silabs-tool-exec` cannot feed stdin, so prefer `--script <file>` over
-`--script -`.
 
 ## Other flags worth knowing
 
