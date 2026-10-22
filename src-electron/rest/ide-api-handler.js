@@ -88,6 +88,32 @@ function httpPostComponentAdd(db) {
 }
 
 /**
+ * Enable UC components for multiple clusters in one request.
+ *
+ * @param {*} db
+ */
+function httpPostComponentAddBatch(db) {
+  return async (request, response) => {
+    let { clusterSelections } = request.body
+    try {
+      let res = await studio.updateComponentsByClusterSelections(
+        db,
+        request.zapSessionId,
+        clusterSelections,
+        true
+      )
+      await studio.sendComponentUpdateStatus(db, request.zapSessionId, {
+        data: res,
+        added: true
+      })
+      response.send(res)
+    } catch (err) {
+      response.send(err)
+    }
+  }
+}
+
+/**
  * Remove component.
  *
  * @param {*} db
@@ -109,6 +135,10 @@ exports.post = [
   {
     uri: restApi.uc.componentAdd,
     callback: httpPostComponentAdd
+  },
+  {
+    uri: restApi.uc.componentAddBatch,
+    callback: httpPostComponentAddBatch
   },
   {
     uri: restApi.uc.componentRemove,

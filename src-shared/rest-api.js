@@ -102,6 +102,7 @@ const uc = {
   // command id
   componentTree: '/uc/component/tree',
   componentAdd: '/uc/component/add',
+  componentAddBatch: '/uc/component/add/batch',
   componentRemove: '/uc/component/remove'
 }
 
