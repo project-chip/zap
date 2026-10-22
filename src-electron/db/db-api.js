@@ -27,6 +27,7 @@ const fsp = fs.promises
 const env = require('../util/env')
 const util = require('../util/util.js')
 const asyncReporting = require('../util/async-reporting.js')
+const sessionTimers = require('../main-process/session-timers.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping.js')
@@ -367,6 +368,7 @@ async function dbMultiInsert(db, sql, arrayOfArrays) {
  * @returns A promise that resolves without an argument or rejects with error from the database closing.
  */
 async function closeDatabase(database) {
+  sessionTimers.deinitDatabaseSessionTimers(database)
   database._closed = true // Mark the database as closed
   asyncReporting.stopAsyncReporting()
   dbCache.clear()
@@ -386,6 +388,7 @@ async function closeDatabase(database) {
  * @param {*} database
  */
 function closeDatabaseSync(database) {
+  sessionTimers.deinitDatabaseSessionTimers(database)
   database._closed = true // Mark the database as closed
   asyncReporting.stopAsyncReporting()
   dbCache.clear()
