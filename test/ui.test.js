@@ -77,6 +77,24 @@ import ZapStore from '../src/store/index.js'
 import { createStore } from 'vuex'
 import rendApi from '../src-shared/rend-api.js'
 
+// Vuex actions call this API directly, bypassing component $serverGet mocks.
+// Keep session loading local so mounting Options cannot leave an XHR pending.
+jest.mock('../src/boot/axios', () => {
+  const actual = jest.requireActual('../src/boot/axios')
+  const restApi = jest.requireActual('../src-shared/rest-api.js')
+  return {
+    ...actual,
+    axiosRequests: {
+      ...actual.axiosRequests,
+      $serverGet: jest.fn((url, ...args) =>
+        url === restApi.uri.getAllSessionKeyValues
+          ? Promise.resolve({ data: [] })
+          : actual.axiosRequests.$serverGet(url, ...args)
+      )
+    }
+  }
+})
+
 global.window = global.window || {}
 window[rendApi.GLOBAL_SYMBOL_EXECUTE] = jest.fn()
 
