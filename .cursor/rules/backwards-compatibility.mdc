@@ -1,0 +1,52 @@
+---
+description: Keep every backend JS and frontend Vue change compatible with existing inputs, saved state, and callers
+globs: "**/*.js,**/*.vue"
+alwaysApply: false
+---
+
+# Backwards compatibility
+
+Every backend JavaScript change (`src-electron/`, `src-shared/`) and frontend Vue change (`src/**/*.vue`, `src/**/*.js`) must keep existing SDKs, saved projects, templates, APIs, and UI flows working. New behavior is additive. When a newer field is absent, keep the previous result.
+
+## Required behavior
+
+1. **Old inputs keep prior results.** Loaders, queries, generators, REST/IPC handlers, components, and store code must keep the same load success, defaults, validation, generated output, and rendered state for data that already worked.
+2. **New fields are optional.** Prefer a new key, column, prop, event payload, or store field when it is present. When it is absent, use the previous key, name rule, or default. Do not require the new form.
+3. **Persisted and public names stay callable.** Helper names, exports, CLI flags, env vars, IPC/REST paths and bodies, session keys, file formats, DB columns, shared enum values, Vue props and events, route params, and store fields need a fallback or deprecated alias before a rename, removal, or signature change.
+4. **Add a path; keep the old one.** Extend with an optional branch beside the existing path. A version, feature level, or presence check may choose behavior when both must coexist.
+5. **Reads and writes both tolerate old data.** UI and API code must render and accept older shapes. Values written back to a file, session, or store must remain readable by the previous path.
+6. **Prove the old path.** Extend a regression or component test for the previous shape before or with the new path. Tests of the new shape alone are not enough.
+
+## Bad vs good
+
+```javascript
+// ❌ BAD — new field required; older inputs fail or change meaning
+if (!record.newField) throw new Error('unsupported')
+use(record.newField)
+
+// ✅ GOOD — prefer new, fall back to the existing path
+use(record.newField ?? record.oldField ?? historicalDefault(record))
+```
+
+```javascript
+// ❌ BAD — drop a name callers, templates, or saved files still use
+exports.old_helper = undefined
+
+// ✅ GOOD — keep the old name; route it at the boundary
+exports.old_helper = deprecatedHelper(new_helper, { from: 'old_helper', to: 'new_helper' })
+```
+
+```javascript
+// ❌ BAD — component or store assumes the newer shape
+const id = record.items[0].id
+
+// ✅ GOOD — render and save when only the older fields exist
+const id = record.items?.[0]?.id ?? record.previousId
+```
+
+## Check on every change
+
+- **Parse and load:** missing keys, older file formats, previous names and defaults
+- **Persistence:** saved files, session keys, DB columns, and row fields returned to callers
+- **Contracts:** exports, helpers, CLI, and HTTP/IPC request and response shapes
+- **Frontend:** props, events, routes, store state, and anything written back to the session or file

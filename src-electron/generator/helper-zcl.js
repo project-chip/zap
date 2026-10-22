@@ -1820,8 +1820,60 @@ function if_is_string(type, options) {
 }
 
 /**
- * If helper that checks if a string type is present in the list of char strings
- * i.e. characterStringTypes
+ * Resolve a string type to char_string, octet_string, long_char_string, or
+ * long_octet_string. The type name is checked first. Otherwise BASE_TYPE is
+ * followed until a known string root is found. Stored isChar and isLong flags
+ * are not used, because older XML may not have populated them.
+ *
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} type name or string id
+ * @param {Set<string>} [visited]
+ * @returns {Promise<string|null>}
+ */
+async function resolvedStringRoot(db, packageIds, type, visited = new Set()) {
+  let name = type
+  if (typeof name === 'number') {
+    let row = await queryZcl.selectStringById(db, name)
+    name = row ? row.name : null
+  }
+  if (typeof name !== 'string' || name.length == 0) return null
+  let key = name.toLowerCase()
+  if (visited.has(key)) return null
+  visited.add(key)
+  let normalizedName = name.toUpperCase()
+  if (
+    characterStringTypes.includes(normalizedName) ||
+    octetStringTypes.includes(normalizedName)
+  ) {
+    return normalizedName
+  }
+  let atomic = await queryZcl.selectAtomicType(db, packageIds, key)
+  if (atomic && atomic.baseType) {
+    return resolvedStringRoot(db, packageIds, atomic.baseType, visited)
+  }
+  return null
+}
+
+/**
+ * @param {*} type
+ * @param {*} options
+ * @param {Function} matches true when the resolved string root should match
+ * @returns Promise of content.
+ */
+function ifResolvedStringRoot(type, options, matches) {
+  let promise = templateUtil
+    .ensureZclPackageIds(this)
+    .then((packageIds) => resolvedStringRoot(this.global.db, packageIds, type))
+    .then((root) =>
+      root && matches(root) ? options.fn(this) : options.inverse(this)
+    )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks whether a string type is a character string.
+ * Aliases match when their baseType chain reaches char_string or long_char_string.
  *
  * example:
  * {{#if_is_char_string type}}
@@ -1834,31 +1886,14 @@ function if_is_string(type, options) {
  * @returns Promise of content.
  */
 function if_is_char_string(type, options) {
-  let promise = templateUtil
-    .ensureZclPackageIds(this)
-    .then((packageIds) =>
-      type && typeof type === 'string'
-        ? queryZcl.selectStringByName(
-            this.global.db,
-            type.toLowerCase(),
-            packageIds
-          )
-        : null
-    )
-    .then((res) =>
-      res ? res : queryZcl.selectStringById(this.global.db, type)
-    )
-    .then((res) =>
-      res && res.name && characterStringTypes.includes(res.name.toUpperCase())
-        ? options.fn(this)
-        : options.inverse(this)
-    )
-  return templateUtil.templatePromise(this.global, promise)
+  return ifResolvedStringRoot.call(this, type, options, (root) =>
+    characterStringTypes.includes(root)
+  )
 }
 
 /**
- * If helper that checks if a string type is present in the list of octet strings
- * i.e. octetStringTypes
+ * If helper that checks whether a string type is an octet string.
+ * Aliases match when their baseType chain reaches octet_string or long_octet_string.
  *
  * example:
  * {{#if_is_octet_string type}}
@@ -1871,31 +1906,14 @@ function if_is_char_string(type, options) {
  * @returns Promise of content.
  */
 function if_is_octet_string(type, options) {
-  let promise = templateUtil
-    .ensureZclPackageIds(this)
-    .then((packageIds) =>
-      type && typeof type === 'string'
-        ? queryZcl.selectStringByName(
-            this.global.db,
-            type.toLowerCase(),
-            packageIds
-          )
-        : null
-    )
-    .then((res) =>
-      res ? res : queryZcl.selectStringById(this.global.db, type)
-    )
-    .then((res) =>
-      res && res.name && octetStringTypes.includes(res.name.toUpperCase())
-        ? options.fn(this)
-        : options.inverse(this)
-    )
-  return templateUtil.templatePromise(this.global, promise)
+  return ifResolvedStringRoot.call(this, type, options, (root) =>
+    octetStringTypes.includes(root)
+  )
 }
 
 /**
- * If helper that checks if a string type is present in the list of short strings
- * i.e. stringShortTypes
+ * If helper that checks whether a string type uses a one-byte length prefix.
+ * Aliases match when their baseType chain reaches char_string or octet_string.
  *
  * example:
  * {{#if_is_short_string type}}
@@ -1908,31 +1926,14 @@ function if_is_octet_string(type, options) {
  * @returns Promise of content.
  */
 function if_is_short_string(type, options) {
-  let promise = templateUtil
-    .ensureZclPackageIds(this)
-    .then((packageIds) =>
-      type && typeof type === 'string'
-        ? queryZcl.selectStringByName(
-            this.global.db,
-            type.toLowerCase(),
-            packageIds
-          )
-        : null
-    )
-    .then((res) =>
-      res ? res : queryZcl.selectStringById(this.global.db, type)
-    )
-    .then((res) =>
-      res && res.name && stringShortTypes.includes(res.name.toUpperCase())
-        ? options.fn(this)
-        : options.inverse(this)
-    )
-  return templateUtil.templatePromise(this.global, promise)
+  return ifResolvedStringRoot.call(this, type, options, (root) =>
+    stringShortTypes.includes(root)
+  )
 }
 
 /**
- * If helper that checks if a string type is present in the list of long strings
- * i.e. stringLongTypes
+ * If helper that checks whether a string type uses a two-byte length prefix.
+ * Aliases match when their baseType chain reaches long_char_string or long_octet_string.
  *
  * example:
  * {{#if_is_long_string type}}
@@ -1945,26 +1946,9 @@ function if_is_short_string(type, options) {
  * @returns Promise of content.
  */
 function if_is_long_string(type, options) {
-  let promise = templateUtil
-    .ensureZclPackageIds(this)
-    .then((packageIds) =>
-      type && typeof type === 'string'
-        ? queryZcl.selectStringByName(
-            this.global.db,
-            type.toLowerCase(),
-            packageIds
-          )
-        : null
-    )
-    .then((res) =>
-      res ? res : queryZcl.selectStringById(this.global.db, type)
-    )
-    .then((res) =>
-      res && res.name && stringLongTypes.includes(res.name.toUpperCase())
-        ? options.fn(this)
-        : options.inverse(this)
-    )
-  return templateUtil.templatePromise(this.global, promise)
+  return ifResolvedStringRoot.call(this, type, options, (root) =>
+    stringLongTypes.includes(root)
+  )
 }
 
 /**
