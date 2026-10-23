@@ -29,6 +29,7 @@ const queryPackage = require('../src-electron/db/query-package')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const testQuery = require('./test-query')
 const conformChecker = require('../src-electron/validation/conformance-checker')
+const dbEnum = require('../src-shared/db-enum')
 
 let db = null
 
@@ -336,12 +337,12 @@ test(
     let notisWithMultipleMessages
 
     let warningResult = {
-      warningMessage: warningMessage,
+      warningMessage: [warningMessage],
       disableChange: false,
       displayWarning: true
     }
     let deleteWarningResult = {
-      warningMessage: warningMessage,
+      warningMessage: [warningMessage],
       disableChange: false,
       displayWarning: false
     }
@@ -426,7 +427,7 @@ test(
 
     // set other feature warnings
     let otherResult = {
-      warningMessage: disableMessage2,
+      warningMessage: [disableMessage2],
       disableChange: false,
       displayWarning: true
     }
@@ -436,21 +437,21 @@ test(
       otherResult
     )
 
-    otherResult.warningMessage = messageOfOtherPattern
+    otherResult.warningMessage = [messageOfOtherPattern]
     await sessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
       otherResult
     )
 
-    otherResult.warningMessage = messageOfOtherFeature
+    otherResult.warningMessage = [messageOfOtherFeature]
     await sessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
       otherResult
     )
 
-    otherResult.warningMessage = messageOfOtherType
+    otherResult.warningMessage = [messageOfOtherType]
     await sessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
@@ -487,6 +488,93 @@ test(
     expect(notificationMessages).toContain(messageOfOtherPattern)
     expect(notificationMessages).toContain(messageOfOtherFeature)
     expect(notificationMessages).toContain(messageOfOtherType)
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Notification: detect and delete external-storage warnings (feature + attribute toggle)',
+  async () => {
+    let sessionId = await querySession.createBlankSession(db)
+    let phrase = dbEnum.warnings.externalStorageControl
+
+    let clusterPrefix = env.formatEmojiMessage(
+      '⚠️',
+      `Check Feature Compliance on endpoint: 7, cluster: Color Control,`
+    )
+    let featureWarning =
+      clusterPrefix +
+      ` attribute CurrentHue, required by feature: HS (HS), has ${phrase}`
+
+    let attributeToggleWarning = env.formatEmojiMessage(
+      '⚠️',
+      `On endpoint: 7, cluster: Color Control, attribute CurrentHue has ${phrase}`
+    )
+
+    // set both feature and attribute toggle warnings
+    await sessionNotification.setNotification(
+      db,
+      'WARNING',
+      featureWarning,
+      sessionId,
+      2,
+      0
+    )
+    await sessionNotification.setNotification(
+      db,
+      'WARNING',
+      attributeToggleWarning,
+      sessionId,
+      2,
+      0
+    )
+
+    // feature toggle warning -> true
+    expect(
+      sessionNotification.messageIsExternalAttributeStorageNoticeForAttribute(
+        featureWarning,
+        7,
+        'Color Control',
+        'CurrentHue'
+      )
+    ).toBe(true)
+    // feature toggle warning on the wrong attribute -> false
+    expect(
+      sessionNotification.messageIsExternalAttributeStorageNoticeForAttribute(
+        featureWarning,
+        7,
+        'Color Control',
+        'OtherAttr'
+      )
+    ).toBe(false)
+    // feature toggle warning on the wrong endpoint -> false
+    expect(
+      sessionNotification.messageIsExternalAttributeStorageNoticeForAttribute(
+        featureWarning,
+        8,
+        'Color Control',
+        'CurrentHue'
+      )
+    ).toBe(false)
+    // attribute toggle warning -> true
+    expect(
+      sessionNotification.messageIsExternalAttributeStorageNoticeForAttribute(
+        attributeToggleWarning,
+        7,
+        'Color Control',
+        'CurrentHue'
+      )
+    ).toBe(true)
+    // should delete both feature and attribute toggle warnings
+    await sessionNotification.deleteExternalAttributeStorageNotificationsForAttribute(
+      db,
+      sessionId,
+      7,
+      'Color Control',
+      'CurrentHue'
+    )
+    let messages = await testQuery.getAllNotificationMessages(db, sessionId)
+    expect(messages.length).toBe(0)
   },
   testUtil.timeout.long()
 )
