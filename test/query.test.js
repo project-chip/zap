@@ -826,7 +826,10 @@ describe('user-data.js REST API handlers', () => {
         sid
       )
       let endpointTypesLength1 = endpointTypes.length
-      const req = { body: { endpointTypeId: endpointTypeId } }
+      const req = {
+        zapSessionId: sid,
+        body: { endpointTypeId: endpointTypeId }
+      }
       const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
@@ -936,13 +939,28 @@ describe('user-data.js REST API handlers', () => {
         expect.objectContaining({ action: 'update', id: command.id })
       )
 
-      // Insert an event for the cluster
-      let events = await queryEvent.selectEventsByClusterId(
+      // Find a cluster that declares an event; On/Off does not.
+      let eventCluster
+      let event
+      for (const candidate of clusters) {
+        const events = await queryEvent.selectEventsByClusterId(
+          db,
+          candidate.id,
+          pkgId
+        )
+        if (events.length > 0) {
+          eventCluster = candidate
+          event = events[0]
+          break
+        }
+      }
+      await queryConfig.insertOrReplaceClusterState(
         db,
-        cluster.id,
-        pkgId
+        endpointTypeId,
+        eventCluster.id,
+        'server',
+        true
       )
-      let event = events[0]
 
       // httpPostEventUpdate
       const reqEvent = {
@@ -950,10 +968,10 @@ describe('user-data.js REST API handlers', () => {
         body: {
           action: 'update',
           endpointTypeId: endpointTypeId,
-          id: 1,
+          id: event.id,
           value: 1,
           listType: 'selected',
-          clusterRef: cluster.id,
+          clusterRef: eventCluster.id,
           eventSide: 'server'
         }
       }
@@ -964,11 +982,12 @@ describe('user-data.js REST API handlers', () => {
       await handlerEvent(reqEvent, resEvent)
       expect(resEvent.status).toHaveBeenCalledWith(200)
       expect(resEvent.json).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'update', id: 1 })
+        expect.objectContaining({ action: 'update', id: event.id })
       )
 
       // httpPostDuplicateEndpoint
       const reqDupEp = {
+        zapSessionId: sid,
         body: { id: endpointId, endpointIdentifier: 102, endpointTypeId }
       }
       const resDupEp = { status: jest.fn().mockReturnThis(), json: jest.fn() }
@@ -1040,6 +1059,7 @@ describe('user-data.js REST API handlers', () => {
       0,
       true
     )
+    await queryEndpoint.insertEndpoint(db, sid, 200, endpointTypeId, 0, 0)
     const req = {
       zapSessionId: sid,
       body: { id: 6, side: 'server', flag: true, endpointTypeId }
@@ -1124,19 +1144,6 @@ describe('user-data.js REST API handlers', () => {
     expect(res.status).toHaveBeenCalledWith(200)
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({ packages: expect.anything() })
-    )
-  })
-
-  it('httpPatchUpdateBitOfFeatureMapAttribute updates feature map attribute', async () => {
-    const req = { body: { featureMapAttributeId: 1, newValue: 1 } }
-    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
-    const handler = require('../src-electron/rest/user-data')
-      .patch.find((e) => e.uri === restApi.uri.updateBitOfFeatureMapAttribute)
-      .callback(db)
-    await handler(req, res)
-    expect(res.status).toHaveBeenCalledWith(200)
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ successful: expect.any(Boolean) })
     )
   })
 })

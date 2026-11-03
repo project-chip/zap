@@ -601,6 +601,27 @@ test(
 )
 
 test(
+  'cli: sets a GUI-editable configuration option through option.set',
+  async () => {
+    let file = siblingCopy(testUtil.zigbeeTestFile.onOff, 'cli-option-set.zap')
+    let { code } = await runCli({
+      cliOperation: 'option.set',
+      zapFile: file,
+      key: 'commandDiscovery',
+      value: '1'
+    })
+    expect(code).toBe(0)
+
+    let saved = JSON.parse(fs.readFileSync(file, 'utf8'))
+    expect(saved.keyValuePairs).toContainEqual({
+      key: 'commandDiscovery',
+      value: '1'
+    })
+  },
+  testUtil.timeout.long()
+)
+
+test(
   'cli: preserves packages and endpoints across a save',
   async () => {
     // Copied next to the original so the relative package paths in the file
@@ -1612,6 +1633,23 @@ test(
     })
     let rows = JSON.parse(listed.output).operations[0].rows
     expect(rows.find((r) => r.code === 'OFFONLY').enabled).toBe('no')
+
+    let preview = await runCli({
+      ...matter,
+      cliOperation: 'feature.preview',
+      endpoint: 1,
+      cluster: 'On/Off',
+      feature: 'OffOnly',
+      enabled: true,
+      format: 'json'
+    })
+    expect(preview.code).toBe(0)
+    expect(JSON.parse(preview.output).operations[0].rows).toEqual(
+      expect.arrayContaining([
+        { kind: 'command', element: 'On', enabled: 'no' },
+        { kind: 'command', element: 'Toggle', enabled: 'no' }
+      ])
+    )
 
     // OffOnly means the cluster stops accepting On and Toggle, so turning it
     // on has to disable those commands the way the GUI's confirmation does.
@@ -2821,9 +2859,9 @@ test(
 test(
   'cli: will not configure an attribute that is not included',
   async () => {
-    // Storage, default value, singleton and bounded say how an attribute is
-    // kept, and one that is not included is not kept at all, which is why the
-    // GUI greys all four until the attribute is switched on.
+    // Storage, singleton and bounded describe how an included attribute is
+    // kept, so they require inclusion. A default can be prepared and validated
+    // while disabled, and remains inactive until the attribute is included.
     let file = scratchCopy(
       testUtil.matterTestFile.matterTest,
       'matter-inclusion.zap'

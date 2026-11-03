@@ -94,15 +94,6 @@ export default {
             !this.isObsoleteElement(feature) ||
             this.isLegacyDisabledObsoleteElement('features', feature)
         )
-    },
-    enabledClusterFeatures() {
-      return this.clusterFeatures
-        .filter((feature) => {
-          return this.getEnabledBitsFromFeatureMapValue(
-            this.featureMapValue
-          ).includes(feature.bit)
-        })
-        .map((feature) => feature.featureId)
     }
   },
   methods: {
@@ -120,16 +111,13 @@ export default {
         await this.loadFeatureMapAttribute(clusterData)
       }
 
-      // build feature map after featureMap attribute is synced
-      let featureMap = this.buildFeatureMap(inclusionList, featureData)
+      const enabled = this.featureIsEnabled(featureData, inclusionList)
 
       this.$serverPost(restApi.uri.checkConformOnFeatureUpdate, {
         featureData: featureData,
-        featureMap: featureMap,
-        clusterFeatures: this.clusterFeatures,
         endpointId: this.endpointId[this.selectedEndpointId],
-        endpointTypeId: this.selectedEndpointTypeId,
-        changeConfirmed: false
+        cluster: this.selectedCluster.name,
+        enabled
       }).then((res) => {
         // store backend response and frontend data for reuse if updates are confirmed
         let {
@@ -166,81 +154,35 @@ export default {
       })
     },
     async confirmFeatureUpdate(featureData, inclusionList) {
-      let featureMap = this.buildFeatureMap(inclusionList, featureData)
-
-      // update attributes, commands, and events for the toggle feature, and set notifications
-      this.attributesToUpdate.forEach((attribute) => {
-        let editContext = {
-          action: 'boolean',
-          endpointTypeIdList: this.endpointTypeIdList,
-          selectedEndpoint: this.selectedEndpointTypeId,
-          id: attribute.id,
-          value: attribute.value,
-          listType: 'selectedAttributes',
-          clusterRef: attribute.clusterRef,
-          attributeSide: attribute.side,
-          reportMinInterval: attribute.reportMinInterval,
-          reportMaxInterval: attribute.reportMaxInterval
-        }
-        this.setRequiredElementNotifications(
-          attribute,
-          attribute.value,
-          'attributes'
-        )
-        this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-      })
-      this.commandsToUpdate.forEach((command) => {
-        let listType = command.source == 'client' ? 'selectedIn' : 'selectedOut'
-        let editContext = {
-          action: 'boolean',
-          endpointTypeIdList: this.endpointTypeIdList,
-          id: command.id,
-          value: command.value,
-          listType: listType,
-          clusterRef: command.clusterRef,
-          commandSide: command.source
-        }
-        this.setRequiredElementNotifications(command, command.value, 'commands')
-        this.$store.dispatch('zap/updateSelectedCommands', editContext)
-      })
-      this.eventsToUpdate.forEach((event) => {
-        let editContext = {
-          action: 'boolean',
-          endpointTypeId: this.selectedEndpointTypeId,
-          id: event.id,
-          value: event.value,
-          listType: 'selectedEvents',
-          clusterRef: event.clusterRef,
-          eventSide: event.side
-        }
-        this.setRequiredElementNotifications(event, event.value, 'events')
-        this.$store.dispatch('zap/updateSelectedEvents', editContext)
+      const enabled = this.featureIsEnabled(featureData, inclusionList)
+      const outcome = await this.$serverPost(restApi.uri.applyFeatureUpdate, {
+        endpoint: this.endpointId[this.selectedEndpointId],
+        cluster: this.selectedCluster.name,
+        feature: featureData.code,
+        enabled
       })
 
-      // update device type features in the store
-      let added = this.featureIsEnabled(featureData, inclusionList)
       this.$store.commit('zap/updateInclusionList', {
         id: featureData.featureId,
-        added: added,
+        added: enabled,
         listType: 'enabledDeviceTypeFeatures',
         view: 'featureView'
       })
-
-      // set notifications and pop-up warnings for the updated feature
-      this.$serverPost(restApi.uri.checkConformOnFeatureUpdate, {
-        featureData: featureData,
-        featureMap: featureMap,
-        clusterFeatures: this.clusterFeatures,
-        endpointId: this.endpointId[this.selectedEndpointId],
-        endpointTypeId: this.selectedEndpointTypeId,
-        changeConfirmed: true
+      this.$store.commit('zap/updateFeatureMapAttribute', {
+        ...this.featureMapAttribute,
+        value: outcome.data.newValue
       })
+      this.$store.commit('zap/updateFeatureMapAttributeOfDeviceTypeFeatures', {
+        featureMapAttributeId: this.featureMapAttribute.id,
+        featureMapValue: String(outcome.data.newValue)
+      })
+      await this.$store.dispatch(
+        'zap/refreshEndpointTypeConfiguration',
+        this.selectedEndpointTypeId
+      )
       if (this.displayWarning) {
         this.displayPopUpWarnings(this.warningMessage)
       }
-
-      // update featureMap attribute value for the updated cluster
-      this.updateFeatureMapAttribute(featureData.bit)
 
       this.setRequiredConformElement()
 
@@ -259,43 +201,6 @@ export default {
         eventsToUpdate: []
       })
     },
-    updateFeatureMapAttribute(updatedFeatureBit) {
-      let attribute = this.featureMapAttribute
-      let id = attribute.id
-      let value = this.featureMapValue ^ (1 << updatedFeatureBit)
-      let newValue = value.toString()
-
-      // update featureMap value in backend
-      this.$serverPatch(restApi.uri.updateBitOfFeatureMapAttribute, {
-        featureMapAttributeId: id,
-        newValue: newValue
-      })
-
-      // update featureMap attribute in frontend store
-      this.$store.commit('zap/updateFeatureMapAttributeOfDeviceTypeFeatures', {
-        featureMapAttributeId: id,
-        featureMapValue: newValue
-      })
-      this.$store.commit('zap/updateFeatureMapAttribute', {
-        ...this.featureMapAttribute,
-        value: newValue
-      })
-
-      // sync featureMap value attribute with cluster feature updates
-      let editContext = {
-        action: 'text',
-        endpointTypeIdList: this.endpointTypeIdList,
-        selectedEndpoint: this.selectedEndpointTypeId,
-        id: attribute.attributeRef,
-        value: value,
-        listType: 'defaultValue',
-        clusterRef: attribute.clusterRef,
-        attributeSide: dbEnum.clusterSide.server,
-        reportMinInterval: attribute.minInterval,
-        reportMaxInterval: attribute.maxInterval
-      }
-      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-    },
     displayPopUpWarnings(warningMessage) {
       if (!Array.isArray(warningMessage)) {
         warningMessage = [warningMessage]
@@ -310,36 +215,15 @@ export default {
         })
       }
     },
-    // build new feature map after both device type and cluster feature updates
-    buildFeatureMap(inclusionList, updatedFeature = null) {
-      let featureMap = {}
-      if (updatedFeature) {
-        // for device type feature updates, merge cluster feature data into inclusionList
-        let clusterInclusionList = [...this.enabledClusterFeatures]
-        // handle edge case for disabling a device type feature: remove it from cluster inclusionList
-        if (!this.featureIsEnabled(updatedFeature, inclusionList)) {
-          clusterInclusionList = clusterInclusionList.filter(
-            (featureId) => featureId !== updatedFeature.featureId
-          )
-        }
-        inclusionList = [...clusterInclusionList, ...inclusionList]
-      }
-      this.clusterFeatures.forEach((feature) => {
-        featureMap[feature.code] = this.featureIsEnabled(feature, inclusionList)
-      })
-      return featureMap
-    },
     featureIsEnabled(featureData, inclusionList) {
       return inclusionList.includes(featureData.featureId)
     },
     // set required and unsupported elements based on conformance for the selected cluster
     setRequiredConformElement() {
       if (Object.keys(this.clusterFeatures).length > 0) {
-        let featureMap = this.buildFeatureMap(this.enabledClusterFeatures)
         this.$store.dispatch('zap/setRequiredElements', {
-          featureMap: featureMap,
-          endpointTypeId: this.selectedEndpointTypeId,
-          clusterRef: this.selectedClusterId
+          endpoint: this.endpointId[this.selectedEndpointId],
+          cluster: this.selectedCluster.name
         })
       }
     },
@@ -370,15 +254,6 @@ export default {
         clusterId: cluster.id,
         endpointTypeId: this.selectedEndpointTypeId
       })
-    },
-    getEnabledBitsFromFeatureMapValue(featureMapValue) {
-      let enabledBits = []
-      for (let i = 0; i < 32; i++) {
-        if ((featureMapValue & (1 << i)) != 0) {
-          enabledBits.push(i)
-        }
-      }
-      return enabledBits
     },
     getFeatureMapBinary(value) {
       let totalBits = this.clusterFeatures.length

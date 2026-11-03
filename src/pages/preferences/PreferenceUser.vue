@@ -48,7 +48,7 @@ limitations under the License.
         @input="setPath"
         v-model="localPath"
         label="Browse"
-        :input-attrs="{ 'data-cy': 'file-location-input' }"
+        data-cy="file-location-input"
       />
     </div>
   </PreferencePageLayout>

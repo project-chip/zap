@@ -27,11 +27,9 @@
  * whenever a configuration is read back in, so a write that disagrees with
  * them does not survive the round trip.
  *
- * Nothing here belongs to one front end. The configuration commands and a
- * post-load script both reach it through `session-edit`, and a listing reads
- * it directly to say which fields are fixed. The refusal text names the
- * command-line flags that would work, because that is the most specific thing
- * a caller can be told; a script prints the same sentences.
+ * CLI and post-load edits reach these rules through `session-edit`, and
+ * listings read them directly to say which fields are fixed. Refusals carry the
+ * policy reason; the CLI adds command-line guidance when it presents them.
  *
  * @module JS API: data model policy
  */
@@ -39,9 +37,9 @@
 const dbEnum = require('../../src-shared/db-enum.js')
 const matterSdk = require('../sdk/matter.js')
 const resolver = require('./resolver.js')
-const cliError = require('../cli/cli-error.js')
+const operationError = require('./operation-error.js')
 
-const CliError = cliError.CliError
+const OperationError = operationError.OperationError
 
 /**
  * The (cluster, attribute) pairs the loaded data model serves through the
@@ -144,7 +142,7 @@ function requirePolicyRespected(policy, requested, where) {
     policy.storage != null &&
     requested.storage !== policy.storage
   ) {
-    throw new CliError(
+    throw new OperationError(
       `${subject} is served through the Attribute Access Interface`,
       [
         `Its storage is fixed at ${policy.storage}, which is why the user interface`,
@@ -159,7 +157,7 @@ function requirePolicyRespected(policy, requested, where) {
     policy.reporting != null &&
     requested.reporting !== policy.reporting
   ) {
-    throw new CliError(
+    throw new OperationError(
       `${subject} has ${
         policy.reporting ? 'mandatory' : 'prohibited'
       } reporting`,
@@ -195,12 +193,12 @@ function requireDefaultCanBeKept(requested, storage, policy, where) {
   if (requested === null || `${requested}`.toLowerCase() === 'null') return
   let subject = describe(where)
   if (policy.storage === dbEnum.storageOption.external) {
-    throw new CliError(`${subject} has no default value to set`, [
+    throw new OperationError(`${subject} has no default value to set`, [
       `It is served through the Attribute Access Interface, so its value comes`,
       `from application code and the configuration keeps no default for it.`
     ])
   }
-  throw new CliError(`${subject} is stored externally`, [
+  throw new OperationError(`${subject} is stored externally`, [
     `An external attribute is read and written by application code, so the`,
     `configuration keeps no default for it. Pass --storage RAM or --storage NVM`,
     `alongside --default to hold a value here.`
@@ -210,9 +208,9 @@ function requireDefaultCanBeKept(requested, storage, policy, where) {
 /**
  * Refuses to configure an attribute that is not part of the configuration.
  *
- * Storage, default value, singleton and bounded describe how an attribute is
- * kept, and an attribute that is not included is not kept at all, which is why
- * the user interface greys all four until the attribute is switched on.
+ * Storage, singleton and bounded describe how an included attribute is kept.
+ * A default value may be prepared while the attribute is disabled, so it can
+ * be validated and will take effect if the attribute is later included.
  *
  * @param {boolean} included Whether the attribute is included once the change is made.
  * @param {string[]} fields The fields being set.
@@ -221,7 +219,7 @@ function requireDefaultCanBeKept(requested, storage, policy, where) {
  */
 function requireIncluded(included, fields, where) {
   if (included) return
-  throw new CliError(
+  throw new OperationError(
     `Attribute ${where.attribute.name} is not enabled on ${where.cluster.name}/${where.side} of endpoint ${where.endpoint}`,
     [
       `${fields.join(', ')} ${fields.length > 1 ? 'describe' : 'describes'} how the attribute is kept, and`,
@@ -247,7 +245,7 @@ function requireToggleableFeature(feature, cluster, endpoint) {
     reason = 'deprecated'
   }
   if (reason == null) return
-  throw new CliError(
+  throw new OperationError(
     `Feature ${feature.name} (${feature.code}) is ${reason} on ${cluster.name} of endpoint ${endpoint}`,
     [
       `Its conformance is ${feature.conformance}${

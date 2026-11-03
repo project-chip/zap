@@ -987,6 +987,27 @@ export function setCommandStateLists(context, selectionContext) {
   })
 }
 
+/** Refresh state changed by a confirmed feature operation. */
+export async function refreshEndpointTypeConfiguration(
+  context,
+  endpointTypeId
+) {
+  const [attributes, commands, events] = await Promise.all([
+    axiosRequests.$serverGet(
+      `${restApi.uri.endpointTypeAttributes}${endpointTypeId}`
+    ),
+    axiosRequests.$serverGet(
+      `${restApi.uri.endpointTypeCommands}${endpointTypeId}`
+    ),
+    axiosRequests.$serverGet(
+      `${restApi.uri.endpointTypeEvents}${endpointTypeId}`
+    )
+  ])
+  setAttributeStateLists(context, attributes.data || [])
+  setCommandStateLists(context, commands.data || [])
+  setEventStateLists(context, events.data || [])
+}
+
 /**
  * Set recommended cluster list for the endpoint.
  * @param {*} context

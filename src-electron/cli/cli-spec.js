@@ -107,6 +107,31 @@ const groups = {
           name: { desc: 'Endpoint type name.', type: 'string' }
         }
       },
+      attach: {
+        operation: 'endpoint.attach',
+        describe: 'Add an endpoint using an existing endpoint type.',
+        options: {
+          endpoint: {
+            desc: 'Endpoint identifier to create.',
+            type: 'number',
+            required: true
+          },
+          'endpoint-type-id': {
+            desc: 'Endpoint type database ID to use.',
+            type: 'number',
+            required: true
+          },
+          profile: {
+            desc: 'Profile id. Defaults to the endpoint type profile.',
+            type: 'string'
+          },
+          network: { desc: 'Network id. Defaults to 0.', type: 'number' },
+          parent: {
+            desc: 'Identifier of the parent endpoint.',
+            type: 'number'
+          }
+        }
+      },
       update: {
         operation: 'endpoint.update',
         describe:
@@ -158,6 +183,68 @@ const groups = {
           'new-endpoint': {
             desc: 'Identifier for the copy. Defaults to the lowest free one.',
             type: 'number'
+          },
+          'endpoint-type-id': {
+            desc: 'Reuse an endpoint type instead of copying the source type.',
+            type: 'number'
+          }
+        }
+      }
+    }
+  },
+
+  endpointtype: {
+    describe: 'Create, update and delete endpoint types.',
+    operations: {
+      create: {
+        operation: 'endpointtype.create',
+        describe: 'Create an endpoint type from device type IDs.',
+        options: {
+          name: { desc: 'Endpoint type name.', type: 'string' },
+          'device-type-ref': {
+            desc: 'Device type database ID.',
+            type: 'array',
+            required: true
+          },
+          'device-version': { desc: 'Device type version.', type: 'array' }
+        }
+      },
+      update: {
+        operation: 'endpointtype.update',
+        describe: 'Update endpoint type device type fields.',
+        options: {
+          'endpoint-type-id': {
+            desc: 'Endpoint type database ID.',
+            type: 'number',
+            required: true
+          },
+          changes: {
+            desc: 'Endpoint type changes.',
+            type: 'array',
+            required: true
+          }
+        }
+      },
+      delete: {
+        operation: 'endpointtype.delete',
+        describe: 'Delete an endpoint type.',
+        options: {
+          'endpoint-type-id': {
+            desc: 'Endpoint type database ID.',
+            type: 'number',
+            required: true
+          }
+        }
+      },
+      duplicate: {
+        operation: 'endpointtype.duplicate',
+        describe:
+          'Duplicate an endpoint type and its selected clusters and elements.',
+        options: {
+          'endpoint-type-id': {
+            desc: 'Endpoint type database ID.',
+            type: 'number',
+            required: true
           }
         }
       }
@@ -483,6 +570,36 @@ const groups = {
           filter: filterOption
         }
       },
+      preview: {
+        operation: 'feature.preview',
+        describe:
+          'Preview the elements and warnings for enabling or disabling a feature.',
+        readOnly: true,
+        options: {
+          endpoint: endpointOption,
+          cluster: clusterOption,
+          feature: {
+            desc: 'Feature name, letter code or bit number.',
+            type: 'string',
+            required: true
+          },
+          enabled: {
+            desc: 'Whether the feature should be enabled.',
+            type: 'boolean',
+            required: true
+          }
+        }
+      },
+      requirements: {
+        operation: 'feature.requirements',
+        describe:
+          'List required and unsupported elements for the current feature selection.',
+        readOnly: true,
+        options: {
+          endpoint: endpointOption,
+          cluster: clusterOption
+        }
+      },
       enable: {
         operation: 'feature.enable',
         describe:
@@ -546,6 +663,29 @@ const groups = {
         options: {
           xml: {
             desc: 'Path or file name of the custom XML to remove.',
+            type: 'string',
+            required: true
+          }
+        }
+      }
+    }
+  },
+
+  option: {
+    describe: 'Set a user-editable option stored in the configuration file.',
+    operations: {
+      set: {
+        operation: 'option.set',
+        describe:
+          'Set a configuration option also available from the GUI Options and Information pages.',
+        options: {
+          key: {
+            desc: 'Editable option key, such as manufacturerCodes or commandDiscovery.',
+            type: 'string',
+            required: true
+          },
+          value: {
+            desc: 'New option value.',
             type: 'string',
             required: true
           }

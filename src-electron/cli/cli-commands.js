@@ -36,7 +36,7 @@ const fs = require('fs')
 const yargs = require('yargs/yargs')
 const env = require('../util/env.js')
 const cliSession = require('./cli-session.js')
-const cliOperations = require('../operations.js')
+const operationRunner = require('../util/operation-runner.js')
 const cliOutput = require('./cli-output.js')
 const cliScript = require('./cli-script.js')
 const cliError = require('./cli-error.js')
@@ -485,6 +485,13 @@ async function run(argv, options = {}) {
   let logger =
     options.logger ||
     (argv.quiet || argv.format === 'json' ? () => {} : console.error)
+  let reportSharedClusterState = (shared) =>
+    logger(
+      env.formatEmojiMessage(
+        '🔧',
+        `shared cluster states across endpoints ${shared.endpoints.join(', ')}`
+      )
+    )
 
   // Describing the command surface must not pay for loading the ZCL metadata,
   // which is the whole reason it is worth asking for separately.
@@ -539,7 +546,10 @@ async function run(argv, options = {}) {
     // interface creates one the moment you start a new configuration, so
     // starting one here does the same.
     if (startFromBlank && argv.rootNode !== false) {
-      let rootNode = await cliOperations.createRootNode(ctx)
+      let rootNode = await operationRunner.createRootNode(
+        ctx,
+        reportSharedClusterState
+      )
       if (rootNode.changed) report.add('rootNode', rootNode)
     }
 
@@ -557,30 +567,16 @@ async function run(argv, options = {}) {
       : []
 
     for (let operation of operations) {
-      let opResult = await cliOperations.execute(
+      let opResult = await operationRunner.execute(
         ctx,
         operation.op,
-        operation.params
+        operation.params,
+        reportSharedClusterState
       )
       report.add(operation.op, opResult)
     }
 
     let mustWrite = report.changed || startFromBlank
-
-    // In Zigbee a cluster's configuration is shared by every endpoint that
-    // enables it, and the user interface re-aligns them after each change. Do
-    // the same before validating, so the findings describe what will be saved.
-    if (mustWrite) {
-      let shared = await cliOperations.unifySharedClusterStates(ctx)
-      if (shared.applied) {
-        logger(
-          env.formatEmojiMessage(
-            '🔧',
-            `shared cluster states across endpoints ${shared.endpoints.join(', ')}`
-          )
-        )
-      }
-    }
 
     if (mustWrite && validationEnabled) {
       report.validation = cliOutput.diffValidation(

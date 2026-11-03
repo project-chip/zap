@@ -397,34 +397,6 @@ export default {
         )
         return zclProperty.pkg?.category
       }
-    },
-    /**
-     * When user toggles an element, set warning in the notification system
-     * if the new state does not match its conformance,
-     * and delete previous warning for this element if any.
-     *
-     * @param {*} element
-     * @param {*} added
-     * @param {*} elementType
-     * @param {*} clusterRef
-     */
-    setRequiredElementNotifications(element, added, elementType) {
-      let clusterName = this.selectedCluster.label
-      let endpointId = this.endpointId[this.selectedEndpointId]
-      let contextMessage =
-        `⚠ Check Feature Compliance on endpoint: ${endpointId}, ` +
-        `cluster: ${clusterName}, ${elementType.slice(0, -1)}: `
-      let requiredText = this[`${elementType}RequiredByConform`][element.id]
-      let notSupportedText =
-        this[`${elementType}NotSupportedByConform`][element.id]
-
-      this.$serverPost(restApi.uri.requiredElementWarning, {
-        element: element,
-        contextMessage: contextMessage,
-        requiredText: requiredText,
-        notSupportedText: notSupportedText,
-        added: added
-      })
     }
   }
 }

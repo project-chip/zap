@@ -38,9 +38,7 @@ This software is licensed under [Apache 2.0 license](LICENSE.txt).
 ## Detailed Developer Documentation
 
 - [Validating `.zap` files](docs/validating-zap-files.md)
-- [Configuration commands: a guide](docs/zap-cli-guide.md)
-- [Configuration commands: reference](docs/zap-cli-reference.md)
-- [Configuration commands: architecture](docs/zap-cli-architecture.md)
+- [ZAP configuration commands](docs/zap-cli.md)
 - [ZAP Template Helpers](docs/helpers.md)
 - [ZAP External Template Helpers](docs/external-helpers.md)
 - [ZAP file Extensions](docs/zap-file-extensions.md)

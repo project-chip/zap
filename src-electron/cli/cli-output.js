@@ -22,6 +22,11 @@
  * @module CLI API: output rendering
  */
 
+const validationReport = require('../util/validation-report.js')
+
+const collectIssues = validationReport.collectIssues
+const complianceKey = validationReport.complianceKey
+
 /**
  * Renders a `{ columns, rows }` payload as an aligned plain text table.
  *
@@ -165,51 +170,6 @@ class Report {
 }
 
 /**
- * Flattens a validation report into one entry per finding.
- *
- * Malformed endpoints and out-of-range attribute defaults count as errors,
- * because they make the configuration unusable. Conformance findings count as
- * warnings: a spec-incomplete configuration is a legitimate intermediate state
- * while a person is building one up.
- *
- * @param {*} report Output of `validate-all`.
- * @returns {Array} array of `{ kind, text }`, the text without its kind
- */
-function collectIssues(report) {
-  let issues = []
-  if (report == null) return issues
-
-  for (let row of report.endpoints || []) {
-    let fields = row.issues || {}
-    for (let field of Object.keys(fields)) {
-      for (let issue of fields[field] || []) {
-        issues.push({
-          kind: 'error',
-          text: `endpoint ${row.endpointId}: ${issue}`
-        })
-      }
-    }
-  }
-  for (let row of report.attributes || []) {
-    for (let issue of row.issues || []) {
-      issues.push({
-        kind: 'error',
-        text: `endpoint ${row.endpointIdentifierLabel} ${row.clusterName}/${row.attributeName}: ${issue}`
-      })
-    }
-  }
-  for (let row of report.conformance || []) {
-    for (let warning of row.warnings || []) {
-      issues.push({
-        kind: 'warning',
-        text: `endpoint ${row.endpointId} ${row.clusterName || ''}: ${warning}`
-      })
-    }
-  }
-  return issues
-}
-
-/**
  * Renders one validation finding.
  *
  * @param {*} issue
@@ -260,25 +220,6 @@ function notificationText(notification) {
   let kind = `${notification.type || 'warning'}`.toLowerCase()
   let scope = notification.scope === 'data model' ? 'data model: ' : ''
   return `${kind}: ${scope}${notification.message}`
-}
-
-/**
- * Reduces a finding to its wording, so that the same finding can be recognized
- * whichever of the two sources it came from.
- *
- * Validation and the notifications overlap: both know that a mandatory
- * attribute is switched off, and say so in almost the same sentence, one of
- * them behind a warning sign and inside a longer line. Comparing only the
- * letters and digits lets one stand in for the other.
- *
- * @param {string} message
- * @returns {string} the comparable form
- */
-function complianceKey(message) {
-  return `${message}`
-    .replace(/[^a-z0-9]+/gi, ' ')
-    .trim()
-    .toLowerCase()
 }
 
 /**

@@ -442,22 +442,24 @@
             </template>
             <template v-else-if="customConfig === 'recent'">
               <div class="row justify-end items-center q-mb-sm q-gutter-sm">
-                <q-input
-                  v-model.number="recentFileDays"
-                  type="number"
-                  min="1"
-                  dense
-                  outlined
-                  label="Days to keep"
-                  style="width: 140px"
-                  debounce="500"
-                  data-cy="recent-file-days"
-                  @update:model-value="saveRecentFileDays"
-                >
-                  <q-tooltip>
-                    Files opened or saved within this many days stay on the list
-                  </q-tooltip>
-                </q-input>
+                <div data-cy="recent-file-days">
+                  <q-input
+                    v-model.number="recentFileDays"
+                    type="number"
+                    min="1"
+                    dense
+                    outlined
+                    label="Days to keep"
+                    style="width: 140px"
+                    debounce="500"
+                    @update:model-value="saveRecentFileDays"
+                  >
+                    <q-tooltip>
+                      Files opened or saved within this many days stay on the
+                      list
+                    </q-tooltip>
+                  </q-input>
+                </div>
               </div>
               <q-table
                 title="Recently used .zap files"

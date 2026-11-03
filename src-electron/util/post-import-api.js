@@ -28,7 +28,8 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
 const env = require('./env')
 const operations = require('../operations.js')
-const cliError = require('../cli/cli-error.js')
+const operationRunner = require('./operation-runner.js')
+const operationError = require('./operation-error.js')
 
 /**
  * Prints a text to console.
@@ -98,7 +99,11 @@ function editContext(context) {
  */
 async function run(context, name, params) {
   try {
-    let outcome = await operations.execute(editContext(context), name, params)
+    let outcome = await operationRunner.execute(
+      editContext(context),
+      name,
+      params
+    )
     let messages = (outcome && outcome.messages) || []
     let described = messages.find(
       (message) =>
@@ -116,7 +121,7 @@ async function run(context, name, params) {
       })
     return outcome
   } catch (err) {
-    if (!(err instanceof cliError.CliError)) throw err
+    if (!(err instanceof operationError.OperationError)) throw err
     printError(err.message)
     ;(err.hints || []).forEach((hint) => print(`   ${hint}`))
     return null
@@ -134,7 +139,7 @@ async function lookup(context, find) {
   try {
     return await find()
   } catch (err) {
-    if (!(err instanceof cliError.CliError)) throw err
+    if (!(err instanceof operationError.OperationError)) throw err
     printError(err.message)
     ;(err.hints || []).forEach((hint) => print(`   ${hint}`))
     return null
