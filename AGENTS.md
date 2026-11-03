@@ -7,16 +7,18 @@ thing that costs an hour to rediscover.
 ## What the configuration commands are
 
 Everything the ZAP user interface can do to a `.zap` file, from a terminal.
-The edits live in `src-electron/operations.js`, which a command and a post-load
-script both call. The modules under `src-electron/cli` layer one way with no
-cycles, and a test fails on a cycle or on any of them reaching the database
-other than through `query-*`.
+The shared configuration API in `src-electron/api/configuration.js` is the
+entry point for the CLI, REST handlers, and post-load scripts. The domain
+operations live in `src-electron/operations.js`. The modules under
+`src-electron/cli` layer one way with no cycles, and a test fails on a cycle or
+on any of them reaching the database other than through `query-*`.
 
 ```
 cli-commands      entry point, yargs tree, the run loop
 ├── cli-spec      the entire command surface, as data
 ├── cli-help      renders that surface as a page or a schema
 ├── cli-session   load / mutate / save lifecycle
+├── api           shared configuration boundary (src-electron/api/)
 ├── operations    the edits, lookups and refusals (src-electron/operations.js)
 │   ├── resolver      "On/Off", ON_OFF and 0x0006 all mean the same cluster
 │   ├── session-edit  the write sequence shared with the user interface

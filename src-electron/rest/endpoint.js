@@ -21,11 +21,8 @@
  * @module REST API: endpoint
  */
 
-const queryEndpoint = require('../db/query-endpoint.js')
-const queryPackage = require('../db/query-package.js')
-const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
-const configurationOperation = require('./operation-adapter.js')
+const configurationApi = require('../api').configuration
 const { StatusCodes } = require('http-status-codes')
 
 /**
@@ -37,7 +34,7 @@ const { StatusCodes } = require('http-status-codes')
 function httpDeleteEndpoint(db) {
   return async (request, response) => {
     let id = request.query.id
-    let outcome = await configurationOperation.execute(
+    let outcome = await configurationApi.executeRequest(
       db,
       request,
       'endpoint.delete',
@@ -60,7 +57,7 @@ function httpDeleteEndpoint(db) {
 function httpDeleteEndpointType(db) {
   return async (request, response) => {
     let id = request.query.id
-    let outcome = await configurationOperation.execute(
+    let outcome = await configurationApi.executeRequest(
       db,
       request,
       'endpointtype.delete',
@@ -89,7 +86,7 @@ function httpPostEndpoint(db) {
       deviceIdentifier,
       parentEndpointIdentifier
     } = request.body
-    let parentEndpointRef = await queryEndpoint.getParentEndpointRef(
+    let parentEndpointRef = await configurationApi.readParentEndpointRef(
       db,
       parentEndpointIdentifier,
       request.zapSessionId
@@ -97,7 +94,7 @@ function httpPostEndpoint(db) {
     if (parentEndpointRef == null && parentEndpointIdentifier != null) {
       parentEndpointIdentifier = null
     }
-    let outcome = await configurationOperation.execute(
+    let outcome = await configurationApi.executeRequest(
       db,
       request,
       'endpoint.attach',
@@ -111,7 +108,7 @@ function httpPostEndpoint(db) {
     )
     let newId = outcome.id
     try {
-      let validationData = await validation.validateEndpoint(db, newId)
+      let validationData = await configurationApi.validateEndpoint(db, newId)
       response.status(StatusCodes.OK).json({
         id: newId,
         endpointId: endpointId,
@@ -138,11 +135,11 @@ function httpPatchEndpoint(db) {
   return async (request, response) => {
     let context = request.body
     let parentEndpointIdentifier = context.parentEndpointIdentifier
-    let endpoints = await queryEndpoint.selectAllEndpoints(
+    let endpoint = await configurationApi.readEndpointById(
       db,
-      request.zapSessionId
+      request.zapSessionId,
+      context.id
     )
-    let endpoint = endpoints.find((candidate) => candidate.id == context.id)
     if (endpoint == null) {
       return response.status(StatusCodes.NOT_FOUND).json({
         error: `Unknown endpoint id ${context.id}`
@@ -165,7 +162,7 @@ function httpPatchEndpoint(db) {
     params.parent =
       parentEndpointIdentifier == null ? null : parentEndpointIdentifier
     if (parentEndpointIdentifier != null) {
-      let parentRef = await queryEndpoint.getParentEndpointRef(
+      let parentRef = await configurationApi.readParentEndpointRef(
         db,
         parentEndpointIdentifier,
         request.zapSessionId
@@ -176,8 +173,13 @@ function httpPatchEndpoint(db) {
         params.parent = null
       }
     }
-    await configurationOperation.execute(db, request, 'endpoint.update', params)
-    let validationData = await validation.validateEndpoint(db, context.id)
+    await configurationApi.executeRequest(
+      db,
+      request,
+      'endpoint.update',
+      params
+    )
+    let validationData = await configurationApi.validateEndpoint(db, context.id)
     response.status(StatusCodes.OK).json({
       endpointId: context.id,
       changes: context.changes,
@@ -196,7 +198,7 @@ function httpPatchEndpoint(db) {
 function httpPostEndpointType(db) {
   return async (request, response) => {
     let { name, deviceTypeRef, deviceIdentifier, deviceVersion } = request.body
-    let outcome = await configurationOperation.execute(
+    let outcome = await configurationApi.executeRequest(
       db,
       request,
       'endpointtype.create',
@@ -225,13 +227,8 @@ function httpPostEndpointType(db) {
 function httpGetInitialComposition(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let packages = await queryPackage.getPackageSessionPackagePairBySessionId(
-      db,
-      sessionId
-    )
-    let packageIds = packages.map((item) => item.pkg.id)
-    let rootNode = await queryEndpoint.getRootNode(db, packageIds)
-    response.status(StatusCodes.OK).json(rootNode[0])
+    let rootNode = await configurationApi.readInitialComposition(db, sessionId)
+    response.status(StatusCodes.OK).json(rootNode)
   }
 }
 
@@ -250,7 +247,7 @@ function httpPatchEndpointType(db) {
       type: ''
     }))
 
-    await configurationOperation.execute(db, request, 'endpointtype.update', {
+    await configurationApi.executeRequest(db, request, 'endpointtype.update', {
       endpointTypeId: context.endpointTypeId,
       changes: changes
     })

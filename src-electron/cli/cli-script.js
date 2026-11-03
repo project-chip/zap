@@ -28,7 +28,7 @@
 const fs = require('fs')
 const YAML = require('yaml')
 const cliError = require('./cli-error.js')
-const cliOperations = require('../operations.js')
+const configurationApi = require('../api').configuration
 
 const CliError = cliError.CliError
 
@@ -99,7 +99,7 @@ function normalize(parsed, source = 'script') {
       `${source} must contain a list of operations, or an 'operations:' key holding one`
     )
   }
-  let known = cliOperations.operationNames()
+  let known = configurationApi.operationNames()
   return list.map((entry, index) => {
     if (entry == null || typeof entry !== 'object') {
       throw new CliError(`${source}: entry ${index + 1} is not an object`)

@@ -27,8 +27,7 @@
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
 const env = require('./env')
-const operations = require('../operations.js')
-const operationRunner = require('./operation-runner.js')
+const configurationApi = require('../api').configuration
 const operationError = require('./operation-error.js')
 
 /**
@@ -99,7 +98,7 @@ function editContext(context) {
  */
 async function run(context, name, params) {
   try {
-    let outcome = await operationRunner.execute(
+    let outcome = await configurationApi.execute(
       editContext(context),
       name,
       params
@@ -152,7 +151,7 @@ async function lookup(context, find) {
  * @param {*} context
  */
 async function endpoints(context) {
-  return operations.readEndpoints(
+  return configurationApi.readEndpoints(
     editContext(context),
     context.script ? context.script.category : null
   )
@@ -180,7 +179,7 @@ async function deleteEndpoint(context, endpoint) {
  * @param {*} endpoint
  */
 async function clusters(context, endpoint) {
-  return operations.readClusters(editContext(context), endpoint)
+  return configurationApi.readClusters(editContext(context), endpoint)
 }
 
 /**
@@ -192,7 +191,11 @@ async function clusters(context, endpoint) {
  * @param {*} cluster
  */
 async function attributes(context, endpoint, cluster) {
-  return operations.readAttributes(editContext(context), endpoint, cluster)
+  return configurationApi.readAttributes(
+    editContext(context),
+    endpoint,
+    cluster
+  )
 }
 
 /**
@@ -204,7 +207,7 @@ async function attributes(context, endpoint, cluster) {
  * @param {*} cluster
  */
 async function commands(context, endpoint, cluster) {
-  return operations.readCommands(editContext(context), endpoint, cluster)
+  return configurationApi.readCommands(editContext(context), endpoint, cluster)
 }
 
 /**
@@ -239,7 +242,7 @@ function dbEnums() {
  * @returns all available clusters
  */
 async function availableClusters(context) {
-  return operations.readAvailableClusters(editContext(context))
+  return configurationApi.readAvailableClusters(editContext(context))
 }
 
 /**
@@ -257,7 +260,7 @@ async function availableClusters(context) {
  */
 async function findCluster(context, spec, mfgCode = null) {
   return lookup(context, () =>
-    operations.findCluster(editContext(context), spec, mfgCode)
+    configurationApi.findCluster(editContext(context), spec, mfgCode)
   )
 }
 
@@ -281,7 +284,12 @@ async function findAttribute(
   let cluster = await findCluster(context, clusterSpec, mfgCode)
   if (cluster == null) return null
   return lookup(context, () =>
-    operations.findAttribute(editContext(context), cluster, attributeSpec, side)
+    configurationApi.findAttribute(
+      editContext(context),
+      cluster,
+      attributeSpec,
+      side
+    )
   )
 }
 
@@ -298,7 +306,12 @@ async function findCommand(context, clusterSpec, commandSpec, source) {
   let cluster = await findCluster(context, clusterSpec)
   if (cluster == null) return null
   return lookup(context, () =>
-    operations.findCommand(editContext(context), cluster, commandSpec, source)
+    configurationApi.findCommand(
+      editContext(context),
+      cluster,
+      commandSpec,
+      source
+    )
   )
 }
 
@@ -314,7 +327,7 @@ async function findEvent(context, clusterSpec, eventSpec) {
   let cluster = await findCluster(context, clusterSpec)
   if (cluster == null) return null
   return lookup(context, () =>
-    operations.findEvent(editContext(context), cluster, eventSpec)
+    configurationApi.findEvent(editContext(context), cluster, eventSpec)
   )
 }
 
@@ -532,7 +545,7 @@ async function modifyFeature(context, endpoint, clusterCode, feature, enabled) {
  */
 async function features(context, endpoint, cluster) {
   let rows = await lookup(context, () =>
-    operations.readFeatures(editContext(context), endpoint, cluster)
+    configurationApi.readFeatures(editContext(context), endpoint, cluster)
   )
   return rows || []
 }

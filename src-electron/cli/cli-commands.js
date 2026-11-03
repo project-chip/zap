@@ -36,7 +36,7 @@ const fs = require('fs')
 const yargs = require('yargs/yargs')
 const env = require('../util/env.js')
 const cliSession = require('./cli-session.js')
-const operationRunner = require('../util/operation-runner.js')
+const configurationApi = require('../api').configuration
 const cliOutput = require('./cli-output.js')
 const cliScript = require('./cli-script.js')
 const cliError = require('./cli-error.js')
@@ -546,7 +546,7 @@ async function run(argv, options = {}) {
     // interface creates one the moment you start a new configuration, so
     // starting one here does the same.
     if (startFromBlank && argv.rootNode !== false) {
-      let rootNode = await operationRunner.createRootNode(
+      let rootNode = await configurationApi.createRootNode(
         ctx,
         reportSharedClusterState
       )
@@ -567,7 +567,7 @@ async function run(argv, options = {}) {
       : []
 
     for (let operation of operations) {
-      let opResult = await operationRunner.execute(
+      let opResult = await configurationApi.execute(
         ctx,
         operation.op,
         operation.params,

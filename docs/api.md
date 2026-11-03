@@ -550,21 +550,111 @@ things were successful or not.</p>
 </dd>
 </dl>
 
+## Members
+
+<dl>
+<dt><a href="#configuration">configuration</a></dt>
+<dd><p>Internal application API. Transport adapters should depend on these domain
+services rather than dispatching configuration operations themselves.</p>
+</dd>
+</dl>
+
 ## Constants
 
 <dl>
-<dt><a href="#operationRunner">operationRunner</a></dt>
-<dd><p>Adapts GUI REST requests to the same configuration operations used by the
-CLI. The REST handlers keep their existing HTTP payloads; only the mutation
-implementation is shared.</p>
+<dt><a href="#operations">operations</a></dt>
+<dd><p>Public application API for reading and changing a loaded ZAP configuration.
+HTTP handlers, the CLI, and post-import scripts adapt their inputs and
+outputs here instead of dispatching operations independently.</p>
 </dd>
 </dl>
 
 ## Functions
 
 <dl>
-<dt><a href="#execute">execute(db, request, name, params)</a> ⇒ <code>Promise.&lt;*&gt;</code></dt>
-<dd><p>Runs one configuration operation for the active GUI session.</p>
+<dt><a href="#createContext">createContext()</a></dt>
+<dd><p>Creates the context passed to configuration operations.</p>
+</dd>
+<dt><a href="#execute">execute()</a></dt>
+<dd><p>Runs an operation in an existing configuration context.</p>
+</dd>
+<dt><a href="#executeForSession">executeForSession()</a></dt>
+<dd><p>Runs an operation for a loaded GUI or CLI session.</p>
+</dd>
+<dt><a href="#executeRequest">executeRequest()</a></dt>
+<dd><p>Adapts an HTTP request to the session-oriented configuration API.</p>
+</dd>
+<dt><a href="#createRootNode">createRootNode()</a></dt>
+<dd><p>Creates and reconciles the standard root-node endpoint.</p>
+</dd>
+<dt><a href="#readEndpointsForSession">readEndpointsForSession()</a></dt>
+<dd><p>Reads endpoints from a session, optionally narrowed to a category.</p>
+</dd>
+<dt><a href="#readEndpointById">readEndpointById()</a></dt>
+<dd><p>Finds one endpoint by its database row ID.</p>
+</dd>
+<dt><a href="#readEndpointIds">readEndpointIds()</a></dt>
+<dd><p>Reads the configured endpoint identifiers for a session.</p>
+</dd>
+<dt><a href="#readParentEndpointRef">readParentEndpointRef()</a></dt>
+<dd><p>Resolves a parent endpoint identifier to its database reference.</p>
+</dd>
+<dt><a href="#readInitialComposition">readInitialComposition()</a></dt>
+<dd><p>Reads the root-node composition for a loaded session.</p>
+</dd>
+<dt><a href="#readInitialState">readInitialState()</a></dt>
+<dd><p>Loads the endpoint and session state used to initialize the UI.</p>
+</dd>
+<dt><a href="#readSessionKeyValues">readSessionKeyValues()</a></dt>
+<dd><p>Reads key-value options attached to a session.</p>
+</dd>
+<dt><a href="#readSessionPackagesByType">readSessionPackagesByType()</a></dt>
+<dd><p>Reads packages of one type attached to a session.</p>
+</dd>
+<dt><a href="#readOptions">readOptions()</a></dt>
+<dd><p>Reads package option values for one session category.</p>
+</dd>
+<dt><a href="#readUiOptions">readUiOptions()</a></dt>
+<dd><p>Reads user-interface options from the session&#39;s ZCL package.</p>
+</dd>
+<dt><a href="#readPackageSessionPairs">readPackageSessionPairs()</a></dt>
+<dd><p>Reads package metadata attached to a session.</p>
+</dd>
+<dt><a href="#readAllPackages">readAllPackages()</a></dt>
+<dd><p>Reads all packages available to a session.</p>
+</dd>
+<dt><a href="#readForcedExternalStorage">readForcedExternalStorage()</a></dt>
+<dd><p>Reads storage requirements imposed by the session&#39;s data model.</p>
+</dd>
+<dt><a href="#saveSessionValue">saveSessionValue()</a></dt>
+<dd><p>Stores one session key-value option.</p>
+</dd>
+<dt><a href="#deleteSessionPackage">deleteSessionPackage()</a></dt>
+<dd><p>Removes a package from a session and returns the deleted-row count.</p>
+</dd>
+<dt><a href="#shareClusterStatesAcrossEndpoints">shareClusterStatesAcrossEndpoints()</a></dt>
+<dd><p>Reconciles shared cluster state for the selected endpoint types.</p>
+</dd>
+<dt><a href="#disableObsoleteElements">disableObsoleteElements()</a></dt>
+<dd><p>Disables obsolete elements on an endpoint type.</p>
+</dd>
+<dt><a href="#hasConformanceData">hasConformanceData()</a></dt>
+<dd><p>Reports whether the loaded data model has conformance metadata.</p>
+</dd>
+<dt><a href="#readDeviceTypeFeatures">readDeviceTypeFeatures()</a></dt>
+<dd><p>Reads feature requirements attached to the selected device types.</p>
+</dd>
+<dt><a href="#readEndpointTypeAttribute">readEndpointTypeAttribute()</a></dt>
+<dd><p>Reads an attribute state from an endpoint type and cluster.</p>
+</dd>
+<dt><a href="#validateEndpoint">validateEndpoint()</a></dt>
+<dd><p>Validates an endpoint after a configuration edit.</p>
+</dd>
+<dt><a href="#validateAttribute">validateAttribute()</a></dt>
+<dd><p>Validates an attribute after a configuration edit.</p>
+</dd>
+<dt><a href="#validateSession">validateSession()</a></dt>
+<dd><p>Validates all endpoints and elements in a loaded session.</p>
 </dd>
 <dt><a href="#setEmojiDisabled">setEmojiDisabled(value)</a></dt>
 <dd><p>Set emoji disabled state (for testing)</p>
@@ -17557,45 +17647,60 @@ This module provides the API to access zcl specific information.
 
 
 * [REST API: user data](#module_REST API_ user data)
-    * [~getSessionGenTemplatesPackageIdForCluster(db, sessionId, cluster)](#module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
-    * [~getMergedSessionPackageExtensions(db, sessionId, entity)](#module_REST API_ user data..getMergedSessionPackageExtensions) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module_REST API_ user data..getComponentIdsByCluster) ⇒ <code>\*</code>
-    * [~filterOutComponentsStillRequired(db, sessionId, componentIds)](#module_REST API_ user data..filterOutComponentsStillRequired) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
-    * [~applyOperationToEndpointTypes()](#module_REST API_ user data..applyOperationToEndpointTypes)
-    * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
-    * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
-    * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
-    * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
-    * [~httpPostApplyFeatureUpdate()](#module_REST API_ user data..httpPostApplyFeatureUpdate)
-    * [~httpPostRequiredElements(db)](#module_REST API_ user data..httpPostRequiredElements) ⇒
-    * [~httpGetFeatureMapAttribute(db)](#module_REST API_ user data..httpGetFeatureMapAttribute) ⇒
-    * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
-    * [~httpDeleteSessionNotification(db)](#module_REST API_ user data..httpDeleteSessionNotification) ⇒
-    * [~httpGetPackageNotifications(db)](#module_REST API_ user data..httpGetPackageNotifications) ⇒
-    * [~httpGetPackageNotificationsByPackageId(db)](#module_REST API_ user data..httpGetPackageNotificationsByPackageId) ⇒
-    * [~httpDeletePackageNotification(db)](#module_REST API_ user data..httpDeletePackageNotification) ⇒
-    * [~httpGetUnseenNotificationCount(db)](#module_REST API_ user data..httpGetUnseenNotificationCount) ⇒
-    * [~httpGetUnseenNotificationAndUpdate(db)](#module_REST API_ user data..httpGetUnseenNotificationAndUpdate) ⇒
-    * [~httpPostSaveSessionKeyValue(db)](#module_REST API_ user data..httpPostSaveSessionKeyValue) ⇒
-    * [~httpPostCluster(db)](#module_REST API_ user data..httpPostCluster) ⇒
-    * [~httpPostForcedExternal(db)](#module_REST API_ user data..httpPostForcedExternal) ⇒ <code>function</code>
-    * [~httpPostAttributeUpdate(db)](#module_REST API_ user data..httpPostAttributeUpdate) ⇒
-    * [~httpPostCommandUpdate(db)](#module_REST API_ user data..httpPostCommandUpdate) ⇒
-    * [~httpPostEventUpdate(db)](#module_REST API_ user data..httpPostEventUpdate) ⇒
-    * [~httpGetInitialState(db)](#module_REST API_ user data..httpGetInitialState) ⇒
-    * [~httpGetOption(db)](#module_REST API_ user data..httpGetOption) ⇒
-    * [~httpGetUiOptions(db)](#module_REST API_ user data..httpGetUiOptions) ⇒
-    * [~httpGetPackages()](#module_REST API_ user data..httpGetPackages)
-    * [~httpGetAllPackages()](#module_REST API_ user data..httpGetAllPackages)
-    * [~httpPostAddNewPackage()](#module_REST API_ user data..httpPostAddNewPackage)
-    * [~httpPostShareClusterStatesAcrossEndpoints()](#module_REST API_ user data..httpPostShareClusterStatesAcrossEndpoints)
-    * [~httpDeleteSessionPackage(db)](#module_REST API_ user data..httpDeleteSessionPackage) ⇒
-    * [~httpPostDuplicateEndpoint(db)](#module_REST API_ user data..httpPostDuplicateEndpoint) ⇒
-    * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
-    * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
-    * [~httpGetValidateAll(db)](#module_REST API_ user data..httpGetValidateAll) ⇒
-    * [~httpPostDisableObsoleteElements()](#module_REST API_ user data..httpPostDisableObsoleteElements)
-    * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
+    * _static_
+        * [.post](#module_REST API_ user data.post)
+    * _inner_
+        * [~getSessionGenTemplatesPackageIdForCluster(db, sessionId, cluster)](#module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
+        * [~getMergedSessionPackageExtensions(db, sessionId, entity)](#module_REST API_ user data..getMergedSessionPackageExtensions) ⇒ <code>Promise.&lt;Array&gt;</code>
+        * [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module_REST API_ user data..getComponentIdsByCluster) ⇒ <code>\*</code>
+        * [~filterOutComponentsStillRequired(db, sessionId, componentIds)](#module_REST API_ user data..filterOutComponentsStillRequired) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+        * [~applyOperationToEndpointTypes()](#module_REST API_ user data..applyOperationToEndpointTypes)
+        * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
+        * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
+        * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
+        * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
+        * [~httpPostApplyFeatureUpdate()](#module_REST API_ user data..httpPostApplyFeatureUpdate)
+        * [~httpPostRequiredElements(db)](#module_REST API_ user data..httpPostRequiredElements) ⇒
+        * [~httpGetFeatureMapAttribute(db)](#module_REST API_ user data..httpGetFeatureMapAttribute) ⇒
+        * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
+        * [~httpDeleteSessionNotification(db)](#module_REST API_ user data..httpDeleteSessionNotification) ⇒
+        * [~httpGetPackageNotifications(db)](#module_REST API_ user data..httpGetPackageNotifications) ⇒
+        * [~httpGetPackageNotificationsByPackageId(db)](#module_REST API_ user data..httpGetPackageNotificationsByPackageId) ⇒
+        * [~httpDeletePackageNotification(db)](#module_REST API_ user data..httpDeletePackageNotification) ⇒
+        * [~httpGetUnseenNotificationCount(db)](#module_REST API_ user data..httpGetUnseenNotificationCount) ⇒
+        * [~httpGetUnseenNotificationAndUpdate(db)](#module_REST API_ user data..httpGetUnseenNotificationAndUpdate) ⇒
+        * [~httpPostSaveSessionKeyValue(db)](#module_REST API_ user data..httpPostSaveSessionKeyValue) ⇒
+        * [~httpPostCluster(db)](#module_REST API_ user data..httpPostCluster) ⇒
+        * [~httpPostForcedExternal(db)](#module_REST API_ user data..httpPostForcedExternal) ⇒ <code>function</code>
+        * [~httpPostAttributeUpdate(db)](#module_REST API_ user data..httpPostAttributeUpdate) ⇒
+        * [~httpPostCommandUpdate(db)](#module_REST API_ user data..httpPostCommandUpdate) ⇒
+        * [~httpPostEventUpdate(db)](#module_REST API_ user data..httpPostEventUpdate) ⇒
+        * [~httpGetInitialState(db)](#module_REST API_ user data..httpGetInitialState) ⇒
+        * [~httpGetOption(db)](#module_REST API_ user data..httpGetOption) ⇒
+        * [~httpGetUiOptions(db)](#module_REST API_ user data..httpGetUiOptions) ⇒
+        * [~httpGetPackages()](#module_REST API_ user data..httpGetPackages)
+        * [~httpGetAllPackages()](#module_REST API_ user data..httpGetAllPackages)
+        * [~httpPostAddNewPackage()](#module_REST API_ user data..httpPostAddNewPackage)
+        * [~httpPostShareClusterStatesAcrossEndpoints()](#module_REST API_ user data..httpPostShareClusterStatesAcrossEndpoints)
+        * [~httpDeleteSessionPackage(db)](#module_REST API_ user data..httpDeleteSessionPackage) ⇒
+        * [~httpPostDuplicateEndpoint(db)](#module_REST API_ user data..httpPostDuplicateEndpoint) ⇒
+        * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
+        * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
+        * [~httpGetValidateAll(db)](#module_REST API_ user data..httpGetValidateAll) ⇒
+        * [~httpPostDisableObsoleteElements()](#module_REST API_ user data..httpPostDisableObsoleteElements)
+
+<a name="module_REST API_ user data.post"></a>
+
+### REST API: user data.post
+duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
+
+**Kind**: static property of [<code>REST API: user data</code>](#module_REST API_ user data)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| oldEndpointTypeId | <code>\*</code> | 
+| newEndpointTypeId | <code>\*</code> | 
 
 <a name="module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster"></a>
 
@@ -18041,19 +18146,6 @@ Disable obsolete attributes, commands, events, and features enabled by an
 older configuration, and notify the user about each affected element.
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
-<a name="module_REST API_ user data..duplicateEndpointTypeClusters"></a>
-
-### REST API: user data~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)
-duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
-
-**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| oldEndpointTypeId | <code>\*</code> | 
-| newEndpointTypeId | <code>\*</code> | 
-
 <a name="module_Export API_ Exports Data into a file."></a>
 
 ## Export API: Exports Data into a file.
@@ -18946,45 +19038,60 @@ This module provides the REST API to the user specific data.
 
 
 * [REST API: user data](#module_REST API_ user data)
-    * [~getSessionGenTemplatesPackageIdForCluster(db, sessionId, cluster)](#module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
-    * [~getMergedSessionPackageExtensions(db, sessionId, entity)](#module_REST API_ user data..getMergedSessionPackageExtensions) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module_REST API_ user data..getComponentIdsByCluster) ⇒ <code>\*</code>
-    * [~filterOutComponentsStillRequired(db, sessionId, componentIds)](#module_REST API_ user data..filterOutComponentsStillRequired) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
-    * [~applyOperationToEndpointTypes()](#module_REST API_ user data..applyOperationToEndpointTypes)
-    * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
-    * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
-    * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
-    * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
-    * [~httpPostApplyFeatureUpdate()](#module_REST API_ user data..httpPostApplyFeatureUpdate)
-    * [~httpPostRequiredElements(db)](#module_REST API_ user data..httpPostRequiredElements) ⇒
-    * [~httpGetFeatureMapAttribute(db)](#module_REST API_ user data..httpGetFeatureMapAttribute) ⇒
-    * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
-    * [~httpDeleteSessionNotification(db)](#module_REST API_ user data..httpDeleteSessionNotification) ⇒
-    * [~httpGetPackageNotifications(db)](#module_REST API_ user data..httpGetPackageNotifications) ⇒
-    * [~httpGetPackageNotificationsByPackageId(db)](#module_REST API_ user data..httpGetPackageNotificationsByPackageId) ⇒
-    * [~httpDeletePackageNotification(db)](#module_REST API_ user data..httpDeletePackageNotification) ⇒
-    * [~httpGetUnseenNotificationCount(db)](#module_REST API_ user data..httpGetUnseenNotificationCount) ⇒
-    * [~httpGetUnseenNotificationAndUpdate(db)](#module_REST API_ user data..httpGetUnseenNotificationAndUpdate) ⇒
-    * [~httpPostSaveSessionKeyValue(db)](#module_REST API_ user data..httpPostSaveSessionKeyValue) ⇒
-    * [~httpPostCluster(db)](#module_REST API_ user data..httpPostCluster) ⇒
-    * [~httpPostForcedExternal(db)](#module_REST API_ user data..httpPostForcedExternal) ⇒ <code>function</code>
-    * [~httpPostAttributeUpdate(db)](#module_REST API_ user data..httpPostAttributeUpdate) ⇒
-    * [~httpPostCommandUpdate(db)](#module_REST API_ user data..httpPostCommandUpdate) ⇒
-    * [~httpPostEventUpdate(db)](#module_REST API_ user data..httpPostEventUpdate) ⇒
-    * [~httpGetInitialState(db)](#module_REST API_ user data..httpGetInitialState) ⇒
-    * [~httpGetOption(db)](#module_REST API_ user data..httpGetOption) ⇒
-    * [~httpGetUiOptions(db)](#module_REST API_ user data..httpGetUiOptions) ⇒
-    * [~httpGetPackages()](#module_REST API_ user data..httpGetPackages)
-    * [~httpGetAllPackages()](#module_REST API_ user data..httpGetAllPackages)
-    * [~httpPostAddNewPackage()](#module_REST API_ user data..httpPostAddNewPackage)
-    * [~httpPostShareClusterStatesAcrossEndpoints()](#module_REST API_ user data..httpPostShareClusterStatesAcrossEndpoints)
-    * [~httpDeleteSessionPackage(db)](#module_REST API_ user data..httpDeleteSessionPackage) ⇒
-    * [~httpPostDuplicateEndpoint(db)](#module_REST API_ user data..httpPostDuplicateEndpoint) ⇒
-    * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
-    * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
-    * [~httpGetValidateAll(db)](#module_REST API_ user data..httpGetValidateAll) ⇒
-    * [~httpPostDisableObsoleteElements()](#module_REST API_ user data..httpPostDisableObsoleteElements)
-    * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
+    * _static_
+        * [.post](#module_REST API_ user data.post)
+    * _inner_
+        * [~getSessionGenTemplatesPackageIdForCluster(db, sessionId, cluster)](#module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
+        * [~getMergedSessionPackageExtensions(db, sessionId, entity)](#module_REST API_ user data..getMergedSessionPackageExtensions) ⇒ <code>Promise.&lt;Array&gt;</code>
+        * [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module_REST API_ user data..getComponentIdsByCluster) ⇒ <code>\*</code>
+        * [~filterOutComponentsStillRequired(db, sessionId, componentIds)](#module_REST API_ user data..filterOutComponentsStillRequired) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+        * [~applyOperationToEndpointTypes()](#module_REST API_ user data..applyOperationToEndpointTypes)
+        * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
+        * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
+        * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
+        * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
+        * [~httpPostApplyFeatureUpdate()](#module_REST API_ user data..httpPostApplyFeatureUpdate)
+        * [~httpPostRequiredElements(db)](#module_REST API_ user data..httpPostRequiredElements) ⇒
+        * [~httpGetFeatureMapAttribute(db)](#module_REST API_ user data..httpGetFeatureMapAttribute) ⇒
+        * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
+        * [~httpDeleteSessionNotification(db)](#module_REST API_ user data..httpDeleteSessionNotification) ⇒
+        * [~httpGetPackageNotifications(db)](#module_REST API_ user data..httpGetPackageNotifications) ⇒
+        * [~httpGetPackageNotificationsByPackageId(db)](#module_REST API_ user data..httpGetPackageNotificationsByPackageId) ⇒
+        * [~httpDeletePackageNotification(db)](#module_REST API_ user data..httpDeletePackageNotification) ⇒
+        * [~httpGetUnseenNotificationCount(db)](#module_REST API_ user data..httpGetUnseenNotificationCount) ⇒
+        * [~httpGetUnseenNotificationAndUpdate(db)](#module_REST API_ user data..httpGetUnseenNotificationAndUpdate) ⇒
+        * [~httpPostSaveSessionKeyValue(db)](#module_REST API_ user data..httpPostSaveSessionKeyValue) ⇒
+        * [~httpPostCluster(db)](#module_REST API_ user data..httpPostCluster) ⇒
+        * [~httpPostForcedExternal(db)](#module_REST API_ user data..httpPostForcedExternal) ⇒ <code>function</code>
+        * [~httpPostAttributeUpdate(db)](#module_REST API_ user data..httpPostAttributeUpdate) ⇒
+        * [~httpPostCommandUpdate(db)](#module_REST API_ user data..httpPostCommandUpdate) ⇒
+        * [~httpPostEventUpdate(db)](#module_REST API_ user data..httpPostEventUpdate) ⇒
+        * [~httpGetInitialState(db)](#module_REST API_ user data..httpGetInitialState) ⇒
+        * [~httpGetOption(db)](#module_REST API_ user data..httpGetOption) ⇒
+        * [~httpGetUiOptions(db)](#module_REST API_ user data..httpGetUiOptions) ⇒
+        * [~httpGetPackages()](#module_REST API_ user data..httpGetPackages)
+        * [~httpGetAllPackages()](#module_REST API_ user data..httpGetAllPackages)
+        * [~httpPostAddNewPackage()](#module_REST API_ user data..httpPostAddNewPackage)
+        * [~httpPostShareClusterStatesAcrossEndpoints()](#module_REST API_ user data..httpPostShareClusterStatesAcrossEndpoints)
+        * [~httpDeleteSessionPackage(db)](#module_REST API_ user data..httpDeleteSessionPackage) ⇒
+        * [~httpPostDuplicateEndpoint(db)](#module_REST API_ user data..httpPostDuplicateEndpoint) ⇒
+        * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
+        * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
+        * [~httpGetValidateAll(db)](#module_REST API_ user data..httpGetValidateAll) ⇒
+        * [~httpPostDisableObsoleteElements()](#module_REST API_ user data..httpPostDisableObsoleteElements)
+
+<a name="module_REST API_ user data.post"></a>
+
+### REST API: user data.post
+duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
+
+**Kind**: static property of [<code>REST API: user data</code>](#module_REST API_ user data)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| oldEndpointTypeId | <code>\*</code> | 
+| newEndpointTypeId | <code>\*</code> | 
 
 <a name="module_REST API_ user data..getSessionGenTemplatesPackageIdForCluster"></a>
 
@@ -19430,19 +19537,6 @@ Disable obsolete attributes, commands, events, and features enabled by an
 older configuration, and notify the user about each affected element.
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
-<a name="module_REST API_ user data..duplicateEndpointTypeClusters"></a>
-
-### REST API: user data~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)
-duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
-
-**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| oldEndpointTypeId | <code>\*</code> | 
-| newEndpointTypeId | <code>\*</code> | 
-
 <a name="module_JS API_ Matter specific APIs."></a>
 
 ## JS API: Matter specific APIs.
@@ -33690,29 +33784,189 @@ Promises to perform a post loading step.
 | db | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
-<a name="operationRunner"></a>
+<a name="configuration"></a>
 
-## operationRunner
-Adapts GUI REST requests to the same configuration operations used by the
-CLI. The REST handlers keep their existing HTTP payloads; only the mutation
-implementation is shared.
+## configuration
+Internal application API. Transport adapters should depend on these domain
+services rather than dispatching configuration operations themselves.
+
+**Kind**: global variable  
+<a name="operations"></a>
+
+## operations
+Public application API for reading and changing a loaded ZAP configuration.
+HTTP handlers, the CLI, and post-import scripts adapt their inputs and
+outputs here instead of dispatching operations independently.
 
 **Kind**: global constant  
-<a name="execute"></a>
+<a name="createContext"></a>
 
-## execute(db, request, name, params) ⇒ <code>Promise.&lt;\*&gt;</code>
-Runs one configuration operation for the active GUI session.
+## createContext()
+Creates the context passed to configuration operations.
 
 **Kind**: global function  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - operation result  
+<a name="execute"></a>
 
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| request | <code>\*</code> | 
-| name | <code>string</code> | 
-| params | <code>\*</code> | 
+## execute()
+Runs an operation in an existing configuration context.
 
+**Kind**: global function  
+<a name="executeForSession"></a>
+
+## executeForSession()
+Runs an operation for a loaded GUI or CLI session.
+
+**Kind**: global function  
+<a name="executeRequest"></a>
+
+## executeRequest()
+Adapts an HTTP request to the session-oriented configuration API.
+
+**Kind**: global function  
+<a name="createRootNode"></a>
+
+## createRootNode()
+Creates and reconciles the standard root-node endpoint.
+
+**Kind**: global function  
+<a name="readEndpointsForSession"></a>
+
+## readEndpointsForSession()
+Reads endpoints from a session, optionally narrowed to a category.
+
+**Kind**: global function  
+<a name="readEndpointById"></a>
+
+## readEndpointById()
+Finds one endpoint by its database row ID.
+
+**Kind**: global function  
+<a name="readEndpointIds"></a>
+
+## readEndpointIds()
+Reads the configured endpoint identifiers for a session.
+
+**Kind**: global function  
+<a name="readParentEndpointRef"></a>
+
+## readParentEndpointRef()
+Resolves a parent endpoint identifier to its database reference.
+
+**Kind**: global function  
+<a name="readInitialComposition"></a>
+
+## readInitialComposition()
+Reads the root-node composition for a loaded session.
+
+**Kind**: global function  
+<a name="readInitialState"></a>
+
+## readInitialState()
+Loads the endpoint and session state used to initialize the UI.
+
+**Kind**: global function  
+<a name="readSessionKeyValues"></a>
+
+## readSessionKeyValues()
+Reads key-value options attached to a session.
+
+**Kind**: global function  
+<a name="readSessionPackagesByType"></a>
+
+## readSessionPackagesByType()
+Reads packages of one type attached to a session.
+
+**Kind**: global function  
+<a name="readOptions"></a>
+
+## readOptions()
+Reads package option values for one session category.
+
+**Kind**: global function  
+<a name="readUiOptions"></a>
+
+## readUiOptions()
+Reads user-interface options from the session's ZCL package.
+
+**Kind**: global function  
+<a name="readPackageSessionPairs"></a>
+
+## readPackageSessionPairs()
+Reads package metadata attached to a session.
+
+**Kind**: global function  
+<a name="readAllPackages"></a>
+
+## readAllPackages()
+Reads all packages available to a session.
+
+**Kind**: global function  
+<a name="readForcedExternalStorage"></a>
+
+## readForcedExternalStorage()
+Reads storage requirements imposed by the session's data model.
+
+**Kind**: global function  
+<a name="saveSessionValue"></a>
+
+## saveSessionValue()
+Stores one session key-value option.
+
+**Kind**: global function  
+<a name="deleteSessionPackage"></a>
+
+## deleteSessionPackage()
+Removes a package from a session and returns the deleted-row count.
+
+**Kind**: global function  
+<a name="shareClusterStatesAcrossEndpoints"></a>
+
+## shareClusterStatesAcrossEndpoints()
+Reconciles shared cluster state for the selected endpoint types.
+
+**Kind**: global function  
+<a name="disableObsoleteElements"></a>
+
+## disableObsoleteElements()
+Disables obsolete elements on an endpoint type.
+
+**Kind**: global function  
+<a name="hasConformanceData"></a>
+
+## hasConformanceData()
+Reports whether the loaded data model has conformance metadata.
+
+**Kind**: global function  
+<a name="readDeviceTypeFeatures"></a>
+
+## readDeviceTypeFeatures()
+Reads feature requirements attached to the selected device types.
+
+**Kind**: global function  
+<a name="readEndpointTypeAttribute"></a>
+
+## readEndpointTypeAttribute()
+Reads an attribute state from an endpoint type and cluster.
+
+**Kind**: global function  
+<a name="validateEndpoint"></a>
+
+## validateEndpoint()
+Validates an endpoint after a configuration edit.
+
+**Kind**: global function  
+<a name="validateAttribute"></a>
+
+## validateAttribute()
+Validates an attribute after a configuration edit.
+
+**Kind**: global function  
+<a name="validateSession"></a>
+
+## validateSession()
+Validates all endpoints and elements in a loaded session.
+
+**Kind**: global function  
 <a name="setEmojiDisabled"></a>
 
 ## setEmojiDisabled(value)

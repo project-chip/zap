@@ -22,27 +22,12 @@
  */
 
 const env = require('../util/env')
-const queryZcl = require('../db/query-zcl.js')
-const queryAttribute = require('../db/query-attribute.js')
-const queryCommand = require('../db/query-command.js')
-const queryEvent = require('../db/query-event.js')
-const queryFeature = require('../db/query-feature')
-const queryConfig = require('../db/query-config.js')
-const upgrade = require('../sdk/matter.js')
 const querySessionNotification = require('../db/query-session-notification.js')
 const queryPackageNotification = require('../db/query-package-notification')
-const queryEndpointType = require('../db/query-endpoint-type.js')
-const queryEndpoint = require('../db/query-endpoint.js')
-const querySession = require('../db/query-session.js')
-const queryPackage = require('../db/query-package.js')
-const sharedClusterState = require('../util/shared-cluster-state.js')
-const asyncValidation = require('../validation/async-validation.js')
-const validation = require('../validation/validation.js')
-const validateAll = require('../validation/validate-all.js')
 const restApi = require('../../src-shared/rest-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
-const configurationOperation = require('./operation-adapter.js')
+const configurationApi = require('../api').configuration
 
 /** Runs one shared operation for each distinct endpoint type in a GUI edit. */
 async function applyOperationToEndpointTypes(
@@ -52,7 +37,7 @@ async function applyOperationToEndpointTypes(
   name,
   params
 ) {
-  const endpoints = await queryEndpoint.selectAllEndpoints(
+  const endpoints = await configurationApi.readEndpointsForSession(
     db,
     request.zapSessionId
   )
@@ -63,7 +48,7 @@ async function applyOperationToEndpointTypes(
     if (endpoint == null) {
       throw new Error(`No endpoint uses endpoint type ${endpointTypeId}`)
     }
-    await configurationOperation.execute(db, request, name, {
+    await configurationApi.executeRequest(db, request, name, {
       ...params,
       endpointId: endpoint.id
     })
@@ -79,7 +64,7 @@ async function applyOperationToEndpointTypes(
 function httpGetSessionKeyValues(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let sessionKeyValues = await querySession.getAllSessionKeyValues(
+    let sessionKeyValues = await configurationApi.readSessionKeyValues(
       db,
       sessionId
     )
@@ -95,11 +80,7 @@ function httpGetSessionKeyValues(db) {
 function httpGetEndpointIds(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let endpoints = await queryEndpoint.selectAllEndpoints(db, sessionId)
-    let endpointIds = []
-    endpoints.forEach((endpoint) => {
-      endpointIds.push(endpoint.endpointIdentifier)
-    })
+    let endpointIds = await configurationApi.readEndpointIds(db, sessionId)
     response.status(StatusCodes.OK).json(endpointIds)
   }
 }
@@ -114,7 +95,7 @@ function httpGetDeviceTypeFeatures(db) {
   return async (request, response) => {
     let { deviceTypeRefs, endpointTypeRef } = request.query
     if (Array.isArray(deviceTypeRefs) && deviceTypeRefs.length > 0) {
-      let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
+      let deviceTypeFeatures = await configurationApi.readDeviceTypeFeatures(
         db,
         deviceTypeRefs,
         endpointTypeRef
@@ -136,7 +117,7 @@ function httpGetDeviceTypeFeatures(db) {
 function httpPostCheckConformOnFeatureUpdate(db) {
   return async (request, response) => {
     let { featureData, endpointId, cluster, enabled } = request.body
-    const outcome = await configurationOperation.execute(
+    const outcome = await configurationApi.executeRequest(
       db,
       request,
       'feature.preview',
@@ -165,7 +146,7 @@ function httpPostCheckConformOnFeatureUpdate(db) {
 function httpPostApplyFeatureUpdate(db) {
   return async (request, response) => {
     const { endpoint, cluster, feature, enabled } = request.body
-    const outcome = await configurationOperation.execute(
+    const outcome = await configurationApi.executeRequest(
       db,
       request,
       enabled ? 'feature.enable' : 'feature.disable',
@@ -183,7 +164,7 @@ function httpPostApplyFeatureUpdate(db) {
 function httpPostRequiredElements(db) {
   return async (request, response) => {
     const { endpoint, cluster } = request.body
-    const outcome = await configurationOperation.execute(
+    const outcome = await configurationApi.executeRequest(
       db,
       request,
       'feature.requirements',
@@ -202,7 +183,7 @@ function httpPostRequiredElements(db) {
 function httpGetFeatureMapAttribute(db) {
   return async (request, response) => {
     let { attributeId, clusterId, endpointTypeId } = request.query
-    let featureMapAttribute = await queryZcl.selectEndpointTypeAttribute(
+    let featureMapAttribute = await configurationApi.readEndpointTypeAttribute(
       db,
       endpointTypeId,
       attributeId,
@@ -329,7 +310,7 @@ function httpPostSaveSessionKeyValue(db) {
     let { key, value } = request.body
     let sessionId = request.zapSessionId
     env.logDebug(`[${sessionId}]: Saving: ${key} => ${value}`)
-    await querySession.updateSessionKeyValue(db, sessionId, key, value)
+    await configurationApi.saveSessionValue(db, sessionId, key, value)
     response.status(StatusCodes.OK).json({
       key: key,
       value: value
@@ -388,12 +369,10 @@ function httpPostCluster(db) {
 function httpPostForcedExternal(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let packages = await queryPackage.getPackageSessionPackagePairBySessionId(
+    let forcedExternal = await configurationApi.readForcedExternalStorage(
       db,
       sessionId
     )
-    let packageIds = packages.map((item) => item.pkg.id)
-    let forcedExternal = await upgrade.getForcedExternalStorage(db, packageIds)
     response.status(StatusCodes.OK).json(forcedExternal)
   }
 }
@@ -476,7 +455,7 @@ function httpPostAttributeUpdate(db) {
       }
     )
     // send latest value to frontend to update UI
-    let eptAttr = await queryZcl.selectEndpointTypeAttribute(
+    let eptAttr = await configurationApi.readEndpointTypeAttribute(
       db,
       selectedEndpoint,
       id,
@@ -486,7 +465,7 @@ function httpPostAttributeUpdate(db) {
     // only return 1 validation result.
     // error isn't endpoint specific.
     // endpointTypeId doesn't matter since all attributes are the seame.
-    let validationData = await validation.validateAttribute(
+    let validationData = await configurationApi.validateAttribute(
       db,
       selectedEndpoint,
       id,
@@ -608,18 +587,7 @@ function httpGetInitialState(db) {
     let state = { endpointTypes: [], endpoints: [], sessionKeyValues: [] }
 
     try {
-      let session = await querySession.getSessionFromSessionId(db, sessionId)
-      if (session) await asyncValidation.initAsyncValidation(db, session)
-
-      let results = await Promise.all([
-        queryEndpointType.selectAllEndpointTypes(db, sessionId),
-        queryEndpoint.selectAllEndpoints(db, sessionId),
-        querySession.getAllSessionKeyValues(db, sessionId)
-      ])
-
-      state.endpointTypes = results[0]
-      state.endpoints = results[1]
-      state.sessionKeyValues = results[2]
+      state = await configurationApi.readInitialState(db, sessionId)
     } catch (error) {
       console.error(error)
     }
@@ -638,12 +606,7 @@ function httpGetOption(db) {
   return async (request, response) => {
     const { category } = request.params
     let sessionId = request.zapSessionId
-    let packages = await queryPackage.getSessionPackages(db, sessionId)
-    let p = packages.map((pkg) =>
-      queryPackage.selectAllOptionsValues(db, pkg.packageRef, category)
-    )
-    let data = await Promise.all(p)
-    data = data.flat(1)
+    let data = await configurationApi.readOptions(db, sessionId, category)
     response.status(StatusCodes.OK).json(data)
   }
 }
@@ -656,11 +619,7 @@ function httpGetOption(db) {
 function httpGetUiOptions(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let packages = await queryPackage.getSessionPackages(db, sessionId)
-    let zclPackage = await queryPackage.getZclPropertiesPackage(db, packages)
-    let data = []
-    if (zclPackage != null && zclPackage.length > 0)
-      data = await queryPackage.selectAllUiOptions(db, zclPackage[0].id)
+    let data = await configurationApi.readUiOptions(db, sessionId)
     response.status(StatusCodes.OK).json(data)
   }
 }
@@ -672,7 +631,7 @@ function httpGetPackages(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
     let packageSessionPackagePairs =
-      await queryPackage.getPackageSessionPackagePairBySessionId(db, sessionId)
+      await configurationApi.readPackageSessionPairs(db, sessionId)
     response.status(StatusCodes.OK).json(packageSessionPackagePairs)
   }
 }
@@ -682,7 +641,7 @@ function httpGetPackages(db) {
  */
 function httpGetAllPackages(db) {
   return async (request, response) => {
-    let packages = await queryPackage.getAllPackages(db)
+    let packages = await configurationApi.readAllPackages(db)
     response.status(StatusCodes.OK).json({ packages })
   }
 }
@@ -695,7 +654,7 @@ function httpPostAddNewPackage(db) {
     let sessionId = req.zapSessionId
     let filePath = req.body.path
     try {
-      await configurationOperation.execute(db, req, 'package.add', {
+      await configurationApi.executeRequest(db, req, 'package.add', {
         xml: [filePath]
       })
       res.status(StatusCodes.OK).json({
@@ -729,7 +688,7 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
   return async (request, response) => {
     let { endpointTypeIdList } = request.body
     let sessionId = request.zapSessionId
-    let packageIds = await queryPackage.getSessionPackagesByType(
+    let packageIds = await configurationApi.readSessionPackagesByType(
       db,
       sessionId,
       dbEnum.packageType.zclProperties
@@ -741,7 +700,7 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
       return response.status(StatusCodes.BAD_REQUEST).send()
     }
 
-    let result = await sharedClusterState.shareClusterStatesAcrossEndpoints(
+    let result = await configurationApi.shareClusterStatesAcrossEndpoints(
       db,
       endpointTypeIdList,
       packageIds
@@ -760,15 +719,9 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
 function httpDeleteSessionPackage(db) {
   return async (request, response) => {
     let { sessionRef, packageRef } = request.query
-    let sessionPartitionInfo =
-      await querySession.selectSessionPartitionInfoFromPackageId(
-        db,
-        sessionRef,
-        packageRef
-      )
-    let removed = await queryPackage.deleteSessionPackage(
+    let removed = await configurationApi.deleteSessionPackage(
       db,
-      sessionPartitionInfo[0].sessionPartitionId,
+      sessionRef,
       packageRef
     )
 
@@ -791,7 +744,7 @@ function httpPostDuplicateEndpoint(db) {
     let endpointId = req.body.id
     let endpointIdentifier = req.body.endpointIdentifier
     let endpointTypeId = req.body.endpointTypeId
-    let outcome = await configurationOperation.execute(
+    let outcome = await configurationApi.executeRequest(
       db,
       req,
       'endpoint.duplicate',
@@ -814,7 +767,7 @@ function httpPostDuplicateEndpoint(db) {
 function httpPostDuplicateEndpointType(db) {
   return async (request, response) => {
     let { endpointTypeId } = request.body
-    let outcome = await configurationOperation.execute(
+    let outcome = await configurationApi.executeRequest(
       db,
       request,
       'endpointtype.duplicate',
@@ -835,7 +788,7 @@ function httpPostDuplicateEndpointType(db) {
  */
 function httpGetConformDataExists(db) {
   return async (request, response) => {
-    let conformDataExists = await queryFeature.checkIfConformanceDataExist(db)
+    let conformDataExists = await configurationApi.hasConformanceData(db)
     response.status(StatusCodes.OK).json(conformDataExists)
   }
 }
@@ -849,9 +802,11 @@ function httpGetConformDataExists(db) {
 function httpGetValidateAll(db) {
   return async (request, response) => {
     try {
-      const report = await validateAll.validateAll(db, request.zapSessionId, {
-        persistConformanceNotifications: false
-      })
+      const report = await configurationApi.validateSession(
+        db,
+        request.zapSessionId,
+        { persistConformanceNotifications: false }
+      )
       response.status(StatusCodes.OK).json(report)
     } catch (err) {
       env.logError(err)
@@ -868,7 +823,7 @@ function httpGetValidateAll(db) {
  */
 function httpPostDisableObsoleteElements(db) {
   return async (request, response) => {
-    const elements = await queryConfig.disableObsoleteElements(
+    const elements = await configurationApi.disableObsoleteElements(
       db,
       request.zapSessionId,
       request.body.endpointTypeId
@@ -884,66 +839,6 @@ function httpPostDisableObsoleteElements(db) {
  * @param {*} oldEndpointTypeId
  * @param {*} newEndpointTypeId
  */
-async function duplicateEndpointTypeClusters(
-  db,
-  oldEndpointTypeId,
-  newEndpointTypeId
-) {
-  let oldEndpointTypeClusters = await queryConfig.selectEndpointClusters(
-    db,
-    oldEndpointTypeId
-  )
-  oldEndpointTypeClusters.forEach(async (endpointTypeCluster) => {
-    let newEndpointTypeClusterId =
-      await queryConfig.insertOrReplaceClusterState(
-        db,
-        newEndpointTypeId,
-        endpointTypeCluster.clusterRef,
-        endpointTypeCluster.side,
-        endpointTypeCluster.enabled
-      )
-    let oldAttributes =
-      await queryAttribute.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
-        db,
-        oldEndpointTypeId,
-        endpointTypeCluster.endpointTypeClusterId
-      )
-    oldAttributes.forEach(async (attrubute) => {
-      await queryAttribute.duplicateEndpointTypeAttribute(
-        db,
-        newEndpointTypeClusterId,
-        attrubute
-      )
-    })
-    let oldCommands =
-      await queryCommand.selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef(
-        db,
-        oldEndpointTypeId,
-        endpointTypeCluster.endpointTypeClusterId
-      )
-    oldCommands.forEach(async (command) => {
-      await queryCommand.duplicateEndpointTypeCommand(
-        db,
-        newEndpointTypeClusterId,
-        command
-      )
-    })
-    let oldEvents =
-      await queryEvent.selectEndpointTypeEventsByEndpointTypeRefAndClusterRef(
-        db,
-        oldEndpointTypeId,
-        endpointTypeCluster.endpointTypeClusterId
-      )
-    oldEvents.forEach(async (event) => {
-      await queryEvent.duplicateEndpointTypeEvent(
-        db,
-        newEndpointTypeClusterId,
-        event
-      )
-    })
-  })
-}
-
 exports.post = [
   {
     uri: restApi.uri.forcedExternal,
