@@ -101,10 +101,10 @@ refuse saving when an edit introduces validation errors.
 ```mermaid
 flowchart LR
   gui[Vue UI] --> rest[REST handlers]
-  cli[CLI] --> runner[Operation runner]
-  rest --> adapter[REST operation adapter]
-  adapter --> runner
-  post[Post-import scripts] --> runner
+  cli[CLI] --> api[Configuration API]
+  rest --> api
+  post[Post-import scripts] --> api
+  api --> runner[Operation runner]
   runner --> ops[operations.js]
   ops --> shared[resolver, session-edit, policy]
   shared --> queries[query-* database modules]
@@ -113,11 +113,13 @@ flowchart LR
   db -->|export| file
 ```
 
-The CLI and post-import scripts call the operation runner directly. REST
-handlers translate browser requests into the same operations and retain the
-GUI's HTTP interface. Vue presents results, confirmations, and refreshed state;
-it does not implement a second configuration write path. Reads continue
-through REST and the shared `query-*` modules.
+`src-electron/api/configuration.js` is the shared application boundary for
+configuration edits and reads. The CLI, REST handlers, and post-import scripts
+use it to dispatch operations, apply shared-state reconciliation, resolve
+configuration data, and enforce policy. REST handlers adapt HTTP payloads and
+responses; Vue presents results, confirmations, and refreshed state. The HTTP
+boundary remains in `src-electron/rest/`, while configuration behavior lives
+behind the shared API.
 
 The CLI's command surface lives in `src-electron/cli/cli-spec.js`. The parser
 and human or JSON help are generated from that declaration. Implement each
