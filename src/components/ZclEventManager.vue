@@ -163,8 +163,6 @@ export default {
         addedValue = false
       }
 
-      this.setRequiredElementNotifications(eventData, addedValue, 'events')
-
       let editContext = {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointTypeId,

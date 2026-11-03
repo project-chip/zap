@@ -25,10 +25,9 @@ cli-commands      entry point, yargs tree, the run loop
 └── cli-output    tables, JSON, the validation and notification diffs
 ```
 
-Read [`docs/zap-cli-architecture.md`](docs/zap-cli-architecture.md) before
-changing any of it. The reference is
-[`docs/zap-cli-reference.md`](docs/zap-cli-reference.md) and the walkthrough is
-[`docs/zap-cli-guide.md`](docs/zap-cli-guide.md).
+Read [`docs/zap-cli.md`](docs/zap-cli.md) before changing any of it. It
+summarizes the architecture, CLI workflow, operation model, and extension
+points.
 
 ## Rules that hold the design together
 

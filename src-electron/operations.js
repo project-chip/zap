@@ -16,10 +16,9 @@
  */
 
 /**
- * The configuration engine. The command line and a post-load script are both
- * interfaces over it: one parses flags and renders tables, the other parses a
- * script's arguments and prints a line. The edits, the lookups and the
- * refusals are here, so the two interfaces cannot do a different thing.
+ * The configuration engine. The command line and post-load scripts are
+ * interfaces over it: each translates its inputs and presents the result, but
+ * edits, lookups and refusals are shared here.
  *
  * Each operation takes `(ctx, params)` and returns
  * `{ changed, messages, table, next }`: whether the configuration was
@@ -42,32 +41,31 @@ const queryDeviceType = require('./db/query-device-type.js')
 const queryZcl = require('./db/query-zcl.js')
 const queryPackage = require('./db/query-package.js')
 const querySession = require('./db/query-session.js')
+const querySessionNotification = require('./db/query-session-notification.js')
 const querySessionZcl = require('./db/query-session-zcl.js')
 const validation = require('./validation/validation.js')
+const conformChecker = require('./validation/conformance-checker.js')
 const sharedClusterState = require('./util/shared-cluster-state.js')
 const sessionEdit = require('./util/session-edit.js')
 const studio = require('./ide-integration/studio-rest-api.js')
 const zclComponents = require('./ide-integration/zcl-components.js')
 const { StatusCodes } = require('http-status-codes')
 const resolver = require('./util/resolver.js')
-const cliError = require('./cli/cli-error.js')
-const cliOutput = require('./cli/cli-output.js')
+const operationError = require('./util/operation-error.js')
+const sessionContent = require('./util/session-content.js')
+const validationReport = require('./util/validation-report.js')
 const dataModelPolicy = require('./util/policy.js')
 
-const CliError = cliError.CliError
-
-/**
- * The load and save lifecycle. Required on use rather than here: this module
- * is the engine a post-load script calls, and the lifecycle loads the
- * importer, which loads that script. A top-level require would cycle.
- *
- * @returns {*} the session module
- */
-function sessionLifecycle() {
-  return require('./cli/cli-session.js')
-}
+const OperationError = operationError.OperationError
 
 const asHex = resolver.asHex
+const editableSessionOptionKeys = new Set([
+  dbEnum.sessionOption.manufacturerCodes,
+  dbEnum.sessionOption.defaultResponsePolicy,
+  'commandDiscovery',
+  dbEnum.sessionKey.disableComponentToggling,
+  dbEnum.sessionKey.informationText
+])
 
 /**
  * Shorthand for building an operation result.
@@ -310,27 +308,10 @@ async function endpointCreate(ctx, params) {
   let identifier = resolver.requireInteger(params.endpoint, 'Endpoint')
   let deviceTypeSpecs = asArray(params.deviceType)
   if (deviceTypeSpecs.length === 0) {
-    throw new CliError('At least one --device-type is required')
+    throw new OperationError('At least one --device-type is required')
   }
 
-  let existing = await queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId)
-  if (existing.some((e) => e.endpointIdentifier === identifier)) {
-    // Multiprotocol configurations do reuse identifiers across protocols, and
-    // the read side copes with that, but ZAP's own validation counts endpoints
-    // session-wide and reports any repeat as 'Duplicate EndpointIds Exist'.
-    // Creating one on purpose would mean producing a configuration the rest of
-    // ZAP calls invalid, so it is refused and the reason given.
-    let categories = await resolver.sessionCategories(ctx)
-    throw new CliError(`Endpoint ${identifier} already exists`, [
-      `Use 'zap endpoint update' to change it, or pick a free identifier.`,
-      ...(categories.length > 1
-        ? [
-            `This configuration spans ${categories.join(' and ')}, and identifiers`,
-            `are counted across all of them by ZAP's validation.`
-          ]
-        : [])
-    ])
-  }
+  await requireUniqueEndpointIdentifier(ctx, identifier)
 
   let deviceTypes = []
   for (let spec of deviceTypeSpecs) {
@@ -345,7 +326,7 @@ async function endpointCreate(ctx, params) {
   } else if (versions.length === 1 && deviceTypes.length > 1) {
     versions = deviceTypes.map(() => versions[0])
   } else if (versions.length !== deviceTypes.length) {
-    throw new CliError(
+    throw new OperationError(
       `Got ${versions.length} --device-version values for ${deviceTypes.length} device types`
     )
   }
@@ -377,11 +358,12 @@ async function endpointCreate(ctx, params) {
 
   // The device types have just switched on everything they mandate, so the
   // useful next move is to look at that before adding anything by hand.
+  let createdEndpoint = (
+    await queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId)
+  ).find((e) => e.endpointIdentifier === identifier)
   let enabled = await queryZcl.selectEndpointTypeClustersByEndpointTypeId(
     ctx.db,
-    (await queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId)).find(
-      (e) => e.endpointIdentifier === identifier
-    ).endpointTypeRef
+    createdEndpoint.endpointTypeRef
   )
   let enabledCount = enabled.filter((c) => c.enabled).length
 
@@ -393,7 +375,7 @@ async function endpointCreate(ctx, params) {
   ]
   messages.push(...(await installStudioComponentsForClusters(ctx, enabled)))
 
-  return result(true, messages, null, [
+  let outcome = result(true, messages, null, [
     suggestion(ctx, 'cluster list', {
       endpoint: identifier,
       'enabled-only': true
@@ -404,6 +386,101 @@ async function endpointCreate(ctx, params) {
       side: 'server'
     })
   ])
+  outcome.id = createdEndpoint.id
+  return outcome
+}
+
+/**
+ * Adds an endpoint using an endpoint type that already exists in the session.
+ */
+async function endpointAttach(ctx, params) {
+  const identifier = resolver.requireInteger(params.endpoint, 'Endpoint')
+  await requireUniqueEndpointIdentifier(ctx, identifier)
+  const endpointTypeId = await requireEndpointTypeInSession(
+    ctx,
+    params.endpointTypeId
+  )
+  const endpointType = await queryEndpointType.selectEndpointType(
+    ctx.db,
+    endpointTypeId
+  )
+  const primaryDeviceType = endpointType.deviceTypes.length
+    ? await queryDeviceType.selectDeviceTypeById(
+        ctx.db,
+        endpointType.deviceTypes[0]
+      )
+    : null
+  const networkId =
+    params.network == null
+      ? 0
+      : resolver.requireInteger(params.network, 'Network')
+  const profileId =
+    params.profile == null
+      ? primaryDeviceType == null
+        ? 0
+        : primaryDeviceType.profileId
+      : resolver.requireInteger(params.profile, 'Profile')
+  let parentRef = null
+  if (params.parentId !== undefined) {
+    parentRef =
+      params.parentId == null
+        ? null
+        : (
+            await resolveOperationEndpoint(ctx, {
+              endpointId: params.parentId
+            })
+          ).id
+  } else if (params.parent != null && `${params.parent}` !== '') {
+    parentRef = (await resolver.resolveEndpoint(ctx, params.parent)).id
+  }
+  const id = await queryEndpoint.insertEndpoint(
+    ctx.db,
+    ctx.sessionId,
+    identifier,
+    endpointTypeId,
+    networkId,
+    profileId,
+    parentRef
+  )
+  const clusterStates =
+    await queryZcl.selectEndpointTypeClustersByEndpointTypeId(
+      ctx.db,
+      endpointTypeId
+    )
+  const outcome = result(true, [
+    `Created endpoint ${identifier}`,
+    ...(await installStudioComponentsForClusters(ctx, clusterStates))
+  ])
+  outcome.id = id
+  outcome.endpointTypeId = endpointTypeId
+  return outcome
+}
+
+/** Resolves a GUI's database endpoint id or a CLI's visible endpoint number. */
+async function resolveOperationEndpoint(ctx, params) {
+  if (params.endpointId == null) {
+    return resolver.resolveEndpoint(ctx, params.endpoint)
+  }
+  const id = resolver.requireInteger(params.endpointId, 'Endpoint id')
+  const endpoints = await queryEndpoint.selectAllEndpoints(
+    ctx.db,
+    ctx.sessionId
+  )
+  const endpoint = endpoints.find((candidate) => Number(candidate.id) === id)
+  if (endpoint == null) throw new OperationError(`Unknown endpoint id ${id}`)
+  return endpoint
+}
+
+/** Resolves a cluster by its GUI database id or its CLI name/code. */
+async function resolveOperationCluster(ctx, endpoint, params) {
+  if (params.clusterId == null) {
+    return resolver.resolveCluster(ctx, params.cluster, endpoint)
+  }
+  const id = resolver.requireInteger(params.clusterId, 'Cluster id')
+  const clusters = await resolver.clustersForEndpoint(ctx, endpoint)
+  const cluster = clusters.find((candidate) => Number(candidate.id) === id)
+  if (cluster == null) throw new OperationError(`Unknown cluster id ${id}`)
+  return cluster
 }
 
 /**
@@ -415,24 +492,11 @@ async function endpointCreate(ctx, params) {
  * @returns {Promise<number>} the new endpoint type id
  */
 async function insertEndpointWithDeviceTypes(ctx, spec) {
-  let partitions = await querySession.selectSessionPartitionInfoFromDeviceType(
-    ctx.db,
-    ctx.sessionId,
-    spec.deviceTypes.map((d) => d.id)
-  )
-  if (partitions.length === 0) {
-    throw new CliError(
-      `Could not find the ZCL package that owns device type '${spec.deviceTypes[0].name}'`
-    )
-  }
-
-  let endpointTypeId = await queryConfig.insertEndpointType(
-    ctx.db,
-    partitions[0],
-    spec.name || 'Anonymous Endpoint Type',
-    spec.deviceTypes.map((d) => d.id),
-    spec.deviceTypes.map((d) => d.code),
-    spec.versions
+  let endpointTypeId = await createEndpointTypeFromDeviceTypes(
+    ctx,
+    spec.deviceTypes,
+    spec.versions,
+    spec.name
   )
   await queryEndpoint.insertEndpoint(
     ctx.db,
@@ -443,6 +507,81 @@ async function insertEndpointWithDeviceTypes(ctx, spec) {
     spec.profileId,
     spec.parentRef == null ? null : spec.parentRef
   )
+  return endpointTypeId
+}
+
+/**
+ * Creates an endpoint type from resolved device types.
+ *
+ * @param {*} ctx
+ * @param {Array} deviceTypes
+ * @param {number[]} versions
+ * @param {string} [name]
+ * @returns {Promise<number>} the new endpoint type id
+ */
+async function createEndpointTypeFromDeviceTypes(
+  ctx,
+  deviceTypes,
+  versions,
+  name
+) {
+  let partitions = await querySession.selectSessionPartitionInfoFromDeviceType(
+    ctx.db,
+    ctx.sessionId,
+    deviceTypes.map((d) => d.id)
+  )
+  if (partitions.length === 0) {
+    throw new OperationError(
+      `Could not find the ZCL package that owns device type '${deviceTypes[0].name}'`
+    )
+  }
+
+  return queryConfig.insertEndpointType(
+    ctx.db,
+    partitions[0],
+    name || 'Anonymous Endpoint Type',
+    deviceTypes.map((d) => d.id),
+    deviceTypes.map((d) => d.code),
+    versions
+  )
+}
+
+/** Refuses endpoint identifiers already used anywhere in the session. */
+async function requireUniqueEndpointIdentifier(ctx, identifier) {
+  let existing = await queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId)
+  if (existing.some((e) => e.endpointIdentifier === identifier)) {
+    // Validation counts endpoint identifiers session-wide, including in
+    // multiprotocol configurations, so creating a duplicate would leave an
+    // invalid configuration.
+    let categories = await resolver.sessionCategories(ctx)
+    throw new OperationError(`Endpoint ${identifier} already exists`, [
+      `Use 'zap endpoint update' to change it, or pick a free identifier.`,
+      ...(categories.length > 1
+        ? [
+            `This configuration spans ${categories.join(' and ')}, and identifiers`,
+            `are counted across all of them by ZAP's validation.`
+          ]
+        : [])
+    ])
+  }
+}
+
+/** Resolves an endpoint type only when it belongs to the active session. */
+async function requireEndpointTypeInSession(ctx, endpointTypeRef) {
+  const endpointTypeId = resolver.requireInteger(
+    endpointTypeRef,
+    'Endpoint type'
+  )
+  const endpointType = await queryEndpointType.selectEndpointType(
+    ctx.db,
+    endpointTypeId
+  )
+  if (
+    endpointType == null ||
+    Number(endpointType.sessionRef) !== Number(ctx.sessionId)
+  ) {
+    throw new OperationError(`Unknown endpoint type ${endpointTypeId}`)
+  }
   return endpointTypeId
 }
 
@@ -485,8 +624,16 @@ async function createRootNode(ctx) {
     name: rootNode.name
   })
 
+  let createdEndpoint = (
+    await queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId)
+  ).find((e) => e.endpointIdentifier === dbEnum.rootNode.endpointId)
+  let clusterStates = await queryZcl.selectEndpointTypeClustersByEndpointTypeId(
+    ctx.db,
+    createdEndpoint.endpointTypeRef
+  )
   return result(true, [
-    `Created endpoint ${dbEnum.rootNode.endpointId} with the Root Node device type ${rootNode.name} (${asHex(rootNode.code)})`
+    `Created endpoint ${dbEnum.rootNode.endpointId} with the Root Node device type ${rootNode.name} (${asHex(rootNode.code)})`,
+    ...(await installStudioComponentsForClusters(ctx, clusterStates))
   ])
 }
 
@@ -499,7 +646,7 @@ async function createRootNode(ctx) {
  * @returns {Promise<*>} operation result
  */
 async function endpointUpdate(ctx, params) {
-  let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
+  let endpoint = await resolveOperationEndpoint(ctx, params)
   let changes = []
   let messages = []
 
@@ -510,7 +657,7 @@ async function endpointUpdate(ctx, params) {
       value !== endpoint.endpointIdentifier &&
       existing.some((e) => e.endpointIdentifier === value)
     ) {
-      throw new CliError(`Endpoint ${value} already exists`)
+      throw new OperationError(`Endpoint ${value} already exists`)
     }
     changes.push({ key: restApi.updateKey.endpointId, value: value, type: '' })
     messages.push(
@@ -531,9 +678,14 @@ async function endpointUpdate(ctx, params) {
   if (params.parent !== undefined) {
     let parentRef = null
     if (params.parent != null && `${params.parent}` !== '') {
-      let parent = await resolver.resolveEndpoint(ctx, params.parent)
+      let parent =
+        params.parentId != null
+          ? await resolveOperationEndpoint(ctx, {
+              endpointId: params.parentId
+            })
+          : await resolver.resolveEndpoint(ctx, params.parent)
       if (parent.id === endpoint.id) {
-        throw new CliError('An endpoint cannot be its own parent')
+        throw new OperationError('An endpoint cannot be its own parent')
       }
       await requireNoParentCycle(ctx, endpoint, parent)
       parentRef = parent.id
@@ -589,7 +741,7 @@ async function requireNoParentCycle(ctx, endpoint, parent) {
   let cursor = parent
   while (cursor != null) {
     if (seen.has(cursor.id)) {
-      throw new CliError(
+      throw new OperationError(
         `Making endpoint ${parent.endpointIdentifier} the parent of endpoint ${endpoint.endpointIdentifier} would form a loop`,
         [
           `  ${endpoint.endpointIdentifier} -> ${chain.join(' -> ')}`,
@@ -612,7 +764,7 @@ async function requireNoParentCycle(ctx, endpoint, parent) {
  * @returns {Promise<*>} operation result
  */
 async function endpointDelete(ctx, params) {
-  let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
+  let endpoint = await resolveOperationEndpoint(ctx, params)
   let all = await queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId)
 
   // selectAllEndpoints maps PARENT_ENDPOINT_REF to parentRef (see
@@ -620,7 +772,7 @@ async function endpointDelete(ctx, params) {
   // used inside query-endpoint helpers, not a field on these rows.
   let children = all.filter((e) => e.parentRef === endpoint.id)
   if (children.length > 0 && params.force !== true) {
-    throw new CliError(
+    throw new OperationError(
       `Endpoint ${endpoint.endpointIdentifier} is the parent of ${children
         .map((c) => c.endpointIdentifier)
         .join(', ')}`,
@@ -634,11 +786,18 @@ async function endpointDelete(ctx, params) {
     (e) =>
       e.id !== endpoint.id && e.endpointTypeRef === endpoint.endpointTypeRef
   )
+  let removedEndpointTypeId = null
   if (!stillUsed) {
     await queryEndpointType.deleteEndpointType(ctx.db, endpoint.endpointTypeRef)
+    removedEndpointTypeId = endpoint.endpointTypeRef
   }
 
-  return result(true, [`Deleted endpoint ${endpoint.endpointIdentifier}`])
+  const outcome = result(true, [
+    `Deleted endpoint ${endpoint.endpointIdentifier}`
+  ])
+  outcome.id = endpoint.id
+  outcome.removedEndpointTypeId = removedEndpointTypeId
+  return outcome
 }
 
 /**
@@ -650,7 +809,7 @@ async function endpointDelete(ctx, params) {
  * @returns {Promise<*>} operation result
  */
 async function endpointDuplicate(ctx, params) {
-  let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
+  let endpoint = await resolveOperationEndpoint(ctx, params)
   let all = await queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId)
   let used = new Set(all.map((e) => e.endpointIdentifier))
 
@@ -658,32 +817,116 @@ async function endpointDuplicate(ctx, params) {
   if (params.newEndpoint != null) {
     newIdentifier = resolver.requireInteger(params.newEndpoint, 'New endpoint')
     if (used.has(newIdentifier)) {
-      throw new CliError(`Endpoint ${newIdentifier} already exists`)
+      throw new OperationError(`Endpoint ${newIdentifier} already exists`)
     }
   } else {
     newIdentifier = 1
     while (used.has(newIdentifier)) newIdentifier++
   }
 
-  let newEndpointTypeId = await queryConfig.duplicateEndpointType(
-    ctx.db,
-    endpoint.endpointTypeRef
-  )
-  await queryConfig.duplicateEndpointTypeClusters(
-    ctx.db,
-    endpoint.endpointTypeRef,
-    newEndpointTypeId
-  )
-  await queryEndpoint.duplicateEndpoint(
+  let newEndpointTypeId =
+    params.endpointTypeId == null
+      ? await duplicateEndpointTypeConfiguration(ctx, endpoint.endpointTypeRef)
+      : await requireEndpointTypeInSession(ctx, params.endpointTypeId)
+  const id = await queryEndpoint.duplicateEndpoint(
     ctx.db,
     endpoint.id,
     newIdentifier,
     newEndpointTypeId
   )
 
-  return result(true, [
+  const outcome = result(true, [
     `Duplicated endpoint ${endpoint.endpointIdentifier} as endpoint ${newIdentifier}`
   ])
+  outcome.id = id
+  return outcome
+}
+
+/** Creates an endpoint type from database device type references. */
+async function endpointTypeCreate(ctx, params) {
+  const deviceTypeRefs = asArray(params.deviceTypeRef).map(Number)
+  if (!deviceTypeRefs.length)
+    throw new OperationError('At least one deviceTypeRef is required')
+  const deviceTypes = []
+  for (const ref of deviceTypeRefs) {
+    const type = await queryDeviceType.selectDeviceTypeById(ctx.db, ref)
+    if (!type) throw new OperationError(`Unknown device type ${ref}`)
+    deviceTypes.push(type)
+  }
+  let versions = asArray(params.deviceVersion).map((value) =>
+    resolver.requireInteger(value, 'Device version')
+  )
+  if (versions.length === 0) versions = deviceTypeRefs.map(() => 1)
+  if (versions.length === 1 && deviceTypeRefs.length > 1)
+    versions = deviceTypeRefs.map(() => versions[0])
+  if (versions.length !== deviceTypeRefs.length)
+    throw new OperationError(
+      'Device version count must match device type count'
+    )
+  const id = await createEndpointTypeFromDeviceTypes(
+    ctx,
+    deviceTypes,
+    versions,
+    params.name
+  )
+  const outcome = result(true, [`Created endpoint type ${id}`])
+  outcome.id = id
+  outcome.deviceIdentifier = deviceTypes.map((deviceType) => deviceType.code)
+  outcome.deviceVersion = versions
+  return outcome
+}
+
+/** Updates an endpoint type using the shared query layer. */
+async function endpointTypeUpdate(ctx, params) {
+  const endpointTypeId = await requireEndpointTypeInSession(
+    ctx,
+    params.endpointTypeId
+  )
+  await queryConfig.updateEndpointType(
+    ctx.db,
+    ctx.sessionId,
+    endpointTypeId,
+    params.changes || []
+  )
+  const clusterStates =
+    await queryZcl.selectEndpointTypeClustersByEndpointTypeId(
+      ctx.db,
+      endpointTypeId
+    )
+  return result(true, [
+    `Updated endpoint type ${params.endpointTypeId}`,
+    ...(await installStudioComponentsForClusters(ctx, clusterStates))
+  ])
+}
+
+/** Deletes an endpoint type. */
+async function endpointTypeDelete(ctx, params) {
+  const endpointTypeId = await requireEndpointTypeInSession(
+    ctx,
+    params.endpointTypeId
+  )
+  const removed = await queryEndpointType.deleteEndpointType(
+    ctx.db,
+    endpointTypeId
+  )
+  return result(removed > 0, [`Deleted endpoint type ${params.endpointTypeId}`])
+}
+
+/** Duplicates an endpoint type and its configured cluster and element states. */
+async function endpointTypeDuplicate(ctx, params) {
+  const source = await requireEndpointTypeInSession(ctx, params.endpointTypeId)
+  const id = await duplicateEndpointTypeConfiguration(ctx, source)
+  const outcome = result(true, [`Duplicated endpoint type ${source} as ${id}`])
+  outcome.id = id
+  return outcome
+}
+
+/** Duplicates an endpoint type together with its selected cluster elements. */
+async function duplicateEndpointTypeConfiguration(ctx, sourceId) {
+  const id = await queryConfig.duplicateEndpointType(ctx.db, sourceId)
+  if (!id) throw new OperationError(`Unknown endpoint type ${sourceId}`)
+  await queryConfig.duplicateEndpointTypeClusters(ctx.db, sourceId, id)
+  return id
 }
 
 // ---------------------------------------------------------------------------
@@ -789,7 +1032,7 @@ async function deviceTypeAdd(ctx, params) {
   let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
   let specs = asArray(params.deviceType)
   if (specs.length === 0) {
-    throw new CliError('At least one --device-type is required')
+    throw new OperationError('At least one --device-type is required')
   }
   let version =
     params.deviceVersion != null
@@ -807,7 +1050,7 @@ async function deviceTypeAdd(ctx, params) {
   for (let spec of specs) {
     let dt = await resolver.resolveDeviceType(ctx, spec)
     if (devices.some((d) => d.deviceTypeRef === dt.id)) {
-      throw new CliError(
+      throw new OperationError(
         `Endpoint ${endpoint.endpointIdentifier} already has device type ${dt.name}`
       )
     }
@@ -827,7 +1070,7 @@ async function deviceTypeAdd(ctx, params) {
 
 /**
  * Removes a device type from an endpoint. Cluster selections that came from
- * that device type are left alone, which is what the GUI does as well.
+ * that device type are left alone.
  *
  * @param {*} ctx
  * @param {*} params
@@ -837,7 +1080,7 @@ async function deviceTypeRemove(ctx, params) {
   let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
   let specs = asArray(params.deviceType)
   if (specs.length === 0) {
-    throw new CliError('At least one --device-type is required')
+    throw new OperationError('At least one --device-type is required')
   }
 
   let current = await deviceTypesOfEndpoint(ctx, endpoint)
@@ -852,7 +1095,7 @@ async function deviceTypeRemove(ctx, params) {
     let dt = await resolver.resolveDeviceType(ctx, spec)
     let index = devices.findIndex((d) => d.deviceTypeRef === dt.id)
     if (index < 0) {
-      throw new CliError(
+      throw new OperationError(
         `Endpoint ${endpoint.endpointIdentifier} does not have device type ${dt.name}`
       )
     }
@@ -860,7 +1103,7 @@ async function deviceTypeRemove(ctx, params) {
     removed.push(`${dt.name} (${asHex(dt.code)})`)
   }
   if (devices.length === 0) {
-    throw new CliError('An endpoint must keep at least one device type', [
+    throw new OperationError('An endpoint must keep at least one device type', [
       `Delete the endpoint instead, or add a replacement device type first.`
     ])
   }
@@ -883,7 +1126,7 @@ async function deviceTypeSet(ctx, params) {
   let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
   let specs = asArray(params.deviceType)
   if (specs.length === 0) {
-    throw new CliError('At least one --device-type is required')
+    throw new OperationError('At least one --device-type is required')
   }
   let versions = asArray(params.deviceVersion).map((v) =>
     resolver.requireInteger(v, 'Device version')
@@ -902,7 +1145,7 @@ async function deviceTypeSet(ctx, params) {
     } else if (versions.length === specs.length) {
       version = versions[i]
     } else {
-      throw new CliError(
+      throw new OperationError(
         `Got ${versions.length} --device-version values for ${specs.length} device types`
       )
     }
@@ -1129,15 +1372,12 @@ async function reportUninstalledComponents(ctx, wanted) {
 }
 
 /**
- * Installs or removes the Simplicity Studio UC components that a cluster needs,
- * which is the other half of what ticking the checkbox in the interface does.
- * The interface sends this from the front end, so a command line edit has to
- * send it too, or the project ends up with the cluster configured and nothing
- * implementing it.
+ * Installs or removes the Simplicity Studio UC components that a cluster needs.
+ * Keeping this side effect in the operation means CLI edits follow the same
+ * project update path as other configuration changes.
  *
- * Removal is deliberately more cautious than installation, and mirrors what
- * `ZclDomainClusterView` does: only when the data model asked for it, and only
- * once no endpoint is left using the cluster.
+ * Removal is deliberately more cautious than installation: only when the data
+ * model asked for it, and only once no endpoint is left using the cluster.
  *
  * Without --studioHttpPort and --ideProjectPath there is nothing to install
  * through, so an enable reports the components it would have installed.
@@ -1202,8 +1442,7 @@ async function installStudioComponentsForClusters(ctx, clusterStates) {
 
 /**
  * Enables or disables a cluster on one or both sides. Enabling a cluster for
- * the first time also brings in its mandatory attributes and commands, which
- * is what happens when the checkbox is ticked in the GUI.
+ * the first time also brings in its mandatory attributes and commands.
  *
  * @param {*} ctx
  * @param {*} params
@@ -1211,11 +1450,19 @@ async function installStudioComponentsForClusters(ctx, clusterStates) {
  * @returns {Promise<*>} operation result
  */
 async function clusterSetEnabled(ctx, params, enabled) {
-  let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
-  let cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
+  let endpoint = await resolveOperationEndpoint(ctx, params)
+  let cluster = await resolveOperationCluster(ctx, endpoint, params)
   let sides = resolver.expandSides(params.side)
+  let changedSides = []
 
   for (let side of sides) {
+    let previous = await queryConfig.selectClusterState(
+      ctx.db,
+      endpoint.endpointTypeRef,
+      cluster.id,
+      side
+    )
+    if ((previous != null && previous.enabled === true) === enabled) continue
     await sessionEdit.setClusterSideEnabled(
       ctx,
       endpoint,
@@ -1223,14 +1470,33 @@ async function clusterSetEnabled(ctx, params, enabled) {
       side,
       enabled
     )
+    changedSides.push(side)
+  }
+
+  if (changedSides.length === 0) {
+    let messages = [
+      `${enabled ? 'Enabled' : 'Disabled'} cluster ${cluster.name} (${asHex(
+        cluster.code
+      )}) ${sides.join('/')} on endpoint ${endpoint.endpointIdentifier}`
+    ]
+    if (enabled && !ctx.studioIntegration) {
+      messages.push(
+        ...(await reportUninstalledComponents(ctx, [
+          { clusterId: cluster.id, sides: sides }
+        ]))
+      )
+    }
+    return result(true, messages)
   }
 
   let messages = [
     `${enabled ? 'Enabled' : 'Disabled'} cluster ${cluster.name} (${asHex(
       cluster.code
-    )}) ${sides.join('/')} on endpoint ${endpoint.endpointIdentifier}`
+    )}) ${changedSides.join('/')} on endpoint ${endpoint.endpointIdentifier}`
   ]
-  messages.push(...(await updateStudioComponents(ctx, cluster, sides, enabled)))
+  messages.push(
+    ...(await updateStudioComponents(ctx, cluster, changedSides, enabled))
+  )
 
   return result(
     true,
@@ -1371,7 +1637,7 @@ async function findAttribute(ctx, endpoint, cluster, spec, requestedSide) {
     }
   }
   if (enabled.length === 1) return enabled[0]
-  throw new CliError(
+  throw new OperationError(
     `Attribute '${spec}' exists on both sides of cluster ${cluster.name}`,
     ['Add --side client or --side server.']
   )
@@ -1492,19 +1758,50 @@ async function attributeList(ctx, params) {
  * @returns {Promise<*>} operation result
  */
 async function attributeSet(ctx, params, forceEnabled = undefined) {
-  let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
-  let cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
+  let endpoint = await resolveOperationEndpoint(ctx, params)
+  let cluster = await resolveOperationCluster(ctx, endpoint, params)
   await requireClusterConfigurable(ctx, endpoint, cluster)
-  let found = await findAttribute(
-    ctx,
-    endpoint,
-    cluster,
-    params.attribute,
-    params.side
-  )
+  let found
+  if (params.attributeId != null) {
+    const id = resolver.requireInteger(params.attributeId, 'Attribute id')
+    const attributes = await resolver.attributesOfCluster(
+      ctx,
+      cluster,
+      params.side
+    )
+    const attribute = attributes.find(
+      (candidate) => Number(candidate.id) === id
+    )
+    if (attribute == null)
+      throw new OperationError(`Unknown attribute id ${id}`)
+    found = { attribute: attribute, side: params.side }
+  } else {
+    found = await findAttribute(
+      ctx,
+      endpoint,
+      cluster,
+      params.attribute,
+      params.side
+    )
+  }
   let attribute = found.attribute
   let side = found.side
   await requireClusterSideEnabled(ctx, endpoint, cluster, side)
+
+  if (params.initialize === true) {
+    await queryConfig.insertOrUpdateAttributeState(
+      ctx.db,
+      endpoint.endpointTypeRef,
+      cluster.id,
+      side,
+      attribute.id,
+      null,
+      params.minInterval ?? attribute.reportMinInterval,
+      params.maxInterval ?? attribute.reportMaxInterval,
+      params.reportableChange ?? attribute.reportableChange
+    )
+    return result(true, [])
+  }
 
   let changes = {
     enabled: forceEnabled !== undefined ? forceEnabled : params.enabled,
@@ -1518,7 +1815,7 @@ async function attributeSet(ctx, params, forceEnabled = undefined) {
     reportableChange: params.reportableChange
   }
   if (Object.values(changes).every((v) => v === undefined || v === null)) {
-    throw new CliError('Nothing to set', [
+    throw new OperationError('Nothing to set', [
       'Pass at least one of --enabled, --default, --storage, --singleton,',
       '--bounded, --reporting, --min-interval, --max-interval, --reportable-change.'
     ])
@@ -1532,6 +1829,16 @@ async function attributeSet(ctx, params, forceEnabled = undefined) {
     attribute,
     changes
   )
+  if (changes.enabled !== undefined && changes.enabled !== null) {
+    await updateRequiredElementWarning(
+      ctx,
+      endpoint,
+      cluster,
+      'attributes',
+      attribute.id,
+      !!changes.enabled
+    )
+  }
 
   return result(true, [
     `Attribute ${attribute.name} (${asHex(attribute.code)}) on ${cluster.name}/${side} of endpoint ${
@@ -1555,7 +1862,7 @@ function expandDirections(direction) {
   if (direction === 'in') return [true]
   if (direction === 'out') return [false]
   if (direction === 'both') return [true, false]
-  throw new CliError(
+  throw new OperationError(
     `Invalid direction '${direction}', expected in, out or both`
   )
 }
@@ -1658,7 +1965,7 @@ async function resolveCommandParam(ctx, cluster, params) {
     `${command.name} (${resolver.asHex(command.code, 2)}, source: ${command.source})`
   if (matches.length === 1) return matches[0]
   if (matches.length === 0) {
-    throw cliError.notFound(
+    throw operationError.notFound(
       `command of cluster ${cluster.name} with source '${params.source}'`,
       params.command,
       all.filter((command) => command.source === params.source).map(describe)
@@ -1680,10 +1987,21 @@ async function resolveCommandParam(ctx, cluster, params) {
  * @returns {Promise<*>} operation result
  */
 async function commandSetEnabled(ctx, params, enabled) {
-  let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
-  let cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
+  let endpoint = await resolveOperationEndpoint(ctx, params)
+  let cluster = await resolveOperationCluster(ctx, endpoint, params)
   await requireClusterConfigurable(ctx, endpoint, cluster)
-  let command = await resolveCommandParam(ctx, cluster, params)
+  let command
+  if (params.commandId != null) {
+    const id = resolver.requireInteger(params.commandId, 'Command id')
+    command = (await resolver.commandsOfCluster(ctx, cluster)).find(
+      (candidate) => Number(candidate.id) === id
+    )
+    if (command == null) throw new OperationError(`Unknown command id ${id}`)
+  } else {
+    command = await resolveCommandParam(ctx, cluster, params)
+  }
+  if (!command || command.clusterRef !== cluster.id)
+    throw new OperationError(`Unknown command ${params.command}`)
   let directions = expandDirections(params.direction)
 
   // 'both' means "whichever of the two the endpoint can actually hold", so
@@ -1737,6 +2055,14 @@ async function commandSetEnabled(ctx, params, enabled) {
         cluster,
         commandSide(command, isIncoming)
       )
+    )
+    await updateRequiredElementWarning(
+      ctx,
+      endpoint,
+      cluster,
+      'commands',
+      command.id,
+      enabled
     )
   }
 
@@ -1818,10 +2144,19 @@ async function eventList(ctx, params) {
  * @returns {Promise<*>} operation result
  */
 async function eventSetEnabled(ctx, params, enabled) {
-  let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
-  let cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
+  let endpoint = await resolveOperationEndpoint(ctx, params)
+  let cluster = await resolveOperationCluster(ctx, endpoint, params)
   await requireClusterConfigurable(ctx, endpoint, cluster)
-  let event = await resolver.resolveEvent(ctx, cluster, params.event)
+  let event
+  if (params.eventId != null) {
+    const id = resolver.requireInteger(params.eventId, 'Event id')
+    event = (await resolver.eventsOfCluster(ctx, cluster)).find(
+      (candidate) => Number(candidate.id) === id
+    )
+    if (event == null) throw new OperationError(`Unknown event id ${id}`)
+  } else {
+    event = await resolver.resolveEvent(ctx, cluster, params.event)
+  }
   let side = params.side || event.side || dbEnum.side.server
 
   await sessionEdit.setEventEnabled(
@@ -1832,6 +2167,14 @@ async function eventSetEnabled(ctx, params, enabled) {
     side,
     enabled,
     clusterEnableRemedy(ctx, endpoint, cluster, side)
+  )
+  await updateRequiredElementWarning(
+    ctx,
+    endpoint,
+    cluster,
+    'events',
+    event.id,
+    enabled
   )
 
   return result(true, [
@@ -1959,16 +2302,13 @@ async function featureList(ctx, params) {
 async function featureSetEnabled(ctx, params, enabled) {
   let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
   let cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
-  await requireClusterConfigurable(ctx, endpoint, cluster)
-  await requireClusterSideEnabled(ctx, endpoint, cluster, dbEnum.side.server)
 
   let features = await featuresOfCluster(ctx, endpoint, cluster)
   if (features.length === 0) {
-    throw new CliError(`Cluster ${cluster.name} defines no features`)
+    throw new OperationError(`Cluster ${cluster.name} defines no features`)
   }
   let feature = matchFeature(params.feature, features)
-  let map = await featureMapAttribute(ctx, endpoint, cluster)
-  requireFeatureMapIncluded(ctx, endpoint, cluster, map)
+  if (!feature) throw new OperationError(`Unknown feature ${params.feature}`)
 
   let outcome = await sessionEdit.setFeatureEnabled(
     ctx,
@@ -1978,9 +2318,17 @@ async function featureSetEnabled(ctx, params, enabled) {
     enabled
   )
   if (!outcome.changed) {
-    return result(false, [
-      `Feature ${feature.name} (${feature.code}) is already ${enabled ? 'enabled' : 'disabled'} on ${cluster.name} of endpoint ${endpoint.endpointIdentifier}`
-    ])
+    return {
+      ...result(false, [
+        `Feature ${feature.name} (${feature.code}) is already ${enabled ? 'enabled' : 'disabled'} on ${cluster.name} of endpoint ${endpoint.endpointIdentifier}`
+      ]),
+      newValue: outcome.newValue,
+      feature: {
+        id: feature.id,
+        featureId: feature.featureId,
+        code: feature.code
+      }
+    }
   }
 
   let conformance = outcome.conformance
@@ -1991,24 +2339,210 @@ async function featureSetEnabled(ctx, params, enabled) {
   // a surprise wants to read first.
   let counted = countElements(conformance)
 
-  return result(
-    true,
-    [
-      `${enabled ? 'Enabled' : 'Disabled'} feature ${feature.name} (${feature.code}, bit ${feature.bit}) on ${cluster.name} of endpoint ${endpoint.endpointIdentifier}, featureMap ${asHex(outcome.map.value, 8)} -> ${asHex(outcome.newValue, 8)}`,
-      counted,
-      ...outcome.applied.map(
-        (a) => `  ${a.value ? 'enabled' : 'disabled'} ${a.kind} ${a.name}`
-      ),
-      // The interface pops up this warning only when displayWarning says to.
-      // The message is composed either way, and after an enable that satisfies
-      // a mandatory conformance it reads as though the enable had not happened.
-      ...(conformance.displayWarning
+  return {
+    ...result(
+      true,
+      [
+        `${enabled ? 'Enabled' : 'Disabled'} feature ${feature.name} (${feature.code}, bit ${feature.bit}) on ${cluster.name} of endpoint ${endpoint.endpointIdentifier}, featureMap ${asHex(outcome.map.value, 8)} -> ${asHex(outcome.newValue, 8)}`,
+        counted,
+        ...outcome.applied.map(
+          (a) => `  ${a.value ? 'enabled' : 'disabled'} ${a.kind} ${a.name}`
+        ),
+        // The interface pops up this warning only when displayWarning says to.
+        // The message is composed either way, and after an enable that satisfies
+        // a mandatory conformance it reads as though the enable had not happened.
+        ...(conformance.displayWarning
+          ? []
+              .concat(conformance.warningMessage || [])
+              .map((w) => `warning: ${w}`)
+          : [])
+      ].filter((line) => line !== null)
+    ),
+    newValue: outcome.newValue,
+    feature: {
+      id: feature.id,
+      featureId: feature.featureId,
+      code: feature.code
+    }
+  }
+}
+
+/**
+ * Previews a feature change with the same conformance plan the write uses.
+ * The GUI uses this result to populate its confirmation dialog.
+ */
+async function featurePreview(ctx, params) {
+  let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
+  let cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
+  let enabled = optionalBoolean(params.enabled)
+  if (enabled === undefined) {
+    throw new OperationError("Option 'enabled' is required")
+  }
+  let features = await featuresOfCluster(ctx, endpoint, cluster)
+  let feature = matchFeature(params.feature, features)
+  if (!feature) throw new OperationError(`Unknown feature ${params.feature}`)
+  const preview = await sessionEdit.previewFeatureChange(
+    ctx,
+    endpoint,
+    cluster,
+    feature,
+    enabled
+  )
+  const conformance = preview.conformance
+  if (params.persistWarning && conformance && conformance.disableChange) {
+    await querySessionNotification.setNotificationOnFeatureChange(
+      ctx.db,
+      ctx.sessionId,
+      conformance
+    )
+  }
+  return {
+    ...result(
+      false,
+      conformance && conformance.displayWarning
         ? []
             .concat(conformance.warningMessage || [])
             .map((w) => `warning: ${w}`)
-        : [])
-    ].filter((line) => line !== null)
+        : [],
+      conformance == null
+        ? { columns: ['kind', 'element', 'enabled'], rows: [] }
+        : {
+            columns: ['kind', 'element', 'enabled'],
+            rows: [
+              ['attribute', conformance.attributesToUpdate],
+              ['command', conformance.commandsToUpdate],
+              ['event', conformance.eventsToUpdate]
+            ].flatMap(([kind, elements]) =>
+              (elements || []).map((element) => ({
+                kind,
+                element: element.name,
+                enabled: element.value ? 'yes' : 'no'
+              }))
+            )
+          }
+    ),
+    preview: conformance,
+    changed: preview.changed,
+    newValue: preview.newValue,
+    feature: {
+      id: feature.id,
+      featureId: feature.featureId,
+      code: feature.code
+    }
+  }
+}
+
+/** Reads the current conformance requirements for one endpoint cluster. */
+async function featureRequirementData(
+  ctx,
+  endpoint,
+  cluster,
+  allowMissingMap = false
+) {
+  const features = await featuresOfCluster(ctx, endpoint, cluster)
+  let featureMap = featureMapFromValue(features, 0)
+  if (features.length > 0) {
+    try {
+      const map = await featureMapAttribute(ctx, endpoint, cluster)
+      featureMap = featureMapFromValue(features, map.value)
+    } catch (error) {
+      if (
+        !allowMissingMap ||
+        !(error instanceof OperationError) ||
+        !error.message.includes('has no FeatureMap attribute')
+      ) {
+        throw error
+      }
+    }
+  }
+  const endpointTypeClusterId =
+    await conformChecker.getEndpointTypeClusterIdFromFeatureData(
+      ctx.db,
+      null,
+      endpoint.endpointTypeRef,
+      cluster.id
+    )
+  const elements = await queryEndpointType.getEndpointTypeElements(
+    ctx.db,
+    endpointTypeClusterId
   )
+  const requirements = conformChecker.checkElementConformance(
+    elements,
+    featureMap
+  )
+  return { elements, requirements }
+}
+
+/** Updates the warning for an edited element using the current operation state. */
+async function updateRequiredElementWarning(
+  ctx,
+  endpoint,
+  cluster,
+  kind,
+  elementId,
+  added
+) {
+  const { elements, requirements } = await featureRequirementData(
+    ctx,
+    endpoint,
+    cluster,
+    true
+  )
+  const kindResult = {
+    attributes: 'attributesToUpdate',
+    commands: 'commandsToUpdate',
+    events: 'eventsToUpdate'
+  }[kind]
+  const element = elements[kind].find(
+    (candidate) => Number(candidate.id) === Number(elementId)
+  )
+  if (element == null) return
+  const conformance = requirements[kindResult]
+  await querySessionNotification.setRequiredElementWarning(
+    ctx.db,
+    {
+      element,
+      contextMessage:
+        `⚠ Check Feature Compliance on endpoint: ${endpoint.endpointIdentifier}, ` +
+        `cluster: ${cluster.name}, ${kind.slice(0, -1)}: `,
+      requiredText: conformance.required[element.id],
+      notSupportedText: conformance.notSupported[element.id],
+      added
+    },
+    ctx.sessionId
+  )
+}
+
+/** Returns the required and prohibited elements for the saved feature map. */
+async function featureRequirements(ctx, params) {
+  const endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
+  const cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
+  const { elements, requirements } = await featureRequirementData(
+    ctx,
+    endpoint,
+    cluster
+  )
+  const rows = [
+    ['attribute', requirements.attributesToUpdate],
+    ['command', requirements.commandsToUpdate],
+    ['event', requirements.eventsToUpdate]
+  ].flatMap(([kind, states]) =>
+    ['required', 'notSupported'].flatMap((state) =>
+      Object.entries(states[state] || {}).map(([id, message]) => ({
+        kind,
+        id: Number(id),
+        state,
+        message
+      }))
+    )
+  )
+  return {
+    ...result(false, [`${rows.length} required or unsupported element(s)`], {
+      columns: ['kind', 'id', 'state', 'message'],
+      rows
+    }),
+    requirements
+  }
 }
 
 /**
@@ -2066,9 +2600,8 @@ async function packageContents(ctx, packageId) {
  * The endpoint configuration that would go with a package if it were removed.
  *
  * Disabling a custom XML package makes database triggers delete the endpoint
- * clusters, attributes, commands and events that came from it, which is how
- * the GUI behaves too. Counting first is what lets the CLI say so instead of
- * doing it quietly.
+ * clusters, attributes, commands and events that came from it. Counting first
+ * is what lets the CLI say so instead of doing it quietly.
  *
  * @param {*} ctx
  * @param {number} packageId
@@ -2109,7 +2642,7 @@ async function endpointUseOfPackage(ctx, packageId) {
  */
 async function packageList(ctx, params) {
   let substituted = ctx.substitutedCustomXml || []
-  let rows = (await sessionLifecycle().packages(ctx)).map((p) => ({
+  let rows = (await sessionContent.packages(ctx)).map((p) => ({
     type: p.pkg.type,
     category: p.pkg.category || '',
     version: p.pkg.version || '',
@@ -2158,27 +2691,27 @@ async function packageList(ctx, params) {
 async function packageAdd(ctx, params) {
   let files = asArray(params.xml)
   if (files.length === 0) {
-    throw new CliError('At least one --xml is required')
+    throw new OperationError('At least one --xml is required')
   }
 
   let messages = []
   let next = []
   for (let file of files) {
     if (!fs.existsSync(file)) {
-      throw new CliError(`No such file: ${file}`, [
+      throw new OperationError(`No such file: ${file}`, [
         `--xml takes the path of a ZCL XML file describing custom clusters.`
       ])
     }
     if (path.extname(file).toLowerCase() !== '.xml') {
-      throw new CliError(`${file} is not an XML file`, [
+      throw new OperationError(`${file} is not an XML file`, [
         `Custom clusters are described in a ZCL XML file. A zcl.json metafile`,
         `belongs on --zclProperties instead.`
       ])
     }
 
-    let outcome = await sessionLifecycle().addCustomXml(ctx, path.resolve(file))
+    let outcome = await sessionContent.addCustomXml(ctx, path.resolve(file))
     if (!outcome.succeeded) {
-      throw new CliError(`Could not load ${file}`, [
+      throw new OperationError(`Could not load ${file}`, [
         `  ${outcome.err ? outcome.err.message || outcome.err : 'unknown error'}`
       ])
     }
@@ -2217,15 +2750,20 @@ async function packageAdd(ctx, params) {
  */
 async function packageRemove(ctx, params) {
   let spec = params.xml
-  if (spec == null || `${spec}` === '') {
-    throw new CliError('--xml is required')
+  if ((spec == null || `${spec}` === '') && params.packageRef == null) {
+    throw new OperationError('--xml is required')
   }
 
-  let custom = (await sessionLifecycle().packages(ctx))
+  let custom = (await sessionContent.packages(ctx))
     .map((p) => p.pkg)
     .filter((p) => p.type === dbEnum.packageType.zclXmlStandalone)
   let match =
-    custom.find((p) => sessionLifecycle().samePath(p.path, spec)) ||
+    params.packageRef == null
+      ? null
+      : custom.find((p) => p.id === Number(params.packageRef))
+  match =
+    match ||
+    custom.find((p) => sessionContent.samePath(p.path, spec)) ||
     custom.find((p) => path.basename(p.path) === path.basename(`${spec}`))
 
   if (match == null) {
@@ -2233,7 +2771,7 @@ async function packageRemove(ctx, params) {
     // reference is what is wrong with the configuration.
     let declared = (ctx.unresolvedCustomXml || []).find(
       (p) =>
-        sessionLifecycle().samePath(p.path, spec) ||
+        sessionContent.samePath(p.path, spec) ||
         path.basename(p.path) === path.basename(`${spec}`)
     )
     if (declared != null) {
@@ -2242,7 +2780,7 @@ async function packageRemove(ctx, params) {
         `Saving drops the reference to it`
       ])
     }
-    throw cliError.notFound(
+    throw operationError.notFound(
       'custom XML package',
       spec,
       custom.map((p) => p.path)
@@ -2251,10 +2789,10 @@ async function packageRemove(ctx, params) {
 
   let used = await endpointUseOfPackage(ctx, match.id)
   if (used.length > 0 && params.force !== true) {
-    throw new CliError(
+    throw new OperationError(
       `${path.basename(match.path)} defines ${used.length} cluster(s) that this configuration uses`,
       [
-        `Removing it deletes their endpoint configuration, as it does in the GUI:`,
+        `Removing it deletes their endpoint configuration:`,
         ...used.map(
           (u) => `  endpoint ${u.endpoint}: ${u.cluster} (${u.code}) ${u.side}`
         ),
@@ -2266,9 +2804,11 @@ async function packageRemove(ctx, params) {
     )
   }
 
-  let removed = await sessionLifecycle().removeCustomXml(ctx, match.id)
+  let removed = await sessionContent.removeCustomXml(ctx, match.id)
   if (!removed) {
-    throw new CliError(`${match.path} is not attached to this configuration`)
+    throw new OperationError(
+      `${match.path} is not attached to this configuration`
+    )
   }
 
   let messages = [`Removed custom XML ${match.path}`]
@@ -2345,22 +2885,26 @@ async function configInfo(ctx) {
  * @returns {Promise<*>} operation result
  */
 async function configCheck(ctx, params) {
-  let issues = cliOutput.collectIssues(await sessionLifecycle().validate(ctx))
+  let issues = validationReport.collectIssues(
+    await sessionContent.validate(ctx)
+  )
   let rows = issues.map((issue) => ({
     kind: issue.kind,
     source: 'validation',
     message: issue.text
   }))
 
-  let notifications = await sessionLifecycle().notifications(ctx)
+  let notifications = await sessionContent.notifications(ctx)
   if (params.packages === true) {
     notifications = notifications.concat(
-      await sessionLifecycle().packageNotifications(ctx)
+      await sessionContent.packageNotifications(ctx)
     )
   }
-  let reported = issues.map((issue) => cliOutput.complianceKey(issue.text))
+  let reported = issues.map((issue) =>
+    validationReport.complianceKey(issue.text)
+  )
   for (let notification of notifications) {
-    let key = cliOutput.complianceKey(notification.message)
+    let key = validationReport.complianceKey(notification.message)
     if (reported.some((seen) => seen.includes(key))) continue
     rows.push({
       kind: `${notification.type}`.toLowerCase(),
@@ -2385,6 +2929,29 @@ async function configCheck(ctx, params) {
   return report
 }
 
+/** Stores a user-editable configuration option in the active session. */
+async function optionSet(ctx, params) {
+  const key = params.key
+  const value = params.value
+  if (typeof key !== 'string' || !editableSessionOptionKeys.has(key)) {
+    throw new OperationError(`Unknown editable configuration option '${key}'`, [
+      `Editable options: ${[...editableSessionOptionKeys].join(', ')}`
+    ])
+  }
+  if (
+    value === undefined ||
+    (value !== null && !['string', 'number', 'boolean'].includes(typeof value))
+  ) {
+    throw new OperationError(`Option '${key}' requires a scalar value`)
+  }
+
+  await querySession.updateSessionKeyValue(ctx.db, ctx.sessionId, key, value)
+  const outcome = result(true, [`Updated configuration option ${key}`])
+  outcome.key = key
+  outcome.value = value
+  return outcome
+}
+
 /**
  * The operation table. Keys are the dotted names used by both the yargs
  * command tree and the batch script format.
@@ -2392,12 +2959,18 @@ async function configCheck(ctx, params) {
 const operations = {
   'config.info': (ctx) => configInfo(ctx),
   'config.check': (ctx, params) => configCheck(ctx, params),
+  'option.set': (ctx, params) => optionSet(ctx, params),
 
   'endpoint.list': (ctx) => endpointList(ctx),
   'endpoint.create': (ctx, params) => endpointCreate(ctx, params),
+  'endpoint.attach': (ctx, params) => endpointAttach(ctx, params),
   'endpoint.update': (ctx, params) => endpointUpdate(ctx, params),
   'endpoint.delete': (ctx, params) => endpointDelete(ctx, params),
   'endpoint.duplicate': (ctx, params) => endpointDuplicate(ctx, params),
+  'endpointtype.create': (ctx, params) => endpointTypeCreate(ctx, params),
+  'endpointtype.update': (ctx, params) => endpointTypeUpdate(ctx, params),
+  'endpointtype.delete': (ctx, params) => endpointTypeDelete(ctx, params),
+  'endpointtype.duplicate': (ctx, params) => endpointTypeDuplicate(ctx, params),
 
   'devicetype.list': (ctx, params) => deviceTypeList(ctx, params),
   'devicetype.add': (ctx, params) => deviceTypeAdd(ctx, params),
@@ -2426,6 +2999,8 @@ const operations = {
   'package.remove': (ctx, params) => packageRemove(ctx, params),
 
   'feature.list': (ctx, params) => featureList(ctx, params),
+  'feature.preview': (ctx, params) => featurePreview(ctx, params),
+  'feature.requirements': (ctx, params) => featureRequirements(ctx, params),
   'feature.enable': (ctx, params) => featureSetEnabled(ctx, params, true),
   'feature.disable': (ctx, params) => featureSetEnabled(ctx, params, false)
 }
@@ -2474,7 +3049,14 @@ async function unifySharedClusterStates(ctx) {
     }
   }
 
-  let endpointTypeIds = [...new Set(included.map((e) => e.endpointTypeRef))]
+  // A session can temporarily contain endpoints whose endpoint type was not
+  // imported. They have no configuration state to align and must not produce
+  // an empty SQL item in the reconciliation query.
+  let endpointTypeIds = [
+    ...new Set(
+      included.map((e) => e.endpointTypeRef).filter((id) => id != null)
+    )
+  ]
   if (endpointTypeIds.length < 2) return quiet
 
   // Narrow the metadata to the sharing categories where that is possible. A
@@ -2637,7 +3219,7 @@ async function findCluster(ctx, spec, mfgCode = null) {
   }
   if (matches.length === 1) return matches[0]
   if (matches.length === 0) {
-    throw cliError.notFound('cluster', spec, all.map(describe))
+    throw operationError.notFound('cluster', spec, all.map(describe))
   }
   throw cliError.ambiguous('cluster', spec, matches.map(describe))
 }
@@ -2692,7 +3274,7 @@ async function findEvent(ctx, cluster, spec) {
 async function execute(ctx, name, params) {
   let op = operations[name]
   if (op == null) {
-    throw new CliError(`Unknown operation '${name}'`, [
+    throw new OperationError(`Unknown operation '${name}'`, [
       `Known operations: ${Object.keys(operations).join(', ')}`
     ])
   }

@@ -19,7 +19,7 @@ limitations under the License.
       v-model="text"
       outlined
       label="SQL query"
-      :input-attrs="{ 'data-cy': 'sql-query-input' }"
+      data-cy="sql-query-input"
       @change="hitEnter"
     />
     <p>{{ resultSummary }}</p>

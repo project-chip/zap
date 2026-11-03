@@ -31,9 +31,9 @@
  * model, declared by the `shareClusterStatesAcrossEndpoints` generator option,
  * so nothing here decides it by looking at names.
  *
- * The GUI reaches this over `/shareClusterStatesAcrossEndpoints`; the command
- * line calls it directly. Both go through the same functions so the two cannot
- * drift apart.
+ * The CLI operation runner reconciles this after each committed operation;
+ * post-load scripts reconcile after applying their batch. Both call this same
+ * function so their saved state cannot drift apart.
  *
  * @module JS API: shared cluster state
  */
@@ -334,7 +334,10 @@ async function writeAttributeDefaults(db, defaults) {
           attr.side,
           attr.id,
           [
-            { key: restApi.updateKey.attributeSelected, value: 1 },
+            {
+              key: restApi.updateKey.attributeSelected,
+              value: attr.isIncluded
+            },
             // Storage and default are text columns, and saying so is what gets
             // them quoted. Without it a default such as a manufacturer name
             // arrives as bare SQL and the statement does not parse.

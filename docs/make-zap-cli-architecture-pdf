@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-# Renders docs/zap-cli-architecture.md, with its mermaid diagrams, into
-# docs/zap-cli-architecture.pdf.
+# Renders docs/zap-cli.md, with its mermaid diagram, into docs/zap-cli.pdf.
 #
 # The markdown is the source of truth and is what lives in git. The PDF is a
 # local convenience for reading away from GitHub (which renders the diagrams
@@ -15,7 +14,7 @@
 
 set -u
 
-DOC=zap-cli-architecture
+DOC=zap-cli
 HERE=$(cd "$(dirname "$0")" && pwd)
 SOURCE=${HERE}/${DOC}.md
 PDF=${HERE}/${DOC}.pdf

@@ -24,6 +24,7 @@ const dbApi = require('../src-electron/db/db-api')
 const queryDeviceType = require('../src-electron/db/query-device-type')
 const queryFeature = require('../src-electron/db/query-feature')
 const querySession = require('../src-electron/db/query-session')
+const queryEndpoint = require('../src-electron/db/query-endpoint')
 const queryConfig = require('../src-electron/db/query-config')
 const queryZcl = require('../src-electron/db/query-zcl')
 const util = require('../src-electron/util/util')
@@ -871,6 +872,90 @@ test(
     /* The featureMap value should be 1 because, in the Dimmable Light device type, On/Off cluster,
        only the Lighting (LT) feature on bit 0 is enabled by default. */
     expect(featureMapValue).toBe(1)
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Feature preview and confirmation REST handlers use the shared operations',
+  async () => {
+    const endpointIdentifier = 81
+    await queryEndpoint.insertEndpoint(
+      db,
+      sid,
+      endpointIdentifier,
+      eptId,
+      0,
+      MA_dimmablelight.profileId
+    )
+    const userData = require('../src-electron/rest/user-data')
+    const previewHandler = userData.post
+      .find((route) => route.uri === restApi.uri.checkConformOnFeatureUpdate)
+      .callback(db)
+    const previewResponse = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    }
+    await previewHandler(
+      {
+        zapSessionId: sid,
+        body: {
+          endpointId: endpointIdentifier,
+          cluster: 'On/Off',
+          featureData: { code: 'LT' },
+          enabled: false
+        }
+      },
+      previewResponse
+    )
+    const preview = previewResponse.json.mock.calls[0][0]
+    expect(preview.attributesToUpdate).toEqual(expect.any(Array))
+    expect(preview.commandsToUpdate).toEqual(expect.any(Array))
+
+    const applyHandler = userData.post
+      .find((route) => route.uri === restApi.uri.applyFeatureUpdate)
+      .callback(db)
+    const applyResponse = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    }
+    await applyHandler(
+      {
+        zapSessionId: sid,
+        body: {
+          endpoint: endpointIdentifier,
+          cluster: 'On/Off',
+          feature: 'LT',
+          enabled: false
+        }
+      },
+      applyResponse
+    )
+    const applied = applyResponse.json.mock.calls[0][0]
+    expect(applied.changed).toBe(true)
+    expect(applied.newValue).toBe(0)
+
+    const requirementsHandler = userData.post
+      .find((route) => route.uri === restApi.uri.requiredElements)
+      .callback(db)
+    const requirementsResponse = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    }
+    await requirementsHandler(
+      {
+        zapSessionId: sid,
+        body: { endpoint: endpointIdentifier, cluster: 'On/Off' }
+      },
+      requirementsResponse
+    )
+    expect(requirementsResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attributesToUpdate: expect.objectContaining({
+          required: expect.any(Object)
+        })
+      })
+    )
   },
   testUtil.timeout.long()
 )

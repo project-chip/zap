@@ -16,7 +16,7 @@
  */
 
 /**
- * Edits to a session that every headless front end performs the same way.
+ * Edits to a session used by the CLI and post-load scripts.
  *
  * The configuration commands (`zap cluster enable`) and the post-load scripts
  * (`--postImportScript`, SDK upgrade rules) both change a session without the
@@ -27,19 +27,16 @@
  * receives when it is first enabled, and the conformance consequences of a
  * feature toggle.
  *
- * Both front ends are interfaces over this module. The command line parses
- * flags and renders tables; a post-load script parses its own arguments and
- * prints a line. Neither one queries the database or decides whether a write
- * is allowed. Resolution goes through the same name-and-code matching the
- * command line uses, so `On/Off`, `ON_OFF` and `0x0006` name one cluster from
- * either interface. Refusals are thrown as `CliError`. The command line
- * prints them and exits; a script prints them and carries on.
+ * The command line and post-load scripts use this module for the same lookups,
+ * policy checks and writes. Resolution uses name-and-code matching, so
+ * `On/Off`, `ON_OFF` and `0x0006` name one cluster. Refusals are thrown as
+ * `OperationError` for the caller to present.
  *
  * The context is `{ db, sessionId, category }`. `category` narrows the ZCL
  * packages in a multiprotocol configuration and may be null. Lookups are
  * cached on the context for the duration of a run.
  *
- * @module JS API: session edits shared by the CLI and post-load scripts
+ * @module Configuration API: session edits
  */
 
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -50,13 +47,14 @@ const queryPackage = require('../db/query-package.js')
 const queryFeature = require('../db/query-feature.js')
 const queryDeviceType = require('../db/query-device-type.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
+const querySessionNotification = require('../db/query-session-notification.js')
 const validation = require('../validation/validation.js')
 const conformChecker = require('../validation/conformance-checker.js')
 const resolver = require('./resolver.js')
 const policy = require('./policy.js')
-const cliError = require('../cli/cli-error.js')
+const operationError = require('./operation-error.js')
 
-const CliError = cliError.CliError
+const OperationError = operationError.OperationError
 const asHex = resolver.asHex
 
 // ---------------------------------------------------------------------------
@@ -77,7 +75,7 @@ function optionalBoolean(value) {
   let s = String(value).toLowerCase()
   if (['true', '1', 'yes', 'on'].includes(s)) return true
   if (['false', '0', 'no', 'off'].includes(s)) return false
-  throw new CliError(`Expected a boolean, got '${value}'`)
+  throw new OperationError(`Expected a boolean, got '${value}'`)
 }
 
 /**
@@ -92,7 +90,7 @@ function storageOption(value) {
   let allowed = Object.values(dbEnum.storageOption)
   let found = allowed.find((s) => s.toLowerCase() === `${value}`.toLowerCase())
   if (found == null) {
-    throw new CliError(
+    throw new OperationError(
       `Invalid storage '${value}', expected one of ${allowed.join(', ')}`
     )
   }
@@ -179,7 +177,7 @@ async function requireClusterSideEnabled(
   remedy = []
 ) {
   if (await isClusterSideEnabled(ctx, endpoint, cluster, side)) return
-  throw new CliError(
+  throw new OperationError(
     `Cluster ${cluster.name} (${asHex(cluster.code)}) is not enabled on the ${side} side of endpoint ${endpoint.endpointIdentifier}`,
     [
       `Elements of a disabled cluster are not written to the .zap file. Enable it first${
@@ -229,7 +227,7 @@ async function requireClusterConfigurable(ctx, endpoint, cluster, remedy = []) {
   )
   if (!(client && !server)) return
 
-  throw new CliError(
+  throw new OperationError(
     `Cluster ${cluster.name} (${asHex(cluster.code)}) is enabled as a client only on endpoint ${endpoint.endpointIdentifier}, which has no configuration page`,
     [
       `Matter does not offer a page for attributes, commands, events or features of a client-only cluster. Enable the server side to configure it${
@@ -371,10 +369,11 @@ async function requireAttributeChangeAllowed(
   let attributePolicy = await policy.attributePolicy(ctx, cluster, attribute)
   let state = await attributeState(ctx, endpoint, cluster, attribute)
 
-  // The four fields the interface greys out until the attribute is switched on.
+  // These fields configure how an included attribute is stored. An attribute
+  // default can still be edited while disabled so the UI can validate the
+  // value; it remains inactive until the attribute is included.
   let fieldsNeedingInclusion = [
     requested.storage !== undefined ? '--storage' : null,
-    requested.default !== undefined ? '--default' : null,
     requested.singleton !== undefined ? '--singleton' : null,
     requested.bounded !== undefined ? '--bounded' : null
   ].filter((field) => field != null)
@@ -448,7 +447,7 @@ function attributeUpdates(attribute, changes) {
     if (requestedDefault !== null && `${requestedDefault}` === '') {
       // The column write turns an empty string into 0, so accepting this would
       // quietly set a different value than the one asked for.
-      throw new CliError('An empty default is not a value', [
+      throw new OperationError('An empty default is not a value', [
         `Pass the value you want, or 'null' for a nullable attribute.`
       ])
     }
@@ -457,7 +456,7 @@ function attributeUpdates(attribute, changes) {
       `${requestedDefault}`.toLowerCase() === 'null'
     ) {
       if (!attribute.isNullable) {
-        throw new CliError(`Attribute ${attribute.name} is not nullable`)
+        throw new OperationError(`Attribute ${attribute.name} is not nullable`)
       }
       requestedDefault = null
       push(restApi.updateKey.attributeDefault, null, 'text', 'default=null')
@@ -584,7 +583,7 @@ async function setAttribute(ctx, endpoint, cluster, side, attribute, changes) {
 
   let { updates, described, requested } = attributeUpdates(attribute, changes)
   if (updates.length === 0) {
-    throw new CliError('Nothing to set', [
+    throw new OperationError('Nothing to set', [
       'Pass at least one of enabled, default, storage, singleton, bounded,',
       'reporting, minInterval, maxInterval, reportableChange.'
     ])
@@ -669,14 +668,14 @@ function commandSide(command, isIncoming) {
  *
  * @param {*} command
  * @param {boolean} isIncoming
- * @returns {*} a CliError, or null when the direction is expressible
+ * @returns {*} a OperationError, or null when the direction is expressible
  */
 function describeUnwritableDirection(command, isIncoming) {
   let side = commandSide(command, isIncoming)
   if (side === dbEnum.source.client || side === dbEnum.source.server) {
     return null
   }
-  return new CliError(
+  return new OperationError(
     `Command ${command.name} is declared with source '${command.source}', so ZAP has no cluster side to record its outgoing direction against`,
     [`Enable it as an incoming command instead:`, `  --direction in`]
   )
@@ -837,7 +836,7 @@ async function featureMapAttribute(ctx, endpoint, cluster) {
   )
   let definition = attributes.find(isFeatureMap)
   if (definition == null) {
-    throw new CliError(
+    throw new OperationError(
       `Cluster ${cluster.name} has no FeatureMap attribute, so it has no features to toggle`
     )
   }
@@ -875,7 +874,7 @@ async function featureMapAttribute(ctx, endpoint, cluster) {
  */
 function requireFeatureMapIncluded(endpoint, cluster, map, remedy = []) {
   if (map.included) return
-  throw new CliError(
+  throw new OperationError(
     `The FeatureMap attribute of ${cluster.name} is not enabled on endpoint ${endpoint.endpointIdentifier}, so feature changes cannot be saved`,
     [
       `Features are bits of that attribute's value. Enable it first${
@@ -927,9 +926,9 @@ function matchFeature(spec, features) {
   }
   if (matches.length === 1) return matches[0]
   if (matches.length === 0) {
-    throw cliError.notFound('feature', spec, features.map(describe))
+    throw operationError.notFound('feature', spec, features.map(describe))
   }
-  throw cliError.ambiguous('feature', spec, matches.map(describe))
+  throw operationError.ambiguous('feature', spec, matches.map(describe))
 }
 
 /**
@@ -947,11 +946,11 @@ function matchFeature(spec, features) {
  * @param {*} cluster
  * @param {*} feature One of `featuresOfCluster`.
  * @param {boolean} enabled
- * @returns {Promise<*>} `{ changed, map, newValue, conformance, applied }`
+ * @returns {Promise<*>} `{ changed, map, newValue, conformance, elements }`
  *   where `applied` lists `{ kind, name, value }` for every element the
  *   conformance rules changed alongside the feature
  */
-async function setFeatureEnabled(ctx, endpoint, cluster, feature, enabled) {
+async function previewFeatureChange(ctx, endpoint, cluster, feature, enabled) {
   await requireClusterConfigurable(ctx, endpoint, cluster)
   await requireClusterSideEnabled(ctx, endpoint, cluster, dbEnum.side.server)
   policy.requireToggleableFeature(feature, cluster, endpoint.endpointIdentifier)
@@ -990,12 +989,53 @@ async function setFeatureEnabled(ctx, endpoint, cluster, feature, enabled) {
     features
   )
 
+  return {
+    changed: true,
+    map: map,
+    newValue: newValue,
+    conformance: conformance,
+    elements: elements,
+    features: features
+  }
+}
+
+/** Applies a previewed feature change to its endpoint type. */
+async function setFeatureEnabled(ctx, endpoint, cluster, feature, enabled) {
+  const preview = await previewFeatureChange(
+    ctx,
+    endpoint,
+    cluster,
+    feature,
+    enabled
+  )
+  if (!preview.changed) return { ...preview, applied: [] }
+
+  const { map, newValue, conformance } = preview
+  const { elements, features } = preview
+
+  await querySessionNotification.setNotificationOnFeatureChange(
+    ctx.db,
+    ctx.sessionId,
+    conformance
+  )
+
   if (conformance.disableChange) {
-    throw new CliError(
+    throw new OperationError(
       `Feature ${feature.name} (${feature.code}) cannot be ${enabled ? 'enabled' : 'disabled'} on ${cluster.name} of endpoint ${endpoint.endpointIdentifier}`,
       [].concat(conformance.warningMessage || [])
     )
   }
+
+  const outdatedWarnings = conformChecker.getOutdatedElementWarning(
+    feature.code,
+    elements,
+    conformance.elementMap
+  )
+  await querySessionNotification.deleteNotificationWithPatterns(
+    ctx.db,
+    ctx.sessionId,
+    outdatedWarnings
+  )
 
   let applied = []
   for (let attribute of conformance.attributesToUpdate || []) {
@@ -1068,12 +1108,84 @@ async function setFeatureEnabled(ctx, endpoint, cluster, feature, enabled) {
     map.state != null ? map.state.reportableChange : undefined
   )
 
+  await updateRequiredElementWarnings(
+    ctx,
+    endpoint,
+    cluster,
+    preview.elements,
+    conformance,
+    features,
+    newValue
+  )
+
   return {
     changed: true,
     map: map,
     newValue: newValue,
     conformance: conformance,
     applied: applied
+  }
+}
+
+/** Keep the feature-related required/unsupported warnings in sync with the writes. */
+async function updateRequiredElementWarnings(
+  ctx,
+  endpoint,
+  cluster,
+  sourceElements,
+  conformance,
+  features,
+  featureMapValue
+) {
+  const elements = {
+    attributes: sourceElements.attributes.map((element) => ({ ...element })),
+    commands: sourceElements.commands.map((element) => ({ ...element })),
+    events: sourceElements.events.map((element) => ({ ...element }))
+  }
+  const groups = [
+    ['attributes', conformance.attributesToUpdate, 'included'],
+    ['commands', conformance.commandsToUpdate, 'isEnabled'],
+    ['events', conformance.eventsToUpdate, 'included']
+  ]
+  groups.forEach(([kind, updates, stateKey]) => {
+    for (const update of updates || []) {
+      const current = elements[kind].find((element) => element.id === update.id)
+      if (current != null) current[stateKey] = !!update.value
+    }
+  })
+
+  const required = conformChecker.checkElementConformance(
+    elements,
+    featureMapFromValue(features, featureMapValue)
+  )
+  for (const [kind, updates, stateKey] of groups) {
+    const resultKey =
+      kind === 'attributes'
+        ? 'attributesToUpdate'
+        : kind === 'commands'
+          ? 'commandsToUpdate'
+          : 'eventsToUpdate'
+    const warnings = required[resultKey]
+    const contextMessage =
+      `⚠ Check Feature Compliance on endpoint: ${endpoint.endpointIdentifier}, ` +
+      `cluster: ${cluster.name}, ${kind.slice(0, -1)}: `
+    for (const update of updates || []) {
+      const element = elements[kind].find(
+        (candidate) => candidate.id === update.id
+      )
+      if (element == null) continue
+      await querySessionNotification.setRequiredElementWarning(
+        ctx.db,
+        {
+          element,
+          contextMessage,
+          requiredText: warnings.required[element.id],
+          notSupportedText: warnings.notSupported[element.id],
+          added: !!element[stateKey]
+        },
+        ctx.sessionId
+      )
+    }
   }
 }
 
@@ -1106,4 +1218,5 @@ exports.featureMapAttribute = featureMapAttribute
 exports.requireFeatureMapIncluded = requireFeatureMapIncluded
 exports.featureMapFromValue = featureMapFromValue
 exports.matchFeature = matchFeature
+exports.previewFeatureChange = previewFeatureChange
 exports.setFeatureEnabled = setFeatureEnabled

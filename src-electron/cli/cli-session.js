@@ -31,15 +31,12 @@ const dbApi = require('../db/db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
+const sessionContent = require('../util/session-content.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const generatorEngine = require('../generator/generation-engine.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const querySession = require('../db/query-session.js')
-const querySessionNotification = require('../db/query-session-notification.js')
-const queryPackage = require('../db/query-package.js')
-const queryPackageNotification = require('../db/query-package-notification.js')
-const validateAll = require('../validation/validate-all.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 const cliError = require('./cli-error.js')
 
@@ -236,228 +233,13 @@ async function open(argv, options = {}) {
     logger: logger,
     argv: argv
   }
-  let differences = await customXmlDifferences(ctx)
+  let differences = await sessionContent.customXmlDifferences(ctx)
   ctx.unresolvedCustomXml = differences.missing
   // What the importer put in place of what it could not load. Worked out once,
   // as the file was read, so that packages added during this run are not
   // mistaken for it.
   ctx.substitutedCustomXml = differences.unnamed
   return ctx
-}
-
-/**
- * Every package the session is currently carrying.
- *
- * @param {*} ctx
- * @returns {Promise<Array>} the `{ pkg, sessionPackage }` pairs
- */
-async function packages(ctx) {
-  return queryPackage.getPackageSessionPackagePairBySessionId(
-    ctx.db,
-    ctx.sessionId
-  )
-}
-
-/**
- * Compares two file paths as the file system sees them, so that a package
- * recorded relative to the working directory and the same file named relative
- * to the .zap are recognized as one.
- *
- * @param {string} a
- * @param {string} b
- * @returns {boolean} whether both name the same file
- */
-function samePath(a, b) {
-  if (a == null || b == null) return false
-  let settle = (p) => {
-    let absolute = path.resolve(p)
-    try {
-      return fs.realpathSync(absolute)
-    } catch (err) {
-      return absolute
-    }
-  }
-  return settle(a) === settle(b)
-}
-
-/**
- * The custom XML a .zap file names, as absolute paths.
- *
- * @param {string} zapFile
- * @returns {Array} `{ declared, path }` per custom XML entry
- */
-function declaredCustomXml(zapFile) {
-  if (zapFile == null) return []
-  let declared
-  try {
-    declared = JSON.parse(fs.readFileSync(zapFile, 'utf8')).package
-  } catch (err) {
-    // Not JSON, so an ISC file being converted. It names no packages.
-    return []
-  }
-  if (!Array.isArray(declared)) return []
-  return declared
-    .filter((p) => p.type === dbEnum.packageType.zclXmlStandalone)
-    .map((p) => ({
-      declared: p.path,
-      path:
-        'pathRelativity' in p
-          ? util.createAbsolutePath(p.path, p.pathRelativity, zapFile)
-          : p.path
-    }))
-}
-
-/**
- * Where the custom XML of a session and the custom XML its file names differ.
- *
- * This has to be asked, because the importer answers a custom XML it cannot
- * load by quietly moving on: with nothing else of that type in the database
- * the package is dropped, and with something else of that type there it is
- * handed over in its place, which is worse. Either way the configuration in
- * hand is not the one the file describes, and saving writes that difference
- * back into the file.
- *
- * @param {*} ctx
- * @returns {Promise<*>} `{ missing, unnamed }`
- */
-async function customXmlDifferences(ctx) {
-  let declared = declaredCustomXml(ctx.zapFile)
-  let loaded = (await packages(ctx))
-    .map((p) => p.pkg)
-    .filter((p) => p.type === dbEnum.packageType.zclXmlStandalone)
-
-  return {
-    missing: declared
-      .filter((d) => !loaded.some((l) => samePath(l.path, d.path)))
-      .map((d) => ({ ...d, exists: fs.existsSync(d.path) })),
-    unnamed:
-      ctx.zapFile == null
-        ? []
-        : loaded.filter((l) => !declared.some((d) => samePath(d.path, l.path)))
-  }
-}
-
-/**
- * Loads a custom XML file into the session, which is what the Extensions page
- * does when a file is chosen there.
- *
- * The load is the same call the REST layer makes, so the package is parsed,
- * post-processed and attached to a session partition exactly as it would be
- * for the GUI, and it is written into the .zap file when the session is saved.
- *
- * @param {*} ctx
- * @param {string} filePath
- * @returns {Promise<*>} `{ succeeded, packageId, err }`
- */
-async function addCustomXml(ctx, filePath) {
-  let outcome = await zclLoader.loadIndividualFile(
-    ctx.db,
-    filePath,
-    ctx.sessionId
-  )
-  // Lookups are answered from a cached package list, which this has just
-  // invalidated.
-  delete ctx.zclPackageCache
-  ctx.unresolvedCustomXml = (await customXmlDifferences(ctx)).missing
-  return outcome
-}
-
-/**
- * Detaches a package from the session, which is what the Delete button on the
- * Extensions page does.
- *
- * The row is disabled rather than deleted, and database triggers then drop the
- * endpoint configuration that referred to the clusters it defined, so this is
- * the same demolition the GUI performs.
- *
- * @param {*} ctx
- * @param {number} packageId
- * @returns {Promise<boolean>} whether a session package was detached
- */
-async function removeCustomXml(ctx, packageId) {
-  let partitions = await querySession.selectSessionPartitionInfoFromPackageId(
-    ctx.db,
-    ctx.sessionId,
-    packageId
-  )
-  let removed = 0
-  for (let partition of partitions) {
-    removed += await queryPackage.deleteSessionPackage(
-      ctx.db,
-      partition.sessionPartitionId,
-      packageId
-    )
-  }
-  delete ctx.zclPackageCache
-  ctx.unresolvedCustomXml = (await customXmlDifferences(ctx)).missing
-  return removed > 0
-}
-
-/**
- * Runs the same validation that `zap validate` and the GUI run.
- *
- * @param {*} ctx
- * @returns {Promise<*>} validation report
- */
-async function validate(ctx) {
-  return validateAll.validateAll(ctx.db, ctx.sessionId, {
-    persistConformanceNotifications: false
-  })
-}
-
-/**
- * Turns database notification rows into what the CLI reports.
- *
- * @param {string} scope
- * @param {Array} rows
- * @returns {Array} array of `{ scope, type, severity, message }`
- */
-function describeNotifications(scope, rows) {
-  return rows.map((row) => ({
-    scope: scope,
-    type: row.type,
-    severity: row.severity,
-    message: row.message
-  }))
-}
-
-/**
- * Everything ZAP has to say about this configuration that it did not raise as
- * an error: the notifications behind the count the user interface shows in its
- * toolbar.
- *
- * They are written as the configuration is read in and as it is edited, partly
- * by the importer and partly by database triggers watching for things like a
- * provisional cluster being switched on, and they are the only record of some
- * of it.
- *
- * @param {*} ctx
- * @returns {Promise<Array>} array of `{ scope, type, severity, message }`
- */
-async function notifications(ctx) {
-  return describeNotifications(
-    'configuration',
-    await querySessionNotification.getNotification(ctx.db, ctx.sessionId)
-  )
-}
-
-/**
- * What ZAP has to say about the data model rather than about any configuration
- * built on it, such as a cluster definition whose XML contradicts itself. These
- * outlive the session, which is why the user interface keeps them apart, on the
- * packages themselves.
- *
- * @param {*} ctx
- * @returns {Promise<Array>} array of `{ scope, type, severity, message }`
- */
-async function packageNotifications(ctx) {
-  return describeNotifications(
-    'data model',
-    await queryPackageNotification.getNotificationBySessionId(
-      ctx.db,
-      ctx.sessionId
-    )
-  )
 }
 
 /**
@@ -513,10 +295,10 @@ exports.open = open
 exports.resetTestDatabaseCache = resetTestDatabaseCache
 exports.save = save
 exports.close = close
-exports.notifications = notifications
-exports.packageNotifications = packageNotifications
-exports.validate = validate
-exports.packages = packages
-exports.samePath = samePath
-exports.addCustomXml = addCustomXml
-exports.removeCustomXml = removeCustomXml
+exports.notifications = sessionContent.notifications
+exports.packageNotifications = sessionContent.packageNotifications
+exports.validate = sessionContent.validate
+exports.packages = sessionContent.packages
+exports.samePath = sessionContent.samePath
+exports.addCustomXml = sessionContent.addCustomXml
+exports.removeCustomXml = sessionContent.removeCustomXml

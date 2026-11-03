@@ -211,12 +211,6 @@ export default {
         addedValue = false
       }
 
-      this.setRequiredElementNotifications(
-        attributeData,
-        addedValue,
-        'attributes'
-      )
-
       let editContext = {
         action: 'boolean',
         endpointTypeIdList: this.endpointTypeIdList,

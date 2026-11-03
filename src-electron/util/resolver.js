@@ -32,9 +32,9 @@ const queryEvent = require('../db/query-event.js')
 const queryDeviceType = require('../db/query-device-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryPackage = require('../db/query-package.js')
-const cliError = require('../cli/cli-error.js')
+const operationError = require('./operation-error.js')
 
-const CliError = cliError.CliError
+const OperationError = operationError.OperationError
 
 /**
  * Reduces a name to a form that ignores the punctuation and casing differences
@@ -78,7 +78,7 @@ function parseCode(spec) {
 function requireInteger(spec, what) {
   let value = parseCode(spec)
   if (value == null) {
-    throw new CliError(`${what} must be a number, got '${spec}'`)
+    throw new OperationError(`${what} must be a number, got '${spec}'`)
   }
   return value
 }
@@ -110,9 +110,9 @@ function asHex(code, width = 4) {
 function exactlyOne(what, spec, matches, all, describe) {
   if (matches.length === 1) return matches[0]
   if (matches.length === 0) {
-    throw cliError.notFound(what, spec, all.map(describe))
+    throw operationError.notFound(what, spec, all.map(describe))
   }
-  throw cliError.ambiguous(what, spec, matches.map(describe))
+  throw operationError.ambiguous(what, spec, matches.map(describe))
 }
 
 /**
@@ -210,7 +210,7 @@ async function zclPackages(ctx, category = null) {
   )
   if (filtered.length === 0) {
     let available = await sessionCategories(ctx)
-    throw new CliError(
+    throw new OperationError(
       `No ZCL package with category '${wanted}' is attached to this configuration`,
       [`Available categories: ${available.join(', ') || '(none)'}`]
     )
@@ -465,7 +465,9 @@ async function commandsOfCluster(ctx, cluster) {
 async function resolveEvent(ctx, cluster, spec) {
   let all = await eventsOfCluster(ctx, cluster)
   if (all.length === 0) {
-    throw new CliError(`Cluster ${cluster.name} does not define any events`)
+    throw new OperationError(
+      `Cluster ${cluster.name} does not define any events`
+    )
   }
   return matchByNameOrCode(
     `event of cluster ${cluster.name}`,
@@ -500,7 +502,7 @@ async function resolveEndpoint(ctx, spec) {
   let all = await queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId)
   let matches = all.filter((e) => e.endpointIdentifier === identifier)
   if (matches.length === 0) {
-    throw cliError.notFound(
+    throw operationError.notFound(
       'endpoint',
       spec,
       all.map((e) => `${e.endpointIdentifier}`)
@@ -534,7 +536,7 @@ async function resolveEndpoint(ctx, spec) {
     if (only.length === 1) return only[0].endpoint
   }
 
-  throw new CliError(
+  throw new OperationError(
     `Endpoint ${identifier} is defined ${matches.length} times in this configuration`,
     [
       ...annotated.map(
@@ -561,7 +563,9 @@ function expandSides(side) {
   if (side === dbEnum.side.client || side === dbEnum.side.server) {
     return [side]
   }
-  throw new CliError(`Invalid side '${side}', expected client, server or both`)
+  throw new OperationError(
+    `Invalid side '${side}', expected client, server or both`
+  )
 }
 
 exports.normalizeName = normalizeName
