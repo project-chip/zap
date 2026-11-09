@@ -357,12 +357,16 @@ export default {
     },
     deleteEndpoint() {
       let endpointReference = this.endpointReference
+      let endpointTypeReference = this.endpointType[endpointReference]
       this.$store
         .dispatch('zap/deleteEndpoint', endpointReference)
-        .then(() => {
+        .then((deleted) => {
+          // The backend removes the endpoint type with its last endpoint;
+          // only ask separately when it did not.
+          if (deleted && deleted.removedEndpointTypeId != null) return
           return this.$store.dispatch(
             'zap/deleteEndpointType',
-            this.endpointType[endpointReference]
+            endpointTypeReference
           )
         })
         .catch((err) => {

@@ -117,7 +117,15 @@ function serverDelete(url, config = null) {
   if (log) console.log(`DELETE → : ${url}, ${config}`)
   return axios['delete'](fillUrl(url), fillConfig(config))
     .then((response) => processResponse('DELETE', url, response))
-    .catch((error) => console.log(error))
+    .catch((error) => {
+      const message =
+        error.response?.data?.message || error.message || 'Request failed'
+      Notify.create({
+        message,
+        type: 'negative',
+        position: 'top'
+      })
+    })
 }
 
 /**

@@ -224,6 +224,10 @@ async function selectEndpointType(db, id) {
     )
     .then(dbMapping.map.endpointType)
 
+  // An endpoint type that does not exist (deleted, or never this session's)
+  // is reported as null rather than by failing to decorate undefined.
+  if (endpointType == null) return null
+
   // Device types for endpoint
   let rows = await dbApi.dbAll(
     db,

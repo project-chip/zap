@@ -782,10 +782,14 @@ async function endpointDelete(ctx, params) {
 
   await queryEndpoint.deleteEndpoint(ctx.db, endpoint.id)
 
-  let stillUsed = all.some(
-    (e) =>
-      e.id !== endpoint.id && e.endpointTypeRef === endpoint.endpointTypeRef
-  )
+  // An endpoint whose type was already removed has a null reference, and two
+  // such endpoints do not "share" a type.
+  let stillUsed =
+    endpoint.endpointTypeRef == null ||
+    all.some(
+      (e) =>
+        e.id !== endpoint.id && e.endpointTypeRef === endpoint.endpointTypeRef
+    )
   let removedEndpointTypeId = null
   if (!stillUsed) {
     await queryEndpointType.deleteEndpointType(ctx.db, endpoint.endpointTypeRef)
@@ -1971,7 +1975,7 @@ async function resolveCommandParam(ctx, cluster, params) {
       all.filter((command) => command.source === params.source).map(describe)
     )
   }
-  throw cliError.ambiguous(
+  throw operationError.ambiguous(
     `command of cluster ${cluster.name}`,
     params.command,
     matches.map(describe)
@@ -2300,8 +2304,8 @@ async function featureList(ctx, params) {
  * @returns {Promise<*>} operation result
  */
 async function featureSetEnabled(ctx, params, enabled) {
-  let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
-  let cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
+  let endpoint = await resolveOperationEndpoint(ctx, params)
+  let cluster = await resolveOperationCluster(ctx, endpoint, params)
 
   let features = await featuresOfCluster(ctx, endpoint, cluster)
   if (features.length === 0) {
@@ -2372,8 +2376,8 @@ async function featureSetEnabled(ctx, params, enabled) {
  * The GUI uses this result to populate its confirmation dialog.
  */
 async function featurePreview(ctx, params) {
-  let endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
-  let cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
+  let endpoint = await resolveOperationEndpoint(ctx, params)
+  let cluster = await resolveOperationCluster(ctx, endpoint, params)
   let enabled = optionalBoolean(params.enabled)
   if (enabled === undefined) {
     throw new OperationError("Option 'enabled' is required")
@@ -2515,8 +2519,8 @@ async function updateRequiredElementWarning(
 
 /** Returns the required and prohibited elements for the saved feature map. */
 async function featureRequirements(ctx, params) {
-  const endpoint = await resolver.resolveEndpoint(ctx, params.endpoint)
-  const cluster = await resolver.resolveCluster(ctx, params.cluster, endpoint)
+  const endpoint = await resolveOperationEndpoint(ctx, params)
+  const cluster = await resolveOperationCluster(ctx, endpoint, params)
   const { elements, requirements } = await featureRequirementData(
     ctx,
     endpoint,
@@ -3197,11 +3201,9 @@ function manufacturerMatches(cluster, mfgCode) {
  * @returns {Promise<*>} the cluster
  */
 async function findCluster(ctx, spec, mfgCode = null) {
-  if (mfgCode == null || mfgCode === 0) {
-    return resolver.resolveCluster(ctx, spec)
-  }
-  let all = (await resolver.allClusters(ctx)).filter((cluster) =>
-    manufacturerMatches(cluster, mfgCode)
+  let standard = mfgCode == null || mfgCode === 0
+  let all = (await resolver.allClusters(ctx)).filter(
+    (cluster) => standard || manufacturerMatches(cluster, mfgCode)
   )
   let code = resolver.parseCode(spec)
   let describe = (cluster) =>
@@ -3217,11 +3219,18 @@ async function findCluster(ctx, spec, mfgCode = null) {
         resolver.normalizeName(cluster.define) === normalized
     )
   }
+  // Without a manufacturer code the standard cluster is meant, which is what
+  // the post-load script lookup has always returned when a manufacturer
+  // specific cluster reuses a standard code.
+  if (matches.length > 1 && standard) {
+    let plain = matches.filter((cluster) => manufacturerMatches(cluster, null))
+    if (plain.length === 1) return plain[0]
+  }
   if (matches.length === 1) return matches[0]
   if (matches.length === 0) {
     throw operationError.notFound('cluster', spec, all.map(describe))
   }
-  throw cliError.ambiguous('cluster', spec, matches.map(describe))
+  throw operationError.ambiguous('cluster', spec, matches.map(describe))
 }
 
 /**

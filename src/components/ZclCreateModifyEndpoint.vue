@@ -673,12 +673,16 @@ export default {
     },
     deleteEpt(endpointReference) {
       // Logic to delete the existing endpoint
+      let endpointTypeReference = this.endpointType[endpointReference]
       return this.$store
         .dispatch('zap/deleteEndpoint', endpointReference)
-        .then(() => {
+        .then((deleted) => {
+          // The backend removes the endpoint type with its last endpoint;
+          // only ask separately when it did not.
+          if (deleted && deleted.removedEndpointTypeId != null) return
           return this.$store.dispatch(
             'zap/deleteEndpointType',
-            this.endpointType[endpointReference]
+            endpointTypeReference
           )
         })
         .catch((err) => {
@@ -792,6 +796,13 @@ export default {
                 'zap/updateDeviceTypeClustersForSelectedEndpoint',
                 this.endpointDeviceTypeRef[this.endpointType[res.id]]
               )
+            })
+            .catch((err) => {
+              // The endpoint was refused (for instance its identifier is
+              // already in use). The endpoint type was created first and
+              // would otherwise be left behind without an endpoint.
+              console.log('Error in newEpt: ' + err.message)
+              return this.$store.dispatch('zap/deleteEndpointType', response.id)
             })
         })
         .catch((err) => console.log('Error in newEpt: ' + err.message))

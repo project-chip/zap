@@ -406,9 +406,11 @@ be used to build iterator helpers.</p>
 <dd><p>Input and lookup errors raised by the configuration operation API.</p>
 </dd>
 <dt><a href="#module_Configuration API_ operation runner">Configuration API: operation runner</a></dt>
-<dd><p>Applies shared post-edit reconciliation after each operation. The CLI and
-post-load scripts use this runner so a sequence of edits has the same
-intermediate and final state across both callers.</p>
+<dd><p>Applies shared post-edit reconciliation after each operation. The CLI uses
+this runner, where every operation is a complete edit. Post-load scripts
+apply a batch and reconcile once at the end, and the user interface writes
+to every shared endpoint type itself; both go through
+<code>configuration.executeOperation</code> instead.</p>
 </dd>
 <dt><a href="#module_JS API_ data model policy">JS API: data model policy</a></dt>
 <dd><p>The parts of an attribute&#39;s configuration that the data model decides rather
@@ -576,13 +578,26 @@ outputs here instead of dispatching operations independently.</p>
 <dd><p>Creates the context passed to configuration operations.</p>
 </dd>
 <dt><a href="#execute">execute()</a></dt>
-<dd><p>Runs an operation in an existing configuration context.</p>
+<dd><p>Runs an operation in an existing configuration context and reconciles
+shared cluster state afterwards. This is the command line&#39;s sequence, where
+each operation is a complete edit.</p>
+</dd>
+<dt><a href="#executeOperation">executeOperation()</a></dt>
+<dd><p>Runs one operation without reconciling shared cluster state. A caller that
+applies a batch (a post-load script) or that reconciles on its own terms
+(the user interface, which writes to every shared endpoint type itself)
+uses this and calls <code>reconcileSharedState</code> when the batch is done.</p>
+</dd>
+<dt><a href="#reconcileSharedState">reconcileSharedState()</a></dt>
+<dd><p>Aligns the cluster states shared across endpoints, where the data model asks for it.</p>
 </dd>
 <dt><a href="#executeForSession">executeForSession()</a></dt>
 <dd><p>Runs an operation for a loaded GUI or CLI session.</p>
 </dd>
 <dt><a href="#executeRequest">executeRequest()</a></dt>
-<dd><p>Adapts an HTTP request to the session-oriented configuration API.</p>
+<dd><p>Adapts an HTTP request to the session-oriented configuration API. The
+interface decides for itself when shared cluster states are aligned, so
+nothing is reconciled here.</p>
 </dd>
 <dt><a href="#createRootNode">createRootNode()</a></dt>
 <dd><p>Creates and reconciles the standard root-node endpoint.</p>
@@ -17654,6 +17669,7 @@ This module provides the API to access zcl specific information.
         * [~getMergedSessionPackageExtensions(db, sessionId, entity)](#module_REST API_ user data..getMergedSessionPackageExtensions) ⇒ <code>Promise.&lt;Array&gt;</code>
         * [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module_REST API_ user data..getComponentIdsByCluster) ⇒ <code>\*</code>
         * [~filterOutComponentsStillRequired(db, sessionId, componentIds)](#module_REST API_ user data..filterOutComponentsStillRequired) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+        * [~featureTarget(body, [featureData])](#module_REST API_ user data..featureTarget) ⇒ <code>\*</code>
         * [~applyOperationToEndpointTypes()](#module_REST API_ user data..applyOperationToEndpointTypes)
         * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
         * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
@@ -17763,6 +17779,25 @@ helper-shared-config). Mapping to UC ids reuses getComponentIdsByCluster.
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
 | componentIds | <code>Array.&lt;string&gt;</code> | 
+
+<a name="module_REST API_ user data..featureTarget"></a>
+
+### REST API: user data~featureTarget(body, [featureData]) ⇒ <code>\*</code>
+The endpoint and cluster a feature request is about, by database id.
+
+The interface knows the exact rows it is showing, so it sends their ids
+(`endpointRef`, `clusterRef`) and the operation needs no name lookup. A
+lookup by endpoint number and cluster name is ambiguous in a multiprotocol
+configuration, or wherever two packages define a cluster of the same name,
+so the names are only a fallback for callers that have nothing else.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: <code>\*</code> - `{ endpointId, clusterId }`, each undefined when not sent  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| body | <code>\*</code> |  | the request body |
+| [featureData] | <code>\*</code> | <code></code> | the feature row, which carries its cluster id |
 
 <a name="module_REST API_ user data..applyOperationToEndpointTypes"></a>
 
@@ -19045,6 +19080,7 @@ This module provides the REST API to the user specific data.
         * [~getMergedSessionPackageExtensions(db, sessionId, entity)](#module_REST API_ user data..getMergedSessionPackageExtensions) ⇒ <code>Promise.&lt;Array&gt;</code>
         * [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module_REST API_ user data..getComponentIdsByCluster) ⇒ <code>\*</code>
         * [~filterOutComponentsStillRequired(db, sessionId, componentIds)](#module_REST API_ user data..filterOutComponentsStillRequired) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+        * [~featureTarget(body, [featureData])](#module_REST API_ user data..featureTarget) ⇒ <code>\*</code>
         * [~applyOperationToEndpointTypes()](#module_REST API_ user data..applyOperationToEndpointTypes)
         * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
         * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
@@ -19154,6 +19190,25 @@ helper-shared-config). Mapping to UC ids reuses getComponentIdsByCluster.
 | db | <code>\*</code> | 
 | sessionId | <code>\*</code> | 
 | componentIds | <code>Array.&lt;string&gt;</code> | 
+
+<a name="module_REST API_ user data..featureTarget"></a>
+
+### REST API: user data~featureTarget(body, [featureData]) ⇒ <code>\*</code>
+The endpoint and cluster a feature request is about, by database id.
+
+The interface knows the exact rows it is showing, so it sends their ids
+(`endpointRef`, `clusterRef`) and the operation needs no name lookup. A
+lookup by endpoint number and cluster name is ambiguous in a multiprotocol
+configuration, or wherever two packages define a cluster of the same name,
+so the names are only a fallback for callers that have nothing else.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: <code>\*</code> - `{ endpointId, clusterId }`, each undefined when not sent  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| body | <code>\*</code> |  | the request body |
+| [featureData] | <code>\*</code> | <code></code> | the feature row, which carries its cluster id |
 
 <a name="module_REST API_ user data..applyOperationToEndpointTypes"></a>
 
@@ -19550,6 +19605,7 @@ This module provides the HTTP server functionality.
 
 * [JS API: http server](#module_JS API_ http server)
     * [~registerRestApi(filename, db, app)](#module_JS API_ http server..registerRestApi)
+    * [~answerRejections(handler)](#module_JS API_ http server..answerRejections) ⇒ <code>function</code>
     * [~registerAllRestModules(db, app)](#module_JS API_ http server..registerAllRestModules)
     * [~initHttpServer(db, port)](#module_JS API_ http server..initHttpServer) ⇒
     * [~userSessionHandler(db, options)](#module_JS API_ http server..userSessionHandler) ⇒
@@ -19572,6 +19628,25 @@ get/post/etc. arrays.
 | filename | <code>\*</code> | 
 | db | <code>\*</code> | 
 | app | <code>\*</code> | 
+
+<a name="module_JS API_ http server..answerRejections"></a>
+
+### JS API: http server~answerRejections(handler) ⇒ <code>function</code>
+Turns a rejected handler into an HTTP response.
+
+The handlers are async, and Express 4 does not route a rejected promise
+anywhere: the request would simply never be answered. A refusal from the
+configuration API (an `OperationError`, such as a duplicate endpoint
+identifier or a storage the data model fixes) is reported as a 400 with the
+message and hints the CLI would print; anything else is logged and reported
+as a 500.
+
+**Kind**: inner method of [<code>JS API: http server</code>](#module_JS API_ http server)  
+**Returns**: <code>function</code> - a handler that always responds  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| handler | <code>function</code> | an `(request, response)` handler |
 
 <a name="module_JS API_ http server..registerAllRestModules"></a>
 
@@ -21700,9 +21775,11 @@ Builds an `OperationError` for a lookup that matched more than one entity.
 <a name="module_Configuration API_ operation runner"></a>
 
 ## Configuration API: operation runner
-Applies shared post-edit reconciliation after each operation. The CLI and
-post-load scripts use this runner so a sequence of edits has the same
-intermediate and final state across both callers.
+Applies shared post-edit reconciliation after each operation. The CLI uses
+this runner, where every operation is a complete edit. Post-load scripts
+apply a batch and reconcile once at the end, and the user interface writes
+to every shared endpoint type itself; both go through
+`configuration.executeOperation` instead.
 
 
 * [Configuration API: operation runner](#module_Configuration API_ operation runner)
@@ -21798,8 +21875,13 @@ forced-external pairs, which is why the cluster matters: ClusterRevision is
 ordinary on most clusters and served through the Attribute Access Interface
 on Access Control.
 
+A pair the data model lists under `keepDefault` is still External, but its
+default value stays under the configuration's control: the user interface
+leaves the field editable for exactly those attributes.
+
 **Kind**: inner method of [<code>JS API: data model policy</code>](#module_JS API_ data model policy)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ storage, reporting }`, each null where the choice is free  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ storage, reporting, keepDefault }`, the first two
+  null where the choice is free  
 
 | Param | Type |
 | --- | --- |
@@ -21857,7 +21939,9 @@ there the default is discarded outright when the configuration is read back.
 
 Clearing the default is still allowed, on the same reasoning as asking for
 the storage that is already fixed: a caller restating what is already so is
-not asking for anything.
+not asking for anything. An attribute the data model lists under
+`keepDefault` keeps its default despite being External, so its default may
+be set as for any other attribute.
 
 **Kind**: inner method of [<code>JS API: data model policy</code>](#module_JS API_ data model policy)  
 **Returns**: <code>undefined</code> - nothing, throws when a default cannot be kept  
@@ -33808,7 +33892,24 @@ Creates the context passed to configuration operations.
 <a name="execute"></a>
 
 ## execute()
-Runs an operation in an existing configuration context.
+Runs an operation in an existing configuration context and reconciles
+shared cluster state afterwards. This is the command line's sequence, where
+each operation is a complete edit.
+
+**Kind**: global function  
+<a name="executeOperation"></a>
+
+## executeOperation()
+Runs one operation without reconciling shared cluster state. A caller that
+applies a batch (a post-load script) or that reconciles on its own terms
+(the user interface, which writes to every shared endpoint type itself)
+uses this and calls `reconcileSharedState` when the batch is done.
+
+**Kind**: global function  
+<a name="reconcileSharedState"></a>
+
+## reconcileSharedState()
+Aligns the cluster states shared across endpoints, where the data model asks for it.
 
 **Kind**: global function  
 <a name="executeForSession"></a>
@@ -33820,7 +33921,9 @@ Runs an operation for a loaded GUI or CLI session.
 <a name="executeRequest"></a>
 
 ## executeRequest()
-Adapts an HTTP request to the session-oriented configuration API.
+Adapts an HTTP request to the session-oriented configuration API. The
+interface decides for itself when shared cluster states are aligned, so
+nothing is reconciled here.
 
 **Kind**: global function  
 <a name="createRootNode"></a>
