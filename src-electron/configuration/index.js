@@ -305,3 +305,4 @@ exports.findAttribute = resolver.resolveAttribute
 exports.findCommand = (ctx, cluster, spec, source) =>
   resolver.commandFromParams(ctx, cluster, { command: spec, source: source })
 exports.findEvent = resolver.resolveEvent
+exports.endpointTypeDatabaseId = resolver.endpointTypeDatabaseId

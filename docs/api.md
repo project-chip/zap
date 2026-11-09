@@ -2285,6 +2285,9 @@ alongside names. Nothing here belongs to one front end.
     * [~commandFromParams(ctx, cluster, params)](#module_Configuration API_ entity resolution..commandFromParams) ⇒ <code>Promise.&lt;\*&gt;</code>
     * [~manufacturerMatches(cluster, mfgCode)](#module_Configuration API_ entity resolution..manufacturerMatches) ⇒ <code>boolean</code>
     * [~resolveClusterByManufacturer(ctx, spec, [mfgCode])](#module_Configuration API_ entity resolution..resolveClusterByManufacturer) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~endpointTypeFileIds(ctx)](#module_Configuration API_ entity resolution..endpointTypeFileIds) ⇒ <code>Promise.&lt;Array.&lt;{id: number, endpointTypeId: number}&gt;&gt;</code>
+    * [~endpointTypeFileId(ctx, databaseId)](#module_Configuration API_ entity resolution..endpointTypeFileId) ⇒ <code>Promise.&lt;number&gt;</code>
+    * [~endpointTypeDatabaseId(ctx, fileId)](#module_Configuration API_ entity resolution..endpointTypeDatabaseId) ⇒ <code>Promise.&lt;number&gt;</code>
 
 <a name="module_Configuration API_ entity resolution..normalizeName"></a>
 
@@ -2787,6 +2790,49 @@ is used.
 | ctx | <code>\*</code> |  |  |
 | spec | <code>\*</code> |  | Name, define or code. |
 | [mfgCode] | <code>\*</code> | <code></code> |  |
+
+<a name="module_Configuration API_ entity resolution..endpointTypeFileIds"></a>
+
+### Configuration API: entity resolution~endpointTypeFileIds(ctx) ⇒ <code>Promise.&lt;Array.&lt;{id: number, endpointTypeId: number}&gt;&gt;</code>
+The endpoint type ids written into a .zap file, paired with the database
+rows of this session.
+
+Saving numbers endpoint types with the same row number the file stores as
+`id`. Loading inserts fresh database rows, so that number is not the
+primary key. Callers that speak to a person use the file id. Callers that
+already hold a database id, the user interface among them, keep using it.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..endpointTypeFileId"></a>
+
+### Configuration API: entity resolution~endpointTypeFileId(ctx, databaseId) ⇒ <code>Promise.&lt;number&gt;</code>
+The file id of an endpoint type that already lives in this session.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;number&gt;</code> - the id the .zap file records  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| databaseId | <code>number</code> | 
+
+<a name="module_Configuration API_ entity resolution..endpointTypeDatabaseId"></a>
+
+### Configuration API: entity resolution~endpointTypeDatabaseId(ctx, fileId) ⇒ <code>Promise.&lt;number&gt;</code>
+The database id of the endpoint type a file id names.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;number&gt;</code> - endpoint type primary key in this session  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| fileId | <code>\*</code> | 
 
 <a name="module_Configuration API_ operation runner"></a>
 

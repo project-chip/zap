@@ -72,11 +72,16 @@ async function endpointList(ctx) {
   // way the listing makes sense, and it is also what --category selects on.
   let multiprotocol = (await resolver.sessionCategories(ctx)).length > 1
 
+  let typeIds = await resolver.endpointTypeFileIds(ctx)
   let rows = []
   for (let ep of endpoints) {
     let devices = await deviceTypesOfEndpoint(ctx, ep)
+    let fileType = typeIds.find(
+      (row) => Number(row.endpointTypeId) === Number(ep.endpointTypeRef)
+    )
     let row = {
       endpoint: ep.endpointIdentifier,
+      typeId: fileType == null ? '' : Number(fileType.id),
       profile: ep.profileId == null ? '' : asHex(ep.profileId),
       network: ep.networkId == null ? '' : ep.networkId,
       parent:
@@ -91,7 +96,14 @@ async function endpointList(ctx) {
     rows.push(row)
   }
 
-  let columns = ['endpoint', 'profile', 'network', 'parent', 'deviceTypes']
+  let columns = [
+    'endpoint',
+    'typeId',
+    'profile',
+    'network',
+    'parent',
+    'deviceTypes'
+  ]
   if (multiprotocol) columns.splice(1, 0, 'category')
 
   return result(
@@ -710,7 +722,8 @@ async function endpointTypeCreate(ctx, params) {
     versions,
     params.name
   )
-  const outcome = result(true, [`Created endpoint type ${id}`])
+  const fileId = await resolver.endpointTypeFileId(ctx, id)
+  const outcome = result(true, [`Created endpoint type ${fileId}`])
   outcome.id = id
   outcome.deviceIdentifier = deviceTypes.map((deviceType) => deviceType.code)
   outcome.deviceVersion = versions
@@ -749,18 +762,25 @@ async function endpointTypeDelete(ctx, params) {
     ctx,
     params.endpointTypeId
   )
+  const fileId = await resolver.endpointTypeFileId(ctx, endpointTypeId)
   const removed = await queryEndpointType.deleteEndpointType(
     ctx.db,
     endpointTypeId
   )
-  return result(removed > 0, [`Deleted endpoint type ${params.endpointTypeId}`])
+  return result(removed > 0, [`Deleted endpoint type ${fileId}`])
 }
 
 /** Duplicates an endpoint type and its configured cluster and element states. */
 async function endpointTypeDuplicate(ctx, params) {
   const source = await requireEndpointTypeInSession(ctx, params.endpointTypeId)
+  // Read the source id before the copy is inserted. A type no endpoint uses
+  // sorts first, and that would renumber the source.
+  const sourceFileId = await resolver.endpointTypeFileId(ctx, source)
   const id = await duplicateEndpointTypeConfiguration(ctx, source)
-  const outcome = result(true, [`Duplicated endpoint type ${source} as ${id}`])
+  const fileId = await resolver.endpointTypeFileId(ctx, id)
+  const outcome = result(true, [
+    `Duplicated endpoint type ${sourceFileId} as ${fileId}`
+  ])
   outcome.id = id
   return outcome
 }
