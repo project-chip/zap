@@ -42,7 +42,11 @@ async function executeScriptFunction(functionName, context) {
   if (loadedScript[functionName]) {
     // Add updateKeys available to the context
     context.updateKey = require('../../src-shared/rest-api.js').updateKey
-    return loadedScript[functionName](scriptApi, context)
+    let outcome = await loadedScript[functionName](scriptApi, context)
+    // The script's edits are a batch; shared cluster state is aligned once,
+    // when it is done, so a half-applied script is never reconciled.
+    await scriptApi.reconcile(context)
+    return outcome
   }
 }
 

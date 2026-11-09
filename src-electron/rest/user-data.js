@@ -29,6 +29,29 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
 const configurationApi = require('../api').configuration
 
+/**
+ * The endpoint and cluster a feature request is about, by database id.
+ *
+ * The interface knows the exact rows it is showing, so it sends their ids
+ * (`endpointRef`, `clusterRef`) and the operation needs no name lookup. A
+ * lookup by endpoint number and cluster name is ambiguous in a multiprotocol
+ * configuration, or wherever two packages define a cluster of the same name,
+ * so the names are only a fallback for callers that have nothing else.
+ *
+ * @param {*} body the request body
+ * @param {*} [featureData] the feature row, which carries its cluster id
+ * @returns {*} `{ endpointId, clusterId }`, each undefined when not sent
+ */
+function featureTarget(body, featureData = null) {
+  let clusterId = body.clusterRef
+  if (clusterId == null && featureData != null)
+    clusterId = featureData.clusterRef
+  return {
+    endpointId: body.endpointRef == null ? undefined : body.endpointRef,
+    clusterId: clusterId == null ? undefined : clusterId
+  }
+}
+
 /** Runs one shared operation for each distinct endpoint type in a GUI edit. */
 async function applyOperationToEndpointTypes(
   db,
@@ -122,6 +145,7 @@ function httpPostCheckConformOnFeatureUpdate(db) {
       request,
       'feature.preview',
       {
+        ...featureTarget(request.body, featureData),
         endpoint: endpointId,
         cluster: cluster || featureData.cluster,
         feature: featureData.code,
@@ -150,7 +174,7 @@ function httpPostApplyFeatureUpdate(db) {
       db,
       request,
       enabled ? 'feature.enable' : 'feature.disable',
-      { endpoint, cluster, feature }
+      { ...featureTarget(request.body), endpoint, cluster, feature }
     )
     response.status(StatusCodes.OK).json(outcome)
   }
@@ -168,7 +192,7 @@ function httpPostRequiredElements(db) {
       db,
       request,
       'feature.requirements',
-      { endpoint, cluster }
+      { ...featureTarget(request.body), endpoint, cluster }
     )
     response.status(StatusCodes.OK).json(outcome.requirements)
   }

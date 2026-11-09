@@ -98,7 +98,9 @@ function editContext(context) {
  */
 async function run(context, name, params) {
   try {
-    let outcome = await configurationApi.execute(
+    // Shared cluster state is reconciled once, after the whole script has
+    // run (see `reconcile`), rather than after each call.
+    let outcome = await configurationApi.executeOperation(
       editContext(context),
       name,
       params
@@ -125,6 +127,18 @@ async function run(context, name, params) {
     ;(err.hints || []).forEach((hint) => print(`   ${hint}`))
     return null
   }
+}
+
+/**
+ * Aligns the cluster states that the data model shares across endpoints,
+ * after a script has applied its edits. The script runner calls this once a
+ * script function returns; a script does not need to.
+ *
+ * @param {*} context
+ * @returns {Promise<*>} `{ applied, endpoints, clusters }`
+ */
+async function reconcile(context) {
+  return configurationApi.reconcileSharedState(editContext(context))
 }
 
 /**
@@ -870,6 +884,9 @@ exports.disableEvent = disableEvent
 exports.features = features
 exports.enableFeature = enableFeature
 exports.disableFeature = disableFeature
+
+// Used by the script runner, not by scripts.
+exports.reconcile = reconcile
 
 // Constants that are used a lot
 exports.client = dbEnum.source.client

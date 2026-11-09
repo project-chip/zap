@@ -70,17 +70,23 @@ async function forcedExternalPairs(ctx) {
  * ordinary on most clusters and served through the Attribute Access Interface
  * on Access Control.
  *
+ * A pair the data model lists under `keepDefault` is still External, but its
+ * default value stays under the configuration's control: the user interface
+ * leaves the field editable for exactly those attributes.
+ *
  * @param {*} ctx
  * @param {*} cluster
  * @param {*} attribute
- * @returns {Promise<*>} `{ storage, reporting }`, each null where the choice is free
+ * @returns {Promise<*>} `{ storage, reporting, keepDefault }`, the first two
+ *   null where the choice is free
  */
 async function attributePolicy(ctx, cluster, attribute) {
+  let pairs = await forcedExternalPairs(ctx)
   let storagePolicy = await matterSdk.computeStoragePolicyNewConfig(
     ctx.db,
     cluster.id,
     attribute.storagePolicy,
-    await forcedExternalPairs(ctx),
+    pairs,
     attribute.name
   )
 
@@ -96,7 +102,11 @@ async function attributePolicy(ctx, cluster, attribute) {
     reporting = false
   }
 
-  return { storage: storage, reporting: reporting }
+  return {
+    storage: storage,
+    reporting: reporting,
+    keepDefault: matterSdk.keepsDefault(pairs, cluster.name, attribute.name)
+  }
 }
 
 /**
@@ -180,7 +190,9 @@ function requirePolicyRespected(policy, requested, where) {
  *
  * Clearing the default is still allowed, on the same reasoning as asking for
  * the storage that is already fixed: a caller restating what is already so is
- * not asking for anything.
+ * not asking for anything. An attribute the data model lists under
+ * `keepDefault` keeps its default despite being External, so its default may
+ * be set as for any other attribute.
  *
  * @param {*} requested The default value asked for, null to clear it.
  * @param {string} storage The storage that applies once the change is made.
@@ -190,6 +202,7 @@ function requirePolicyRespected(policy, requested, where) {
  */
 function requireDefaultCanBeKept(requested, storage, policy, where) {
   if (storage !== dbEnum.storageOption.external) return
+  if (policy.keepDefault === true) return
   if (requested === null || `${requested}`.toLowerCase() === 'null') return
   let subject = describe(where)
   if (policy.storage === dbEnum.storageOption.external) {

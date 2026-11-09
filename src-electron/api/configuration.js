@@ -31,9 +31,28 @@ function createContext(db, sessionId, options = {}) {
   }
 }
 
-/** Runs an operation in an existing configuration context. */
+/**
+ * Runs an operation in an existing configuration context and reconciles
+ * shared cluster state afterwards. This is the command line's sequence, where
+ * each operation is a complete edit.
+ */
 function execute(ctx, name, params, onSharedState) {
   return operationRunner.execute(ctx, name, params, onSharedState)
+}
+
+/**
+ * Runs one operation without reconciling shared cluster state. A caller that
+ * applies a batch (a post-load script) or that reconciles on its own terms
+ * (the user interface, which writes to every shared endpoint type itself)
+ * uses this and calls `reconcileSharedState` when the batch is done.
+ */
+function executeOperation(ctx, name, params) {
+  return operations.execute(ctx, name, params)
+}
+
+/** Aligns the cluster states shared across endpoints, where the data model asks for it. */
+function reconcileSharedState(ctx) {
+  return operations.unifySharedClusterStates(ctx)
 }
 
 /** Runs an operation for a loaded GUI or CLI session. */
@@ -41,9 +60,17 @@ function executeForSession(db, sessionId, name, params, options = {}) {
   return execute(createContext(db, sessionId, options), name, params)
 }
 
-/** Adapts an HTTP request to the session-oriented configuration API. */
+/**
+ * Adapts an HTTP request to the session-oriented configuration API. The
+ * interface decides for itself when shared cluster states are aligned, so
+ * nothing is reconciled here.
+ */
 function executeRequest(db, request, name, params, options = {}) {
-  return executeForSession(db, request.zapSessionId, name, params, options)
+  return executeOperation(
+    createContext(db, request.zapSessionId, options),
+    name,
+    params
+  )
 }
 
 /** Creates and reconciles the standard root-node endpoint. */
@@ -236,6 +263,8 @@ function validateSession(db, sessionId, options = {}) {
 
 exports.createContext = createContext
 exports.execute = execute
+exports.executeOperation = executeOperation
+exports.reconcileSharedState = reconcileSharedState
 exports.executeForSession = executeForSession
 exports.executeRequest = executeRequest
 exports.createRootNode = createRootNode

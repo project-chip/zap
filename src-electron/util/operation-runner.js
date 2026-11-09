@@ -1,7 +1,9 @@
 /**
- * Applies shared post-edit reconciliation after each operation. The CLI and
- * post-load scripts use this runner so a sequence of edits has the same
- * intermediate and final state across both callers.
+ * Applies shared post-edit reconciliation after each operation. The CLI uses
+ * this runner, where every operation is a complete edit. Post-load scripts
+ * apply a batch and reconcile once at the end, and the user interface writes
+ * to every shared endpoint type itself; both go through
+ * `configuration.executeOperation` instead.
  *
  * @module Configuration API: operation runner
  */

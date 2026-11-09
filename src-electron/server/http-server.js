@@ -33,6 +33,8 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const initialize = require('../rest/initialize')
 const dirtyFlag = require('../util/async-reporting')
 const notification = require('../db/query-session-notification.js')
+const { OperationError } = require('../util/operation-error.js')
+const { StatusCodes } = require('http-status-codes')
 
 const restApiModules = [
   require('../rest/admin.js'),
@@ -59,36 +61,73 @@ function registerRestApi(module, db, app) {
     module.post.forEach((singlePost) => {
       let uri = singlePost.uri
       let callback = singlePost.callback
-      app.post(uri, callback(db))
+      app.post(uri, answerRejections(callback(db)))
     })
 
   if (module.put != null)
     module.put.forEach((singlePut) => {
       let uri = singlePut.uri
       let callback = singlePut.callback
-      app.put(uri, callback(db))
+      app.put(uri, answerRejections(callback(db)))
     })
 
   if (module.patch != null)
     module.patch.forEach((singlePatch) => {
       let uri = singlePatch.uri
       let callback = singlePatch.callback
-      app.patch(uri, callback(db))
+      app.patch(uri, answerRejections(callback(db)))
     })
 
   if (module.get != null)
     module.get.forEach((singleGet) => {
       let uri = singleGet.uri
       let callback = singleGet.callback
-      app.get(uri, callback(db))
+      app.get(uri, answerRejections(callback(db)))
     })
 
   if (module.delete != null)
     module.delete.forEach((singleDelete) => {
       let uri = singleDelete.uri
       let callback = singleDelete.callback
-      app.delete(uri, callback(db))
+      app.delete(uri, answerRejections(callback(db)))
     })
+}
+
+/**
+ * Turns a rejected handler into an HTTP response.
+ *
+ * The handlers are async, and Express 4 does not route a rejected promise
+ * anywhere: the request would simply never be answered. A refusal from the
+ * configuration API (an `OperationError`, such as a duplicate endpoint
+ * identifier or a storage the data model fixes) is reported as a 400 with the
+ * message and hints the CLI would print; anything else is logged and reported
+ * as a 500.
+ *
+ * @param {Function} handler an `(request, response)` handler
+ * @returns {Function} a handler that always responds
+ */
+function answerRejections(handler) {
+  return (request, response, next) => {
+    Promise.resolve()
+      .then(() => handler(request, response, next))
+      .catch((err) => {
+        if (response.headersSent) {
+          env.logError(err)
+          return
+        }
+        if (err instanceof OperationError) {
+          response.status(StatusCodes.BAD_REQUEST).json({
+            message: err.message,
+            hints: err.hints || []
+          })
+        } else {
+          env.logError(err)
+          response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: err && err.message ? err.message : String(err)
+          })
+        }
+      })
+  }
 }
 
 /**

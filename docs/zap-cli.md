@@ -121,6 +121,20 @@ responses; Vue presents results, confirmations, and refreshed state. The HTTP
 boundary remains in `src-electron/rest/`, while configuration behavior lives
 behind the shared API.
 
+The three callers differ only in how they report and when they reconcile:
+
+- The CLI runs each operation through the operation runner, which aligns
+  shared cluster states after every edit, and prints refusals.
+- A REST handler passes the user interface's database ids straight to the
+  operation (`endpointId`, `clusterId`, `attributeId`), so no name lookup is
+  involved. A refusal (`OperationError`) is answered as HTTP 400 with the
+  message and hints; the interface shows it as a notification. The interface
+  aligns shared cluster states itself, as it always has, so the handler does
+  not.
+- A post-import script's calls are a batch: refusals are printed and the call
+  returns `null`, and shared cluster states are aligned once when the script
+  function returns.
+
 The CLI's command surface lives in `src-electron/cli/cli-spec.js`. The parser
 and human or JSON help are generated from that declaration. Implement each
 operation in `src-electron/operations.js` and register it in the spec. Database

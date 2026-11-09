@@ -115,10 +115,11 @@ export default {
 
       this.$serverPost(restApi.uri.checkConformOnFeatureUpdate, {
         featureData: featureData,
-        endpointId: this.endpointId[this.selectedEndpointId],
-        cluster: this.selectedCluster.name,
+        ...this.featureTarget(featureData),
         enabled
       }).then((res) => {
+        // A refusal has already been shown by the request layer.
+        if (!res) return
         // store backend response and frontend data for reuse if updates are confirmed
         let {
           attributesToUpdate,
@@ -156,11 +157,14 @@ export default {
     async confirmFeatureUpdate(featureData, inclusionList) {
       const enabled = this.featureIsEnabled(featureData, inclusionList)
       const outcome = await this.$serverPost(restApi.uri.applyFeatureUpdate, {
-        endpoint: this.endpointId[this.selectedEndpointId],
-        cluster: this.selectedCluster.name,
+        ...this.featureTarget(featureData),
         feature: featureData.code,
         enabled
       })
+      if (!outcome) {
+        // Refused; the request layer has shown why. Leave the dialog open.
+        return
+      }
 
       this.$store.commit('zap/updateInclusionList', {
         id: featureData.featureId,
@@ -218,13 +222,25 @@ export default {
     featureIsEnabled(featureData, inclusionList) {
       return inclusionList.includes(featureData.featureId)
     },
+    /**
+     * The endpoint and cluster a feature request is about, as database ids.
+     * The interface knows the exact rows, so the backend needs no lookup by
+     * endpoint number or cluster name, which can be ambiguous.
+     */
+    featureTarget(featureData = null) {
+      let clusterRef =
+        featureData && featureData.clusterRef != null
+          ? featureData.clusterRef
+          : this.selectedClusterId
+      return {
+        endpointRef: this.selectedEndpointId,
+        clusterRef: clusterRef
+      }
+    },
     // set required and unsupported elements based on conformance for the selected cluster
     setRequiredConformElement() {
       if (Object.keys(this.clusterFeatures).length > 0) {
-        this.$store.dispatch('zap/setRequiredElements', {
-          endpoint: this.endpointId[this.selectedEndpointId],
-          cluster: this.selectedCluster.name
-        })
+        this.$store.dispatch('zap/setRequiredElements', this.featureTarget())
       }
     },
     getClusterDataByRef(clusterRef) {

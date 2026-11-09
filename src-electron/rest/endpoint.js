@@ -23,6 +23,7 @@
 
 const restApi = require('../../src-shared/rest-api.js')
 const configurationApi = require('../api').configuration
+const { OperationError } = require('../util/operation-error.js')
 const { StatusCodes } = require('http-status-codes')
 
 /**
@@ -34,16 +35,21 @@ const { StatusCodes } = require('http-status-codes')
 function httpDeleteEndpoint(db) {
   return async (request, response) => {
     let id = request.query.id
+    // The user interface has always deleted an endpoint regardless of its
+    // children (the schema detaches them), so the CLI's child guard is not
+    // applied here. The endpoint type is removed with it when nothing else
+    // uses it; the response says so, so the client does not ask again.
     let outcome = await configurationApi.executeRequest(
       db,
       request,
       'endpoint.delete',
-      { endpointId: id }
+      { endpointId: id, force: true }
     )
 
     response.status(StatusCodes.OK).json({
       successful: outcome.changed,
-      id: id
+      id: id,
+      removedEndpointTypeId: outcome.removedEndpointTypeId
     })
   }
 }
@@ -57,14 +63,22 @@ function httpDeleteEndpoint(db) {
 function httpDeleteEndpointType(db) {
   return async (request, response) => {
     let id = request.query.id
-    let outcome = await configurationApi.executeRequest(
-      db,
-      request,
-      'endpointtype.delete',
-      { endpointTypeId: id }
-    )
+    let removed = false
+    try {
+      let outcome = await configurationApi.executeRequest(
+        db,
+        request,
+        'endpointtype.delete',
+        { endpointTypeId: id }
+      )
+      removed = outcome.changed
+    } catch (err) {
+      // An endpoint type that is already gone (deleted along with its
+      // endpoint) is reported as not removed, as this handler always has.
+      if (!(err instanceof OperationError)) throw err
+    }
     response.status(StatusCodes.OK).json({
-      successful: outcome.changed,
+      successful: removed,
       id: id
     })
   }
@@ -88,8 +102,8 @@ function httpPostEndpoint(db) {
     } = request.body
     let parentEndpointRef = await configurationApi.readParentEndpointRef(
       db,
-      parentEndpointIdentifier,
-      request.zapSessionId
+      request.zapSessionId,
+      parentEndpointIdentifier
     )
     if (parentEndpointRef == null && parentEndpointIdentifier != null) {
       parentEndpointIdentifier = null
@@ -164,8 +178,8 @@ function httpPatchEndpoint(db) {
     if (parentEndpointIdentifier != null) {
       let parentRef = await configurationApi.readParentEndpointRef(
         db,
-        parentEndpointIdentifier,
-        request.zapSessionId
+        request.zapSessionId,
+        parentEndpointIdentifier
       )
       params.parentId = parentRef
       if (parentRef == null) {
