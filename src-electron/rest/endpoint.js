@@ -22,8 +22,8 @@
  */
 
 const restApi = require('../../src-shared/rest-api.js')
-const configurationApi = require('../api').configuration
-const { OperationError } = require('../util/operation-error.js')
+const configurationApi = require('../configuration')
+const { OperationError } = require('../configuration/errors.js')
 const { StatusCodes } = require('http-status-codes')
 
 /**

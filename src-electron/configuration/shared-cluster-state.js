@@ -46,6 +46,7 @@ const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryPackage = require('../db/query-package.js')
 const restApi = require('../../src-shared/rest-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const resolver = require('./resolver.js')
 
 /**
  * The package categories that asked for cluster states to be shared across
@@ -412,6 +413,85 @@ function attributeEquals(a, b) {
   )
 }
 
+/**
+ * Aligns the attribute and command states of clusters that more than one
+ * endpoint enables, where the data model says they are shared.
+ *
+ * In Zigbee a cluster's configuration is one global thing: the Basic cluster on
+ * three endpoints includes the same attributes on all three, and the framework
+ * keeps one copy. ZAP stores state per endpoint type, so the user interface
+ * re-aligns them after every change. Editing without that step produced files
+ * the interface would never have written.
+ *
+ * Two things keep this from touching Matter, where an attribute genuinely is
+ * per endpoint. The behaviour is only attempted when the loaded templates
+ * declare `shareClusterStatesAcrossEndpoints`, which is how the interface
+ * decides. And in a multiprotocol configuration only the endpoints whose device
+ * types come from a package that asked for it are included, so the Matter half
+ * of the same file is left exactly as it was.
+ *
+ * @param {*} ctx
+ * @returns {Promise<*>} `{ applied, endpoints, clusters }`
+ */
+async function unifySharedClusterStates(ctx) {
+  let quiet = { applied: false, endpoints: [], clusters: 0 }
+  let sharing = (await sharingCategories(ctx.db, ctx.sessionId)).filter(
+    (c) => c !== ''
+  )
+  if (sharing.length === 0) return quiet
+
+  let endpoints = await queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId)
+
+  // An endpoint is in scope when its device types come from a category that
+  // shares state, which is what keeps a Matter endpoint out of a Zigbee
+  // unification even when both data models are loaded. An endpoint whose
+  // category cannot be determined is included, since a data model that names no
+  // category is the single-protocol case rather than a foreign one.
+  let included = []
+  for (let endpoint of endpoints) {
+    let own = (await resolver.endpointCategories(ctx, endpoint)).map((c) =>
+      `${c}`.toLowerCase()
+    )
+    if (own.length === 0 || own.some((c) => sharing.includes(c))) {
+      included.push(endpoint)
+    }
+  }
+
+  // A session can temporarily contain endpoints whose endpoint type was not
+  // imported. They have no configuration state to align and must not produce
+  // an empty SQL item in the reconciliation query.
+  let endpointTypeIds = [
+    ...new Set(
+      included.map((e) => e.endpointTypeRef).filter((id) => id != null)
+    )
+  ]
+  if (endpointTypeIds.length < 2) return quiet
+
+  // Narrow the metadata to the sharing categories where that is possible. A
+  // data model can declare the option from its templates while its ZCL package
+  // carries no category, so an empty narrowing means all of it rather than none.
+  let all = await resolver.zclPackages(ctx)
+  let narrowed = all.filter((p) =>
+    sharing.includes(`${p.category || ''}`.toLowerCase())
+  )
+  let packageIds = (narrowed.length > 0 ? narrowed : all).map((p) => p.id)
+
+  let unified = await shareClusterStatesAcrossEndpoints(
+    ctx.db,
+    endpointTypeIds,
+    packageIds
+  )
+  let clusters = new Set(
+    (unified.sharedClusterList || []).map((c) => `${c.clusterId}/${c.side}`)
+  )
+  return {
+    applied: clusters.size > 0,
+    endpoints: included.map((e) => e.endpointIdentifier),
+    clusters: clusters.size
+  }
+}
+
 exports.isSharingEnabled = isSharingEnabled
 exports.sharingCategories = sharingCategories
 exports.shareClusterStatesAcrossEndpoints = shareClusterStatesAcrossEndpoints
+exports.unifySharedClusterStates = unifySharedClusterStates

@@ -27,7 +27,7 @@ const queryPackageNotification = require('../db/query-package-notification')
 const restApi = require('../../src-shared/rest-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
-const configurationApi = require('../api').configuration
+const configurationApi = require('../configuration')
 
 /**
  * The endpoint and cluster a feature request is about, by database id.

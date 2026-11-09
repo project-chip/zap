@@ -18,11 +18,11 @@
 /**
  * Turns human-friendly identifiers ("On/Off", "0x0006", "MA-onofflight") into
  * the database rows the configuration engine works with. A command line passes
- * flag values here; a post-load script passes the same strings; policy asks
- * which ZCL packages belong to the session. Nothing here belongs to one front
- * end.
+ * flag values here; a post-load script passes the same strings; the user
+ * interface passes database ids, which the `...FromParams` lookups accept
+ * alongside names. Nothing here belongs to one front end.
  *
- * @module JS API: entity resolution
+ * @module Configuration API: entity resolution
  */
 
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -32,7 +32,7 @@ const queryEvent = require('../db/query-event.js')
 const queryDeviceType = require('../db/query-device-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryPackage = require('../db/query-package.js')
-const operationError = require('./operation-error.js')
+const operationError = require('./errors.js')
 
 const OperationError = operationError.OperationError
 
@@ -568,6 +568,197 @@ function expandSides(side) {
   )
 }
 
+/**
+ * Normalizes a parameter that may be given once or several times into an
+ * array.
+ *
+ * @param {*} value
+ * @returns {Array} array form of the value
+ */
+function asArray(value) {
+  if (value === undefined || value === null) return []
+  return Array.isArray(value) ? value : [value]
+}
+
+/**
+ * Picks the row with a given database id out of a list, refusing an id that
+ * is not there. This is how the user interface names things: it already
+ * holds the row, so it sends the id rather than the name.
+ *
+ * @param {string} what Human readable entity kind, capitalized, such as 'Cluster'.
+ * @param {*} spec The id as given, string or number.
+ * @param {Array} rows Candidates carrying `id`.
+ * @returns {*} the matching row
+ */
+function byId(what, spec, rows) {
+  const id = requireInteger(spec, `${what} id`)
+  const row = rows.find((candidate) => Number(candidate.id) === id)
+  if (row == null) {
+    throw new OperationError(`Unknown ${what.toLowerCase()} id ${id}`)
+  }
+  return row
+}
+
+/**
+ * The event an operation was asked about, by database id (`eventId`) or by
+ * name or code (`event`).
+ *
+ * @param {*} ctx
+ * @param {*} cluster
+ * @param {*} params Operation parameters carrying `eventId` or `event`.
+ * @returns {Promise<*>} the event
+ */
+async function eventFromParams(ctx, cluster, params) {
+  if (params.eventId != null) {
+    return byId('Event', params.eventId, await eventsOfCluster(ctx, cluster))
+  }
+  return resolveEvent(ctx, cluster, params.event)
+}
+
+/**
+ * The endpoint an operation was asked about. The user interface passes the
+ * database id (`endpointId`); the command line and scripts pass the visible
+ * endpoint number (`endpoint`). Either is accepted here so that operations
+ * need not know which interface called them.
+ *
+ * @param {*} ctx
+ * @param {*} params Operation parameters carrying `endpointId` or `endpoint`.
+ * @returns {Promise<*>} the endpoint row
+ */
+async function endpointFromParams(ctx, params) {
+  if (params.endpointId == null) return resolveEndpoint(ctx, params.endpoint)
+  return byId(
+    'Endpoint',
+    params.endpointId,
+    await queryEndpoint.selectAllEndpoints(ctx.db, ctx.sessionId)
+  )
+}
+
+/**
+ * The cluster an operation was asked about, by database id (`clusterId`) or
+ * by name, define or code (`cluster`), as `endpointFromParams` does for the
+ * endpoint.
+ *
+ * @param {*} ctx
+ * @param {*} endpoint
+ * @param {*} params Operation parameters carrying `clusterId` or `cluster`.
+ * @returns {Promise<*>} the cluster
+ */
+async function clusterFromParams(ctx, endpoint, params) {
+  if (params.clusterId == null) {
+    return resolveCluster(ctx, params.cluster, endpoint)
+  }
+  return byId(
+    'Cluster',
+    params.clusterId,
+    await clustersForEndpoint(ctx, endpoint)
+  )
+}
+
+/**
+ * The command an operation was asked about: by database id (`commandId`), by
+ * name or code (`command`), or by name or code within one source
+ * (`source`), which a post-load script passes because a code can exist once
+ * per source.
+ *
+ * @param {*} ctx
+ * @param {*} cluster
+ * @param {*} params Operation parameters carrying `commandId`, or `command` and optionally `source`.
+ * @returns {Promise<*>} the command
+ */
+async function commandFromParams(ctx, cluster, params) {
+  if (params.commandId != null) {
+    return byId(
+      'Command',
+      params.commandId,
+      await commandsOfCluster(ctx, cluster)
+    )
+  }
+  if (params.source == null) {
+    return resolveCommand(ctx, cluster, params.command)
+  }
+  let all = await commandsOfCluster(ctx, cluster)
+  let code = parseCode(params.command)
+  let normalized = normalizeName(params.command)
+  let matches = all.filter((command) => {
+    if (command.source !== params.source) return false
+    if (code != null) return command.code === code
+    return normalizeName(command.name) === normalized
+  })
+  let describe = (command) =>
+    `${command.name} (${asHex(command.code, 2)}, source: ${command.source})`
+  if (matches.length === 1) return matches[0]
+  if (matches.length === 0) {
+    throw operationError.notFound(
+      `command of cluster ${cluster.name} with source '${params.source}'`,
+      params.command,
+      all.filter((command) => command.source === params.source).map(describe)
+    )
+  }
+  throw operationError.ambiguous(
+    `command of cluster ${cluster.name}`,
+    params.command,
+    matches.map(describe)
+  )
+}
+
+/**
+ * True when a cluster carries the manufacturer code being asked for. No code
+ * means a standard cluster, whose manufacturer code is null.
+ *
+ * @param {*} cluster
+ * @param {*} mfgCode
+ * @returns {boolean} whether the cluster matches
+ */
+function manufacturerMatches(cluster, mfgCode) {
+  if (mfgCode == null || mfgCode === 0) {
+    return cluster.manufacturerCode == null || cluster.manufacturerCode === 0
+  }
+  return cluster.manufacturerCode === mfgCode
+}
+
+/**
+ * Finds a cluster by name or by code. A manufacturer code narrows the search
+ * to that manufacturer's clusters; without one, the command line's own lookup
+ * is used.
+ *
+ * @param {*} ctx
+ * @param {*} spec Name, define or code.
+ * @param {*} [mfgCode]
+ * @returns {Promise<*>} the cluster
+ */
+async function resolveClusterByManufacturer(ctx, spec, mfgCode = null) {
+  let standard = mfgCode == null || mfgCode === 0
+  let all = (await allClusters(ctx)).filter(
+    (cluster) => standard || manufacturerMatches(cluster, mfgCode)
+  )
+  let code = parseCode(spec)
+  let describe = (cluster) => `${cluster.name} (${asHex(cluster.code)})`
+  let matches
+  if (code != null) {
+    matches = all.filter((cluster) => cluster.code === code)
+  } else {
+    let normalized = normalizeName(spec)
+    matches = all.filter(
+      (cluster) =>
+        normalizeName(cluster.name) === normalized ||
+        normalizeName(cluster.define) === normalized
+    )
+  }
+  // Without a manufacturer code the standard cluster is meant, which is what
+  // the post-load script lookup has always returned when a manufacturer
+  // specific cluster reuses a standard code.
+  if (matches.length > 1 && standard) {
+    let plain = matches.filter((cluster) => manufacturerMatches(cluster, null))
+    if (plain.length === 1) return plain[0]
+  }
+  if (matches.length === 1) return matches[0]
+  if (matches.length === 0) {
+    throw operationError.notFound('cluster', spec, all.map(describe))
+  }
+  throw operationError.ambiguous('cluster', spec, matches.map(describe))
+}
+
 exports.normalizeName = normalizeName
 exports.parseCode = parseCode
 exports.requireInteger = requireInteger
@@ -590,3 +781,10 @@ exports.resolveCommand = resolveCommand
 exports.resolveEvent = resolveEvent
 exports.resolveEndpoint = resolveEndpoint
 exports.expandSides = expandSides
+exports.asArray = asArray
+exports.endpointFromParams = endpointFromParams
+exports.clusterFromParams = clusterFromParams
+exports.commandFromParams = commandFromParams
+exports.resolveClusterByManufacturer = resolveClusterByManufacturer
+exports.byId = byId
+exports.eventFromParams = eventFromParams

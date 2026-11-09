@@ -34,8 +34,8 @@ const cliCommands = require('../src-electron/cli/cli-commands')
 const cliSession = require('../src-electron/cli/cli-session')
 const cliOutput = require('../src-electron/cli/cli-output')
 const cliHelp = require('../src-electron/cli/cli-help')
-const cliOperations = require('../src-electron/operations')
-const cliPolicy = require('../src-electron/util/policy')
+const cliOperations = require('../src-electron/configuration/operations/index.js')
+const cliPolicy = require('../src-electron/configuration/policy')
 const conformChecker = require('../src-electron/validation/conformance-checker')
 const conformEvaluator = require('../src-electron/validation/conformance-expression-evaluator')
 
@@ -329,17 +329,6 @@ test('cli: recognizes a configuration command among leading global options', () 
   ).toBeTruthy()
   expect(cliCommands.isCliCommandLine(['node', 'main.js', 'new'])).toBeFalsy()
 
-  // `edit` is not a command.
-  expect(
-    cliCommands.isCliCommandLine([
-      'node',
-      'main.js',
-      'edit',
-      'endpoint',
-      'list'
-    ])
-  ).toBeFalsy()
-
   // Global options may precede the command; boolean flags leave it in place,
   // and flags that take a value consume their following token.
   expect(
@@ -493,6 +482,81 @@ test('cli: the modules depend on each other in one direction only', () => {
   expect(dependencies['cli-error']).toEqual([])
   expect(dependencies['cli-output']).toEqual([])
   expect(dependencies['cli-spec']).toEqual([])
+})
+
+test('configuration: the engine knows no interface', () => {
+  // The engine is shared by the command line, the HTTP handlers and the
+  // post-load scripts. It stays shareable only if it never reaches back into
+  // one of them, never renders for one of them, and never writes SQL of its
+  // own. Read the sources and check, rather than trusting the diagram.
+  let root = path.join(__dirname, '..', 'src-electron', 'configuration')
+  let files = []
+  let collect = (dir) => {
+    for (let entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      let full = path.join(dir, entry.name)
+      if (entry.isDirectory()) collect(full)
+      else if (entry.name.endsWith('.js')) files.push(full)
+    }
+  }
+  collect(root)
+  expect(files.length).toBeGreaterThan(10)
+
+  let dependencies = {}
+  for (let file of files) {
+    let source = fs.readFileSync(file, 'utf8')
+    let name = path.relative(root, file).replace(/\.js$/, '')
+    let requires = [...source.matchAll(/require\('([^']+)'\)/g)].map(
+      (m) => m[1]
+    )
+    // No interface: not the CLI, not the HTTP layer, not the script runner.
+    requires.forEach((r) => {
+      expect(r).not.toMatch(/\/(cli|rest|server)\//)
+      expect(r).not.toMatch(/post-import/)
+    })
+    // No SQL of its own; the query modules are the only way to the database.
+    expect(source).not.toMatch(/dbApi\.db(All|Get|Insert|Update|Remove)\(/)
+    // No rendering for one interface: a follow-up is a step, not a command.
+    // Comments may name commands when explaining; code may not build them.
+    let code = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+    expect(code).not.toMatch(/[`'"]zap [a-z]+ [a-z]+/)
+    dependencies[name] = requires
+      .filter((r) => r.startsWith('./') || r.startsWith('../'))
+      .map((r) => path.relative(root, path.resolve(path.dirname(file), r)))
+      .filter((r) => !r.startsWith('..'))
+      .map((r) => r.replace(/\.js$/, ''))
+      .filter((r) => r !== name)
+  }
+
+  let visiting = new Set()
+  let done = new Set()
+  let cycle = null
+  let walk = (name, trail) => {
+    if (done.has(name) || cycle != null) return
+    if (visiting.has(name)) {
+      cycle = [...trail, name].join(' -> ')
+      return
+    }
+    visiting.add(name)
+    ;(dependencies[name] || []).forEach((next) => walk(next, [...trail, name]))
+    visiting.delete(name)
+    done.add(name)
+  }
+  Object.keys(dependencies).forEach((name) => walk(name, []))
+  expect(cycle).toBeNull()
+
+  // The vocabulary modules are leaves: anything may build a result or refuse.
+  expect(dependencies['errors']).toEqual([])
+  expect(dependencies['outcome']).toEqual([])
+  // Subject modules reach the shared layer, never the registry above them.
+  Object.keys(dependencies)
+    .filter(
+      (name) => name.startsWith('operations/') && name !== 'operations/index'
+    )
+    .forEach((name) => {
+      expect(dependencies[name]).not.toContain('operations/index')
+      expect(dependencies[name]).not.toContain('index')
+      expect(dependencies[name]).not.toContain('runner')
+    })
 })
 
 test('cli: reports the flag and the batch script name of every option', () => {

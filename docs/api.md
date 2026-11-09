@@ -68,6 +68,85 @@ operation and parameter, and never have to guess a flag name.</p>
 <dt><a href="#module_IPC Client API_ Inter-process communication">IPC Client API: Inter-process communication</a></dt>
 <dd><p>This module provides IPC Client functionality.</p>
 </dd>
+<dt><a href="#module_Configuration API_ errors">Configuration API: errors</a></dt>
+<dd><p>Input and lookup errors raised by the configuration operation API.</p>
+</dd>
+<dt><a href="#module_Configuration API_ outcome">Configuration API: outcome</a></dt>
+<dd><p>The shape of what an operation answers.</p>
+<p>An operation reports in data, never in a rendered form: messages are plain
+sentences, warnings are kept apart from them, tables are columns and rows,
+and the operations worth running next are named as <code>{ op, params }</code> steps.
+How that is shown — a paste-able <code>zap</code> command, a JSON body, a script
+warning — is each interface&#39;s own business, so none of it is decided here.</p>
+</dd>
+<dt><a href="#module_Configuration API_ data model policy">Configuration API: data model policy</a></dt>
+<dd><p>The parts of an attribute&#39;s configuration that the data model decides rather
+than the user.</p>
+<p>The user interface expresses this by greying out a control: the storage of an
+attribute served through the Attribute Access Interface is fixed at External,
+and the reporting switch of an attribute whose reporting the specification
+makes mandatory or forbids cannot be moved. A caller with no grey says no
+instead, which is better than the alternative. ZAP re-applies these policies
+whenever a configuration is read back in, so a write that disagrees with
+them does not survive the round trip.</p>
+<p>Edits reach these rules through <code>session-edit</code>, and listings read them
+directly to say which fields are fixed. Refusals carry the policy reason;
+each interface presents them its own way.</p>
+</dd>
+<dt><a href="#module_Configuration API_ reads">Configuration API: reads</a></dt>
+<dd><p>Plain reads of a loaded configuration, in the row shapes a post-load script
+walks. The command line renders the same facts as tables through the
+listing operations; these return the data as stored.</p>
+</dd>
+<dt><a href="#module_Configuration API_ entity resolution">Configuration API: entity resolution</a></dt>
+<dd><p>Turns human-friendly identifiers (&quot;On/Off&quot;, &quot;0x0006&quot;, &quot;MA-onofflight&quot;) into
+the database rows the configuration engine works with. A command line passes
+flag values here; a post-load script passes the same strings; the user
+interface passes database ids, which the <code>...FromParams</code> lookups accept
+alongside names. Nothing here belongs to one front end.</p>
+</dd>
+<dt><a href="#module_Configuration API_ operation runner">Configuration API: operation runner</a></dt>
+<dd><p>Applies shared post-edit reconciliation after each operation. The CLI uses
+this runner, where every operation is a complete edit. Post-load scripts
+apply a batch and reconcile once at the end, and the user interface writes
+to every shared endpoint type itself; both go through
+<code>configuration.executeOperation</code> instead.</p>
+</dd>
+<dt><a href="#module_Configuration API_ session edits">Configuration API: session edits</a></dt>
+<dd><p>The write sequence of a configuration edit, and the rules that gate it.</p>
+<p>The user interface, the configuration commands (<code>zap cluster enable</code>) and
+the post-load scripts (<code>--postImportScript</code>, SDK upgrade rules) all change a
+session through the operations, and the operations change it through here.
+Everything that decides whether an edit is allowed, and what else it brings
+along, lives in this module so that the interfaces cannot drift apart: the
+storage and reporting policy of the data model, the rule that a Matter
+cluster enabled as a client only has no configuration page, the defaults a
+cluster receives when it is first enabled, and the conformance consequences
+of a feature toggle.</p>
+<p>Refusals are thrown as <code>OperationError</code>, carrying the operations that would
+make the edit possible as <code>remedies</code>, for the caller to present however it
+presents things.</p>
+<p>The context is <code>{ db, sessionId, category }</code>. <code>category</code> narrows the ZCL
+packages in a multiprotocol configuration and may be null. Lookups are
+cached on the context for the duration of a run.</p>
+</dd>
+<dt><a href="#module_JS API_ shared cluster state">JS API: shared cluster state</a></dt>
+<dd><p>Unifying the attribute and command states of a cluster that more than one
+endpoint enables.</p>
+<p>In Zigbee the configuration of a cluster is a single global entity: if the
+Basic cluster is on three endpoints, the attributes and commands it includes
+are the same on all three, and the framework stores one copy. ZAP&#39;s tables
+are per endpoint type, so that shape has to be enforced rather than assumed:
+after a change, every endpoint type that enables a shared cluster is aligned
+to the first matching entry.</p>
+<p>Matter is the opposite and needs none of this, since an attribute there is
+genuinely per endpoint. Which behaviour applies is a property of the data
+model, declared by the <code>shareClusterStatesAcrossEndpoints</code> generator option,
+so nothing here decides it by looking at names.</p>
+<p>The CLI operation runner reconciles this after each committed operation;
+post-load scripts reconcile after applying their batch. Both call this same
+function so their saved state cannot drift apart.</p>
+</dd>
 <dt><a href="#module_JS API_ low level database access">JS API: low level database access</a></dt>
 <dd><p>This module provides generic DB functions for performing SQL queries.</p>
 </dd>
@@ -402,30 +481,6 @@ from backend to the UI.</p>
 <dd><p>This module provides API to access various iterator utilities that can then
 be used to build iterator helpers.</p>
 </dd>
-<dt><a href="#module_Configuration API_ errors">Configuration API: errors</a></dt>
-<dd><p>Input and lookup errors raised by the configuration operation API.</p>
-</dd>
-<dt><a href="#module_Configuration API_ operation runner">Configuration API: operation runner</a></dt>
-<dd><p>Applies shared post-edit reconciliation after each operation. The CLI uses
-this runner, where every operation is a complete edit. Post-load scripts
-apply a batch and reconcile once at the end, and the user interface writes
-to every shared endpoint type itself; both go through
-<code>configuration.executeOperation</code> instead.</p>
-</dd>
-<dt><a href="#module_JS API_ data model policy">JS API: data model policy</a></dt>
-<dd><p>The parts of an attribute&#39;s configuration that the data model decides rather
-than the user.</p>
-<p>The user interface expresses this by greying out a control: the storage of an
-attribute served through the Attribute Access Interface is fixed at External,
-and the reporting switch of an attribute whose reporting the specification
-makes mandatory or forbids cannot be moved. A caller with no grey says no
-instead, which is better than the alternative. ZAP re-applies these policies
-whenever a configuration is read back in, so a write that disagrees with
-them does not survive the round trip.</p>
-<p>CLI and post-load edits reach these rules through <code>session-edit</code>, and
-listings read them directly to say which fields are fixed. Refusals carry the
-policy reason; the CLI adds command-line guidance when it presents them.</p>
-</dd>
 <dt><a href="#module_JS API_ post-import.">JS API: post-import.</a></dt>
 <dd><p>The post-load script interface. A script names endpoints, clusters and
 attributes the way it always has; every read and every edit is performed
@@ -441,13 +496,6 @@ scripting functionality.</p>
 <p>The number of days a file stays on the list comes from the SETTING table
 when it was chosen on the config page, otherwise from the
 <code>--recentFileDays</code> option or its default.</p>
-</dd>
-<dt><a href="#module_JS API_ entity resolution">JS API: entity resolution</a></dt>
-<dd><p>Turns human-friendly identifiers (&quot;On/Off&quot;, &quot;0x0006&quot;, &quot;MA-onofflight&quot;) into
-the database rows the configuration engine works with. A command line passes
-flag values here; a post-load script passes the same strings; policy asks
-which ZCL packages belong to the session. Nothing here belongs to one front
-end.</p>
 </dd>
 <dt><a href="#module_JS API_ SDK arguments">JS API: SDK arguments</a></dt>
 <dd><p>The data model and generation templates an SDK resolved for a project.</p>
@@ -465,41 +513,6 @@ back into the file on save.</p>
 <dd><p>Shared reads and package mutations for an already-open configuration
 session. Loading a file into a session and saving that session are handled by
 the interface lifecycle; these helpers operate on the session itself.</p>
-</dd>
-<dt><a href="#module_Configuration API_ session edits">Configuration API: session edits</a></dt>
-<dd><p>Edits to a session used by the CLI and post-load scripts.</p>
-<p>The configuration commands (<code>zap cluster enable</code>) and the post-load scripts
-(<code>--postImportScript</code>, SDK upgrade rules) both change a session without the
-browser. Everything that decides whether an edit is allowed, and what else
-it brings along, lives here so that the two cannot drift apart: the storage
-and reporting policy of the data model, the rule that a Matter cluster
-enabled as a client only has no configuration page, the defaults a cluster
-receives when it is first enabled, and the conformance consequences of a
-feature toggle.</p>
-<p>The command line and post-load scripts use this module for the same lookups,
-policy checks and writes. Resolution uses name-and-code matching, so
-<code>On/Off</code>, <code>ON_OFF</code> and <code>0x0006</code> name one cluster. Refusals are thrown as
-<code>OperationError</code> for the caller to present.</p>
-<p>The context is <code>{ db, sessionId, category }</code>. <code>category</code> narrows the ZCL
-packages in a multiprotocol configuration and may be null. Lookups are
-cached on the context for the duration of a run.</p>
-</dd>
-<dt><a href="#module_JS API_ shared cluster state">JS API: shared cluster state</a></dt>
-<dd><p>Unifying the attribute and command states of a cluster that more than one
-endpoint enables.</p>
-<p>In Zigbee the configuration of a cluster is a single global entity: if the
-Basic cluster is on three endpoints, the attributes and commands it includes
-are the same on all three, and the framework stores one copy. ZAP&#39;s tables
-are per endpoint type, so that shape has to be enforced rather than assumed:
-after a change, every endpoint type that enables a shared cluster is aligned
-to the first matching entry.</p>
-<p>Matter is the opposite and needs none of this, since an attribute there is
-genuinely per endpoint. Which behaviour applies is a property of the data
-model, declared by the <code>shareClusterStatesAcrossEndpoints</code> generator option,
-so nothing here decides it by looking at names.</p>
-<p>The CLI operation runner reconciles this after each committed operation;
-post-load scripts reconcile after applying their batch. Both call this same
-function so their saved state cannot drift apart.</p>
 </dd>
 <dt><a href="#module_JS API_ string utilities">JS API: string utilities</a></dt>
 <dd></dd>
@@ -549,15 +562,6 @@ things were successful or not.</p>
 </dd>
 <dt><a href="#module_Loader API_ Loader APIs">Loader API: Loader APIs</a></dt>
 <dd><p>This module provides the APIs for for common functionality related to loading.</p>
-</dd>
-</dl>
-
-## Members
-
-<dl>
-<dt><a href="#configuration">configuration</a></dt>
-<dd><p>Internal application API. Transport adapters should depend on these domain
-services rather than dispatching configuration operations themselves.</p>
 </dd>
 </dl>
 
@@ -1231,11 +1235,15 @@ a script.
 
 * [CLI API: output rendering](#module_CLI API_ output rendering)
     * [~Report](#module_CLI API_ output rendering..Report)
-        * [new Report(format, suggest)](#new_module_CLI API_ output rendering..Report_new)
+        * [new Report(format, suggest, [zapFile])](#new_module_CLI API_ output rendering..Report_new)
         * [.changed](#module_CLI API_ output rendering..Report+changed) ⇒ <code>boolean</code>
         * [.failed](#module_CLI API_ output rendering..Report+failed) ⇒ <code>boolean</code>
         * [.add(operation, opResult)](#module_CLI API_ output rendering..Report+add)
         * [.render()](#module_CLI API_ output rendering..Report+render) ⇒ <code>string</code>
+    * [~shellQuote(value)](#module_CLI API_ output rendering..shellQuote) ⇒ <code>string</code>
+    * [~flagFor(name)](#module_CLI API_ output rendering..flagFor) ⇒ <code>string</code>
+    * [~renderStep(step, [zapFile])](#module_CLI API_ output rendering..renderStep) ⇒ <code>string</code>
+    * [~renderSteps(steps, [zapFile])](#module_CLI API_ output rendering..renderSteps) ⇒ <code>Array.&lt;string&gt;</code>
     * [~renderTable(table)](#module_CLI API_ output rendering..renderTable) ⇒ <code>string</code>
     * [~issueText(issue)](#module_CLI API_ output rendering..issueText) ⇒ <code>string</code>
     * [~compareFindings(before, after, textOf)](#module_CLI API_ output rendering..compareFindings) ⇒ <code>\*</code>
@@ -1252,7 +1260,7 @@ format the user asked for.
 **Kind**: inner class of [<code>CLI API: output rendering</code>](#module_CLI API_ output rendering)  
 
 * [~Report](#module_CLI API_ output rendering..Report)
-    * [new Report(format, suggest)](#new_module_CLI API_ output rendering..Report_new)
+    * [new Report(format, suggest, [zapFile])](#new_module_CLI API_ output rendering..Report_new)
     * [.changed](#module_CLI API_ output rendering..Report+changed) ⇒ <code>boolean</code>
     * [.failed](#module_CLI API_ output rendering..Report+failed) ⇒ <code>boolean</code>
     * [.add(operation, opResult)](#module_CLI API_ output rendering..Report+add)
@@ -1260,12 +1268,13 @@ format the user asked for.
 
 <a name="new_module_CLI API_ output rendering..Report_new"></a>
 
-#### new Report(format, suggest)
+#### new Report(format, suggest, [zapFile])
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | format | <code>string</code> | <code>&quot;text&quot;</code> | 'text' or 'json'. |
 | suggest | <code>boolean</code> | <code>true</code> | Whether to print follow-up commands. JSON output always carries them as data, so this only governs the text rendering. |
+| [zapFile] | <code>string</code> | <code>null</code> | The file being worked on, named in the follow-up commands so they can be run as printed. |
 
 <a name="module_CLI API_ output rendering..Report+changed"></a>
 
@@ -1302,6 +1311,62 @@ Renders everything collected so far.
 
 **Kind**: instance method of [<code>Report</code>](#module_CLI API_ output rendering..Report)  
 **Returns**: <code>string</code> - the report text  
+<a name="module_CLI API_ output rendering..shellQuote"></a>
+
+### CLI API: output rendering~shellQuote(value) ⇒ <code>string</code>
+Quotes a value so the suggested commands can be pasted into a shell as they
+stand. Cluster and device type names routinely contain spaces and slashes.
+
+**Kind**: inner method of [<code>CLI API: output rendering</code>](#module_CLI API_ output rendering)  
+**Returns**: <code>string</code> - the value, quoted if it needs to be  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+
+<a name="module_CLI API_ output rendering..flagFor"></a>
+
+### CLI API: output rendering~flagFor(name) ⇒ <code>string</code>
+The command line flag for an operation parameter: `enabledOnly` is typed
+as `--enabled-only`.
+
+**Kind**: inner method of [<code>CLI API: output rendering</code>](#module_CLI API_ output rendering)  
+**Returns**: <code>string</code> - the flag, dashes included  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | camelCase parameter name |
+
+<a name="module_CLI API_ output rendering..renderStep"></a>
+
+### CLI API: output rendering~renderStep(step, [zapFile]) ⇒ <code>string</code>
+Renders an `{ op, params }` step as the command that runs it against the
+file in hand.
+
+Suggestions are only worth printing if they can be run without editing them
+first, so the real file name goes in and values are quoted.
+
+**Kind**: inner method of [<code>CLI API: output rendering</code>](#module_CLI API_ output rendering)  
+**Returns**: <code>string</code> - the command line  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| step | <code>\*</code> | `{ op: 'cluster.enable', params: { endpoint: 1, ... } }` |
+| [zapFile] | <code>string</code> | The file the run is working on. |
+
+<a name="module_CLI API_ output rendering..renderSteps"></a>
+
+### CLI API: output rendering~renderSteps(steps, [zapFile]) ⇒ <code>Array.&lt;string&gt;</code>
+Renders the steps an operation proposed, one command per line.
+
+**Kind**: inner method of [<code>CLI API: output rendering</code>](#module_CLI API_ output rendering)  
+**Returns**: <code>Array.&lt;string&gt;</code> - command lines  
+
+| Param | Type |
+| --- | --- |
+| steps | <code>Array</code> | 
+| [zapFile] | <code>string</code> | 
+
 <a name="module_CLI API_ output rendering..renderTable"></a>
 
 ### CLI API: output rendering~renderTable(table) ⇒ <code>string</code>
@@ -1762,6 +1827,1751 @@ Sends a message to server.
 | --- | --- |
 | key | <code>\*</code> | 
 | object | <code>\*</code> | 
+
+<a name="module_Configuration API_ errors"></a>
+
+## Configuration API: errors
+Input and lookup errors raised by the configuration operation API.
+
+
+* [Configuration API: errors](#module_Configuration API_ errors)
+    * [~OperationError](#module_Configuration API_ errors..OperationError)
+        * [new OperationError(message, hints, remedies)](#new_module_Configuration API_ errors..OperationError_new)
+    * [~editDistance(a, b)](#module_Configuration API_ errors..editDistance) ⇒ <code>number</code>
+    * [~rankCandidates(spec, candidates)](#module_Configuration API_ errors..rankCandidates) ⇒ <code>Array.&lt;string&gt;</code>
+    * [~notFound(what, spec, candidates, maxCandidates)](#module_Configuration API_ errors..notFound) ⇒ <code>OperationError</code>
+    * [~ambiguous(what, spec, matches)](#module_Configuration API_ errors..ambiguous) ⇒ <code>OperationError</code>
+
+<a name="module_Configuration API_ errors..OperationError"></a>
+
+### Configuration API: errors~OperationError
+A refusal: the request was understood and cannot be honoured as asked.
+Reported as a plain message without a stack trace.
+
+`hints` are prose for a person. `remedies` are the operations that would
+make the request possible, as `{ op, params }` steps (see `outcome.step`),
+so that each interface renders them its own way: the command line as a
+paste-able command, the HTTP layer as data, a script as a call.
+
+**Kind**: inner class of [<code>Configuration API: errors</code>](#module_Configuration API_ errors)  
+<a name="new_module_Configuration API_ errors..OperationError_new"></a>
+
+#### new OperationError(message, hints, remedies)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| message | <code>string</code> |  |
+| hints | <code>Array.&lt;string&gt;</code> | Additional lines printed under the message. |
+| remedies | <code>Array</code> | Operations that would make the request possible. |
+
+<a name="module_Configuration API_ errors..editDistance"></a>
+
+### Configuration API: errors~editDistance(a, b) ⇒ <code>number</code>
+Levenshtein distance, used to order lookup suggestions.
+
+**Kind**: inner method of [<code>Configuration API: errors</code>](#module_Configuration API_ errors)  
+**Returns**: <code>number</code> - the edit distance  
+
+| Param | Type |
+| --- | --- |
+| a | <code>string</code> | 
+| b | <code>string</code> | 
+
+<a name="module_Configuration API_ errors..rankCandidates"></a>
+
+### Configuration API: errors~rankCandidates(spec, candidates) ⇒ <code>Array.&lt;string&gt;</code>
+Orders candidates so that the ones most like what the user typed come first.
+An alphabetical dump of a hundred cluster names is not a suggestion; the
+handful that resemble the typo is.
+
+**Kind**: inner method of [<code>Configuration API: errors</code>](#module_Configuration API_ errors)  
+**Returns**: <code>Array.&lt;string&gt;</code> - candidates, best match first  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| spec | <code>string</code> | What the user typed. |
+| candidates | <code>Array.&lt;string&gt;</code> |  |
+
+<a name="module_Configuration API_ errors..notFound"></a>
+
+### Configuration API: errors~notFound(what, spec, candidates, maxCandidates) ⇒ <code>OperationError</code>
+Builds an `OperationError` that reports a failed lookup together with the things
+the user most plausibly meant.
+
+**Kind**: inner method of [<code>Configuration API: errors</code>](#module_Configuration API_ errors)  
+**Returns**: <code>OperationError</code> - error carrying the candidate list as hints  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| what | <code>string</code> |  | Human readable entity kind, such as 'cluster'. |
+| spec | <code>string</code> |  | What the user actually typed. |
+| candidates | <code>Array.&lt;string&gt;</code> |  | Valid values, may be long, gets truncated. |
+| maxCandidates | <code>number</code> | <code>10</code> |  |
+
+<a name="module_Configuration API_ errors..ambiguous"></a>
+
+### Configuration API: errors~ambiguous(what, spec, matches) ⇒ <code>OperationError</code>
+Builds an `OperationError` for a lookup that matched more than one entity.
+
+**Kind**: inner method of [<code>Configuration API: errors</code>](#module_Configuration API_ errors)  
+**Returns**: <code>OperationError</code> - error carrying the ambiguity resolution hints  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| what | <code>string</code> | Human readable entity kind, such as 'device type'. |
+| spec | <code>string</code> | What the user actually typed. |
+| matches | <code>Array.&lt;string&gt;</code> | Descriptions of the matched entities. |
+
+<a name="module_Configuration API_ outcome"></a>
+
+## Configuration API: outcome
+The shape of what an operation answers.
+
+An operation reports in data, never in a rendered form: messages are plain
+sentences, warnings are kept apart from them, tables are columns and rows,
+and the operations worth running next are named as `{ op, params }` steps.
+How that is shown — a paste-able `zap` command, a JSON body, a script
+warning — is each interface's own business, so none of it is decided here.
+
+
+* [Configuration API: outcome](#module_Configuration API_ outcome)
+    * [~step(op, [params])](#module_Configuration API_ outcome..step) ⇒ <code>\*</code>
+    * [~result(changed, messages, [table], [next], [warnings])](#module_Configuration API_ outcome..result) ⇒ <code>\*</code>
+
+<a name="module_Configuration API_ outcome..step"></a>
+
+### Configuration API: outcome~step(op, [params]) ⇒ <code>\*</code>
+Names an operation that could be run, with the parameters it would take.
+
+Parameters use the camelCase names the operations themselves accept
+(`deviceType`, `enabledOnly`). A placeholder such as `'<name>'` is allowed
+where there is no real value to offer.
+
+**Kind**: inner method of [<code>Configuration API: outcome</code>](#module_Configuration API_ outcome)  
+**Returns**: <code>\*</code> - `{ op, params }`  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| op | <code>string</code> | Dotted operation name, such as 'cluster.enable'. |
+| [params] | <code>\*</code> |  |
+
+<a name="module_Configuration API_ outcome..result"></a>
+
+### Configuration API: outcome~result(changed, messages, [table], [next], [warnings]) ⇒ <code>\*</code>
+Builds an operation result.
+
+**Kind**: inner method of [<code>Configuration API: outcome</code>](#module_Configuration API_ outcome)  
+**Returns**: <code>\*</code> - operation result  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| changed | <code>boolean</code> |  | Whether the configuration was modified. |
+| messages | <code>Array.&lt;string&gt;</code> |  | Lines describing what happened. |
+| [table] | <code>\*</code> | <code></code> | Optional `{ columns, rows }` tabular payload. |
+| [next] | <code>Array</code> |  | Steps that are the natural thing to run next. |
+| [warnings] | <code>Array.&lt;string&gt;</code> |  | Things that went through but deserve attention. |
+
+<a name="module_Configuration API_ data model policy"></a>
+
+## Configuration API: data model policy
+The parts of an attribute's configuration that the data model decides rather
+than the user.
+
+The user interface expresses this by greying out a control: the storage of an
+attribute served through the Attribute Access Interface is fixed at External,
+and the reporting switch of an attribute whose reporting the specification
+makes mandatory or forbids cannot be moved. A caller with no grey says no
+instead, which is better than the alternative. ZAP re-applies these policies
+whenever a configuration is read back in, so a write that disagrees with
+them does not survive the round trip.
+
+Edits reach these rules through `session-edit`, and listings read them
+directly to say which fields are fixed. Refusals carry the policy reason;
+each interface presents them its own way.
+
+
+* [Configuration API: data model policy](#module_Configuration API_ data model policy)
+    * [~forcedExternalPairs(ctx)](#module_Configuration API_ data model policy..forcedExternalPairs) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~attributePolicy(ctx, cluster, attribute)](#module_Configuration API_ data model policy..attributePolicy) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~fixedFields(policy)](#module_Configuration API_ data model policy..fixedFields) ⇒ <code>string</code>
+    * [~describe(where)](#module_Configuration API_ data model policy..describe) ⇒ <code>string</code>
+    * [~requirePolicyRespected(policy, requested, where)](#module_Configuration API_ data model policy..requirePolicyRespected) ⇒ <code>undefined</code>
+    * [~requireDefaultCanBeKept(requested, storage, policy, where)](#module_Configuration API_ data model policy..requireDefaultCanBeKept) ⇒ <code>undefined</code>
+    * [~requireIncluded(included, fields, where)](#module_Configuration API_ data model policy..requireIncluded) ⇒ <code>undefined</code>
+    * [~requireToggleableFeature(feature, cluster, endpoint)](#module_Configuration API_ data model policy..requireToggleableFeature) ⇒ <code>undefined</code>
+
+<a name="module_Configuration API_ data model policy..forcedExternalPairs"></a>
+
+### Configuration API: data model policy~forcedExternalPairs(ctx) ⇒ <code>Promise.&lt;Array&gt;</code>
+The (cluster, attribute) pairs the loaded data model serves through the
+Attribute Access Interface, as the user interface asks for them over
+/zcl/forcedExternal.
+
+The answer covers the whole configuration and is wanted once per attribute,
+so it is kept for the lifetime of the session.
+
+**Kind**: inner method of [<code>Configuration API: data model policy</code>](#module_Configuration API_ data model policy)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - package options describing the pairs  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+
+<a name="module_Configuration API_ data model policy..attributePolicy"></a>
+
+### Configuration API: data model policy~attributePolicy(ctx, cluster, attribute) ⇒ <code>Promise.&lt;\*&gt;</code>
+What the data model fixes about one attribute of one cluster.
+
+Storage is decided by the attribute's own storage policy together with the
+forced-external pairs, which is why the cluster matters: ClusterRevision is
+ordinary on most clusters and served through the Attribute Access Interface
+on Access Control.
+
+A pair the data model lists under `keepDefault` is still External, but its
+default value stays under the configuration's control: the user interface
+leaves the field editable for exactly those attributes.
+
+**Kind**: inner method of [<code>Configuration API: data model policy</code>](#module_Configuration API_ data model policy)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ storage, reporting, keepDefault }`, the first two
+  null where the choice is free  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+| attribute | <code>\*</code> | 
+
+<a name="module_Configuration API_ data model policy..fixedFields"></a>
+
+### Configuration API: data model policy~fixedFields(policy) ⇒ <code>string</code>
+Names the fields of an attribute that are not the user's to set, for the
+listings. Empty when everything about it is free.
+
+**Kind**: inner method of [<code>Configuration API: data model policy</code>](#module_Configuration API_ data model policy)  
+**Returns**: <code>string</code> - 'storage', 'reporting', 'storage+reporting' or ''  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| policy | <code>\*</code> | Result of `attributePolicy`. |
+
+<a name="module_Configuration API_ data model policy..describe"></a>
+
+### Configuration API: data model policy~describe(where) ⇒ <code>string</code>
+Names the attribute a message is about.
+
+**Kind**: inner method of [<code>Configuration API: data model policy</code>](#module_Configuration API_ data model policy)  
+**Returns**: <code>string</code> - the subject of the sentence  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| where | <code>\*</code> | `{ attribute, cluster, side, endpoint }` |
+
+<a name="module_Configuration API_ data model policy..requirePolicyRespected"></a>
+
+### Configuration API: data model policy~requirePolicyRespected(policy, requested, where) ⇒ <code>undefined</code>
+Refuses an attribute change that contradicts the data model.
+
+**Kind**: inner method of [<code>Configuration API: data model policy</code>](#module_Configuration API_ data model policy)  
+**Returns**: <code>undefined</code> - nothing, throws when the change is not the user's to make  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| policy | <code>\*</code> | Result of `attributePolicy`. |
+| requested | <code>\*</code> | `{ storage, reporting }` as asked for, undefined where not asked for. |
+| where | <code>\*</code> | `{ attribute, cluster, side, endpoint }` for the message. |
+
+<a name="module_Configuration API_ data model policy..requireDefaultCanBeKept"></a>
+
+### Configuration API: data model policy~requireDefaultCanBeKept(requested, storage, policy, where) ⇒ <code>undefined</code>
+Refuses a default value where there is nowhere to keep one.
+
+External attributes are read and written by application code, so the user
+interface blanks and greys their default. For the ones the data model puts
+there the default is discarded outright when the configuration is read back.
+
+Clearing the default is still allowed, on the same reasoning as asking for
+the storage that is already fixed: a caller restating what is already so is
+not asking for anything. An attribute the data model lists under
+`keepDefault` keeps its default despite being External, so its default may
+be set as for any other attribute.
+
+**Kind**: inner method of [<code>Configuration API: data model policy</code>](#module_Configuration API_ data model policy)  
+**Returns**: <code>undefined</code> - nothing, throws when a default cannot be kept  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| requested | <code>\*</code> | The default value asked for, null to clear it. |
+| storage | <code>string</code> | The storage that applies once the change is made. |
+| policy | <code>\*</code> | Result of `attributePolicy`. |
+| where | <code>\*</code> | `{ attribute, cluster, side, endpoint }` for the message. |
+
+<a name="module_Configuration API_ data model policy..requireIncluded"></a>
+
+### Configuration API: data model policy~requireIncluded(included, fields, where) ⇒ <code>undefined</code>
+Refuses to configure an attribute that is not part of the configuration.
+
+Storage, singleton and bounded describe how an included attribute is kept.
+A default value may be prepared while the attribute is disabled, so it can
+be validated and will take effect if the attribute is later included.
+
+**Kind**: inner method of [<code>Configuration API: data model policy</code>](#module_Configuration API_ data model policy)  
+**Returns**: <code>undefined</code> - nothing, throws when the attribute is not included  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| included | <code>boolean</code> | Whether the attribute is included once the change is made. |
+| fields | <code>Array.&lt;string&gt;</code> | The fields being set. |
+| where | <code>\*</code> | `{ attribute, cluster, side, endpoint }` for the message. |
+
+<a name="module_Configuration API_ data model policy..requireToggleableFeature"></a>
+
+### Configuration API: data model policy~requireToggleableFeature(feature, cluster, endpoint) ⇒ <code>undefined</code>
+Refuses a feature toggle that the specification leaves no room for.
+
+**Kind**: inner method of [<code>Configuration API: data model policy</code>](#module_Configuration API_ data model policy)  
+**Returns**: <code>undefined</code> - nothing, throws for disallowed and deprecated features  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| endpoint | <code>number</code> | Endpoint identifier. |
+
+<a name="module_Configuration API_ reads"></a>
+
+## Configuration API: reads
+Plain reads of a loaded configuration, in the row shapes a post-load script
+walks. The command line renders the same facts as tables through the
+listing operations; these return the data as stored.
+
+
+* [Configuration API: reads](#module_Configuration API_ reads)
+    * [~readEndpoints(ctx, [category])](#module_Configuration API_ reads..readEndpoints) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~readClusters(ctx, endpoint)](#module_Configuration API_ reads..readClusters) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~readAttributes(ctx, endpoint, cluster)](#module_Configuration API_ reads..readAttributes) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~readCommands(ctx, endpoint, cluster)](#module_Configuration API_ reads..readCommands) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~readAvailableClusters(ctx)](#module_Configuration API_ reads..readAvailableClusters) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~readFeatures(ctx, endpoint, cluster)](#module_Configuration API_ reads..readFeatures) ⇒ <code>Promise.&lt;Array&gt;</code>
+
+<a name="module_Configuration API_ reads..readEndpoints"></a>
+
+### Configuration API: reads~readEndpoints(ctx, [category]) ⇒ <code>Promise.&lt;Array&gt;</code>
+The endpoints of a session, optionally narrowed to one package category.
+This is the row shape a post-load script walks; the command line renders
+its own table from the same query.
+
+**Kind**: inner method of [<code>Configuration API: reads</code>](#module_Configuration API_ reads)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - endpoints  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  | 
+| [category] | <code>string</code> | <code>null</code> | 
+
+<a name="module_Configuration API_ reads..readClusters"></a>
+
+### Configuration API: reads~readClusters(ctx, endpoint) ⇒ <code>Promise.&lt;Array&gt;</code>
+The clusters enabled on an endpoint.
+
+**Kind**: inner method of [<code>Configuration API: reads</code>](#module_Configuration API_ reads)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - clusters  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+
+<a name="module_Configuration API_ reads..readAttributes"></a>
+
+### Configuration API: reads~readAttributes(ctx, endpoint, cluster) ⇒ <code>Promise.&lt;Array&gt;</code>
+The attributes of one cluster side on an endpoint, as stored. Codes stay
+numeric: upgrade scripts parse them, and the command line's listing formats
+them as hex instead.
+
+**Kind**: inner method of [<code>Configuration API: reads</code>](#module_Configuration API_ reads)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - attributes  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| endpoint | <code>\*</code> |  |
+| cluster | <code>\*</code> | A row from `readClusters`, carrying `clusterId` and `side`. |
+
+<a name="module_Configuration API_ reads..readCommands"></a>
+
+### Configuration API: reads~readCommands(ctx, endpoint, cluster) ⇒ <code>Promise.&lt;Array&gt;</code>
+The commands of one cluster on an endpoint, as stored.
+
+**Kind**: inner method of [<code>Configuration API: reads</code>](#module_Configuration API_ reads)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - commands  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| endpoint | <code>\*</code> |  |
+| cluster | <code>\*</code> | A row from `readClusters`, carrying `clusterId`. |
+
+<a name="module_Configuration API_ reads..readAvailableClusters"></a>
+
+### Configuration API: reads~readAvailableClusters(ctx) ⇒ <code>Promise.&lt;Array&gt;</code>
+Every cluster the session's packages define.
+
+**Kind**: inner method of [<code>Configuration API: reads</code>](#module_Configuration API_ reads)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - clusters  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+
+<a name="module_Configuration API_ reads..readFeatures"></a>
+
+### Configuration API: reads~readFeatures(ctx, endpoint, cluster) ⇒ <code>Promise.&lt;Array&gt;</code>
+The features a cluster defines on an endpoint, each marked with whether its
+bit is set. This is the row a post-load script walks; the command line
+renders the same facts as a table.
+
+**Kind**: inner method of [<code>Configuration API: reads</code>](#module_Configuration API_ reads)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - features  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| endpoint | <code>\*</code> |  |
+| cluster | <code>\*</code> | A cluster row, as `readClusters` returns it, or a   resolved cluster definition. Either carries the id the feature query uses. |
+
+<a name="module_Configuration API_ entity resolution"></a>
+
+## Configuration API: entity resolution
+Turns human-friendly identifiers ("On/Off", "0x0006", "MA-onofflight") into
+the database rows the configuration engine works with. A command line passes
+flag values here; a post-load script passes the same strings; the user
+interface passes database ids, which the `...FromParams` lookups accept
+alongside names. Nothing here belongs to one front end.
+
+
+* [Configuration API: entity resolution](#module_Configuration API_ entity resolution)
+    * [~normalizeName(name)](#module_Configuration API_ entity resolution..normalizeName) ⇒ <code>string</code>
+    * [~parseCode(spec)](#module_Configuration API_ entity resolution..parseCode) ⇒ <code>number</code> \| <code>null</code>
+    * [~requireInteger(spec, what)](#module_Configuration API_ entity resolution..requireInteger) ⇒ <code>number</code>
+    * [~asHex(code, width)](#module_Configuration API_ entity resolution..asHex) ⇒ <code>string</code>
+    * [~exactlyOne(what, spec, matches, all, describe)](#module_Configuration API_ entity resolution..exactlyOne) ⇒ <code>\*</code>
+    * [~matchByNameOrCode(what, spec, all, describe, nameFields)](#module_Configuration API_ entity resolution..matchByNameOrCode) ⇒ <code>\*</code>
+    * [~allZclPackages(ctx)](#module_Configuration API_ entity resolution..allZclPackages) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~sameCategory(a, b)](#module_Configuration API_ entity resolution..sameCategory) ⇒ <code>boolean</code>
+    * [~sessionCategories(ctx)](#module_Configuration API_ entity resolution..sessionCategories) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+    * [~zclPackages(ctx, [category])](#module_Configuration API_ entity resolution..zclPackages) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~zclPackageIds(ctx, [category])](#module_Configuration API_ entity resolution..zclPackageIds) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
+    * [~allDeviceTypes(ctx, [category])](#module_Configuration API_ entity resolution..allDeviceTypes) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~allClusters(ctx, [category])](#module_Configuration API_ entity resolution..allClusters) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~resolveDeviceType(ctx, spec, [category])](#module_Configuration API_ entity resolution..resolveDeviceType) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~resolveCluster(ctx, spec, [endpoint])](#module_Configuration API_ entity resolution..resolveCluster) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~clustersForEndpoint(ctx, endpoint)](#module_Configuration API_ entity resolution..clustersForEndpoint) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~packageIdsForEndpoint(ctx, endpoint)](#module_Configuration API_ entity resolution..packageIdsForEndpoint) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
+    * [~packageRefsOfEndpoint(ctx, endpoint)](#module_Configuration API_ entity resolution..packageRefsOfEndpoint) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
+    * [~endpointCategories(ctx, endpoint)](#module_Configuration API_ entity resolution..endpointCategories) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+    * [~resolveAttribute(ctx, cluster, spec, side)](#module_Configuration API_ entity resolution..resolveAttribute) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~attributesOfCluster(ctx, cluster, side)](#module_Configuration API_ entity resolution..attributesOfCluster) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~resolveCommand(ctx, cluster, spec)](#module_Configuration API_ entity resolution..resolveCommand) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~commandsOfCluster(ctx, cluster)](#module_Configuration API_ entity resolution..commandsOfCluster) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~resolveEvent(ctx, cluster, spec)](#module_Configuration API_ entity resolution..resolveEvent) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~eventsOfCluster(ctx, cluster)](#module_Configuration API_ entity resolution..eventsOfCluster) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~resolveEndpoint(ctx, spec)](#module_Configuration API_ entity resolution..resolveEndpoint) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~expandSides(side)](#module_Configuration API_ entity resolution..expandSides) ⇒ <code>Array.&lt;string&gt;</code>
+    * [~asArray(value)](#module_Configuration API_ entity resolution..asArray) ⇒ <code>Array</code>
+    * [~byId(what, spec, rows)](#module_Configuration API_ entity resolution..byId) ⇒ <code>\*</code>
+    * [~eventFromParams(ctx, cluster, params)](#module_Configuration API_ entity resolution..eventFromParams) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~endpointFromParams(ctx, params)](#module_Configuration API_ entity resolution..endpointFromParams) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~clusterFromParams(ctx, endpoint, params)](#module_Configuration API_ entity resolution..clusterFromParams) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~commandFromParams(ctx, cluster, params)](#module_Configuration API_ entity resolution..commandFromParams) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~manufacturerMatches(cluster, mfgCode)](#module_Configuration API_ entity resolution..manufacturerMatches) ⇒ <code>boolean</code>
+    * [~resolveClusterByManufacturer(ctx, spec, [mfgCode])](#module_Configuration API_ entity resolution..resolveClusterByManufacturer) ⇒ <code>Promise.&lt;\*&gt;</code>
+
+<a name="module_Configuration API_ entity resolution..normalizeName"></a>
+
+### Configuration API: entity resolution~normalizeName(name) ⇒ <code>string</code>
+Reduces a name to a form that ignores the punctuation and casing differences
+between how a spec writes a name and how a person types it, so that `onoff`,
+`On/Off` and `ON_OFF` all compare equal.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>string</code> - normalized name  
+
+| Param | Type |
+| --- | --- |
+| name | <code>string</code> | 
+
+<a name="module_Configuration API_ entity resolution..parseCode"></a>
+
+### Configuration API: entity resolution~parseCode(spec) ⇒ <code>number</code> \| <code>null</code>
+Parses a numeric identifier, accepting decimal and 0x-prefixed hex.
+Returns null when the text is not purely numeric, which is how the resolvers
+tell a code apart from a name.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>number</code> \| <code>null</code> - the numeric value or null  
+
+| Param | Type |
+| --- | --- |
+| spec | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..requireInteger"></a>
+
+### Configuration API: entity resolution~requireInteger(spec, what) ⇒ <code>number</code>
+Parses a required integer command line value, accepting decimal and hex.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>number</code> - parsed integer  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| spec | <code>\*</code> |  |
+| what | <code>string</code> | Name of the option, used in the error message. |
+
+<a name="module_Configuration API_ entity resolution..asHex"></a>
+
+### Configuration API: entity resolution~asHex(code, width) ⇒ <code>string</code>
+Formats a code the way ZCL documentation does, so that CLI output can be
+pasted straight back into a CLI argument.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>string</code> - hex string such as '0x0006'  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| code | <code>number</code> |  |  |
+| width | <code>number</code> | <code>4</code> | Number of hex digits. |
+
+<a name="module_Configuration API_ entity resolution..exactlyOne"></a>
+
+### Configuration API: entity resolution~exactlyOne(what, spec, matches, all, describe) ⇒ <code>\*</code>
+Picks the single match out of a candidate list, or raises a descriptive
+error when there are none or several.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>\*</code> - the single match  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| what | <code>string</code> |  |
+| spec | <code>string</code> |  |
+| matches | <code>Array</code> |  |
+| all | <code>Array</code> | Everything that was searched, used to build suggestions. |
+| describe | <code>function</code> | Renders one entry for the error message. |
+
+<a name="module_Configuration API_ entity resolution..matchByNameOrCode"></a>
+
+### Configuration API: entity resolution~matchByNameOrCode(what, spec, all, describe, nameFields) ⇒ <code>\*</code>
+Generic name-or-code lookup shared by every entity kind.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>\*</code> - the resolved entity  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| what | <code>string</code> |  |
+| spec | <code>\*</code> |  |
+| all | <code>Array</code> |  |
+| describe | <code>function</code> |  |
+| nameFields | <code>Array.&lt;string&gt;</code> | Object fields that hold a matchable name. |
+
+<a name="module_Configuration API_ entity resolution..allZclPackages"></a>
+
+### Configuration API: entity resolution~allZclPackages(ctx) ⇒ <code>Promise.&lt;Array&gt;</code>
+Every ZCL package attached to the session, regardless of category.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - array of package records  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> | CLI session context. |
+
+<a name="module_Configuration API_ entity resolution..sameCategory"></a>
+
+### Configuration API: entity resolution~sameCategory(a, b) ⇒ <code>boolean</code>
+True when two package category names refer to the same protocol.
+
+Callers write Matter and Zigbee as often as matter and zigbee; the
+comparison is case-insensitive so either form selects the same packages.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>boolean</code> - whether the names match  
+
+| Param | Type |
+| --- | --- |
+| a | <code>string</code> \| <code>null</code> \| <code>undefined</code> | 
+| b | <code>string</code> \| <code>null</code> \| <code>undefined</code> | 
+
+<a name="module_Configuration API_ entity resolution..sessionCategories"></a>
+
+### Configuration API: entity resolution~sessionCategories(ctx) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+The categories the session spans. A multiprotocol configuration carries one
+per protocol, which is what makes `--category` necessary.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array.&lt;string&gt;&gt;</code> - category names  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..zclPackages"></a>
+
+### Configuration API: entity resolution~zclPackages(ctx, [category]) ⇒ <code>Promise.&lt;Array&gt;</code>
+The ZCL packages attached to the session, narrowed to a single category when
+one was asked for. Categories are how ZAP separates, for example, the Zigbee
+and the Matter halves of a multiprotocol configuration.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - array of package records  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| ctx | <code>\*</code> |  | CLI session context. |
+| [category] | <code>string</code> | <code>null</code> | Overrides the category on the context. |
+
+<a name="module_Configuration API_ entity resolution..zclPackageIds"></a>
+
+### Configuration API: entity resolution~zclPackageIds(ctx, [category]) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
+Returns the ZCL package ids that are attached to the session.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array.&lt;number&gt;&gt;</code> - package ids  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  | 
+| [category] | <code>string</code> | <code>null</code> | 
+
+<a name="module_Configuration API_ entity resolution..allDeviceTypes"></a>
+
+### Configuration API: entity resolution~allDeviceTypes(ctx, [category]) ⇒ <code>Promise.&lt;Array&gt;</code>
+Every device type visible to the session.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - device types  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  | 
+| [category] | <code>string</code> | <code>null</code> | 
+
+<a name="module_Configuration API_ entity resolution..allClusters"></a>
+
+### Configuration API: entity resolution~allClusters(ctx, [category]) ⇒ <code>Promise.&lt;Array&gt;</code>
+Every cluster visible to the session.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - clusters  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  | 
+| [category] | <code>string</code> | <code>null</code> | 
+
+<a name="module_Configuration API_ entity resolution..resolveDeviceType"></a>
+
+### Configuration API: entity resolution~resolveDeviceType(ctx, spec, [category]) ⇒ <code>Promise.&lt;\*&gt;</code>
+Resolves `--device-type`.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the device type  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| ctx | <code>\*</code> |  |  |
+| spec | <code>\*</code> |  | Name or code. |
+| [category] | <code>string</code> | <code>null</code> |  |
+
+<a name="module_Configuration API_ entity resolution..resolveCluster"></a>
+
+### Configuration API: entity resolution~resolveCluster(ctx, spec, [endpoint]) ⇒ <code>Promise.&lt;\*&gt;</code>
+Resolves `--cluster`. When an endpoint is in play the search is limited to
+the packages that the endpoint's device types come from, which keeps
+multiprotocol configurations unambiguous.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the cluster  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| ctx | <code>\*</code> |  |  |
+| spec | <code>\*</code> |  | Name, define or code. |
+| [endpoint] | <code>\*</code> | <code></code> | Endpoint record used to narrow the package set. |
+
+<a name="module_Configuration API_ entity resolution..clustersForEndpoint"></a>
+
+### Configuration API: entity resolution~clustersForEndpoint(ctx, endpoint) ⇒ <code>Promise.&lt;Array&gt;</code>
+The clusters that are meaningful for a given endpoint, that is the ones
+defined by the same packages as the endpoint's device types.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - clusters  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..packageIdsForEndpoint"></a>
+
+### Configuration API: entity resolution~packageIdsForEndpoint(ctx, endpoint) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
+The ZCL package ids relevant to a single endpoint. Falls back to every
+session package when the endpoint has no resolvable device type.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array.&lt;number&gt;&gt;</code> - package ids  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..packageRefsOfEndpoint"></a>
+
+### Configuration API: entity resolution~packageRefsOfEndpoint(ctx, endpoint) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
+The ZCL packages an endpoint's device types are defined by.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array.&lt;number&gt;&gt;</code> - package ids  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..endpointCategories"></a>
+
+### Configuration API: entity resolution~endpointCategories(ctx, endpoint) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+The categories an endpoint belongs to, taken from the packages that define
+its device types. In a multiprotocol configuration this is what tells the
+Zigbee endpoint 1 apart from the Matter endpoint 1.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array.&lt;string&gt;&gt;</code> - category names  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..resolveAttribute"></a>
+
+### Configuration API: entity resolution~resolveAttribute(ctx, cluster, spec, side) ⇒ <code>Promise.&lt;\*&gt;</code>
+Resolves `--attribute` within a cluster. Global attributes such as
+ClusterRevision are included, matching what the GUI shows.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the attribute  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| spec | <code>\*</code> | Name, define or code. |
+| side | <code>string</code> | 'client' or 'server'. |
+
+<a name="module_Configuration API_ entity resolution..attributesOfCluster"></a>
+
+### Configuration API: entity resolution~attributesOfCluster(ctx, cluster, side) ⇒ <code>Promise.&lt;Array&gt;</code>
+All attributes of a cluster on one side, including global attributes.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - attributes  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+| side | <code>string</code> | 
+
+<a name="module_Configuration API_ entity resolution..resolveCommand"></a>
+
+### Configuration API: entity resolution~resolveCommand(ctx, cluster, spec) ⇒ <code>Promise.&lt;\*&gt;</code>
+Resolves `--command` within a cluster.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the command  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| spec | <code>\*</code> | Name or code. |
+
+<a name="module_Configuration API_ entity resolution..commandsOfCluster"></a>
+
+### Configuration API: entity resolution~commandsOfCluster(ctx, cluster) ⇒ <code>Promise.&lt;Array&gt;</code>
+All commands of a cluster.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - commands  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..resolveEvent"></a>
+
+### Configuration API: entity resolution~resolveEvent(ctx, cluster, spec) ⇒ <code>Promise.&lt;\*&gt;</code>
+Resolves `--event` within a cluster.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the event  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| spec | <code>\*</code> | Name or code. |
+
+<a name="module_Configuration API_ entity resolution..eventsOfCluster"></a>
+
+### Configuration API: entity resolution~eventsOfCluster(ctx, cluster) ⇒ <code>Promise.&lt;Array&gt;</code>
+All events of a cluster.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - events  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..resolveEndpoint"></a>
+
+### Configuration API: entity resolution~resolveEndpoint(ctx, spec) ⇒ <code>Promise.&lt;\*&gt;</code>
+Resolves `--endpoint`, which always refers to the endpoint identifier that
+the user sees in the GUI and in generated code, never to a database row id.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the endpoint  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| spec | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..expandSides"></a>
+
+### Configuration API: entity resolution~expandSides(side) ⇒ <code>Array.&lt;string&gt;</code>
+Expands a `--side` value into the list of sides it stands for.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Array.&lt;string&gt;</code> - concrete sides  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| side | <code>string</code> | 'client', 'server' or 'both'. |
+
+<a name="module_Configuration API_ entity resolution..asArray"></a>
+
+### Configuration API: entity resolution~asArray(value) ⇒ <code>Array</code>
+Normalizes a parameter that may be given once or several times into an
+array.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Array</code> - array form of the value  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..byId"></a>
+
+### Configuration API: entity resolution~byId(what, spec, rows) ⇒ <code>\*</code>
+Picks the row with a given database id out of a list, refusing an id that
+is not there. This is how the user interface names things: it already
+holds the row, so it sends the id rather than the name.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>\*</code> - the matching row  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| what | <code>string</code> | Human readable entity kind, capitalized, such as 'Cluster'. |
+| spec | <code>\*</code> | The id as given, string or number. |
+| rows | <code>Array</code> | Candidates carrying `id`. |
+
+<a name="module_Configuration API_ entity resolution..eventFromParams"></a>
+
+### Configuration API: entity resolution~eventFromParams(ctx, cluster, params) ⇒ <code>Promise.&lt;\*&gt;</code>
+The event an operation was asked about, by database id (`eventId`) or by
+name or code (`event`).
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the event  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| params | <code>\*</code> | Operation parameters carrying `eventId` or `event`. |
+
+<a name="module_Configuration API_ entity resolution..endpointFromParams"></a>
+
+### Configuration API: entity resolution~endpointFromParams(ctx, params) ⇒ <code>Promise.&lt;\*&gt;</code>
+The endpoint an operation was asked about. The user interface passes the
+database id (`endpointId`); the command line and scripts pass the visible
+endpoint number (`endpoint`). Either is accepted here so that operations
+need not know which interface called them.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the endpoint row  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| params | <code>\*</code> | Operation parameters carrying `endpointId` or `endpoint`. |
+
+<a name="module_Configuration API_ entity resolution..clusterFromParams"></a>
+
+### Configuration API: entity resolution~clusterFromParams(ctx, endpoint, params) ⇒ <code>Promise.&lt;\*&gt;</code>
+The cluster an operation was asked about, by database id (`clusterId`) or
+by name, define or code (`cluster`), as `endpointFromParams` does for the
+endpoint.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the cluster  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| endpoint | <code>\*</code> |  |
+| params | <code>\*</code> | Operation parameters carrying `clusterId` or `cluster`. |
+
+<a name="module_Configuration API_ entity resolution..commandFromParams"></a>
+
+### Configuration API: entity resolution~commandFromParams(ctx, cluster, params) ⇒ <code>Promise.&lt;\*&gt;</code>
+The command an operation was asked about: by database id (`commandId`), by
+name or code (`command`), or by name or code within one source
+(`source`), which a post-load script passes because a code can exist once
+per source.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the command  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| params | <code>\*</code> | Operation parameters carrying `commandId`, or `command` and optionally `source`. |
+
+<a name="module_Configuration API_ entity resolution..manufacturerMatches"></a>
+
+### Configuration API: entity resolution~manufacturerMatches(cluster, mfgCode) ⇒ <code>boolean</code>
+True when a cluster carries the manufacturer code being asked for. No code
+means a standard cluster, whose manufacturer code is null.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>boolean</code> - whether the cluster matches  
+
+| Param | Type |
+| --- | --- |
+| cluster | <code>\*</code> | 
+| mfgCode | <code>\*</code> | 
+
+<a name="module_Configuration API_ entity resolution..resolveClusterByManufacturer"></a>
+
+### Configuration API: entity resolution~resolveClusterByManufacturer(ctx, spec, [mfgCode]) ⇒ <code>Promise.&lt;\*&gt;</code>
+Finds a cluster by name or by code. A manufacturer code narrows the search
+to that manufacturer's clusters; without one, the command line's own lookup
+is used.
+
+**Kind**: inner method of [<code>Configuration API: entity resolution</code>](#module_Configuration API_ entity resolution)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the cluster  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| ctx | <code>\*</code> |  |  |
+| spec | <code>\*</code> |  | Name, define or code. |
+| [mfgCode] | <code>\*</code> | <code></code> |  |
+
+<a name="module_Configuration API_ operation runner"></a>
+
+## Configuration API: operation runner
+Applies shared post-edit reconciliation after each operation. The CLI uses
+this runner, where every operation is a complete edit. Post-load scripts
+apply a batch and reconcile once at the end, and the user interface writes
+to every shared endpoint type itself; both go through
+`configuration.executeOperation` instead.
+
+
+* [Configuration API: operation runner](#module_Configuration API_ operation runner)
+    * [~reconcile()](#module_Configuration API_ operation runner..reconcile)
+    * [~execute(ctx, name, params)](#module_Configuration API_ operation runner..execute) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~createRootNode(ctx)](#module_Configuration API_ operation runner..createRootNode) ⇒ <code>Promise.&lt;\*&gt;</code>
+
+<a name="module_Configuration API_ operation runner..reconcile"></a>
+
+### Configuration API: operation runner~reconcile()
+Applies shared-state reconciliation and notifies an optional caller.
+
+**Kind**: inner method of [<code>Configuration API: operation runner</code>](#module_Configuration API_ operation runner)  
+<a name="module_Configuration API_ operation runner..execute"></a>
+
+### Configuration API: operation runner~execute(ctx, name, params) ⇒ <code>Promise.&lt;\*&gt;</code>
+Runs one named configuration operation and applies shared-state policy.
+
+**Kind**: inner method of [<code>Configuration API: operation runner</code>](#module_Configuration API_ operation runner)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - operation result  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| name | <code>string</code> | 
+| params | <code>\*</code> | 
+
+<a name="module_Configuration API_ operation runner..createRootNode"></a>
+
+### Configuration API: operation runner~createRootNode(ctx) ⇒ <code>Promise.&lt;\*&gt;</code>
+Creates the standard root node endpoint and applies shared-state policy.
+
+**Kind**: inner method of [<code>Configuration API: operation runner</code>](#module_Configuration API_ operation runner)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - operation result  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits"></a>
+
+## Configuration API: session edits
+The write sequence of a configuration edit, and the rules that gate it.
+
+The user interface, the configuration commands (`zap cluster enable`) and
+the post-load scripts (`--postImportScript`, SDK upgrade rules) all change a
+session through the operations, and the operations change it through here.
+Everything that decides whether an edit is allowed, and what else it brings
+along, lives in this module so that the interfaces cannot drift apart: the
+storage and reporting policy of the data model, the rule that a Matter
+cluster enabled as a client only has no configuration page, the defaults a
+cluster receives when it is first enabled, and the conformance consequences
+of a feature toggle.
+
+Refusals are thrown as `OperationError`, carrying the operations that would
+make the edit possible as `remedies`, for the caller to present however it
+presents things.
+
+The context is `{ db, sessionId, category }`. `category` narrows the ZCL
+packages in a multiprotocol configuration and may be null. Lookups are
+cached on the context for the duration of a run.
+
+
+* [Configuration API: session edits](#module_Configuration API_ session edits)
+    * [~enableClusterStep(endpoint, cluster, side)](#module_Configuration API_ session edits..enableClusterStep) ⇒ <code>\*</code>
+    * [~optionalBoolean(value)](#module_Configuration API_ session edits..optionalBoolean) ⇒ <code>boolean</code> \| <code>undefined</code>
+    * [~storageOption(value)](#module_Configuration API_ session edits..storageOption) ⇒ <code>string</code> \| <code>undefined</code>
+    * [~zclPackageIds(ctx)](#module_Configuration API_ session edits..zclPackageIds) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
+    * [~sessionZclPackageIds(db, sessionId)](#module_Configuration API_ session edits..sessionZclPackageIds) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
+    * [~isClusterSideEnabled(ctx, endpoint, cluster, side)](#module_Configuration API_ session edits..isClusterSideEnabled) ⇒ <code>Promise.&lt;boolean&gt;</code>
+    * [~requireClusterSideEnabled(ctx, endpoint, cluster, side)](#module_Configuration API_ session edits..requireClusterSideEnabled) ⇒ <code>Promise</code>
+    * [~requireClusterConfigurable(ctx, endpoint, cluster)](#module_Configuration API_ session edits..requireClusterConfigurable) ⇒ <code>Promise</code>
+    * [~writeClusterState(db, endpointTypeId, clusterId, side, enabled, packageIds)](#module_Configuration API_ session edits..writeClusterState) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~setClusterSideEnabled(ctx, endpoint, cluster, side, enabled)](#module_Configuration API_ session edits..setClusterSideEnabled) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~attributeState(ctx, endpoint, cluster, attribute)](#module_Configuration API_ session edits..attributeState) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~requireAttributeChangeAllowed(ctx, endpoint, cluster, side, attribute, requested)](#module_Configuration API_ session edits..requireAttributeChangeAllowed) ⇒ <code>Promise.&lt;undefined&gt;</code>
+    * [~attributeUpdates(attribute, changes)](#module_Configuration API_ session edits..attributeUpdates) ⇒ <code>\*</code>
+    * [~isFeatureMap(attribute)](#module_Configuration API_ session edits..isFeatureMap) ⇒ <code>boolean</code>
+    * [~setAttribute(ctx, endpoint, cluster, side, attribute, changes)](#module_Configuration API_ session edits..setAttribute) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~commandSide(command, isIncoming)](#module_Configuration API_ session edits..commandSide) ⇒ <code>string</code>
+    * [~describeUnwritableDirection(command, isIncoming)](#module_Configuration API_ session edits..describeUnwritableDirection) ⇒ <code>\*</code>
+    * [~setCommandEnabled(ctx, endpoint, cluster, command, isIncoming, enabled)](#module_Configuration API_ session edits..setCommandEnabled) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~setEventEnabled(ctx, endpoint, cluster, event, side, enabled)](#module_Configuration API_ session edits..setEventEnabled) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~featuresOfCluster(ctx, endpoint, cluster)](#module_Configuration API_ session edits..featuresOfCluster) ⇒ <code>Promise.&lt;Array&gt;</code>
+    * [~featureMapAttribute(ctx, endpoint, cluster)](#module_Configuration API_ session edits..featureMapAttribute) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~requireFeatureMapIncluded(endpoint, cluster, map)](#module_Configuration API_ session edits..requireFeatureMapIncluded) ⇒ <code>undefined</code>
+    * [~featureMapFromValue(features, value)](#module_Configuration API_ session edits..featureMapFromValue) ⇒ <code>\*</code>
+    * [~matchFeature(spec, features)](#module_Configuration API_ session edits..matchFeature) ⇒ <code>\*</code>
+    * [~previewFeatureChange(ctx, endpoint, cluster, feature, enabled)](#module_Configuration API_ session edits..previewFeatureChange) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~setFeatureEnabled()](#module_Configuration API_ session edits..setFeatureEnabled)
+    * [~updateRequiredElementWarnings()](#module_Configuration API_ session edits..updateRequiredElementWarnings)
+    * [~featureRequirementData(ctx, endpoint, cluster, [allowMissingMap])](#module_Configuration API_ session edits..featureRequirementData) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~updateRequiredElementWarning(ctx, endpoint, cluster, kind, elementId, added)](#module_Configuration API_ session edits..updateRequiredElementWarning) ⇒ <code>Promise</code>
+
+<a name="module_Configuration API_ session edits..enableClusterStep"></a>
+
+### Configuration API: session edits~enableClusterStep(endpoint, cluster, side) ⇒ <code>\*</code>
+The step that enables a cluster side, offered as the remedy whenever a
+refusal comes down to that side being off.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>\*</code> - a `cluster.enable` step  
+
+| Param | Type |
+| --- | --- |
+| endpoint | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+| side | <code>string</code> | 
+
+<a name="module_Configuration API_ session edits..optionalBoolean"></a>
+
+### Configuration API: session edits~optionalBoolean(value) ⇒ <code>boolean</code> \| <code>undefined</code>
+Reads an optional boolean, tolerating the string forms that show up in
+batch scripts and in the parameter arrays post-load scripts pass.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>boolean</code> \| <code>undefined</code> - the boolean, or undefined when unset  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits..storageOption"></a>
+
+### Configuration API: session edits~storageOption(value) ⇒ <code>string</code> \| <code>undefined</code>
+Reads a storage option as the data model spells it, from whatever case the
+caller used.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>string</code> \| <code>undefined</code> - the option, or undefined when unset  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits..zclPackageIds"></a>
+
+### Configuration API: session edits~zclPackageIds(ctx) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
+The ZCL packages attached to a session, as ids. This is what cluster
+defaults are drawn from when a cluster is first enabled.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;Array.&lt;number&gt;&gt;</code> - package ids  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits..sessionZclPackageIds"></a>
+
+### Configuration API: session edits~sessionZclPackageIds(db, sessionId) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
+The ZCL packages attached to a session, without a context. The HTTP layer
+has a session id and nothing else when the cluster checkbox is ticked.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;Array.&lt;number&gt;&gt;</code> - package ids  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits..isClusterSideEnabled"></a>
+
+### Configuration API: session edits~isClusterSideEnabled(ctx, endpoint, cluster, side) ⇒ <code>Promise.&lt;boolean&gt;</code>
+True when a cluster side is enabled on an endpoint.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - whether the side is enabled  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+| side | <code>string</code> | 
+
+<a name="module_Configuration API_ session edits..requireClusterSideEnabled"></a>
+
+### Configuration API: session edits~requireClusterSideEnabled(ctx, endpoint, cluster, side) ⇒ <code>Promise</code>
+Refuses to touch an element of a cluster side that is not enabled.
+
+The saved file format only keeps the elements of enabled clusters, so such
+an edit would be silently discarded on the next save. The user interface
+avoids the problem by only offering the element checkboxes of clusters that
+are switched on; here we say so out loud instead.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise</code> - resolves when the side is enabled, throws otherwise  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+| side | <code>string</code> | 
+
+<a name="module_Configuration API_ session edits..requireClusterConfigurable"></a>
+
+### Configuration API: session edits~requireClusterConfigurable(ctx, endpoint, cluster) ⇒ <code>Promise</code>
+Refuses to open the element surface of a Matter cluster that is enabled as
+a client only.
+
+The user interface greys out Configure in exactly this case
+(`enableServerOnly`, which is the Matter features flag): a Matter client
+cluster has no attributes, commands, events or features page. Zigbee does
+not have that restriction, and a Matter cluster that also has its server
+side on is configurable as usual. Matching the selected endpoint's category
+is what keeps multiprotocol honest — a Zigbee endpoint in the same file is
+left alone.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise</code> - resolves when the cluster is configurable, throws otherwise  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits..writeClusterState"></a>
+
+### Configuration API: session edits~writeClusterState(db, endpointTypeId, clusterId, side, enabled, packageIds) ⇒ <code>Promise.&lt;\*&gt;</code>
+Enables or disables one side of a cluster on an endpoint type.
+
+The first time that side is enabled, the cluster's default attributes and
+non-optional commands are inserted. That is the sequence run when the user
+interface ticks the cluster checkbox. A side that is being turned off, and
+has no row yet, is recorded as disabled and does not receive those defaults.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the result of writing the cluster state row  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| endpointTypeId | <code>\*</code> |  |
+| clusterId | <code>\*</code> |  |
+| side | <code>string</code> |  |
+| enabled | <code>boolean</code> |  |
+| packageIds | <code>\*</code> | ZCL packages the defaults are drawn from. |
+
+<a name="module_Configuration API_ session edits..setClusterSideEnabled"></a>
+
+### Configuration API: session edits~setClusterSideEnabled(ctx, endpoint, cluster, side, enabled) ⇒ <code>Promise.&lt;\*&gt;</code>
+Enables or disables one side of a cluster on an endpoint, with the defaults
+the user interface inserts on first enable.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the result of writing the cluster state row  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+| side | <code>string</code> | 
+| enabled | <code>boolean</code> | 
+
+<a name="module_Configuration API_ session edits..attributeState"></a>
+
+### Configuration API: session edits~attributeState(ctx, endpoint, cluster, attribute) ⇒ <code>Promise.&lt;\*&gt;</code>
+How one attribute is currently configured on an endpoint, or null when the
+configuration has nothing recorded about it.
+
+The attribute reference is enough to name it precisely, including for the
+global attributes that belong to every cluster: those are defined once per
+side, so FeatureMap on the server and FeatureMap on the client are two
+attributes and not one asked about twice.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the endpoint type attribute, or null  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+| attribute | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits..requireAttributeChangeAllowed"></a>
+
+### Configuration API: session edits~requireAttributeChangeAllowed(ctx, endpoint, cluster, side, attribute, requested) ⇒ <code>Promise.&lt;undefined&gt;</code>
+Refuses the attribute changes the user interface does not offer.
+
+Three kinds of thing are checked, all of them things the interface expresses
+by greying a control out. Storage and reporting can be fixed by the data
+model. An external attribute has nowhere to keep a default value. And how an
+attribute is kept only means anything once the attribute is included.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;undefined&gt;</code> - nothing, throws when a change is not the caller's to make  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| endpoint | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| side | <code>string</code> |  |
+| attribute | <code>\*</code> |  |
+| requested | <code>\*</code> | `{ enabled, storage, reporting, default, singleton, bounded }`, undefined per field where not asked for. |
+
+<a name="module_Configuration API_ session edits..attributeUpdates"></a>
+
+### Configuration API: session edits~attributeUpdates(attribute, changes) ⇒ <code>\*</code>
+Turns a set of attribute changes into the column updates that record them,
+checking each value against the attribute on the way.
+
+`changes` may carry any of `enabled`, `default`, `storage`, `singleton`,
+`bounded`, `reporting`, `minInterval`, `maxInterval` and `reportableChange`.
+A field that is undefined is left alone. `default` may be null, or the
+string 'null', to clear the value of a nullable attribute.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>\*</code> - `{ updates, described, requested }`: the key/value pairs to
+  write, one phrase per change, and the normalized request for the policy  
+
+| Param | Type |
+| --- | --- |
+| attribute | <code>\*</code> | 
+| changes | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits..isFeatureMap"></a>
+
+### Configuration API: session edits~isFeatureMap(attribute) ⇒ <code>boolean</code>
+True for the FeatureMap attribute, whose value is the cluster's feature
+selection.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>boolean</code> - whether this is FeatureMap  
+
+| Param | Type |
+| --- | --- |
+| attribute | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits..setAttribute"></a>
+
+### Configuration API: session edits~setAttribute(ctx, endpoint, cluster, side, attribute, changes) ⇒ <code>Promise.&lt;\*&gt;</code>
+Applies any combination of attribute settings to one attribute on one
+endpoint, refusing what the user interface would grey out.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ described, warnings }`: one phrase per change made,
+  and anything worth knowing that did not stop the write  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| endpoint | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| side | <code>string</code> |  |
+| attribute | <code>\*</code> | The attribute definition, as the ZCL queries return it. |
+| changes | <code>\*</code> | See `attributeUpdates`. |
+
+<a name="module_Configuration API_ session edits..commandSide"></a>
+
+### Configuration API: session edits~commandSide(command, isIncoming) ⇒ <code>string</code>
+The cluster side a command direction is recorded against. A command the
+device sends belongs to the side that is its source; one it receives belongs
+to the opposite side.
+
+This deliberately mirrors the calculation inside `insertOrUpdateCommandState`
+so that the side checked before writing is the side actually written to. It
+inherits one quirk from it: a command declared with source `either` has no
+opposite, so the outgoing direction lands on `either`, which is not a side a
+cluster can have. `describeUnwritableDirection` explains that rather than
+letting the caller puzzle over it.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>string</code> - the cluster side, or the command source when it has none  
+
+| Param | Type |
+| --- | --- |
+| command | <code>\*</code> | 
+| isIncoming | <code>boolean</code> | 
+
+<a name="module_Configuration API_ session edits..describeUnwritableDirection"></a>
+
+### Configuration API: session edits~describeUnwritableDirection(command, isIncoming) ⇒ <code>\*</code>
+Explains a direction that cannot be recorded at all, as opposed to one whose
+cluster side merely happens to be switched off.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>\*</code> - a OperationError, or null when the direction is expressible  
+
+| Param | Type |
+| --- | --- |
+| command | <code>\*</code> | 
+| isIncoming | <code>boolean</code> | 
+
+<a name="module_Configuration API_ session edits..setCommandEnabled"></a>
+
+### Configuration API: session edits~setCommandEnabled(ctx, endpoint, cluster, command, isIncoming, enabled) ⇒ <code>Promise.&lt;\*&gt;</code>
+Enables or disables a command in one direction on an endpoint, refusing a
+direction that has no cluster side to be recorded against or whose side is
+not enabled.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the result of writing the command state  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+| command | <code>\*</code> | 
+| isIncoming | <code>boolean</code> | 
+| enabled | <code>boolean</code> | 
+
+<a name="module_Configuration API_ session edits..setEventEnabled"></a>
+
+### Configuration API: session edits~setEventEnabled(ctx, endpoint, cluster, event, side, enabled) ⇒ <code>Promise.&lt;\*&gt;</code>
+Enables or disables an event on an endpoint, refusing an event of a cluster
+side that is not enabled.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the result of writing the event state  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+| event | <code>\*</code> | 
+| side | <code>string</code> | 
+| enabled | <code>boolean</code> | 
+
+<a name="module_Configuration API_ session edits..featuresOfCluster"></a>
+
+### Configuration API: session edits~featuresOfCluster(ctx, endpoint, cluster) ⇒ <code>Promise.&lt;Array&gt;</code>
+The features a cluster defines, as they apply to one endpoint.
+
+A feature's conformance can be overridden by the endpoint's device type:
+Lighting is conditional on On/Off in general and mandatory on a Dimmable
+Light. The device type's view is what the user interface shows and what the
+conformance checker needs, so it is what is returned, with the cluster's own
+conformance kept alongside.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - features, in bit order  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits..featureMapAttribute"></a>
+
+### Configuration API: session edits~featureMapAttribute(ctx, endpoint, cluster) ⇒ <code>Promise.&lt;\*&gt;</code>
+Finds the FeatureMap attribute of a cluster and its state on an endpoint.
+Features are represented as bits of this attribute's value.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ definition, state, value, included }`  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
+| endpoint | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+
+<a name="module_Configuration API_ session edits..requireFeatureMapIncluded"></a>
+
+### Configuration API: session edits~requireFeatureMapIncluded(endpoint, cluster, map) ⇒ <code>undefined</code>
+Refuses a feature change that could not be recorded.
+
+A feature is a bit of the FeatureMap attribute's value, and the saved file
+format only keeps attributes that are part of the configuration. Toggling a
+feature while that attribute is excluded looks like it works and is gone by
+the next load, so it is refused instead.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>undefined</code> - nothing, throws when the change could not be kept  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| endpoint | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| map | <code>\*</code> | Result of `featureMapAttribute`. |
+
+<a name="module_Configuration API_ session edits..featureMapFromValue"></a>
+
+### Configuration API: session edits~featureMapFromValue(features, value) ⇒ <code>\*</code>
+Builds the `{ featureCode: boolean }` map the conformance checker works
+with, out of a FeatureMap value.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>\*</code> - the feature map  
+
+| Param | Type |
+| --- | --- |
+| features | <code>Array</code> | 
+| value | <code>number</code> | 
+
+<a name="module_Configuration API_ session edits..matchFeature"></a>
+
+### Configuration API: session edits~matchFeature(spec, features) ⇒ <code>\*</code>
+Picks a feature out of a cluster's list. Feature codes are short letter
+codes such as LT rather than numbers, so a bare number is read as a bit
+position; a name matches too.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>\*</code> - the feature  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| spec | <code>\*</code> | Code, name or bit. |
+| features | <code>Array</code> | Result of `featuresOfCluster`. |
+
+<a name="module_Configuration API_ session edits..previewFeatureChange"></a>
+
+### Configuration API: session edits~previewFeatureChange(ctx, endpoint, cluster, feature, enabled) ⇒ <code>Promise.&lt;\*&gt;</code>
+Enables or disables a cluster feature on an endpoint.
+
+A feature is a bit of the FeatureMap attribute, but flipping that bit is
+only part of the job: the conformance rules decide which attributes,
+commands and events have to come with it, and can refuse the change
+outright. This runs the same conformance check the user interface runs
+before it opens its confirmation dialog, and then applies what the check
+says, which is what pressing Confirm does.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ changed, map, newValue, conformance, elements }`
+  where `applied` lists `{ kind, name, value }` for every element the
+  conformance rules changed alongside the feature  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| endpoint | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| feature | <code>\*</code> | One of `featuresOfCluster`. |
+| enabled | <code>boolean</code> |  |
+
+<a name="module_Configuration API_ session edits..setFeatureEnabled"></a>
+
+### Configuration API: session edits~setFeatureEnabled()
+Applies a previewed feature change to its endpoint type.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+<a name="module_Configuration API_ session edits..updateRequiredElementWarnings"></a>
+
+### Configuration API: session edits~updateRequiredElementWarnings()
+Keep the feature-related required/unsupported warnings in sync with the writes.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+<a name="module_Configuration API_ session edits..featureRequirementData"></a>
+
+### Configuration API: session edits~featureRequirementData(ctx, endpoint, cluster, [allowMissingMap]) ⇒ <code>Promise.&lt;\*&gt;</code>
+The element conformance of one cluster on an endpoint, judged against the
+saved feature map: which attributes, commands and events the selected
+features require or forbid.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ elements, requirements }`  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| ctx | <code>\*</code> |  |  |
+| endpoint | <code>\*</code> |  |  |
+| cluster | <code>\*</code> |  |  |
+| [allowMissingMap] | <code>boolean</code> | <code>false</code> | Treat a cluster without a FeatureMap as having none selected. |
+
+<a name="module_Configuration API_ session edits..updateRequiredElementWarning"></a>
+
+### Configuration API: session edits~updateRequiredElementWarning(ctx, endpoint, cluster, kind, elementId, added) ⇒ <code>Promise</code>
+Records, as a session notification, whether an element that was just
+toggled is one its cluster's features require or forbid. This is the
+notice the user interface raises when a checkbox goes against conformance.
+
+**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
+**Returns**: <code>Promise</code> - resolves when the notification is in step  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> |  |
+| endpoint | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| kind | <code>string</code> | 'attributes', 'commands' or 'events'. |
+| elementId | <code>number</code> |  |
+| added | <code>boolean</code> | Whether the element was switched on. |
+
+<a name="module_JS API_ shared cluster state"></a>
+
+## JS API: shared cluster state
+Unifying the attribute and command states of a cluster that more than one
+endpoint enables.
+
+In Zigbee the configuration of a cluster is a single global entity: if the
+Basic cluster is on three endpoints, the attributes and commands it includes
+are the same on all three, and the framework stores one copy. ZAP's tables
+are per endpoint type, so that shape has to be enforced rather than assumed:
+after a change, every endpoint type that enables a shared cluster is aligned
+to the first matching entry.
+
+Matter is the opposite and needs none of this, since an attribute there is
+genuinely per endpoint. Which behaviour applies is a property of the data
+model, declared by the `shareClusterStatesAcrossEndpoints` generator option,
+so nothing here decides it by looking at names.
+
+The CLI operation runner reconciles this after each committed operation;
+post-load scripts reconcile after applying their batch. Both call this same
+function so their saved state cannot drift apart.
+
+
+* [JS API: shared cluster state](#module_JS API_ shared cluster state)
+    * [~sharingCategories(db, sessionId)](#module_JS API_ shared cluster state..sharingCategories) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+    * [~isSharingEnabled(db, sessionId)](#module_JS API_ shared cluster state..isSharingEnabled) ⇒ <code>Promise.&lt;boolean&gt;</code>
+    * [~shareClusterStatesAcrossEndpoints(db, endpointTypeIdList, packageIds)](#module_JS API_ shared cluster state..shareClusterStatesAcrossEndpoints) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~commandDefaults(db, endpointTypeIdList, sharedClusterList, packageIds)](#module_JS API_ shared cluster state..commandDefaults) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~writeCommandDefaults(db, defaults)](#module_JS API_ shared cluster state..writeCommandDefaults) ⇒ <code>Promise</code>
+    * [~attributeDefaults(db, endpointTypeIdList, sharedClusterList, packageIds)](#module_JS API_ shared cluster state..attributeDefaults) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~writeAttributeDefaults(db, defaults)](#module_JS API_ shared cluster state..writeAttributeDefaults) ⇒ <code>Promise</code>
+    * [~commandEquals(a, b)](#module_JS API_ shared cluster state..commandEquals) ⇒ <code>boolean</code>
+    * [~attributeEquals(a, b)](#module_JS API_ shared cluster state..attributeEquals) ⇒ <code>boolean</code>
+    * [~unifySharedClusterStates(ctx)](#module_JS API_ shared cluster state..unifySharedClusterStates) ⇒ <code>Promise.&lt;\*&gt;</code>
+
+<a name="module_JS API_ shared cluster state..sharingCategories"></a>
+
+### JS API: shared cluster state~sharingCategories(db, sessionId) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
+The package categories that asked for cluster states to be shared across
+endpoints, lowercased.
+
+This is the same question the user interface asks before it unifies anything:
+a generator option declared by the templates, which the Zigbee ones set and
+the Matter ones do not. Reporting it per category is what lets a caller leave
+the Matter half of a multiprotocol configuration alone.
+
+A package with no category still counts, under an empty name, so a data model
+that declares the option without naming itself is not silently ignored.
+
+**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
+**Returns**: <code>Promise.&lt;Array.&lt;string&gt;&gt;</code> - category names that share cluster states  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>number</code> | 
+
+<a name="module_JS API_ shared cluster state..isSharingEnabled"></a>
+
+### JS API: shared cluster state~isSharingEnabled(db, sessionId) ⇒ <code>Promise.&lt;boolean&gt;</code>
+Whether anything in this session wants cluster states shared across
+endpoints.
+
+**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - whether sharing applies  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>number</code> | 
+
+<a name="module_JS API_ shared cluster state..shareClusterStatesAcrossEndpoints"></a>
+
+### JS API: shared cluster state~shareClusterStatesAcrossEndpoints(db, endpointTypeIdList, packageIds) ⇒ <code>Promise.&lt;\*&gt;</code>
+Aligns the attribute and command states of every cluster that more than one
+of the given endpoint types enables.
+
+**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ sharedClusterList, sharedAttributeDefaults }`  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| endpointTypeIdList | <code>Array.&lt;number&gt;</code> | Endpoint types to align with each other. |
+| packageIds | <code>Array.&lt;number&gt;</code> | ZCL packages in scope. |
+
+<a name="module_JS API_ shared cluster state..commandDefaults"></a>
+
+### JS API: shared cluster state~commandDefaults(db, endpointTypeIdList, sharedClusterList, packageIds) ⇒ <code>Promise.&lt;\*&gt;</code>
+Get shared command defaults across endpoints.
+
+**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - sharedCmdDefaults  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeIdList | <code>\*</code> | 
+| sharedClusterList | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
+<a name="module_JS API_ shared cluster state..writeCommandDefaults"></a>
+
+### JS API: shared cluster state~writeCommandDefaults(db, defaults) ⇒ <code>Promise</code>
+Insert command defaults into the database.
+
+**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
+**Returns**: <code>Promise</code> - promise of written command states  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| defaults | <code>\*</code> | 
+
+<a name="module_JS API_ shared cluster state..attributeDefaults"></a>
+
+### JS API: shared cluster state~attributeDefaults(db, endpointTypeIdList, sharedClusterList, packageIds) ⇒ <code>Promise.&lt;\*&gt;</code>
+Shared attribute defaults across endpoints.
+
+**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - sharedAttributeDefaults  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeIdList | <code>\*</code> | 
+| sharedClusterList | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
+<a name="module_JS API_ shared cluster state..writeAttributeDefaults"></a>
+
+### JS API: shared cluster state~writeAttributeDefaults(db, defaults) ⇒ <code>Promise</code>
+Write attribute defaults.
+
+**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
+**Returns**: <code>Promise</code> - promise of written attribute states  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| defaults | <code>\*</code> | 
+
+<a name="module_JS API_ shared cluster state..commandEquals"></a>
+
+### JS API: shared cluster state~commandEquals(a, b) ⇒ <code>boolean</code>
+Compares 2 commands for equality.
+
+**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
+**Returns**: <code>boolean</code> - whether the two describe the same command  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| b | <code>\*</code> | 
+
+<a name="module_JS API_ shared cluster state..attributeEquals"></a>
+
+### JS API: shared cluster state~attributeEquals(a, b) ⇒ <code>boolean</code>
+Compares 2 attributes for equality.
+
+**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
+**Returns**: <code>boolean</code> - whether the two describe the same attribute  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| b | <code>\*</code> | 
+
+<a name="module_JS API_ shared cluster state..unifySharedClusterStates"></a>
+
+### JS API: shared cluster state~unifySharedClusterStates(ctx) ⇒ <code>Promise.&lt;\*&gt;</code>
+Aligns the attribute and command states of clusters that more than one
+endpoint enables, where the data model says they are shared.
+
+In Zigbee a cluster's configuration is one global thing: the Basic cluster on
+three endpoints includes the same attributes on all three, and the framework
+keeps one copy. ZAP stores state per endpoint type, so the user interface
+re-aligns them after every change. Editing without that step produced files
+the interface would never have written.
+
+Two things keep this from touching Matter, where an attribute genuinely is
+per endpoint. The behaviour is only attempted when the loaded templates
+declare `shareClusterStatesAcrossEndpoints`, which is how the interface
+decides. And in a multiprotocol configuration only the endpoints whose device
+types come from a package that asked for it are included, so the Matter half
+of the same file is left exactly as it was.
+
+**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ applied, endpoints, clusters }`  
+
+| Param | Type |
+| --- | --- |
+| ctx | <code>\*</code> | 
 
 <a name="module_JS API_ low level database access"></a>
 
@@ -21684,307 +23494,6 @@ collectBlocks.  This allows other iterators to further filter the list
 before doing collectBlocks.
 
 **Kind**: inner method of [<code>JS API: Iterator utilities</code>](#module_JS API_ Iterator utilities)  
-<a name="module_Configuration API_ errors"></a>
-
-## Configuration API: errors
-Input and lookup errors raised by the configuration operation API.
-
-
-* [Configuration API: errors](#module_Configuration API_ errors)
-    * [~OperationError](#module_Configuration API_ errors..OperationError)
-        * [new OperationError(message, hints)](#new_module_Configuration API_ errors..OperationError_new)
-    * [~editDistance(a, b)](#module_Configuration API_ errors..editDistance) ⇒ <code>number</code>
-    * [~rankCandidates(spec, candidates)](#module_Configuration API_ errors..rankCandidates) ⇒ <code>Array.&lt;string&gt;</code>
-    * [~notFound(what, spec, candidates, maxCandidates)](#module_Configuration API_ errors..notFound) ⇒ <code>OperationError</code>
-    * [~ambiguous(what, spec, matches)](#module_Configuration API_ errors..ambiguous) ⇒ <code>OperationError</code>
-
-<a name="module_Configuration API_ errors..OperationError"></a>
-
-### Configuration API: errors~OperationError
-An error that is caused by bad user input rather than by a bug. These are
-reported as a plain message without a stack trace.
-
-**Kind**: inner class of [<code>Configuration API: errors</code>](#module_Configuration API_ errors)  
-<a name="new_module_Configuration API_ errors..OperationError_new"></a>
-
-#### new OperationError(message, hints)
-
-| Param | Type | Description |
-| --- | --- | --- |
-| message | <code>string</code> |  |
-| hints | <code>Array.&lt;string&gt;</code> | Additional lines printed under the message. |
-
-<a name="module_Configuration API_ errors..editDistance"></a>
-
-### Configuration API: errors~editDistance(a, b) ⇒ <code>number</code>
-Levenshtein distance, used to order lookup suggestions.
-
-**Kind**: inner method of [<code>Configuration API: errors</code>](#module_Configuration API_ errors)  
-**Returns**: <code>number</code> - the edit distance  
-
-| Param | Type |
-| --- | --- |
-| a | <code>string</code> | 
-| b | <code>string</code> | 
-
-<a name="module_Configuration API_ errors..rankCandidates"></a>
-
-### Configuration API: errors~rankCandidates(spec, candidates) ⇒ <code>Array.&lt;string&gt;</code>
-Orders candidates so that the ones most like what the user typed come first.
-An alphabetical dump of a hundred cluster names is not a suggestion; the
-handful that resemble the typo is.
-
-**Kind**: inner method of [<code>Configuration API: errors</code>](#module_Configuration API_ errors)  
-**Returns**: <code>Array.&lt;string&gt;</code> - candidates, best match first  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| spec | <code>string</code> | What the user typed. |
-| candidates | <code>Array.&lt;string&gt;</code> |  |
-
-<a name="module_Configuration API_ errors..notFound"></a>
-
-### Configuration API: errors~notFound(what, spec, candidates, maxCandidates) ⇒ <code>OperationError</code>
-Builds an `OperationError` that reports a failed lookup together with the things
-the user most plausibly meant.
-
-**Kind**: inner method of [<code>Configuration API: errors</code>](#module_Configuration API_ errors)  
-**Returns**: <code>OperationError</code> - error carrying the candidate list as hints  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| what | <code>string</code> |  | Human readable entity kind, such as 'cluster'. |
-| spec | <code>string</code> |  | What the user actually typed. |
-| candidates | <code>Array.&lt;string&gt;</code> |  | Valid values, may be long, gets truncated. |
-| maxCandidates | <code>number</code> | <code>10</code> |  |
-
-<a name="module_Configuration API_ errors..ambiguous"></a>
-
-### Configuration API: errors~ambiguous(what, spec, matches) ⇒ <code>OperationError</code>
-Builds an `OperationError` for a lookup that matched more than one entity.
-
-**Kind**: inner method of [<code>Configuration API: errors</code>](#module_Configuration API_ errors)  
-**Returns**: <code>OperationError</code> - error carrying the ambiguity resolution hints  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| what | <code>string</code> | Human readable entity kind, such as 'device type'. |
-| spec | <code>string</code> | What the user actually typed. |
-| matches | <code>Array.&lt;string&gt;</code> | Descriptions of the matched entities. |
-
-<a name="module_Configuration API_ operation runner"></a>
-
-## Configuration API: operation runner
-Applies shared post-edit reconciliation after each operation. The CLI uses
-this runner, where every operation is a complete edit. Post-load scripts
-apply a batch and reconcile once at the end, and the user interface writes
-to every shared endpoint type itself; both go through
-`configuration.executeOperation` instead.
-
-
-* [Configuration API: operation runner](#module_Configuration API_ operation runner)
-    * [~reconcile()](#module_Configuration API_ operation runner..reconcile)
-    * [~execute(ctx, name, params)](#module_Configuration API_ operation runner..execute) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~createRootNode(ctx)](#module_Configuration API_ operation runner..createRootNode) ⇒ <code>Promise.&lt;\*&gt;</code>
-
-<a name="module_Configuration API_ operation runner..reconcile"></a>
-
-### Configuration API: operation runner~reconcile()
-Applies shared-state reconciliation and notifies an optional caller.
-
-**Kind**: inner method of [<code>Configuration API: operation runner</code>](#module_Configuration API_ operation runner)  
-<a name="module_Configuration API_ operation runner..execute"></a>
-
-### Configuration API: operation runner~execute(ctx, name, params) ⇒ <code>Promise.&lt;\*&gt;</code>
-Runs one named configuration operation and applies shared-state policy.
-
-**Kind**: inner method of [<code>Configuration API: operation runner</code>](#module_Configuration API_ operation runner)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - operation result  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| name | <code>string</code> | 
-| params | <code>\*</code> | 
-
-<a name="module_Configuration API_ operation runner..createRootNode"></a>
-
-### Configuration API: operation runner~createRootNode(ctx) ⇒ <code>Promise.&lt;\*&gt;</code>
-Creates the standard root node endpoint and applies shared-state policy.
-
-**Kind**: inner method of [<code>Configuration API: operation runner</code>](#module_Configuration API_ operation runner)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - operation result  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-
-<a name="module_JS API_ data model policy"></a>
-
-## JS API: data model policy
-The parts of an attribute's configuration that the data model decides rather
-than the user.
-
-The user interface expresses this by greying out a control: the storage of an
-attribute served through the Attribute Access Interface is fixed at External,
-and the reporting switch of an attribute whose reporting the specification
-makes mandatory or forbids cannot be moved. A caller with no grey says no
-instead, which is better than the alternative. ZAP re-applies these policies
-whenever a configuration is read back in, so a write that disagrees with
-them does not survive the round trip.
-
-CLI and post-load edits reach these rules through `session-edit`, and
-listings read them directly to say which fields are fixed. Refusals carry the
-policy reason; the CLI adds command-line guidance when it presents them.
-
-
-* [JS API: data model policy](#module_JS API_ data model policy)
-    * [~forcedExternalPairs(ctx)](#module_JS API_ data model policy..forcedExternalPairs) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~attributePolicy(ctx, cluster, attribute)](#module_JS API_ data model policy..attributePolicy) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~fixedFields(policy)](#module_JS API_ data model policy..fixedFields) ⇒ <code>string</code>
-    * [~describe(where)](#module_JS API_ data model policy..describe) ⇒ <code>string</code>
-    * [~requirePolicyRespected(policy, requested, where)](#module_JS API_ data model policy..requirePolicyRespected) ⇒ <code>undefined</code>
-    * [~requireDefaultCanBeKept(requested, storage, policy, where)](#module_JS API_ data model policy..requireDefaultCanBeKept) ⇒ <code>undefined</code>
-    * [~requireIncluded(included, fields, where)](#module_JS API_ data model policy..requireIncluded) ⇒ <code>undefined</code>
-    * [~requireToggleableFeature(feature, cluster, endpoint)](#module_JS API_ data model policy..requireToggleableFeature) ⇒ <code>undefined</code>
-
-<a name="module_JS API_ data model policy..forcedExternalPairs"></a>
-
-### JS API: data model policy~forcedExternalPairs(ctx) ⇒ <code>Promise.&lt;Array&gt;</code>
-The (cluster, attribute) pairs the loaded data model serves through the
-Attribute Access Interface, as the user interface asks for them over
-/zcl/forcedExternal.
-
-The answer covers the whole configuration and is wanted once per attribute,
-so it is kept for the lifetime of the session.
-
-**Kind**: inner method of [<code>JS API: data model policy</code>](#module_JS API_ data model policy)  
-**Returns**: <code>Promise.&lt;Array&gt;</code> - package options describing the pairs  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-
-<a name="module_JS API_ data model policy..attributePolicy"></a>
-
-### JS API: data model policy~attributePolicy(ctx, cluster, attribute) ⇒ <code>Promise.&lt;\*&gt;</code>
-What the data model fixes about one attribute of one cluster.
-
-Storage is decided by the attribute's own storage policy together with the
-forced-external pairs, which is why the cluster matters: ClusterRevision is
-ordinary on most clusters and served through the Attribute Access Interface
-on Access Control.
-
-A pair the data model lists under `keepDefault` is still External, but its
-default value stays under the configuration's control: the user interface
-leaves the field editable for exactly those attributes.
-
-**Kind**: inner method of [<code>JS API: data model policy</code>](#module_JS API_ data model policy)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ storage, reporting, keepDefault }`, the first two
-  null where the choice is free  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-| attribute | <code>\*</code> | 
-
-<a name="module_JS API_ data model policy..fixedFields"></a>
-
-### JS API: data model policy~fixedFields(policy) ⇒ <code>string</code>
-Names the fields of an attribute that are not the user's to set, for the
-listings. Empty when everything about it is free.
-
-**Kind**: inner method of [<code>JS API: data model policy</code>](#module_JS API_ data model policy)  
-**Returns**: <code>string</code> - 'storage', 'reporting', 'storage+reporting' or ''  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| policy | <code>\*</code> | Result of `attributePolicy`. |
-
-<a name="module_JS API_ data model policy..describe"></a>
-
-### JS API: data model policy~describe(where) ⇒ <code>string</code>
-Names the attribute a message is about.
-
-**Kind**: inner method of [<code>JS API: data model policy</code>](#module_JS API_ data model policy)  
-**Returns**: <code>string</code> - the subject of the sentence  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| where | <code>\*</code> | `{ attribute, cluster, side, endpoint }` |
-
-<a name="module_JS API_ data model policy..requirePolicyRespected"></a>
-
-### JS API: data model policy~requirePolicyRespected(policy, requested, where) ⇒ <code>undefined</code>
-Refuses an attribute change that contradicts the data model.
-
-**Kind**: inner method of [<code>JS API: data model policy</code>](#module_JS API_ data model policy)  
-**Returns**: <code>undefined</code> - nothing, throws when the change is not the user's to make  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| policy | <code>\*</code> | Result of `attributePolicy`. |
-| requested | <code>\*</code> | `{ storage, reporting }` as asked for, undefined where not asked for. |
-| where | <code>\*</code> | `{ attribute, cluster, side, endpoint }` for the message. |
-
-<a name="module_JS API_ data model policy..requireDefaultCanBeKept"></a>
-
-### JS API: data model policy~requireDefaultCanBeKept(requested, storage, policy, where) ⇒ <code>undefined</code>
-Refuses a default value where there is nowhere to keep one.
-
-External attributes are read and written by application code, so the user
-interface blanks and greys their default. For the ones the data model puts
-there the default is discarded outright when the configuration is read back.
-
-Clearing the default is still allowed, on the same reasoning as asking for
-the storage that is already fixed: a caller restating what is already so is
-not asking for anything. An attribute the data model lists under
-`keepDefault` keeps its default despite being External, so its default may
-be set as for any other attribute.
-
-**Kind**: inner method of [<code>JS API: data model policy</code>](#module_JS API_ data model policy)  
-**Returns**: <code>undefined</code> - nothing, throws when a default cannot be kept  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| requested | <code>\*</code> | The default value asked for, null to clear it. |
-| storage | <code>string</code> | The storage that applies once the change is made. |
-| policy | <code>\*</code> | Result of `attributePolicy`. |
-| where | <code>\*</code> | `{ attribute, cluster, side, endpoint }` for the message. |
-
-<a name="module_JS API_ data model policy..requireIncluded"></a>
-
-### JS API: data model policy~requireIncluded(included, fields, where) ⇒ <code>undefined</code>
-Refuses to configure an attribute that is not part of the configuration.
-
-Storage, singleton and bounded describe how an included attribute is kept.
-A default value may be prepared while the attribute is disabled, so it can
-be validated and will take effect if the attribute is later included.
-
-**Kind**: inner method of [<code>JS API: data model policy</code>](#module_JS API_ data model policy)  
-**Returns**: <code>undefined</code> - nothing, throws when the attribute is not included  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| included | <code>boolean</code> | Whether the attribute is included once the change is made. |
-| fields | <code>Array.&lt;string&gt;</code> | The fields being set. |
-| where | <code>\*</code> | `{ attribute, cluster, side, endpoint }` for the message. |
-
-<a name="module_JS API_ data model policy..requireToggleableFeature"></a>
-
-### JS API: data model policy~requireToggleableFeature(feature, cluster, endpoint) ⇒ <code>undefined</code>
-Refuses a feature toggle that the specification leaves no room for.
-
-**Kind**: inner method of [<code>JS API: data model policy</code>](#module_JS API_ data model policy)  
-**Returns**: <code>undefined</code> - nothing, throws for disallowed and deprecated features  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| feature | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| endpoint | <code>number</code> | Endpoint identifier. |
-
 <a name="module_JS API_ post-import."></a>
 
 ## JS API: post-import.
@@ -22089,424 +23598,6 @@ Stale or missing entries are removed from the database.
 | --- | --- | --- |
 | db | <code>\*</code> |  |
 | [maxAgeDays] | <code>number</code> | overrides the configured window |
-
-<a name="module_JS API_ entity resolution"></a>
-
-## JS API: entity resolution
-Turns human-friendly identifiers ("On/Off", "0x0006", "MA-onofflight") into
-the database rows the configuration engine works with. A command line passes
-flag values here; a post-load script passes the same strings; policy asks
-which ZCL packages belong to the session. Nothing here belongs to one front
-end.
-
-
-* [JS API: entity resolution](#module_JS API_ entity resolution)
-    * [~normalizeName(name)](#module_JS API_ entity resolution..normalizeName) ⇒ <code>string</code>
-    * [~parseCode(spec)](#module_JS API_ entity resolution..parseCode) ⇒ <code>number</code> \| <code>null</code>
-    * [~requireInteger(spec, what)](#module_JS API_ entity resolution..requireInteger) ⇒ <code>number</code>
-    * [~asHex(code, width)](#module_JS API_ entity resolution..asHex) ⇒ <code>string</code>
-    * [~exactlyOne(what, spec, matches, all, describe)](#module_JS API_ entity resolution..exactlyOne) ⇒ <code>\*</code>
-    * [~matchByNameOrCode(what, spec, all, describe, nameFields)](#module_JS API_ entity resolution..matchByNameOrCode) ⇒ <code>\*</code>
-    * [~allZclPackages(ctx)](#module_JS API_ entity resolution..allZclPackages) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~sameCategory(a, b)](#module_JS API_ entity resolution..sameCategory) ⇒ <code>boolean</code>
-    * [~sessionCategories(ctx)](#module_JS API_ entity resolution..sessionCategories) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
-    * [~zclPackages(ctx, [category])](#module_JS API_ entity resolution..zclPackages) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~zclPackageIds(ctx, [category])](#module_JS API_ entity resolution..zclPackageIds) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
-    * [~allDeviceTypes(ctx, [category])](#module_JS API_ entity resolution..allDeviceTypes) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~allClusters(ctx, [category])](#module_JS API_ entity resolution..allClusters) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~resolveDeviceType(ctx, spec, [category])](#module_JS API_ entity resolution..resolveDeviceType) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~resolveCluster(ctx, spec, [endpoint])](#module_JS API_ entity resolution..resolveCluster) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~clustersForEndpoint(ctx, endpoint)](#module_JS API_ entity resolution..clustersForEndpoint) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~packageIdsForEndpoint(ctx, endpoint)](#module_JS API_ entity resolution..packageIdsForEndpoint) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
-    * [~packageRefsOfEndpoint(ctx, endpoint)](#module_JS API_ entity resolution..packageRefsOfEndpoint) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
-    * [~endpointCategories(ctx, endpoint)](#module_JS API_ entity resolution..endpointCategories) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
-    * [~resolveAttribute(ctx, cluster, spec, side)](#module_JS API_ entity resolution..resolveAttribute) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~attributesOfCluster(ctx, cluster, side)](#module_JS API_ entity resolution..attributesOfCluster) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~resolveCommand(ctx, cluster, spec)](#module_JS API_ entity resolution..resolveCommand) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~commandsOfCluster(ctx, cluster)](#module_JS API_ entity resolution..commandsOfCluster) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~resolveEvent(ctx, cluster, spec)](#module_JS API_ entity resolution..resolveEvent) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~eventsOfCluster(ctx, cluster)](#module_JS API_ entity resolution..eventsOfCluster) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~resolveEndpoint(ctx, spec)](#module_JS API_ entity resolution..resolveEndpoint) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~expandSides(side)](#module_JS API_ entity resolution..expandSides) ⇒ <code>Array.&lt;string&gt;</code>
-
-<a name="module_JS API_ entity resolution..normalizeName"></a>
-
-### JS API: entity resolution~normalizeName(name) ⇒ <code>string</code>
-Reduces a name to a form that ignores the punctuation and casing differences
-between how a spec writes a name and how a person types it, so that `onoff`,
-`On/Off` and `ON_OFF` all compare equal.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>string</code> - normalized name  
-
-| Param | Type |
-| --- | --- |
-| name | <code>string</code> | 
-
-<a name="module_JS API_ entity resolution..parseCode"></a>
-
-### JS API: entity resolution~parseCode(spec) ⇒ <code>number</code> \| <code>null</code>
-Parses a numeric identifier, accepting decimal and 0x-prefixed hex.
-Returns null when the text is not purely numeric, which is how the resolvers
-tell a code apart from a name.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>number</code> \| <code>null</code> - the numeric value or null  
-
-| Param | Type |
-| --- | --- |
-| spec | <code>\*</code> | 
-
-<a name="module_JS API_ entity resolution..requireInteger"></a>
-
-### JS API: entity resolution~requireInteger(spec, what) ⇒ <code>number</code>
-Parses a required integer command line value, accepting decimal and hex.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>number</code> - parsed integer  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| spec | <code>\*</code> |  |
-| what | <code>string</code> | Name of the option, used in the error message. |
-
-<a name="module_JS API_ entity resolution..asHex"></a>
-
-### JS API: entity resolution~asHex(code, width) ⇒ <code>string</code>
-Formats a code the way ZCL documentation does, so that CLI output can be
-pasted straight back into a CLI argument.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>string</code> - hex string such as '0x0006'  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| code | <code>number</code> |  |  |
-| width | <code>number</code> | <code>4</code> | Number of hex digits. |
-
-<a name="module_JS API_ entity resolution..exactlyOne"></a>
-
-### JS API: entity resolution~exactlyOne(what, spec, matches, all, describe) ⇒ <code>\*</code>
-Picks the single match out of a candidate list, or raises a descriptive
-error when there are none or several.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>\*</code> - the single match  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| what | <code>string</code> |  |
-| spec | <code>string</code> |  |
-| matches | <code>Array</code> |  |
-| all | <code>Array</code> | Everything that was searched, used to build suggestions. |
-| describe | <code>function</code> | Renders one entry for the error message. |
-
-<a name="module_JS API_ entity resolution..matchByNameOrCode"></a>
-
-### JS API: entity resolution~matchByNameOrCode(what, spec, all, describe, nameFields) ⇒ <code>\*</code>
-Generic name-or-code lookup shared by every entity kind.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>\*</code> - the resolved entity  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| what | <code>string</code> |  |
-| spec | <code>\*</code> |  |
-| all | <code>Array</code> |  |
-| describe | <code>function</code> |  |
-| nameFields | <code>Array.&lt;string&gt;</code> | Object fields that hold a matchable name. |
-
-<a name="module_JS API_ entity resolution..allZclPackages"></a>
-
-### JS API: entity resolution~allZclPackages(ctx) ⇒ <code>Promise.&lt;Array&gt;</code>
-Every ZCL package attached to the session, regardless of category.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array&gt;</code> - array of package records  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> | CLI session context. |
-
-<a name="module_JS API_ entity resolution..sameCategory"></a>
-
-### JS API: entity resolution~sameCategory(a, b) ⇒ <code>boolean</code>
-True when two package category names refer to the same protocol.
-
-Callers write Matter and Zigbee as often as matter and zigbee; the
-comparison is case-insensitive so either form selects the same packages.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>boolean</code> - whether the names match  
-
-| Param | Type |
-| --- | --- |
-| a | <code>string</code> \| <code>null</code> \| <code>undefined</code> | 
-| b | <code>string</code> \| <code>null</code> \| <code>undefined</code> | 
-
-<a name="module_JS API_ entity resolution..sessionCategories"></a>
-
-### JS API: entity resolution~sessionCategories(ctx) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
-The categories the session spans. A multiprotocol configuration carries one
-per protocol, which is what makes `--category` necessary.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array.&lt;string&gt;&gt;</code> - category names  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-
-<a name="module_JS API_ entity resolution..zclPackages"></a>
-
-### JS API: entity resolution~zclPackages(ctx, [category]) ⇒ <code>Promise.&lt;Array&gt;</code>
-The ZCL packages attached to the session, narrowed to a single category when
-one was asked for. Categories are how ZAP separates, for example, the Zigbee
-and the Matter halves of a multiprotocol configuration.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array&gt;</code> - array of package records  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| ctx | <code>\*</code> |  | CLI session context. |
-| [category] | <code>string</code> | <code>null</code> | Overrides the category on the context. |
-
-<a name="module_JS API_ entity resolution..zclPackageIds"></a>
-
-### JS API: entity resolution~zclPackageIds(ctx, [category]) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
-Returns the ZCL package ids that are attached to the session.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array.&lt;number&gt;&gt;</code> - package ids  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  | 
-| [category] | <code>string</code> | <code>null</code> | 
-
-<a name="module_JS API_ entity resolution..allDeviceTypes"></a>
-
-### JS API: entity resolution~allDeviceTypes(ctx, [category]) ⇒ <code>Promise.&lt;Array&gt;</code>
-Every device type visible to the session.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array&gt;</code> - device types  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  | 
-| [category] | <code>string</code> | <code>null</code> | 
-
-<a name="module_JS API_ entity resolution..allClusters"></a>
-
-### JS API: entity resolution~allClusters(ctx, [category]) ⇒ <code>Promise.&lt;Array&gt;</code>
-Every cluster visible to the session.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array&gt;</code> - clusters  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  | 
-| [category] | <code>string</code> | <code>null</code> | 
-
-<a name="module_JS API_ entity resolution..resolveDeviceType"></a>
-
-### JS API: entity resolution~resolveDeviceType(ctx, spec, [category]) ⇒ <code>Promise.&lt;\*&gt;</code>
-Resolves `--device-type`.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the device type  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| ctx | <code>\*</code> |  |  |
-| spec | <code>\*</code> |  | Name or code. |
-| [category] | <code>string</code> | <code>null</code> |  |
-
-<a name="module_JS API_ entity resolution..resolveCluster"></a>
-
-### JS API: entity resolution~resolveCluster(ctx, spec, [endpoint]) ⇒ <code>Promise.&lt;\*&gt;</code>
-Resolves `--cluster`. When an endpoint is in play the search is limited to
-the packages that the endpoint's device types come from, which keeps
-multiprotocol configurations unambiguous.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the cluster  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| ctx | <code>\*</code> |  |  |
-| spec | <code>\*</code> |  | Name, define or code. |
-| [endpoint] | <code>\*</code> | <code></code> | Endpoint record used to narrow the package set. |
-
-<a name="module_JS API_ entity resolution..clustersForEndpoint"></a>
-
-### JS API: entity resolution~clustersForEndpoint(ctx, endpoint) ⇒ <code>Promise.&lt;Array&gt;</code>
-The clusters that are meaningful for a given endpoint, that is the ones
-defined by the same packages as the endpoint's device types.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array&gt;</code> - clusters  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| endpoint | <code>\*</code> | 
-
-<a name="module_JS API_ entity resolution..packageIdsForEndpoint"></a>
-
-### JS API: entity resolution~packageIdsForEndpoint(ctx, endpoint) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
-The ZCL package ids relevant to a single endpoint. Falls back to every
-session package when the endpoint has no resolvable device type.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array.&lt;number&gt;&gt;</code> - package ids  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| endpoint | <code>\*</code> | 
-
-<a name="module_JS API_ entity resolution..packageRefsOfEndpoint"></a>
-
-### JS API: entity resolution~packageRefsOfEndpoint(ctx, endpoint) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
-The ZCL packages an endpoint's device types are defined by.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array.&lt;number&gt;&gt;</code> - package ids  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| endpoint | <code>\*</code> | 
-
-<a name="module_JS API_ entity resolution..endpointCategories"></a>
-
-### JS API: entity resolution~endpointCategories(ctx, endpoint) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
-The categories an endpoint belongs to, taken from the packages that define
-its device types. In a multiprotocol configuration this is what tells the
-Zigbee endpoint 1 apart from the Matter endpoint 1.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array.&lt;string&gt;&gt;</code> - category names  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| endpoint | <code>\*</code> | 
-
-<a name="module_JS API_ entity resolution..resolveAttribute"></a>
-
-### JS API: entity resolution~resolveAttribute(ctx, cluster, spec, side) ⇒ <code>Promise.&lt;\*&gt;</code>
-Resolves `--attribute` within a cluster. Global attributes such as
-ClusterRevision are included, matching what the GUI shows.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the attribute  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| spec | <code>\*</code> | Name, define or code. |
-| side | <code>string</code> | 'client' or 'server'. |
-
-<a name="module_JS API_ entity resolution..attributesOfCluster"></a>
-
-### JS API: entity resolution~attributesOfCluster(ctx, cluster, side) ⇒ <code>Promise.&lt;Array&gt;</code>
-All attributes of a cluster on one side, including global attributes.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array&gt;</code> - attributes  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-| side | <code>string</code> | 
-
-<a name="module_JS API_ entity resolution..resolveCommand"></a>
-
-### JS API: entity resolution~resolveCommand(ctx, cluster, spec) ⇒ <code>Promise.&lt;\*&gt;</code>
-Resolves `--command` within a cluster.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the command  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| spec | <code>\*</code> | Name or code. |
-
-<a name="module_JS API_ entity resolution..commandsOfCluster"></a>
-
-### JS API: entity resolution~commandsOfCluster(ctx, cluster) ⇒ <code>Promise.&lt;Array&gt;</code>
-All commands of a cluster.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array&gt;</code> - commands  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-
-<a name="module_JS API_ entity resolution..resolveEvent"></a>
-
-### JS API: entity resolution~resolveEvent(ctx, cluster, spec) ⇒ <code>Promise.&lt;\*&gt;</code>
-Resolves `--event` within a cluster.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the event  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| spec | <code>\*</code> | Name or code. |
-
-<a name="module_JS API_ entity resolution..eventsOfCluster"></a>
-
-### JS API: entity resolution~eventsOfCluster(ctx, cluster) ⇒ <code>Promise.&lt;Array&gt;</code>
-All events of a cluster.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;Array&gt;</code> - events  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-
-<a name="module_JS API_ entity resolution..resolveEndpoint"></a>
-
-### JS API: entity resolution~resolveEndpoint(ctx, spec) ⇒ <code>Promise.&lt;\*&gt;</code>
-Resolves `--endpoint`, which always refers to the endpoint identifier that
-the user sees in the GUI and in generated code, never to a database row id.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the endpoint  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| spec | <code>\*</code> | 
-
-<a name="module_JS API_ entity resolution..expandSides"></a>
-
-### JS API: entity resolution~expandSides(side) ⇒ <code>Array.&lt;string&gt;</code>
-Expands a `--side` value into the list of sides it stands for.
-
-**Kind**: inner method of [<code>JS API: entity resolution</code>](#module_JS API_ entity resolution)  
-**Returns**: <code>Array.&lt;string&gt;</code> - concrete sides  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| side | <code>string</code> | 'client', 'server' or 'both'. |
 
 <a name="module_JS API_ SDK arguments"></a>
 
@@ -22745,668 +23836,6 @@ Notifications raised for packages attached to a configuration.
 | Param | Type |
 | --- | --- |
 | ctx | <code>\*</code> | 
-
-<a name="module_Configuration API_ session edits"></a>
-
-## Configuration API: session edits
-Edits to a session used by the CLI and post-load scripts.
-
-The configuration commands (`zap cluster enable`) and the post-load scripts
-(`--postImportScript`, SDK upgrade rules) both change a session without the
-browser. Everything that decides whether an edit is allowed, and what else
-it brings along, lives here so that the two cannot drift apart: the storage
-and reporting policy of the data model, the rule that a Matter cluster
-enabled as a client only has no configuration page, the defaults a cluster
-receives when it is first enabled, and the conformance consequences of a
-feature toggle.
-
-The command line and post-load scripts use this module for the same lookups,
-policy checks and writes. Resolution uses name-and-code matching, so
-`On/Off`, `ON_OFF` and `0x0006` name one cluster. Refusals are thrown as
-`OperationError` for the caller to present.
-
-The context is `{ db, sessionId, category }`. `category` narrows the ZCL
-packages in a multiprotocol configuration and may be null. Lookups are
-cached on the context for the duration of a run.
-
-
-* [Configuration API: session edits](#module_Configuration API_ session edits)
-    * [~optionalBoolean(value)](#module_Configuration API_ session edits..optionalBoolean) ⇒ <code>boolean</code> \| <code>undefined</code>
-    * [~storageOption(value)](#module_Configuration API_ session edits..storageOption) ⇒ <code>string</code> \| <code>undefined</code>
-    * [~zclPackageIds(ctx)](#module_Configuration API_ session edits..zclPackageIds) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
-    * [~sessionZclPackageIds(db, sessionId)](#module_Configuration API_ session edits..sessionZclPackageIds) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
-    * [~isClusterSideEnabled(ctx, endpoint, cluster, side)](#module_Configuration API_ session edits..isClusterSideEnabled) ⇒ <code>Promise.&lt;boolean&gt;</code>
-    * [~requireClusterSideEnabled(ctx, endpoint, cluster, side, [remedy])](#module_Configuration API_ session edits..requireClusterSideEnabled) ⇒ <code>Promise</code>
-    * [~requireClusterConfigurable(ctx, endpoint, cluster, [remedy])](#module_Configuration API_ session edits..requireClusterConfigurable) ⇒ <code>Promise</code>
-    * [~writeClusterState(db, endpointTypeId, clusterId, side, enabled, packageIds)](#module_Configuration API_ session edits..writeClusterState) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~setClusterSideEnabled(ctx, endpoint, cluster, side, enabled)](#module_Configuration API_ session edits..setClusterSideEnabled) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~attributeState(ctx, endpoint, cluster, attribute)](#module_Configuration API_ session edits..attributeState) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~requireAttributeChangeAllowed(ctx, endpoint, cluster, side, attribute, requested)](#module_Configuration API_ session edits..requireAttributeChangeAllowed) ⇒ <code>Promise.&lt;undefined&gt;</code>
-    * [~attributeUpdates(attribute, changes)](#module_Configuration API_ session edits..attributeUpdates) ⇒ <code>\*</code>
-    * [~isFeatureMap(attribute)](#module_Configuration API_ session edits..isFeatureMap) ⇒ <code>boolean</code>
-    * [~setAttribute(ctx, endpoint, cluster, side, attribute, changes)](#module_Configuration API_ session edits..setAttribute) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~commandSide(command, isIncoming)](#module_Configuration API_ session edits..commandSide) ⇒ <code>string</code>
-    * [~describeUnwritableDirection(command, isIncoming)](#module_Configuration API_ session edits..describeUnwritableDirection) ⇒ <code>\*</code>
-    * [~setCommandEnabled(ctx, endpoint, cluster, command, isIncoming, enabled, [remedy])](#module_Configuration API_ session edits..setCommandEnabled) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~setEventEnabled(ctx, endpoint, cluster, event, side, enabled, [remedy])](#module_Configuration API_ session edits..setEventEnabled) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~featuresOfCluster(ctx, endpoint, cluster)](#module_Configuration API_ session edits..featuresOfCluster) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [~featureMapAttribute(ctx, endpoint, cluster)](#module_Configuration API_ session edits..featureMapAttribute) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~requireFeatureMapIncluded(endpoint, cluster, map, [remedy])](#module_Configuration API_ session edits..requireFeatureMapIncluded) ⇒ <code>undefined</code>
-    * [~featureMapFromValue(features, value)](#module_Configuration API_ session edits..featureMapFromValue) ⇒ <code>\*</code>
-    * [~matchFeature(spec, features)](#module_Configuration API_ session edits..matchFeature) ⇒ <code>\*</code>
-    * [~previewFeatureChange(ctx, endpoint, cluster, feature, enabled)](#module_Configuration API_ session edits..previewFeatureChange) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~setFeatureEnabled()](#module_Configuration API_ session edits..setFeatureEnabled)
-    * [~updateRequiredElementWarnings()](#module_Configuration API_ session edits..updateRequiredElementWarnings)
-
-<a name="module_Configuration API_ session edits..optionalBoolean"></a>
-
-### Configuration API: session edits~optionalBoolean(value) ⇒ <code>boolean</code> \| <code>undefined</code>
-Reads an optional boolean, tolerating the string forms that show up in
-batch scripts and in the parameter arrays post-load scripts pass.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>boolean</code> \| <code>undefined</code> - the boolean, or undefined when unset  
-
-| Param | Type |
-| --- | --- |
-| value | <code>\*</code> | 
-
-<a name="module_Configuration API_ session edits..storageOption"></a>
-
-### Configuration API: session edits~storageOption(value) ⇒ <code>string</code> \| <code>undefined</code>
-Reads a storage option as the data model spells it, from whatever case the
-caller used.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>string</code> \| <code>undefined</code> - the option, or undefined when unset  
-
-| Param | Type |
-| --- | --- |
-| value | <code>\*</code> | 
-
-<a name="module_Configuration API_ session edits..zclPackageIds"></a>
-
-### Configuration API: session edits~zclPackageIds(ctx) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
-The ZCL packages attached to a session, as ids. This is what cluster
-defaults are drawn from when a cluster is first enabled.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;Array.&lt;number&gt;&gt;</code> - package ids  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-
-<a name="module_Configuration API_ session edits..sessionZclPackageIds"></a>
-
-### Configuration API: session edits~sessionZclPackageIds(db, sessionId) ⇒ <code>Promise.&lt;Array.&lt;number&gt;&gt;</code>
-The ZCL packages attached to a session, without a context. The HTTP layer
-has a session id and nothing else when the cluster checkbox is ticked.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;Array.&lt;number&gt;&gt;</code> - package ids  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| sessionId | <code>\*</code> | 
-
-<a name="module_Configuration API_ session edits..isClusterSideEnabled"></a>
-
-### Configuration API: session edits~isClusterSideEnabled(ctx, endpoint, cluster, side) ⇒ <code>Promise.&lt;boolean&gt;</code>
-True when a cluster side is enabled on an endpoint.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;boolean&gt;</code> - whether the side is enabled  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| endpoint | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-| side | <code>string</code> | 
-
-<a name="module_Configuration API_ session edits..requireClusterSideEnabled"></a>
-
-### Configuration API: session edits~requireClusterSideEnabled(ctx, endpoint, cluster, side, [remedy]) ⇒ <code>Promise</code>
-Refuses to touch an element of a cluster side that is not enabled.
-
-The saved file format only keeps the elements of enabled clusters, so such
-an edit would be silently discarded on the next save. The user interface
-avoids the problem by only offering the element checkboxes of clusters that
-are switched on; here we say so out loud instead.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise</code> - resolves when the side is enabled, throws otherwise  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  |
-| endpoint | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| side | <code>string</code> |  |
-| [remedy] | <code>Array.&lt;string&gt;</code> | Lines naming what would work, for the caller to supply. |
-
-<a name="module_Configuration API_ session edits..requireClusterConfigurable"></a>
-
-### Configuration API: session edits~requireClusterConfigurable(ctx, endpoint, cluster, [remedy]) ⇒ <code>Promise</code>
-Refuses to open the element surface of a Matter cluster that is enabled as
-a client only.
-
-The user interface greys out Configure in exactly this case
-(`enableServerOnly`, which is the Matter features flag): a Matter client
-cluster has no attributes, commands, events or features page. Zigbee does
-not have that restriction, and a Matter cluster that also has its server
-side on is configurable as usual. Matching the selected endpoint's category
-is what keeps multiprotocol honest — a Zigbee endpoint in the same file is
-left alone.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise</code> - resolves when the cluster is configurable, throws otherwise  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  |
-| endpoint | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| [remedy] | <code>Array.&lt;string&gt;</code> | Lines naming what would work, for the caller to supply. |
-
-<a name="module_Configuration API_ session edits..writeClusterState"></a>
-
-### Configuration API: session edits~writeClusterState(db, endpointTypeId, clusterId, side, enabled, packageIds) ⇒ <code>Promise.&lt;\*&gt;</code>
-Enables or disables one side of a cluster on an endpoint type.
-
-The first time that side is enabled, the cluster's default attributes and
-non-optional commands are inserted. That is the sequence run when the user
-interface ticks the cluster checkbox. A side that is being turned off, and
-has no row yet, is recorded as disabled and does not receive those defaults.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the result of writing the cluster state row  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> |  |
-| endpointTypeId | <code>\*</code> |  |
-| clusterId | <code>\*</code> |  |
-| side | <code>string</code> |  |
-| enabled | <code>boolean</code> |  |
-| packageIds | <code>\*</code> | ZCL packages the defaults are drawn from. |
-
-<a name="module_Configuration API_ session edits..setClusterSideEnabled"></a>
-
-### Configuration API: session edits~setClusterSideEnabled(ctx, endpoint, cluster, side, enabled) ⇒ <code>Promise.&lt;\*&gt;</code>
-Enables or disables one side of a cluster on an endpoint, with the defaults
-the user interface inserts on first enable.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the result of writing the cluster state row  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| endpoint | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-| side | <code>string</code> | 
-| enabled | <code>boolean</code> | 
-
-<a name="module_Configuration API_ session edits..attributeState"></a>
-
-### Configuration API: session edits~attributeState(ctx, endpoint, cluster, attribute) ⇒ <code>Promise.&lt;\*&gt;</code>
-How one attribute is currently configured on an endpoint, or null when the
-configuration has nothing recorded about it.
-
-The attribute reference is enough to name it precisely, including for the
-global attributes that belong to every cluster: those are defined once per
-side, so FeatureMap on the server and FeatureMap on the client are two
-attributes and not one asked about twice.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the endpoint type attribute, or null  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| endpoint | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-| attribute | <code>\*</code> | 
-
-<a name="module_Configuration API_ session edits..requireAttributeChangeAllowed"></a>
-
-### Configuration API: session edits~requireAttributeChangeAllowed(ctx, endpoint, cluster, side, attribute, requested) ⇒ <code>Promise.&lt;undefined&gt;</code>
-Refuses the attribute changes the user interface does not offer.
-
-Three kinds of thing are checked, all of them things the interface expresses
-by greying a control out. Storage and reporting can be fixed by the data
-model. An external attribute has nowhere to keep a default value. And how an
-attribute is kept only means anything once the attribute is included.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;undefined&gt;</code> - nothing, throws when a change is not the caller's to make  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  |
-| endpoint | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| side | <code>string</code> |  |
-| attribute | <code>\*</code> |  |
-| requested | <code>\*</code> | `{ enabled, storage, reporting, default, singleton, bounded }`, undefined per field where not asked for. |
-
-<a name="module_Configuration API_ session edits..attributeUpdates"></a>
-
-### Configuration API: session edits~attributeUpdates(attribute, changes) ⇒ <code>\*</code>
-Turns a set of attribute changes into the column updates that record them,
-checking each value against the attribute on the way.
-
-`changes` may carry any of `enabled`, `default`, `storage`, `singleton`,
-`bounded`, `reporting`, `minInterval`, `maxInterval` and `reportableChange`.
-A field that is undefined is left alone. `default` may be null, or the
-string 'null', to clear the value of a nullable attribute.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>\*</code> - `{ updates, described, requested }`: the key/value pairs to
-  write, one phrase per change, and the normalized request for the policy  
-
-| Param | Type |
-| --- | --- |
-| attribute | <code>\*</code> | 
-| changes | <code>\*</code> | 
-
-<a name="module_Configuration API_ session edits..isFeatureMap"></a>
-
-### Configuration API: session edits~isFeatureMap(attribute) ⇒ <code>boolean</code>
-True for the FeatureMap attribute, whose value is the cluster's feature
-selection.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>boolean</code> - whether this is FeatureMap  
-
-| Param | Type |
-| --- | --- |
-| attribute | <code>\*</code> | 
-
-<a name="module_Configuration API_ session edits..setAttribute"></a>
-
-### Configuration API: session edits~setAttribute(ctx, endpoint, cluster, side, attribute, changes) ⇒ <code>Promise.&lt;\*&gt;</code>
-Applies any combination of attribute settings to one attribute on one
-endpoint, refusing what the user interface would grey out.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ described, warnings }`: one phrase per change made,
-  and anything worth knowing that did not stop the write  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  |
-| endpoint | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| side | <code>string</code> |  |
-| attribute | <code>\*</code> | The attribute definition, as the ZCL queries return it. |
-| changes | <code>\*</code> | See `attributeUpdates`. |
-
-<a name="module_Configuration API_ session edits..commandSide"></a>
-
-### Configuration API: session edits~commandSide(command, isIncoming) ⇒ <code>string</code>
-The cluster side a command direction is recorded against. A command the
-device sends belongs to the side that is its source; one it receives belongs
-to the opposite side.
-
-This deliberately mirrors the calculation inside `insertOrUpdateCommandState`
-so that the side checked before writing is the side actually written to. It
-inherits one quirk from it: a command declared with source `either` has no
-opposite, so the outgoing direction lands on `either`, which is not a side a
-cluster can have. `describeUnwritableDirection` explains that rather than
-letting the caller puzzle over it.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>string</code> - the cluster side, or the command source when it has none  
-
-| Param | Type |
-| --- | --- |
-| command | <code>\*</code> | 
-| isIncoming | <code>boolean</code> | 
-
-<a name="module_Configuration API_ session edits..describeUnwritableDirection"></a>
-
-### Configuration API: session edits~describeUnwritableDirection(command, isIncoming) ⇒ <code>\*</code>
-Explains a direction that cannot be recorded at all, as opposed to one whose
-cluster side merely happens to be switched off.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>\*</code> - a OperationError, or null when the direction is expressible  
-
-| Param | Type |
-| --- | --- |
-| command | <code>\*</code> | 
-| isIncoming | <code>boolean</code> | 
-
-<a name="module_Configuration API_ session edits..setCommandEnabled"></a>
-
-### Configuration API: session edits~setCommandEnabled(ctx, endpoint, cluster, command, isIncoming, enabled, [remedy]) ⇒ <code>Promise.&lt;\*&gt;</code>
-Enables or disables a command in one direction on an endpoint, refusing a
-direction that has no cluster side to be recorded against or whose side is
-not enabled.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the result of writing the command state  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  |
-| endpoint | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| command | <code>\*</code> |  |
-| isIncoming | <code>boolean</code> |  |
-| enabled | <code>boolean</code> |  |
-| [remedy] | <code>Array.&lt;string&gt;</code> | Lines naming how to enable the side, for the caller to supply. |
-
-<a name="module_Configuration API_ session edits..setEventEnabled"></a>
-
-### Configuration API: session edits~setEventEnabled(ctx, endpoint, cluster, event, side, enabled, [remedy]) ⇒ <code>Promise.&lt;\*&gt;</code>
-Enables or disables an event on an endpoint, refusing an event of a cluster
-side that is not enabled.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - the result of writing the event state  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  |
-| endpoint | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| event | <code>\*</code> |  |
-| side | <code>string</code> |  |
-| enabled | <code>boolean</code> |  |
-| [remedy] | <code>Array.&lt;string&gt;</code> | Lines naming how to enable the side, for the caller to supply. |
-
-<a name="module_Configuration API_ session edits..featuresOfCluster"></a>
-
-### Configuration API: session edits~featuresOfCluster(ctx, endpoint, cluster) ⇒ <code>Promise.&lt;Array&gt;</code>
-The features a cluster defines, as they apply to one endpoint.
-
-A feature's conformance can be overridden by the endpoint's device type:
-Lighting is conditional on On/Off in general and mandatory on a Dimmable
-Light. The device type's view is what the user interface shows and what the
-conformance checker needs, so it is what is returned, with the cluster's own
-conformance kept alongside.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;Array&gt;</code> - features, in bit order  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| endpoint | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-
-<a name="module_Configuration API_ session edits..featureMapAttribute"></a>
-
-### Configuration API: session edits~featureMapAttribute(ctx, endpoint, cluster) ⇒ <code>Promise.&lt;\*&gt;</code>
-Finds the FeatureMap attribute of a cluster and its state on an endpoint.
-Features are represented as bits of this attribute's value.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ definition, state, value, included }`  
-
-| Param | Type |
-| --- | --- |
-| ctx | <code>\*</code> | 
-| endpoint | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-
-<a name="module_Configuration API_ session edits..requireFeatureMapIncluded"></a>
-
-### Configuration API: session edits~requireFeatureMapIncluded(endpoint, cluster, map, [remedy]) ⇒ <code>undefined</code>
-Refuses a feature change that could not be recorded.
-
-A feature is a bit of the FeatureMap attribute's value, and the saved file
-format only keeps attributes that are part of the configuration. Toggling a
-feature while that attribute is excluded looks like it works and is gone by
-the next load, so it is refused instead.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>undefined</code> - nothing, throws when the change could not be kept  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| endpoint | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| map | <code>\*</code> | Result of `featureMapAttribute`. |
-| [remedy] | <code>Array.&lt;string&gt;</code> | Lines naming how to enable the attribute, for the caller to supply. |
-
-<a name="module_Configuration API_ session edits..featureMapFromValue"></a>
-
-### Configuration API: session edits~featureMapFromValue(features, value) ⇒ <code>\*</code>
-Builds the `{ featureCode: boolean }` map the conformance checker works
-with, out of a FeatureMap value.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>\*</code> - the feature map  
-
-| Param | Type |
-| --- | --- |
-| features | <code>Array</code> | 
-| value | <code>number</code> | 
-
-<a name="module_Configuration API_ session edits..matchFeature"></a>
-
-### Configuration API: session edits~matchFeature(spec, features) ⇒ <code>\*</code>
-Picks a feature out of a cluster's list. Feature codes are short letter
-codes such as LT rather than numbers, so a bare number is read as a bit
-position; a name matches too.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>\*</code> - the feature  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| spec | <code>\*</code> | Code, name or bit. |
-| features | <code>Array</code> | Result of `featuresOfCluster`. |
-
-<a name="module_Configuration API_ session edits..previewFeatureChange"></a>
-
-### Configuration API: session edits~previewFeatureChange(ctx, endpoint, cluster, feature, enabled) ⇒ <code>Promise.&lt;\*&gt;</code>
-Enables or disables a cluster feature on an endpoint.
-
-A feature is a bit of the FeatureMap attribute, but flipping that bit is
-only part of the job: the conformance rules decide which attributes,
-commands and events have to come with it, and can refuse the change
-outright. This runs the same conformance check the user interface runs
-before it opens its confirmation dialog, and then applies what the check
-says, which is what pressing Confirm does.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ changed, map, newValue, conformance, elements }`
-  where `applied` lists `{ kind, name, value }` for every element the
-  conformance rules changed alongside the feature  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> |  |
-| endpoint | <code>\*</code> |  |
-| cluster | <code>\*</code> |  |
-| feature | <code>\*</code> | One of `featuresOfCluster`. |
-| enabled | <code>boolean</code> |  |
-
-<a name="module_Configuration API_ session edits..setFeatureEnabled"></a>
-
-### Configuration API: session edits~setFeatureEnabled()
-Applies a previewed feature change to its endpoint type.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-<a name="module_Configuration API_ session edits..updateRequiredElementWarnings"></a>
-
-### Configuration API: session edits~updateRequiredElementWarnings()
-Keep the feature-related required/unsupported warnings in sync with the writes.
-
-**Kind**: inner method of [<code>Configuration API: session edits</code>](#module_Configuration API_ session edits)  
-<a name="module_JS API_ shared cluster state"></a>
-
-## JS API: shared cluster state
-Unifying the attribute and command states of a cluster that more than one
-endpoint enables.
-
-In Zigbee the configuration of a cluster is a single global entity: if the
-Basic cluster is on three endpoints, the attributes and commands it includes
-are the same on all three, and the framework stores one copy. ZAP's tables
-are per endpoint type, so that shape has to be enforced rather than assumed:
-after a change, every endpoint type that enables a shared cluster is aligned
-to the first matching entry.
-
-Matter is the opposite and needs none of this, since an attribute there is
-genuinely per endpoint. Which behaviour applies is a property of the data
-model, declared by the `shareClusterStatesAcrossEndpoints` generator option,
-so nothing here decides it by looking at names.
-
-The CLI operation runner reconciles this after each committed operation;
-post-load scripts reconcile after applying their batch. Both call this same
-function so their saved state cannot drift apart.
-
-
-* [JS API: shared cluster state](#module_JS API_ shared cluster state)
-    * [~sharingCategories(db, sessionId)](#module_JS API_ shared cluster state..sharingCategories) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
-    * [~isSharingEnabled(db, sessionId)](#module_JS API_ shared cluster state..isSharingEnabled) ⇒ <code>Promise.&lt;boolean&gt;</code>
-    * [~shareClusterStatesAcrossEndpoints(db, endpointTypeIdList, packageIds)](#module_JS API_ shared cluster state..shareClusterStatesAcrossEndpoints) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~commandDefaults(db, endpointTypeIdList, sharedClusterList, packageIds)](#module_JS API_ shared cluster state..commandDefaults) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~writeCommandDefaults(db, defaults)](#module_JS API_ shared cluster state..writeCommandDefaults) ⇒ <code>Promise</code>
-    * [~attributeDefaults(db, endpointTypeIdList, sharedClusterList, packageIds)](#module_JS API_ shared cluster state..attributeDefaults) ⇒ <code>Promise.&lt;\*&gt;</code>
-    * [~writeAttributeDefaults(db, defaults)](#module_JS API_ shared cluster state..writeAttributeDefaults) ⇒ <code>Promise</code>
-    * [~commandEquals(a, b)](#module_JS API_ shared cluster state..commandEquals) ⇒ <code>boolean</code>
-    * [~attributeEquals(a, b)](#module_JS API_ shared cluster state..attributeEquals) ⇒ <code>boolean</code>
-
-<a name="module_JS API_ shared cluster state..sharingCategories"></a>
-
-### JS API: shared cluster state~sharingCategories(db, sessionId) ⇒ <code>Promise.&lt;Array.&lt;string&gt;&gt;</code>
-The package categories that asked for cluster states to be shared across
-endpoints, lowercased.
-
-This is the same question the user interface asks before it unifies anything:
-a generator option declared by the templates, which the Zigbee ones set and
-the Matter ones do not. Reporting it per category is what lets a caller leave
-the Matter half of a multiprotocol configuration alone.
-
-A package with no category still counts, under an empty name, so a data model
-that declares the option without naming itself is not silently ignored.
-
-**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
-**Returns**: <code>Promise.&lt;Array.&lt;string&gt;&gt;</code> - category names that share cluster states  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| sessionId | <code>number</code> | 
-
-<a name="module_JS API_ shared cluster state..isSharingEnabled"></a>
-
-### JS API: shared cluster state~isSharingEnabled(db, sessionId) ⇒ <code>Promise.&lt;boolean&gt;</code>
-Whether anything in this session wants cluster states shared across
-endpoints.
-
-**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
-**Returns**: <code>Promise.&lt;boolean&gt;</code> - whether sharing applies  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| sessionId | <code>number</code> | 
-
-<a name="module_JS API_ shared cluster state..shareClusterStatesAcrossEndpoints"></a>
-
-### JS API: shared cluster state~shareClusterStatesAcrossEndpoints(db, endpointTypeIdList, packageIds) ⇒ <code>Promise.&lt;\*&gt;</code>
-Aligns the attribute and command states of every cluster that more than one
-of the given endpoint types enables.
-
-**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - `{ sharedClusterList, sharedAttributeDefaults }`  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> |  |
-| endpointTypeIdList | <code>Array.&lt;number&gt;</code> | Endpoint types to align with each other. |
-| packageIds | <code>Array.&lt;number&gt;</code> | ZCL packages in scope. |
-
-<a name="module_JS API_ shared cluster state..commandDefaults"></a>
-
-### JS API: shared cluster state~commandDefaults(db, endpointTypeIdList, sharedClusterList, packageIds) ⇒ <code>Promise.&lt;\*&gt;</code>
-Get shared command defaults across endpoints.
-
-**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - sharedCmdDefaults  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| endpointTypeIdList | <code>\*</code> | 
-| sharedClusterList | <code>\*</code> | 
-| packageIds | <code>\*</code> | 
-
-<a name="module_JS API_ shared cluster state..writeCommandDefaults"></a>
-
-### JS API: shared cluster state~writeCommandDefaults(db, defaults) ⇒ <code>Promise</code>
-Insert command defaults into the database.
-
-**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
-**Returns**: <code>Promise</code> - promise of written command states  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| defaults | <code>\*</code> | 
-
-<a name="module_JS API_ shared cluster state..attributeDefaults"></a>
-
-### JS API: shared cluster state~attributeDefaults(db, endpointTypeIdList, sharedClusterList, packageIds) ⇒ <code>Promise.&lt;\*&gt;</code>
-Shared attribute defaults across endpoints.
-
-**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - sharedAttributeDefaults  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| endpointTypeIdList | <code>\*</code> | 
-| sharedClusterList | <code>\*</code> | 
-| packageIds | <code>\*</code> | 
-
-<a name="module_JS API_ shared cluster state..writeAttributeDefaults"></a>
-
-### JS API: shared cluster state~writeAttributeDefaults(db, defaults) ⇒ <code>Promise</code>
-Write attribute defaults.
-
-**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
-**Returns**: <code>Promise</code> - promise of written attribute states  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| defaults | <code>\*</code> | 
-
-<a name="module_JS API_ shared cluster state..commandEquals"></a>
-
-### JS API: shared cluster state~commandEquals(a, b) ⇒ <code>boolean</code>
-Compares 2 commands for equality.
-
-**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
-**Returns**: <code>boolean</code> - whether the two describe the same command  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| b | <code>\*</code> | 
-
-<a name="module_JS API_ shared cluster state..attributeEquals"></a>
-
-### JS API: shared cluster state~attributeEquals(a, b) ⇒ <code>boolean</code>
-Compares 2 attributes for equality.
-
-**Kind**: inner method of [<code>JS API: shared cluster state</code>](#module_JS API_ shared cluster state)  
-**Returns**: <code>boolean</code> - whether the two describe the same attribute  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| b | <code>\*</code> | 
 
 <a name="module_JS API_ string utilities"></a>
 
@@ -33868,13 +34297,6 @@ Promises to perform a post loading step.
 | db | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
-<a name="configuration"></a>
-
-## configuration
-Internal application API. Transport adapters should depend on these domain
-services rather than dispatching configuration operations themselves.
-
-**Kind**: global variable  
 <a name="operations"></a>
 
 ## operations

@@ -22,18 +22,25 @@
  */
 
 /**
- * An error that is caused by bad user input rather than by a bug. These are
- * reported as a plain message without a stack trace.
+ * A refusal: the request was understood and cannot be honoured as asked.
+ * Reported as a plain message without a stack trace.
+ *
+ * `hints` are prose for a person. `remedies` are the operations that would
+ * make the request possible, as `{ op, params }` steps (see `outcome.step`),
+ * so that each interface renders them its own way: the command line as a
+ * paste-able command, the HTTP layer as data, a script as a call.
  */
 class OperationError extends Error {
   /**
    * @param {string} message
    * @param {string[]} hints Additional lines printed under the message.
+   * @param {Array} remedies Operations that would make the request possible.
    */
-  constructor(message, hints = []) {
+  constructor(message, hints = [], remedies = []) {
     super(message)
     this.name = 'OperationError'
     this.hints = hints
+    this.remedies = remedies
   }
 }
 

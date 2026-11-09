@@ -27,17 +27,17 @@
  * whenever a configuration is read back in, so a write that disagrees with
  * them does not survive the round trip.
  *
- * CLI and post-load edits reach these rules through `session-edit`, and
- * listings read them directly to say which fields are fixed. Refusals carry the
- * policy reason; the CLI adds command-line guidance when it presents them.
+ * Edits reach these rules through `session-edit`, and listings read them
+ * directly to say which fields are fixed. Refusals carry the policy reason;
+ * each interface presents them its own way.
  *
- * @module JS API: data model policy
+ * @module Configuration API: data model policy
  */
 
 const dbEnum = require('../../src-shared/db-enum.js')
 const matterSdk = require('../sdk/matter.js')
 const resolver = require('./resolver.js')
-const operationError = require('./operation-error.js')
+const operationError = require('./errors.js')
 
 const OperationError = operationError.OperationError
 

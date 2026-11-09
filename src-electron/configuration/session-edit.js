@@ -16,21 +16,21 @@
  */
 
 /**
- * Edits to a session used by the CLI and post-load scripts.
+ * The write sequence of a configuration edit, and the rules that gate it.
  *
- * The configuration commands (`zap cluster enable`) and the post-load scripts
- * (`--postImportScript`, SDK upgrade rules) both change a session without the
- * browser. Everything that decides whether an edit is allowed, and what else
- * it brings along, lives here so that the two cannot drift apart: the storage
- * and reporting policy of the data model, the rule that a Matter cluster
- * enabled as a client only has no configuration page, the defaults a cluster
- * receives when it is first enabled, and the conformance consequences of a
- * feature toggle.
+ * The user interface, the configuration commands (`zap cluster enable`) and
+ * the post-load scripts (`--postImportScript`, SDK upgrade rules) all change a
+ * session through the operations, and the operations change it through here.
+ * Everything that decides whether an edit is allowed, and what else it brings
+ * along, lives in this module so that the interfaces cannot drift apart: the
+ * storage and reporting policy of the data model, the rule that a Matter
+ * cluster enabled as a client only has no configuration page, the defaults a
+ * cluster receives when it is first enabled, and the conformance consequences
+ * of a feature toggle.
  *
- * The command line and post-load scripts use this module for the same lookups,
- * policy checks and writes. Resolution uses name-and-code matching, so
- * `On/Off`, `ON_OFF` and `0x0006` name one cluster. Refusals are thrown as
- * `OperationError` for the caller to present.
+ * Refusals are thrown as `OperationError`, carrying the operations that would
+ * make the edit possible as `remedies`, for the caller to present however it
+ * presents things.
  *
  * The context is `{ db, sessionId, category }`. `category` narrows the ZCL
  * packages in a multiprotocol configuration and may be null. Lookups are
@@ -52,10 +52,28 @@ const validation = require('../validation/validation.js')
 const conformChecker = require('../validation/conformance-checker.js')
 const resolver = require('./resolver.js')
 const policy = require('./policy.js')
-const operationError = require('./operation-error.js')
+const operationError = require('./errors.js')
+const outcome = require('./outcome.js')
 
 const OperationError = operationError.OperationError
 const asHex = resolver.asHex
+
+/**
+ * The step that enables a cluster side, offered as the remedy whenever a
+ * refusal comes down to that side being off.
+ *
+ * @param {*} endpoint
+ * @param {*} cluster
+ * @param {string} side
+ * @returns {*} a `cluster.enable` step
+ */
+function enableClusterStep(endpoint, cluster, side) {
+  return outcome.step('cluster.enable', {
+    endpoint: endpoint.endpointIdentifier,
+    cluster: cluster.name,
+    side: side
+  })
+}
 
 // ---------------------------------------------------------------------------
 // Values
@@ -166,25 +184,16 @@ async function isClusterSideEnabled(ctx, endpoint, cluster, side) {
  * @param {*} endpoint
  * @param {*} cluster
  * @param {string} side
- * @param {string[]} [remedy] Lines naming what would work, for the caller to supply.
  * @returns {Promise} resolves when the side is enabled, throws otherwise
  */
-async function requireClusterSideEnabled(
-  ctx,
-  endpoint,
-  cluster,
-  side,
-  remedy = []
-) {
+async function requireClusterSideEnabled(ctx, endpoint, cluster, side) {
   if (await isClusterSideEnabled(ctx, endpoint, cluster, side)) return
   throw new OperationError(
     `Cluster ${cluster.name} (${asHex(cluster.code)}) is not enabled on the ${side} side of endpoint ${endpoint.endpointIdentifier}`,
     [
-      `Elements of a disabled cluster are not written to the .zap file. Enable it first${
-        remedy.length > 0 ? ':' : '.'
-      }`,
-      ...remedy
-    ]
+      `Elements of a disabled cluster are not written to the .zap file. Enable it first:`
+    ],
+    [enableClusterStep(endpoint, cluster, side)]
   )
 }
 
@@ -203,10 +212,9 @@ async function requireClusterSideEnabled(
  * @param {*} ctx
  * @param {*} endpoint
  * @param {*} cluster
- * @param {string[]} [remedy] Lines naming what would work, for the caller to supply.
  * @returns {Promise} resolves when the cluster is configurable, throws otherwise
  */
-async function requireClusterConfigurable(ctx, endpoint, cluster, remedy = []) {
+async function requireClusterConfigurable(ctx, endpoint, cluster) {
   let categories = await resolver.endpointCategories(ctx, endpoint)
   let matter = categories.some((c) =>
     resolver.sameCategory(c, dbEnum.helperCategory.matter)
@@ -230,11 +238,9 @@ async function requireClusterConfigurable(ctx, endpoint, cluster, remedy = []) {
   throw new OperationError(
     `Cluster ${cluster.name} (${asHex(cluster.code)}) is enabled as a client only on endpoint ${endpoint.endpointIdentifier}, which has no configuration page`,
     [
-      `Matter does not offer a page for attributes, commands, events or features of a client-only cluster. Enable the server side to configure it${
-        remedy.length > 0 ? ':' : '.'
-      }`,
-      ...remedy
-    ]
+      `Matter does not offer a page for attributes, commands, events or features of a client-only cluster. Enable the server side to configure it:`
+    ],
+    [enableClusterStep(endpoint, cluster, dbEnum.side.server)]
   )
 }
 
@@ -692,7 +698,6 @@ function describeUnwritableDirection(command, isIncoming) {
  * @param {*} command
  * @param {boolean} isIncoming
  * @param {boolean} enabled
- * @param {string[]} [remedy] Lines naming how to enable the side, for the caller to supply.
  * @returns {Promise<*>} the result of writing the command state
  */
 async function setCommandEnabled(
@@ -701,8 +706,7 @@ async function setCommandEnabled(
   cluster,
   command,
   isIncoming,
-  enabled,
-  remedy = []
+  enabled
 ) {
   await requireClusterConfigurable(ctx, endpoint, cluster)
   let unwritable = describeUnwritableDirection(command, isIncoming)
@@ -711,8 +715,7 @@ async function setCommandEnabled(
     ctx,
     endpoint,
     cluster,
-    commandSide(command, isIncoming),
-    remedy
+    commandSide(command, isIncoming)
   )
   return queryConfig.insertOrUpdateCommandState(
     ctx.db,
@@ -739,20 +742,11 @@ async function setCommandEnabled(
  * @param {*} event
  * @param {string} side
  * @param {boolean} enabled
- * @param {string[]} [remedy] Lines naming how to enable the side, for the caller to supply.
  * @returns {Promise<*>} the result of writing the event state
  */
-async function setEventEnabled(
-  ctx,
-  endpoint,
-  cluster,
-  event,
-  side,
-  enabled,
-  remedy = []
-) {
+async function setEventEnabled(ctx, endpoint, cluster, event, side, enabled) {
   await requireClusterConfigurable(ctx, endpoint, cluster)
-  await requireClusterSideEnabled(ctx, endpoint, cluster, side, remedy)
+  await requireClusterSideEnabled(ctx, endpoint, cluster, side)
   return queryConfig.insertOrUpdateEventState(
     ctx.db,
     endpoint.endpointTypeRef,
@@ -869,18 +863,19 @@ async function featureMapAttribute(ctx, endpoint, cluster) {
  * @param {*} endpoint
  * @param {*} cluster
  * @param {*} map Result of `featureMapAttribute`.
- * @param {string[]} [remedy] Lines naming how to enable the attribute, for the caller to supply.
  * @returns {undefined} nothing, throws when the change could not be kept
  */
-function requireFeatureMapIncluded(endpoint, cluster, map, remedy = []) {
+function requireFeatureMapIncluded(endpoint, cluster, map) {
   if (map.included) return
   throw new OperationError(
     `The FeatureMap attribute of ${cluster.name} is not enabled on endpoint ${endpoint.endpointIdentifier}, so feature changes cannot be saved`,
+    [`Features are bits of that attribute's value. Enable it first:`],
     [
-      `Features are bits of that attribute's value. Enable it first${
-        remedy.length > 0 ? ':' : '.'
-      }`,
-      ...remedy
+      outcome.step('attribute.enable', {
+        endpoint: endpoint.endpointIdentifier,
+        cluster: cluster.name,
+        attribute: dbEnum.featureMapAttribute.name
+      })
     ]
   )
 }
@@ -1189,6 +1184,113 @@ async function updateRequiredElementWarnings(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Element conformance
+// ---------------------------------------------------------------------------
+
+/**
+ * The element conformance of one cluster on an endpoint, judged against the
+ * saved feature map: which attributes, commands and events the selected
+ * features require or forbid.
+ *
+ * @param {*} ctx
+ * @param {*} endpoint
+ * @param {*} cluster
+ * @param {boolean} [allowMissingMap] Treat a cluster without a FeatureMap as having none selected.
+ * @returns {Promise<*>} `{ elements, requirements }`
+ */
+async function featureRequirementData(
+  ctx,
+  endpoint,
+  cluster,
+  allowMissingMap = false
+) {
+  const features = await featuresOfCluster(ctx, endpoint, cluster)
+  let featureMap = featureMapFromValue(features, 0)
+  if (features.length > 0) {
+    try {
+      const map = await featureMapAttribute(ctx, endpoint, cluster)
+      featureMap = featureMapFromValue(features, map.value)
+    } catch (error) {
+      if (
+        !allowMissingMap ||
+        !(error instanceof OperationError) ||
+        !error.message.includes('has no FeatureMap attribute')
+      ) {
+        throw error
+      }
+    }
+  }
+  const endpointTypeClusterId =
+    await conformChecker.getEndpointTypeClusterIdFromFeatureData(
+      ctx.db,
+      null,
+      endpoint.endpointTypeRef,
+      cluster.id
+    )
+  const elements = await queryEndpointType.getEndpointTypeElements(
+    ctx.db,
+    endpointTypeClusterId
+  )
+  const requirements = conformChecker.checkElementConformance(
+    elements,
+    featureMap
+  )
+  return { elements, requirements }
+}
+
+/**
+ * Records, as a session notification, whether an element that was just
+ * toggled is one its cluster's features require or forbid. This is the
+ * notice the user interface raises when a checkbox goes against conformance.
+ *
+ * @param {*} ctx
+ * @param {*} endpoint
+ * @param {*} cluster
+ * @param {string} kind 'attributes', 'commands' or 'events'.
+ * @param {number} elementId
+ * @param {boolean} added Whether the element was switched on.
+ * @returns {Promise} resolves when the notification is in step
+ */
+async function updateRequiredElementWarning(
+  ctx,
+  endpoint,
+  cluster,
+  kind,
+  elementId,
+  added
+) {
+  const { elements, requirements } = await featureRequirementData(
+    ctx,
+    endpoint,
+    cluster,
+    true
+  )
+  const kindResult = {
+    attributes: 'attributesToUpdate',
+    commands: 'commandsToUpdate',
+    events: 'eventsToUpdate'
+  }[kind]
+  const element = elements[kind].find(
+    (candidate) => Number(candidate.id) === Number(elementId)
+  )
+  if (element == null) return
+  const conformance = requirements[kindResult]
+  await querySessionNotification.setRequiredElementWarning(
+    ctx.db,
+    {
+      element,
+      contextMessage:
+        `⚠ Check Feature Compliance on endpoint: ${endpoint.endpointIdentifier}, ` +
+        `cluster: ${cluster.name}, ${kind.slice(0, -1)}: `,
+      requiredText: conformance.required[element.id],
+      notSupportedText: conformance.notSupported[element.id],
+      added
+    },
+    ctx.sessionId
+  )
+}
+
 exports.optionalBoolean = optionalBoolean
 exports.storageOption = storageOption
 
@@ -1220,3 +1322,5 @@ exports.featureMapFromValue = featureMapFromValue
 exports.matchFeature = matchFeature
 exports.previewFeatureChange = previewFeatureChange
 exports.setFeatureEnabled = setFeatureEnabled
+exports.featureRequirementData = featureRequirementData
+exports.updateRequiredElementWarning = updateRequiredElementWarning
