@@ -117,7 +117,7 @@ const groups = {
             required: true
           },
           'endpoint-type-id': {
-            desc: 'Endpoint type database ID to use.',
+            desc: 'Endpoint type id from the .zap file, also the typeId column of endpoint list.',
             type: 'number',
             required: true
           },
@@ -185,7 +185,7 @@ const groups = {
             type: 'number'
           },
           'endpoint-type-id': {
-            desc: 'Reuse an endpoint type instead of copying the source type.',
+            desc: 'Reuse an endpoint type instead of copying the source type. The id is the one stored in the .zap file.',
             type: 'number'
           }
         }
@@ -214,7 +214,7 @@ const groups = {
         describe: 'Update endpoint type device type fields.',
         options: {
           'endpoint-type-id': {
-            desc: 'Endpoint type database ID.',
+            desc: 'Endpoint type id from the .zap file, also the typeId column of endpoint list.',
             type: 'number',
             required: true
           },
@@ -230,7 +230,7 @@ const groups = {
         describe: 'Delete an endpoint type.',
         options: {
           'endpoint-type-id': {
-            desc: 'Endpoint type database ID.',
+            desc: 'Endpoint type id from the .zap file, also the typeId column of endpoint list.',
             type: 'number',
             required: true
           }
@@ -242,7 +242,7 @@ const groups = {
           'Duplicate an endpoint type and its selected clusters and elements.',
         options: {
           'endpoint-type-id': {
-            desc: 'Endpoint type database ID.',
+            desc: 'Endpoint type id from the .zap file, also the typeId column of endpoint list.',
             type: 'number',
             required: true
           }

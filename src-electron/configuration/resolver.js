@@ -32,6 +32,7 @@ const queryEvent = require('../db/query-event.js')
 const queryDeviceType = require('../db/query-device-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryPackage = require('../db/query-package.js')
+const queryImpExp = require('../db/query-impexp.js')
 const operationError = require('./errors.js')
 
 const OperationError = operationError.OperationError
@@ -788,3 +789,61 @@ exports.commandFromParams = commandFromParams
 exports.resolveClusterByManufacturer = resolveClusterByManufacturer
 exports.byId = byId
 exports.eventFromParams = eventFromParams
+exports.endpointTypeDatabaseId = endpointTypeDatabaseId
+exports.endpointTypeFileId = endpointTypeFileId
+exports.endpointTypeFileIds = endpointTypeFileIds
+
+/**
+ * The endpoint type ids written into a .zap file, paired with the database
+ * rows of this session.
+ *
+ * Saving numbers endpoint types with the same row number the file stores as
+ * `id`. Loading inserts fresh database rows, so that number is not the
+ * primary key. Callers that speak to a person use the file id. Callers that
+ * already hold a database id, the user interface among them, keep using it.
+ *
+ * @param {*} ctx
+ * @returns {Promise<Array<{id: number, endpointTypeId: number}>>}
+ */
+async function endpointTypeFileIds(ctx) {
+  return queryImpExp.selectEndpointTypeFileIds(ctx.db, ctx.sessionId)
+}
+
+/**
+ * The file id of an endpoint type that already lives in this session.
+ *
+ * @param {*} ctx
+ * @param {number} databaseId
+ * @returns {Promise<number>} the id the .zap file records
+ */
+async function endpointTypeFileId(ctx, databaseId) {
+  let rows = await endpointTypeFileIds(ctx)
+  let match = rows.find(
+    (row) => Number(row.endpointTypeId) === Number(databaseId)
+  )
+  return match == null ? Number(databaseId) : Number(match.id)
+}
+
+/**
+ * The database id of the endpoint type a file id names.
+ *
+ * @param {*} ctx
+ * @param {*} fileId
+ * @returns {Promise<number>} endpoint type primary key in this session
+ */
+async function endpointTypeDatabaseId(ctx, fileId) {
+  let requested = requireInteger(fileId, 'Endpoint type')
+  let rows = await endpointTypeFileIds(ctx)
+  let match = rows.find((row) => Number(row.id) === requested)
+  if (match == null) {
+    let known = [...new Set(rows.map((row) => Number(row.id)))]
+    throw new OperationError(`Unknown endpoint type ${requested}`, [
+      `Endpoint type ids are the ids stored in the .zap file.`,
+      `A database id from an earlier run does not survive loading the file.`,
+      known.length
+        ? `This file has endpoint type id(s): ${known.join(', ')}.`
+        : `This file has no endpoint types.`
+    ])
+  }
+  return Number(match.endpointTypeId)
+}

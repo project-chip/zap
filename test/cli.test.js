@@ -1997,6 +1997,90 @@ test(
 )
 
 test(
+  'cli: endpoint type ids survive being saved and loaded again',
+  async () => {
+    let file = path.join(workDir, 'endpoint-type-id.zap')
+    let created = await runCli({
+      ...matterPackages,
+      cliOperation: 'new',
+      zapFile: file
+    })
+    expect(created.code).toBe(0)
+    let light = await runCli({
+      ...matterPackages,
+      cliOperation: 'endpoint.create',
+      zapFile: file,
+      endpoint: 1,
+      deviceType: ['MA-onofflight']
+    })
+    expect(light.code).toBe(0)
+
+    // A second invocation loads the file into a new session, with new database
+    // rows. The id it reports has to be the one the file itself stores.
+    let listed = await runCli({
+      ...matterPackages,
+      cliOperation: 'endpoint.list',
+      zapFile: file,
+      format: 'json'
+    })
+    expect(listed.code).toBe(0)
+    let rows = JSON.parse(listed.output).operations[0].rows
+    let lightRow = rows.find((row) => row.endpoint === 1)
+    let saved = JSON.parse(fs.readFileSync(file, 'utf8'))
+    let savedEndpoint = saved.endpoints.find(
+      (endpoint) => endpoint.endpointId === 1
+    )
+    expect(lightRow.typeId).toBe(
+      saved.endpointTypes[savedEndpoint.endpointTypeIndex].id
+    )
+
+    let attached = await runCli({
+      ...matterPackages,
+      cliOperation: 'endpoint.attach',
+      zapFile: file,
+      endpoint: 2,
+      endpointTypeId: lightRow.typeId,
+      parent: 0
+    })
+    expect(attached.code).toBe(0)
+    expect(attached.output).toContain('Created endpoint 2')
+
+    let duplicated = await runCli({
+      ...matterPackages,
+      cliOperation: 'endpointtype.duplicate',
+      zapFile: file,
+      endpointTypeId: lightRow.typeId
+    })
+    expect(duplicated.code).toBe(0)
+    let copied = duplicated.output.match(
+      /Duplicated endpoint type (\d+) as (\d+)/
+    )
+    expect(copied).not.toBeNull()
+    expect(Number(copied[1])).toBe(lightRow.typeId)
+
+    let removed = await runCli({
+      ...matterPackages,
+      cliOperation: 'endpointtype.delete',
+      zapFile: file,
+      endpointTypeId: Number(copied[2])
+    })
+    expect(removed.code).toBe(0)
+    expect(removed.output).toContain(`Deleted endpoint type ${copied[2]}`)
+
+    let missing = await runCli({
+      ...matterPackages,
+      cliOperation: 'endpoint.attach',
+      zapFile: file,
+      endpoint: 3,
+      endpointTypeId: 999999
+    })
+    expect(missing.code).toBe(1)
+    expect(missing.errors).toContain('Unknown endpoint type 999999')
+  },
+  testUtil.timeout.long() * 2
+)
+
+test(
   'cli: keeps the parent of a composed endpoint across an edit',
   async () => {
     let file = siblingCopy(

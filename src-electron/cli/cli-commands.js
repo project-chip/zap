@@ -574,6 +574,20 @@ async function run(argv, options = {}) {
       : []
 
     for (let operation of operations) {
+      // The id in the .zap file is not the database row. Resolve it now, after
+      // earlier operations in this run have been saved into the session, and
+      // leave the user interface's database ids untouched.
+      if (
+        operation.params != null &&
+        operation.params.endpointTypeId != null &&
+        operation.params.endpointTypeId !== ''
+      ) {
+        operation.params.endpointTypeId =
+          await configurationApi.endpointTypeDatabaseId(
+            ctx,
+            operation.params.endpointTypeId
+          )
+      }
       let opResult = await configurationApi.execute(
         ctx,
         operation.op,

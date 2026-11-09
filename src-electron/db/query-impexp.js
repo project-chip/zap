@@ -139,6 +139,52 @@ ORDER BY E.ENDPOINT_IDENTIFIER
 }
 
 /**
+ * One row per endpoint type in the session, numbered the way a freshly saved
+ * file numbers types that each belong to a single endpoint.
+ *
+ * The number is 1-based and follows the lowest endpoint identifier, with
+ * types no endpoint uses sorting first. It does not change when another
+ * endpoint starts sharing the type. The database primary key is not stable
+ * across loads, so this is the id the command line records and accepts.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns {Promise<Array<{id: number, endpointTypeId: number}>>}
+ */
+async function selectEndpointTypeFileIds(db, sessionId) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+FROM
+  ENDPOINT_TYPE
+INNER JOIN
+  SESSION_PARTITION
+ON
+  ENDPOINT_TYPE.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
+LEFT JOIN
+  ENDPOINT
+ON
+  ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+  AND ENDPOINT.SESSION_REF = SESSION_PARTITION.SESSION_REF
+WHERE
+  SESSION_PARTITION.SESSION_REF = ?
+GROUP BY
+  ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+ORDER BY
+  MIN(ENDPOINT.ENDPOINT_IDENTIFIER),
+  ENDPOINT_TYPE.NAME,
+  ENDPOINT_TYPE.ENDPOINT_TYPE_ID`,
+    [sessionId]
+  )
+  return rows.map((row, index) => ({
+    id: index + 1,
+    endpointTypeId: row.ENDPOINT_TYPE_ID
+  }))
+}
+
+/**
  * Extracts raw endpoint types rows.
  *
  * @export
@@ -923,6 +969,7 @@ VALUES
 }
 
 exports.exportEndpointTypes = exportEndpointTypes
+exports.selectEndpointTypeFileIds = selectEndpointTypeFileIds
 exports.importEndpointType = importEndpointType
 exports.importParentEndpoint = importParentEndpoint
 
