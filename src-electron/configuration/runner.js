@@ -8,12 +8,14 @@
  * @module Configuration API: operation runner
  */
 
-const operations = require('../operations.js')
+const operations = require('./operations/index.js')
+const endpointOps = require('./operations/endpoint.js')
+const sharedClusterState = require('./shared-cluster-state.js')
 
 /** Applies shared-state reconciliation and notifies an optional caller. */
 async function reconcile(ctx, outcome, onSharedState) {
   if (outcome.changed) {
-    let shared = await operations.unifySharedClusterStates(ctx)
+    let shared = await sharedClusterState.unifySharedClusterStates(ctx)
     if (shared.applied && typeof onSharedState === 'function') {
       onSharedState(shared)
     }
@@ -44,7 +46,7 @@ async function execute(ctx, name, params, onSharedState) {
  * @returns {Promise<*>} operation result
  */
 async function createRootNode(ctx, onSharedState) {
-  return reconcile(ctx, await operations.createRootNode(ctx), onSharedState)
+  return reconcile(ctx, await endpointOps.createRootNode(ctx), onSharedState)
 }
 
 exports.execute = execute

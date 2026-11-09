@@ -28,7 +28,7 @@
 const fs = require('fs')
 const YAML = require('yaml')
 const cliError = require('./cli-error.js')
-const configurationApi = require('../api').configuration
+const configurationApi = require('../configuration')
 
 const CliError = cliError.CliError
 

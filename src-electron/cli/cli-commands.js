@@ -36,7 +36,7 @@ const fs = require('fs')
 const yargs = require('yargs/yargs')
 const env = require('../util/env.js')
 const cliSession = require('./cli-session.js')
-const configurationApi = require('../api').configuration
+const configurationApi = require('../configuration')
 const cliOutput = require('./cli-output.js')
 const cliScript = require('./cli-script.js')
 const cliError = require('./cli-error.js')
@@ -509,7 +509,11 @@ async function run(argv, options = {}) {
     ])
   }
 
-  let report = new cliOutput.Report(argv.format, argv.suggest !== false)
+  let report = new cliOutput.Report(
+    argv.format,
+    argv.suggest !== false,
+    argv.zapFile
+  )
   let ctx = null
   try {
     let startFromBlank = argv.cliOperation === 'new' || argv.new === true
@@ -534,8 +538,11 @@ async function run(argv, options = {}) {
         changed: true,
         messages: [`Created an empty configuration`],
         next: [
-          `zap devicetype list ${argv.zapFile} --all`,
-          `zap endpoint create ${argv.zapFile} --endpoint 1 --device-type <name>`
+          { op: 'devicetype.list', params: { all: true } },
+          {
+            op: 'endpoint.create',
+            params: { endpoint: 1, deviceType: '<name>' }
+          }
         ]
       })
     } else {

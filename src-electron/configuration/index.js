@@ -4,8 +4,10 @@
  * outputs here instead of dispatching operations independently.
  */
 
-const operations = require('../operations.js')
-const operationRunner = require('../util/operation-runner.js')
+const operations = require('./operations/index.js')
+const reads = require('./reads.js')
+const resolver = require('./resolver.js')
+const operationRunner = require('./runner.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryConfig = require('../db/query-config.js')
@@ -13,7 +15,7 @@ const queryFeature = require('../db/query-feature.js')
 const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const queryZcl = require('../db/query-zcl.js')
-const sharedClusterState = require('../util/shared-cluster-state.js')
+const sharedClusterState = require('./shared-cluster-state.js')
 const validation = require('../validation/validation.js')
 const validateAll = require('../validation/validate-all.js')
 const matterSdk = require('../sdk/matter.js')
@@ -52,7 +54,7 @@ function executeOperation(ctx, name, params) {
 
 /** Aligns the cluster states shared across endpoints, where the data model asks for it. */
 function reconcileSharedState(ctx) {
-  return operations.unifySharedClusterStates(ctx)
+  return sharedClusterState.unifySharedClusterStates(ctx)
 }
 
 /** Runs an operation for a loaded GUI or CLI session. */
@@ -80,7 +82,7 @@ function createRootNode(ctx, onSharedState) {
 
 /** Reads endpoints from a session, optionally narrowed to a category. */
 function readEndpointsForSession(db, sessionId, category = null) {
-  return operations.readEndpoints(createContext(db, sessionId), category)
+  return reads.readEndpoints(createContext(db, sessionId), category)
 }
 
 /** Finds one endpoint by its database row ID. */
@@ -292,13 +294,14 @@ exports.validateEndpoint = validateEndpoint
 exports.validateAttribute = validateAttribute
 exports.validateSession = validateSession
 exports.operationNames = operations.operationNames
-exports.readEndpoints = operations.readEndpoints
-exports.readClusters = operations.readClusters
-exports.readAttributes = operations.readAttributes
-exports.readCommands = operations.readCommands
-exports.readAvailableClusters = operations.readAvailableClusters
-exports.readFeatures = operations.readFeatures
-exports.findCluster = operations.findCluster
-exports.findAttribute = operations.findAttribute
-exports.findCommand = operations.findCommand
-exports.findEvent = operations.findEvent
+exports.readEndpoints = reads.readEndpoints
+exports.readClusters = reads.readClusters
+exports.readAttributes = reads.readAttributes
+exports.readCommands = reads.readCommands
+exports.readAvailableClusters = reads.readAvailableClusters
+exports.readFeatures = reads.readFeatures
+exports.findCluster = resolver.resolveClusterByManufacturer
+exports.findAttribute = resolver.resolveAttribute
+exports.findCommand = (ctx, cluster, spec, source) =>
+  resolver.commandFromParams(ctx, cluster, { command: spec, source: source })
+exports.findEvent = resolver.resolveEvent

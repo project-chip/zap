@@ -43,7 +43,6 @@ scriptUtil
       case 'status':
       case 'analyze':
       case 'regenerateSdk':
-      case 'edit':
         executable = 'node'
         main = scriptUtil.mainPath(false)
         break

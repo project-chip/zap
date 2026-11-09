@@ -27,8 +27,8 @@
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
 const env = require('./env')
-const configurationApi = require('../api').configuration
-const operationError = require('./operation-error.js')
+const configurationApi = require('../configuration')
+const operationError = require('../configuration/errors.js')
 
 /**
  * Prints a text to console.
@@ -105,26 +105,17 @@ async function run(context, name, params) {
       name,
       params
     )
-    let messages = (outcome && outcome.messages) || []
-    let described = messages.find(
-      (message) =>
-        typeof message === 'string' && message.startsWith('Attribute ')
+    ;((outcome && outcome.warnings) || []).forEach((warning) =>
+      printWarning(`${name}: ${warning}`)
     )
-    let subject = described ? described.split(':')[0] : null
-    messages
-      .filter(
-        (message) =>
-          typeof message === 'string' && message.startsWith('warning:')
-      )
-      .forEach((message) => {
-        let text = message.replace(/^warning:\s*/, '')
-        printWarning(subject ? `${subject}: ${text}` : text)
-      })
     return outcome
   } catch (err) {
     if (!(err instanceof operationError.OperationError)) throw err
     printError(err.message)
     ;(err.hints || []).forEach((hint) => print(`   ${hint}`))
+    ;(err.remedies || []).forEach((remedy) =>
+      print(`   ${remedy.op} ${JSON.stringify(remedy.params)}`)
+    )
     return null
   }
 }

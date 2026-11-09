@@ -47,6 +47,7 @@ const watchdog = require('./watchdog')
 const sdkUtil = require('../util/sdk-util')
 const cliCommands = require('../cli/cli-commands.js')
 const cliError = require('../cli/cli-error.js')
+const cliOutput = require('../cli/cli-output.js')
 
 let mainDatabase = null
 
@@ -787,6 +788,9 @@ async function startCli(argv, options = {}) {
     if (err instanceof cliError.CliError) {
       errorPrinter(env.formatEmojiMessage('⛔', err.message))
       err.hints.forEach((hint) => errorPrinter(hint))
+      cliOutput
+        .renderSteps(err.remedies, argv.zapFile)
+        .forEach((command) => errorPrinter(`  ${command}`))
     } else {
       errorPrinter(env.formatEmojiMessage('⛔', `${err.stack || err}`))
     }
@@ -1430,20 +1434,6 @@ async function startUpMainInstance(argv, callbacks) {
       })
   } else if (argv.cliOperation != null) {
     return startCli(argv).then((code) => cleanExit(argv.cleanupDelay, code))
-  } else if (argv._.includes('edit')) {
-    // `edit` is not a command. Without this it would be taken for a file to
-    // open, which is a confusing way to learn that.
-    env.printToStderr(
-      env.formatEmojiMessage(
-        '⛔',
-        `'edit' is not a command; configuration commands start at the root. Try: zap ${argv._.filter(
-          (a) => typeof a === 'string' && a !== 'edit' && !a.endsWith('.js')
-        )
-          .slice(1)
-          .join(' ')}`
-      )
-    )
-    cleanExit(argv.cleanupDelay, 1)
   } else if (argv._.includes('server')) {
     return startServer(argv, quitFunction)
   } else if (argv._.includes('convert')) {

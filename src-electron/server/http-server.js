@@ -33,7 +33,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const initialize = require('../rest/initialize')
 const dirtyFlag = require('../util/async-reporting')
 const notification = require('../db/query-session-notification.js')
-const { OperationError } = require('../util/operation-error.js')
+const { OperationError } = require('../configuration/errors.js')
 const { StatusCodes } = require('http-status-codes')
 
 const restApiModules = [
@@ -118,7 +118,8 @@ function answerRejections(handler) {
         if (err instanceof OperationError) {
           response.status(StatusCodes.BAD_REQUEST).json({
             message: err.message,
-            hints: err.hints || []
+            hints: err.hints || [],
+            remedies: err.remedies || []
           })
         } else {
           env.logError(err)

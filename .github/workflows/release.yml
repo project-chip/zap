@@ -330,7 +330,7 @@ jobs:
           command_line: ./dist/zap-mac/zap-cli --version
           contains: '0.0.0'
           expected_result: FAILED
-      - name: ZAP binary check (macOS x64) - zap edit smoke test
+      - name: ZAP binary check (macOS x64) - zap-cli smoke test
         if: startsWith(matrix.os, 'macos')
         run: npm run smoke:cli:mac
       - name: ZAP binary check (macOS x64) - unzip cleanup
@@ -354,7 +354,7 @@ jobs:
           command_line: ./dist/zap-linux/zap-cli --version
           contains: '0.0.0'
           expected_result: FAILED
-      - name: ZAP binary check (Linux) - zap edit smoke test
+      - name: ZAP binary check (Linux) - zap-cli smoke test
         if: startsWith(matrix.os, 'ubuntu')
         run: node ./src-script/smoke-test-cli.js --binary ./dist/zap-linux/zap-cli
       - name: ZAP binary check (Linux) - unzip cleanup

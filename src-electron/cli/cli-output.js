@@ -28,6 +28,65 @@ const collectIssues = validationReport.collectIssues
 const complianceKey = validationReport.complianceKey
 
 /**
+ * Quotes a value so the suggested commands can be pasted into a shell as they
+ * stand. Cluster and device type names routinely contain spaces and slashes.
+ *
+ * @param {*} value
+ * @returns {string} the value, quoted if it needs to be
+ */
+function shellQuote(value) {
+  let text = `${value}`
+  return /^[A-Za-z0-9._:/=<>-]+$/.test(text) ? text : `"${text}"`
+}
+
+/**
+ * The command line flag for an operation parameter: `enabledOnly` is typed
+ * as `--enabled-only`.
+ *
+ * @param {string} name camelCase parameter name
+ * @returns {string} the flag, dashes included
+ */
+function flagFor(name) {
+  return `--${name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`
+}
+
+/**
+ * Renders an `{ op, params }` step as the command that runs it against the
+ * file in hand.
+ *
+ * Suggestions are only worth printing if they can be run without editing them
+ * first, so the real file name goes in and values are quoted.
+ *
+ * @param {*} step `{ op: 'cluster.enable', params: { endpoint: 1, ... } }`
+ * @param {string} [zapFile] The file the run is working on.
+ * @returns {string} the command line
+ */
+function renderStep(step, zapFile) {
+  let parts = [
+    `zap ${step.op.replace('.', ' ')}`,
+    shellQuote(zapFile || '<file.zap>')
+  ]
+  for (let [name, value] of Object.entries(step.params || {})) {
+    if (value === undefined || value === null) continue
+    parts.push(
+      value === true ? flagFor(name) : `${flagFor(name)} ${shellQuote(value)}`
+    )
+  }
+  return parts.join(' ')
+}
+
+/**
+ * Renders the steps an operation proposed, one command per line.
+ *
+ * @param {Array} steps
+ * @param {string} [zapFile]
+ * @returns {string[]} command lines
+ */
+function renderSteps(steps, zapFile) {
+  return (steps || []).map((s) => renderStep(s, zapFile))
+}
+
+/**
  * Renders a `{ columns, rows }` payload as an aligned plain text table.
  *
  * @param {*} table
@@ -72,10 +131,13 @@ class Report {
    * @param {string} format 'text' or 'json'.
    * @param {boolean} suggest Whether to print follow-up commands. JSON output
    * always carries them as data, so this only governs the text rendering.
+   * @param {string} [zapFile] The file being worked on, named in the
+   * follow-up commands so they can be run as printed.
    */
-  constructor(format = 'text', suggest = true) {
+  constructor(format = 'text', suggest = true, zapFile = null) {
     this.format = format
     this.suggest = suggest
+    this.zapFile = zapFile
     this.entries = []
     this.savedTo = null
     this.validation = null
@@ -93,9 +155,12 @@ class Report {
       operation: operation,
       changed: opResult.changed === true,
       failed: opResult.failed === true,
-      messages: opResult.messages || [],
+      messages: [
+        ...(opResult.messages || []),
+        ...(opResult.warnings || []).map((w) => `warning: ${w}`)
+      ],
       table: opResult.table || null,
-      next: opResult.next || []
+      next: renderSteps(opResult.next, this.zapFile)
     })
   }
 
@@ -336,6 +401,8 @@ function diffValidation(before, after, options = {}) {
 }
 
 exports.Report = Report
+exports.renderStep = renderStep
+exports.renderSteps = renderSteps
 exports.collectIssues = collectIssues
 exports.complianceKey = complianceKey
 exports.diffNotifications = diffNotifications

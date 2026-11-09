@@ -5,4 +5,4 @@
  * @module CLI API: errors
  */
 
-module.exports = require('../util/operation-error.js')
+module.exports = require('../configuration/errors.js')

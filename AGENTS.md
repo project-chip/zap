@@ -7,24 +7,37 @@ thing that costs an hour to rediscover.
 ## What the configuration commands are
 
 Everything the ZAP user interface can do to a `.zap` file, from a terminal.
-The shared configuration API in `src-electron/api/configuration.js` is the
-entry point for the CLI, REST handlers, and post-load scripts. The domain
-operations live in `src-electron/operations.js`. The modules under
-`src-electron/cli` layer one way with no cycles, and a test fails on a cycle or
-on any of them reaching the database other than through `query-*`.
+The configuration engine in `src-electron/configuration/` is shared by the
+CLI, the REST handlers behind the user interface, and post-load scripts; each
+is a thin adapter over `configuration/index.js`. A test fails on a require
+cycle, on an engine module reaching an interface, on SQL outside `query-*`,
+and on the engine building a `zap` command line.
 
 ```
-cli-commands      entry point, yargs tree, the run loop
-├── cli-spec      the entire command surface, as data
-├── cli-help      renders that surface as a page or a schema
-├── cli-session   load / mutate / save lifecycle
-├── api           shared configuration boundary (src-electron/api/)
-├── operations    the edits, lookups and refusals (src-electron/operations.js)
-│   ├── resolver      "On/Off", ON_OFF and 0x0006 all mean the same cluster
-│   ├── session-edit  the write sequence shared with the user interface
-│   └── policy        what the data model fixes, and how to say so
-├── cli-script    the batch format
-└── cli-output    tables, JSON, the validation and notification diffs
+src-electron/configuration/
+├── index.js               the boundary: createContext, execute, executeOperation, reads
+├── runner.js              one operation plus shared-state reconciliation (the CLI's sequence)
+├── operations/            one module per subject, each with its own `operations` table
+│   ├── index.js           the registry; dotted name -> operation
+│   ├── endpoint.js  device-type.js  cluster.js  attribute.js  command.js
+│   ├── event.js  feature.js  package.js  config.js
+│   ├── studio-components.js   UC components a cluster needs, when Studio is attached
+│   └── listing.js             filters and follow-up steps for listings
+├── session-edit.js        the write sequence shared with the user interface, and its rules
+├── resolver.js            "On/Off", ON_OFF, 0x0006 and a database id all mean the same cluster
+├── policy.js              what the data model fixes, and how to say so
+├── shared-cluster-state.js
+├── reads.js               plain reads for scripts
+├── outcome.js             result(changed, messages, table, next, warnings); step(op, params)
+└── errors.js              OperationError(message, hints, remedies)
+
+src-electron/cli/          the command line adapter
+├── cli-commands           entry point, yargs tree, the run loop
+├── cli-spec               the entire command surface, as data
+├── cli-help               renders that surface as a page or a schema
+├── cli-session            load / mutate / save lifecycle
+├── cli-script             the batch format
+└── cli-output             tables, JSON, validation diffs, and steps as `zap ...` commands
 ```
 
 Read [`docs/zap-cli.md`](docs/zap-cli.md) before changing any of it. It
