@@ -26,6 +26,7 @@ const querySession = require('../src-electron/db/query-session')
 const utilJs = require('../src-electron/util/util')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
+const testQuery = require('./test-query')
 const testUtil = require('./test-util')
 const path = require('path')
 
@@ -171,6 +172,58 @@ test(
     expect(cfgVer2).toContain(
       '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 7, Cluster: Groups, Command: ViewGroupResponse*/'
     )
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'CLI import prints Over the Air Bootloading cluster compliance warnings',
+  async () => {
+    // Jest sets TEST, and import skips the compliance console.log while it
+    // is set. Clear it so this import prints the same text as analyze.
+    let previousTest = process.env.TEST
+    delete process.env.TEST
+    // Capture that print. The assertions below compare it to the warnings
+    // stored for the GUI.
+    let logs = []
+    let originalLog = console.log
+    console.log = (...args) => {
+      logs.push(args.map((arg) => String(arg)).join(' '))
+    }
+    try {
+      let sid = await querySession.createBlankSession(db)
+      await importJs.importDataFromFile(db, testFile, { sessionId: sid })
+      let messages = await testQuery.getAllNotificationMessages(db, sid)
+      let printed = logs.join('\n')
+      let clusterWarnings = messages.filter((message) =>
+        message.includes('Check Cluster Compliance')
+      )
+      let deviceTypeWarnings = messages.filter((message) =>
+        message.includes('Check Device Type Compliance')
+      )
+      expect(clusterWarnings.length).toBeGreaterThan(0)
+      expect(deviceTypeWarnings.length).toBe(0)
+      expect(
+        clusterWarnings.some((message) =>
+          message.includes(
+            'Over the Air Bootloading server, mandatory command: ImageBlockResponse outgoing needs to be enabled'
+          )
+        )
+      ).toBe(true)
+      for (let warning of clusterWarnings) {
+        expect(printed).toContain(warning)
+      }
+      expect(printed).toContain('failing the Cluster Specification')
+      expect(printed).not.toContain('failing the Device Type Specification')
+    } finally {
+      console.log = originalLog
+      // Put TEST back so later tests keep the compliance console.log quiet.
+      if (previousTest === undefined) {
+        delete process.env.TEST
+      } else {
+        process.env.TEST = previousTest
+      }
+    }
   },
   testUtil.timeout.long()
 )
