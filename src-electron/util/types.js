@@ -364,7 +364,7 @@ async function processZclTypeSignAndSize(
   }
 
   if (!dataType) {
-    env.logError(
+    env.logDebug(
       `In processZclTypeSignAndSize, could not determine the data type for type: '${type}'${clusterName ? ` in cluster '${clusterName}'` : ''}`
     )
     return {
@@ -451,7 +451,7 @@ async function processZclTypeSignAndSize(
           : Math.pow(2, Math.ceil(Math.log2(number.size)))
     }
   } else {
-    env.logError(
+    env.logDebug(
       `In processZclTypeSignAndSize, unhandled discriminatorName '${dataType.discriminatorName}' for type '${type}'${clusterName ? ` in cluster '${clusterName}'` : ''}: ${JSON.stringify(dataType)}`
     )
     isKnown = false
