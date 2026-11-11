@@ -305,7 +305,7 @@ async function importEndpointType(
     // Get deviceType IDs
     let rows = await dbApi.dbAll(
       db,
-      `SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND NAME = ? AND PACKAGE_REF IN (${packageIds})`,
+      `SELECT DEVICE_TYPE_ID, NAME FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND NAME = ? AND PACKAGE_REF IN (${packageIds})`,
       [
         parseInt(deviceTypes[i].code),
         parseInt(deviceTypes[i].profileId),
@@ -313,9 +313,41 @@ async function importEndpointType(
       ]
     )
 
+    // <name> in the XML can change after the .zap file was saved.
+    // If the name query misses, try code and profile when they identify one device type.
+    if (!rows || rows.length == 0) {
+      let hasProfile =
+        deviceTypes[i].profileId !== '' &&
+        !Number.isNaN(parseInt(deviceTypes[i].profileId))
+      let fallbackRows = hasProfile
+        ? await dbApi.dbAll(
+            db,
+            `SELECT DEVICE_TYPE_ID, NAME, PROFILE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND PACKAGE_REF IN (${packageIds})`,
+            [parseInt(deviceTypes[i].code), parseInt(deviceTypes[i].profileId)]
+          )
+        : await dbApi.dbAll(
+            db,
+            `SELECT DEVICE_TYPE_ID, NAME, PROFILE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF IN (${packageIds})`,
+            [parseInt(deviceTypes[i].code)]
+          )
+      let names = new Set(fallbackRows.map((row) => row.NAME))
+      let profiles = new Set(fallbackRows.map((row) => row.PROFILE_ID))
+      if (names.size == 1 && profiles.size == 1) {
+        rows = fallbackRows
+        await sessionNotification.setNotification(
+          db,
+          'WARNING',
+          `Device type name "${deviceTypes[i].name}" does not match device type code ${parseInt(deviceTypes[i].code)} in the current ZCL data. Using "${fallbackRows[0].NAME}".`,
+          sessionId,
+          2,
+          1
+        )
+      }
+    }
+
     // Log an error message into the session notice table when device types being imported are not found
     if (!rows || rows.length == 0) {
-      sessionNotification.setNotification(
+      await sessionNotification.setNotification(
         db,
         'ERROR',
         'Device Types could not be found in the ZCL extensions linked to this project. Please make sure the zcl and template json files listed in your zap file exist.',
