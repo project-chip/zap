@@ -78,6 +78,7 @@ exports.map = {
       name: x.NAME,
       caption: x.DESCRIPTION,
       description: x.DESCRIPTION,
+      integrationGuidance: x.INTEGRATION_GUIDANCE || '',
       define: x.DEFINE,
       domainName: x.DOMAIN_NAME,
       isSingleton: dbApi.fromDbBool(x.IS_SINGLETON),
