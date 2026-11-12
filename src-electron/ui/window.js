@@ -51,10 +51,11 @@ export function initializeElectronUi(port) {
  * Create a window if none present.
  *
  * @param {*} port
+ * @param {*} output
  */
-export function windowCreateIfNotThere(port) {
+export function windowCreateIfNotThere(port, output) {
   if (BrowserWindow.getAllWindows().length == 0) {
-    windowCreate(port)
+    windowCreate(port, output)
   }
 }
 
@@ -65,6 +66,8 @@ export function windowCreateIfNotThere(port) {
  * @param {*} isNew
  * @param {*} filePath
  * @param {*} restPort
+ * @param {*} zapFileExtensions
+ * @param {*} output
  * @returns String
  */
 function createQueryString(
@@ -73,7 +76,8 @@ function createQueryString(
   isNew,
   filePath,
   restPort,
-  zapFileExtensions
+  zapFileExtensions,
+  output
 ) {
   const params = new Map()
 
@@ -97,6 +101,9 @@ function createQueryString(
   }
   if (Array.isArray(zapFileExtensions) && zapFileExtensions.length > 0) {
     params.set('zapFileExtensions', zapFileExtensions)
+  }
+  if (output !== undefined) {
+    params.set('output', output)
   }
 
   // Electron/Development mode
@@ -156,7 +163,8 @@ export function windowCreate(port, args) {
     args?.new,
     args?.filePath,
     httpServer.httpServerPort(),
-    args?.zapFileExtensions
+    args?.zapFileExtensions,
+    args?.output
   )
 
   // @ts-ignore
