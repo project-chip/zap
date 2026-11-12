@@ -4,7 +4,7 @@ description: >-
   Configures Zigbee/Matter ZCL by running zap-cli on .zap files (endpoints,
   device types, clusters, attributes, commands, events, features). For any ZAP-,
   .zap-, endpoint-, cluster-, or zcl_config-related task, agents must read this
-  skill and execute zap-cli — never hand-edit .zap JSON or use Write/StrReplace
+  skill and execute zap-cli — never modify .zap JSON by hand or use Write/StrReplace
   on a .zap path. Triggers include ZAP, zap-cli, .zap, zcl_config, Matter device
   types, Zigbee profiles, and UC/ZCL configuration changes.
 ---
@@ -14,7 +14,7 @@ description: >-
 A `.zap` file holds an application's endpoints, device types, clusters,
 attributes, commands, events and features. Generated source is produced from it,
 so it is the source of truth for what the application supports. The release
-ships `zap` (graphical editor) and `zap-cli` (same engine, headless).
+ships `zap` (graphical application) and `zap-cli` (same engine, headless).
 
 ## Agent rules (read first)
 
@@ -23,12 +23,12 @@ ships `zap` (graphical editor) and `zap-cli` (same engine, headless).
 2. **Run `zap-cli`** via `silabs-tool-exec` (`tool_id: zap`, `tool_name:
 zap-cli`, `context_folder` = project root). Use `resolvedExecutable` from the
    MCP result; do not search the filesystem for the binary.
-3. **Never hand-edit a `.zap` file** — not with the editor, not with
-   Write/StrReplace, not by patching JSON. Reads use list/check commands; writes
-   use `zap-cli` edit operations.
+3. **Never modify a `.zap` file by hand** — not in another application, not
+   with Write/StrReplace, not by patching JSON. Reads use list/check commands;
+   configuration changes use `zap-cli` operations.
 4. **Read before write** — `endpoint list`, `cluster list`, `attribute list`
    (add `--format json` when parsing).
-5. **Batch multiple edits in one CLI run** — loading ZCL metadata dominates
+5. **Batch multiple operations in one CLI run** — loading ZCL metadata dominates
    every invocation. For **two or more writes**, use **`apply`** with a YAML or
    JSON script (`--script <file>`), not a chain of separate `zap-cli` commands.
    A single `apply` can mix any operations (endpoints, clusters, attributes,
@@ -72,14 +72,13 @@ help output out of the chat context (~1.5k tokens for full text help, ~12k for
 
 ```bash
 zap-cli help attribute set          # new CLI: config commands at top level
-zap-cli edit help attribute set     # older packages: same under `edit`
 ```
 
 **When the index is not enough** (new CLI version, custom wrapper), run full
 help once — not `--format json` unless you are generating tooling:
 
 ```bash
-zap-cli help                        # or: zap-cli edit help
+zap-cli help
 ```
 
 **Discovery of legal values** belongs on the `.zap` file, not in help:
@@ -93,20 +92,21 @@ Most commands print a `Next:` section (or JSON `nextSteps`) with follow-ups.
 
 ### Operation index (same as `zap-cli help`)
 
-| Group      | Operations                              |
-| ---------- | --------------------------------------- |
-| endpoint   | list, create, update, delete, duplicate |
-| devicetype | list, add, remove, set                  |
-| cluster    | list, enable, disable                   |
-| attribute  | list, set, enable, disable              |
-| command    | list, enable, disable                   |
-| event      | list, enable, disable                   |
-| feature    | list, enable, disable                   |
-| package    | list, add, remove                       |
-| (top)      | info, check, new, **apply**, help       |
+| Group        | Operations                                      |
+| ------------ | ----------------------------------------------- |
+| endpoint     | list, create, attach, update, delete, duplicate |
+| endpointtype | create, update, delete, duplicate               |
+| devicetype   | list, add, remove, set                          |
+| cluster      | list, enable, disable                           |
+| attribute    | list, set, enable, disable                      |
+| command      | list, enable, disable                           |
+| event        | list, enable, disable                           |
+| feature      | list, preview, requirements, enable, disable    |
+| package      | list, add, remove                               |
+| option       | set                                             |
+| (top)        | info, check, new, apply, help                   |
 
-Syntax: `zap-cli <group> <operation> <file.zap> [options]` (prepend `edit` on
-older builds: `zap-cli edit cluster enable …`).
+Syntax: `zap-cli <group> <operation> <file.zap> [options]`.
 
 **Multiple writes:** use top-level **`apply`** with `--script` — not repeated
 `<group> <operation>` calls. Each list entry uses `op: group.operation` and
@@ -179,17 +179,18 @@ zap-cli convert broken.zap -o fixed.zap --zcl "$ZCL" --gen "$GEN"
 
 ## Always isolate CLI state
 
-Default state is shared (`~/.zap`), so concurrent `zap-cli` edits **or**
+Default state is shared (`~/.zap`), so concurrent `zap-cli` runs **or**
 concurrent `slc generate` / `slc example create` (which also run ZAP) fail with
 `SQLITE_BUSY: database is locked`. Pass **`--tempState`** on every invocation
 (unique directory under the OS temp dir), or `--stateDirectory /tmp/zap-state-$$`.
 
-## Do not hand-edit the `.zap` file
+## Do not modify the `.zap` file by hand
 
 It is JSON, but ZAP re-applies storage, reporting and conformance rules on load,
 so hand-written changes are commonly dropped and row relationships are easy to
-break. A `zap-cli` change is identical to the same change in the GUI. **Using
-editor tools on a `.zap` path is always wrong** — use this skill and `zap-cli`.
+break. A `zap-cli` change is identical to the same change in the GUI. **Writing
+directly to a `.zap` path with another tool is always wrong** — use this skill
+and `zap-cli`.
 
 ## Read before you write
 
@@ -198,7 +199,7 @@ names and current state cheaply. Add `--format json` when parsing.
 
 ## Device type and features must stay coherent
 
-Device type is the contract; features are its implementation. They are edited
+Device type is the contract; features are its implementation. They are selected
 independently, so they drift. Check `CONFORMANCE` / `REQUIREDBY` from
 `feature list` first — `M` plus a device type name means mandatory for it.
 
@@ -212,14 +213,15 @@ zap-cli feature disable app.zap --endpoint 1 --cluster "Color Control" \
 ```
 
 Treat new `Feature Compliance` / `Device Type Compliance` warnings from **your**
-edit as a failed customization unless a non-conformant config is wanted.
+configuration change as a failed customization unless a non-conformant config
+is wanted.
 
 ## Validation and exit codes
 
-- Edit commands save and exit 0 even when they introduce **warnings**.
+- Configuration commands save and exit 0 even when they introduce **warnings**.
 - Malformed endpoints and out-of-range defaults are **errors**; conformance
   findings are **warnings** (a spec-incomplete config is a valid intermediate).
-- `--strict` on an edit refuses to save when _that edit_ introduced errors;
+- `--strict` refuses to save when the current change introduced errors;
   `check --strict` exits 1 when errors exist. `--no-validate` skips it.
 - Output separates **new** from **pre-existing**. Stock Matter examples already
   carry out-of-range and provisional-cluster findings — do not confuse that debt
@@ -234,14 +236,14 @@ range, so run `check` right after `endpoint create` and fix them.
 Interface from application code, so the `.zap` correctly holds no default and
 `attribute set --default` fails (exit 1). That is expected, not a workaround
 case — check the `STORAGE` column first. The exception is attributes the SDK
-marks `keepDefault` (for example `FeatureMap`), which stay External but keep an
-editable, generated default.
+marks `keepDefault` (for example `FeatureMap`), which stay External but keep a
+configurable, generated default.
 
 For Matter naming (`ProductName`, `NodeLabel`) use `CHIPProjectConfig.h`, not
 ZAP defaults; keep demo `..._PRODUCT_ID` inside ExampleDAC ranges
 (`0x8000`–`0x801F` for vendor `0xFFF1`) or linking fails on missing DAC symbols.
 
-## A `.zap` edit is not the whole job
+## A `.zap` configuration change is not the whole job
 
 1. **The paired UC component has to be installed.** A configured cluster with
    nothing implementing it does nothing: the `.zap` says the cluster is there,
@@ -252,7 +254,7 @@ ZAP defaults; keep demo `..._PRODUCT_ID` inside ExampleDAC ranges
 
 ### Which components does the cluster need?
 
-Easiest: let the edit tell you. Run `cluster enable` **without** the Studio
+Easiest: read the command output. Run `cluster enable` **without** the Studio
 options and it names what it did not install:
 
 ```text
@@ -338,7 +340,7 @@ Both routes get the same three checks:
 1. **Component recorded** — `grep -n "id: <component>" app.slcp`.
 2. **`.zap` still sane** — `zap-cli check app.zap --packageMatch strict
 --tempState` (plus `package list`, as above), and read
-   the validation lines the edit printed. New device-type clusters commonly
+   the validation lines the command printed. New device-type clusters commonly
    land with mandatory attributes out of range; fix those before building.
 3. **It compiles** — `slc generate -p app.slcp -d .` then build. This is the
    only check that proves the cluster has an implementation: a missing UC
@@ -353,7 +355,7 @@ a single pass. Each entry names an operation (`op: cluster.enable`, …) and use
 **camelCase** parameter names (`deviceType`, `side`, `default`, …) matching
 `zap-cli help <group> <operation>`.
 
-Use **`apply` whenever you would otherwise run two or more edit subcommands** in
+Use **`apply` whenever you would otherwise run two or more operation commands** in
 a row. Use a lone subcommand only for a single read (`list`, `check`) or a
 single write.
 

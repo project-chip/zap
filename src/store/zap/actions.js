@@ -23,69 +23,6 @@ import dbEnum from '../../../src-shared/db-enum.js'
 const http = require('http-status-codes')
 
 /**
- * Disable obsolete elements that were enabled in the existing configuration.
- * Keep their identities in session state so the UI can continue showing them.
- * @param {*} context Vuex action context
- * @param {number|string} endpointTypeId Endpoint type being initialized
- * @returns {Promise<void>}
- */
-async function disableObsoleteElements(context, endpointTypeId) {
-  const response = await axiosRequests.$serverPost(
-    restApi.uri.disableObsoleteElements,
-    { endpointTypeId }
-  )
-  const elements = Object.entries(response.data).flatMap(
-    ([elementType, records]) =>
-      records.map((record) => ({ ...record, elementType }))
-  )
-  if (elements.length > 0) {
-    context.commit('addLegacyDisabledObsoleteElements', elements)
-    let storedValue =
-      context.state.selectedGenericOptions[
-        dbEnum.sessionKey.legacyDisabledObsoleteElements
-      ]
-    if (storedValue == null) {
-      const sessionKeys = await axiosRequests.$serverGet(
-        restApi.uri.getAllSessionKeyValues
-      )
-      storedValue = sessionKeys.data.find(
-        (keyValue) =>
-          keyValue.key === dbEnum.sessionKey.legacyDisabledObsoleteElements
-      )?.value
-    }
-    let storedElements = []
-    try {
-      storedElements = JSON.parse(storedValue || '[]')
-    } catch (error) {
-      storedElements = []
-    }
-    const allElements = [...storedElements]
-    const seen = new Set(
-      allElements.map(
-        (element) =>
-          `${element.elementType}:${element.endpointTypeId}:${element.id}`
-      )
-    )
-    elements.forEach((element) => {
-      const key = `${element.elementType}:${element.endpointTypeId}:${element.id}`
-      if (!seen.has(key)) {
-        seen.add(key)
-        allElements.push(element)
-      }
-    })
-    const value = JSON.stringify(allElements)
-    context.commit('setSelectedGenericOption', {
-      key: dbEnum.sessionKey.legacyDisabledObsoleteElements,
-      value
-    })
-    await axiosRequests.$serverPost(restApi.uri.saveSessionKeyValue, {
-      key: dbEnum.sessionKey.legacyDisabledObsoleteElements,
-      value
-    })
-  }
-}
-
-/**
  * Show or hide dev tools in ZAP.
  * @param {*} context
  */
@@ -482,10 +419,6 @@ export async function setDeviceTypeReference(
   context,
   endpointTypeIdDeviceTypeRefPair
 ) {
-  await disableObsoleteElements(
-    context,
-    endpointTypeIdDeviceTypeRefPair.endpointTypeId
-  )
   Promise.all(
     endpointTypeIdDeviceTypeRefPair.deviceTypeRef.map((ref) =>
       axiosRequests.$serverGet(`${restApi.uri.deviceTypeClusters}${ref}`)
@@ -730,7 +663,6 @@ export function deleteEndpointType(context, endpointTypeId) {
  * @param {*} endpointType
  */
 export async function refreshEndpointTypeCluster(context, endpointType) {
-  await disableObsoleteElements(context, endpointType)
   axiosRequests
     .$serverGet(`${restApi.uri.endpointTypeAttributes}${endpointType}`)
     .then((res) => {
@@ -773,10 +705,6 @@ export async function updateSelectedEndpointType(
   const p = []
 
   if (endpointTypeDeviceTypeRefPair != null) {
-    await disableObsoleteElements(
-      context,
-      endpointTypeDeviceTypeRefPair.endpointType
-    )
     p.push(
       axiosRequests
         .$serverGet(

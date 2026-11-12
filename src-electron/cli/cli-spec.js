@@ -672,7 +672,8 @@ const groups = {
   },
 
   option: {
-    describe: 'Set a user-editable option stored in the configuration file.',
+    describe:
+      'Set a user-configurable option stored in the configuration file.',
     operations: {
       set: {
         operation: 'option.set',
@@ -680,7 +681,7 @@ const groups = {
           'Set a configuration option also available from the GUI Options and Information pages.',
         options: {
           key: {
-            desc: 'Editable option key, such as manufacturerCodes or commandDiscovery.',
+            desc: 'Configurable option key, such as manufacturerCodes or commandDiscovery.',
             type: 'string',
             required: true
           },
@@ -803,12 +804,12 @@ const globalOptions = {
     default: false
   },
   validate: {
-    desc: 'Validate the configuration after editing.',
+    desc: 'Validate the configuration after running operations.',
     type: 'boolean',
     default: true
   },
   strict: {
-    desc: 'Refuse to save when this edit introduces validation errors, and make check exit non-zero when it finds any.',
+    desc: 'Refuse to save when these operations introduce validation errors, and make check exit non-zero when it finds any.',
     type: 'boolean',
     default: false
   },
@@ -897,16 +898,16 @@ const globalOptions = {
 const notes = [
   'Names are matched ignoring case and punctuation, so "On/Off", onoff, ON_OFF and 0x0006 all select the same cluster. An unknown name reports the closest candidates.',
   '--endpoint is the endpoint identifier shown in the GUI and in generated code, never a database row id.',
-  'Attributes, commands, events and features can only be configured on a cluster side that is enabled. Run cluster enable first; otherwise the edit would be dropped when the file is saved.',
+  'Attributes, commands, events and features can only be configured on a cluster side that is enabled. Run cluster enable first; otherwise the change would be dropped when the file is saved.',
   'Loading the ZCL metadata dominates the runtime of every invocation. To make several changes, use one apply run rather than several commands.',
   'The default ZCL metafile is the built-in Zigbee one. Pass --zcl ./zcl-builtin/matter/zcl.json for Matter configurations.',
   'A multiprotocol configuration numbers its endpoints per protocol, so the same identifier can appear twice. Use --category zigbee or --category matter to say which one you mean; without it such an operation is refused rather than guessed at.',
-  'Editing writes back to the input file unless -o is given. Operations that only read never write. Whatever the file held before is kept alongside it with a ~ suffix.',
+  'Commands write back to the input file unless -o is given. Operations that only read never write. Whatever the file held before is kept alongside it with a ~ suffix.',
   'Saving normalizes a configuration the same way zap convert does: unselected elements are dropped and mandatory ones are added.',
   'A new configuration whose data model declares a Root Node device type, which Matter does, gets it on endpoint 0 automatically. Pass --no-root-node to skip that.',
   'A feature is judged by the conformance its endpoint device type gives it, which is often stricter than the cluster conformance. feature list reports the one that applies and which device type requires it. A feature whose conformance is X or D cannot be selected at all.',
   'Some of an attribute is not yours to set. The storage of one served through the Attribute Access Interface is fixed at External, reporting can be mandatory or forbidden, an external attribute keeps no default value, and nothing but inclusion can be set on an attribute that is not included. attribute list names these in its fixed column, and attribute set refuses them rather than writing something the next read would undo.',
-  'Every edit ends by reporting the validation findings and the notifications it introduced, which is what the GUI counts in its toolbar. config check reports both in full for a configuration as it stands.',
+  'After each change, the CLI reports new validation findings and notifications, which is what the GUI counts in its toolbar. config check reports both in full for a configuration as it stands.',
   'In Zigbee a cluster configuration is global: where the same cluster is enabled on more than one endpoint, a change to it is applied to all of them, as the GUI does. Matter attributes are per endpoint and are left independent. In a multiprotocol configuration both hold, each on the endpoints of its own protocol.',
   'Endpoint composition is expressed with --parent. Nothing checks that a device type requiring child endpoints has them, in this tool or in the GUI.',
   'Every command ends by suggesting what usually comes next, built from the configuration in hand so it can be run as printed. In JSON those arrive as nextSteps.'
