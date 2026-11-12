@@ -31,6 +31,8 @@ const queryEndpointType = require('../src-electron/db/query-endpoint-type')
 const queryConfig = require('../src-electron/db/query-config')
 const queryZcl = require('../src-electron/db/query-zcl')
 const queryDeviceType = require('../src-electron/db/query-device-type')
+const queryImpexp = require('../src-electron/db/query-impexp')
+const querySessionNotification = require('../src-electron/db/query-session-notification')
 const util = require('../src-electron/util/util')
 const testQuery = require('./test-query')
 
@@ -1025,6 +1027,217 @@ test(
     ).rejects.toThrow(
       'Simple endpoint cannot have more than one application device type'
     )
+  },
+  testUtil.timeout.medium()
+)
+
+/**
+ * Session notices are written without being awaited by import. Poll until a
+ * notice of the requested type is stored, or until the wait expires.
+ * @param {*} sessionId
+ * @param {*} noticeType
+ * @returns notices for the session
+ */
+async function waitForSessionNotices(sessionId, noticeType) {
+  let deadline = Date.now() + 1000
+  let notices = []
+  do {
+    notices = await querySessionNotification.getNotification(db, sessionId)
+    if (!noticeType || notices.some((notice) => notice.type == noticeType)) {
+      return notices
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20))
+  } while (Date.now() < deadline)
+  return notices
+}
+
+/**
+ * Import one endpoint type and return the device types linked to it.
+ * @param {*} endpointType
+ * @param {*} noticeType when set, wait until a notice of this type is stored
+ * @returns session id, endpoint type id, linked device types, and notices
+ */
+async function importEndpointTypeForTest(endpointType, noticeType) {
+  let sessionId = await querySession.createBlankSession(db)
+  let sessionPartitionId = await querySession.insertSessionPartition(
+    db,
+    sessionId,
+    1
+  )
+  let endpointTypeId = await queryImpexp.importEndpointType(
+    db,
+    sessionPartitionId,
+    [zclPackageId],
+    endpointType,
+    sessionId
+  )
+  let linked = await queryDeviceType.selectDeviceTypesByEndpointTypeId(
+    db,
+    endpointTypeId
+  )
+  let notices = await waitForSessionNotices(sessionId, noticeType)
+  return { sessionId, endpointTypeId, linked, notices }
+}
+
+test(
+  'Import keeps a device type when matter-devices.xml <name> no longer matches the .zap file',
+  async () => {
+    // MA-onofflight is code 0x0100 / profile 0x0103. The stored name is the
+    // old <name>, which is what a .zap file keeps after that XML element changes.
+    let result = await importEndpointTypeForTest(
+      {
+        name: 'Anonymous Endpoint Type',
+        deviceTypes: [
+          {
+            code: 0x0100,
+            profileId: 0x0103,
+            name: 'On/Off Light',
+            deviceTypeOrder: 0
+          }
+        ],
+        deviceVersions: [1],
+        deviceIdentifiers: [0x0100]
+      },
+      'WARNING'
+    )
+
+    expect(result.linked.length).toBe(1)
+    expect(result.linked[0].deviceIdentifier).toBe(0x0100)
+    expect(result.linked[0].deviceVersion).toBe(1)
+    let deviceType = await queryDeviceType.selectDeviceTypeById(
+      db,
+      result.linked[0].deviceTypeRef
+    )
+    expect(deviceType.name).toBe('MA-onofflight')
+    expect(deviceType.caption).toBe('Matter On/Off Light')
+
+    let warnings = result.notices.filter((notice) => notice.type == 'WARNING')
+    expect(warnings.length).toBe(1)
+    expect(warnings[0].message).toContain('MA-onofflight')
+    expect(warnings[0].message).toContain('On/Off Light')
+
+    // The current <name> still matches without a warning.
+    let current = await importEndpointTypeForTest({
+      name: 'Anonymous Endpoint Type',
+      deviceTypes: [
+        {
+          code: 0x0100,
+          profileId: 0x0103,
+          name: 'MA-onofflight'
+        }
+      ],
+      deviceVersions: [2],
+      deviceIdentifiers: [0x0100]
+    })
+    expect(current.linked.length).toBe(1)
+    expect(current.linked[0].deviceVersion).toBe(2)
+    expect(
+      current.notices.filter((notice) => notice.type == 'WARNING').length
+    ).toBe(0)
+
+    // Missing profile id still resolves when the code identifies one device type.
+    // MA-rootdevice (0x0016) is unique. 0x0100 is shared by HA/ZLL/MA lights.
+    let withoutProfile = await importEndpointTypeForTest({
+      name: 'Anonymous Endpoint Type',
+      deviceTypes: [
+        {
+          code: 0x0016,
+          name: 'Root Node'
+        }
+      ],
+      deviceVersions: [1],
+      deviceIdentifiers: [0x0016]
+    })
+    expect(withoutProfile.linked.length).toBe(1)
+    let resolved = await queryDeviceType.selectDeviceTypeById(
+      db,
+      withoutProfile.linked[0].deviceTypeRef
+    )
+    expect(resolved.name).toBe('MA-rootdevice')
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Import does not guess a device type when the code is missing or ambiguous',
+  async () => {
+    let missing = await importEndpointTypeForTest(
+      {
+        name: 'Anonymous Endpoint Type',
+        deviceTypes: [
+          {
+            code: 0x7e57,
+            profileId: 0x0103,
+            name: 'Does Not Exist'
+          }
+        ],
+        deviceVersions: [1],
+        deviceIdentifiers: [0x7e57]
+      },
+      'ERROR'
+    )
+    expect(missing.linked.length).toBe(0)
+    expect(
+      missing.notices.filter((notice) => notice.type == 'ERROR').length
+    ).toBe(1)
+
+    // Code 0x0100 is used by several lights with different profiles.
+    let sharedCode = await importEndpointTypeForTest(
+      {
+        name: 'Anonymous Endpoint Type',
+        deviceTypes: [
+          {
+            code: 0x0100,
+            name: 'On/Off Light'
+          }
+        ],
+        deviceVersions: [1],
+        deviceIdentifiers: [0x0100]
+      },
+      'ERROR'
+    )
+    expect(sharedCode.linked.length).toBe(0)
+    expect(
+      sharedCode.notices.filter((notice) => notice.type == 'ERROR').length
+    ).toBe(1)
+
+    let firstId = await dbApi.dbInsert(
+      db,
+      'INSERT INTO DEVICE_TYPE (PACKAGE_REF, CODE, PROFILE_ID, NAME, DOMAIN) VALUES (?, ?, ?, ?, ?)',
+      [zclPackageId, 0x7e57, 0x0103, 'Ambiguous One', 'CHIP']
+    )
+    let secondId = await dbApi.dbInsert(
+      db,
+      'INSERT INTO DEVICE_TYPE (PACKAGE_REF, CODE, PROFILE_ID, NAME, DOMAIN) VALUES (?, ?, ?, ?, ?)',
+      [zclPackageId, 0x7e57, 0x0103, 'Ambiguous Two', 'CHIP']
+    )
+    try {
+      let ambiguous = await importEndpointTypeForTest(
+        {
+          name: 'Anonymous Endpoint Type',
+          deviceTypes: [
+            {
+              code: 0x7e57,
+              profileId: 0x0103,
+              name: 'Old Ambiguous Name'
+            }
+          ],
+          deviceVersions: [1],
+          deviceIdentifiers: [0x7e57]
+        },
+        'ERROR'
+      )
+      expect(ambiguous.linked.length).toBe(0)
+      expect(
+        ambiguous.notices.filter((notice) => notice.type == 'ERROR').length
+      ).toBe(1)
+    } finally {
+      await dbApi.dbRemove(
+        db,
+        'DELETE FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID IN (?, ?)',
+        [firstId, secondId]
+      )
+    }
   },
   testUtil.timeout.medium()
 )
