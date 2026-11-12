@@ -46,7 +46,6 @@ limitations under the License.
     <name>Identify</name>
     <domain>General</domain>
     <description>Attributes and commands for putting a device into Identification mode (e.g. flashing a light).</description>
-    <integrationGuidance>Implement the Identify behavior in your application and register an Identify delegate with the Matter server. The delegate should provide a visible or audible identification effect, such as flashing a light or sounding a buzzer.</integrationGuidance>
     <code>0x0003</code>
     <define>IDENTIFY_CLUSTER</define>
     <client tick="false" init="false">true</client>
