@@ -1032,11 +1032,32 @@ test(
 )
 
 /**
+ * Session notices are written without being awaited by import. Poll until a
+ * notice of the requested type is stored, or until the wait expires.
+ * @param {*} sessionId
+ * @param {*} noticeType
+ * @returns notices for the session
+ */
+async function waitForSessionNotices(sessionId, noticeType) {
+  let deadline = Date.now() + 1000
+  let notices = []
+  do {
+    notices = await querySessionNotification.getNotification(db, sessionId)
+    if (!noticeType || notices.some((notice) => notice.type == noticeType)) {
+      return notices
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20))
+  } while (Date.now() < deadline)
+  return notices
+}
+
+/**
  * Import one endpoint type and return the device types linked to it.
  * @param {*} endpointType
+ * @param {*} noticeType when set, wait until a notice of this type is stored
  * @returns session id, endpoint type id, linked device types, and notices
  */
-async function importEndpointTypeForTest(endpointType) {
+async function importEndpointTypeForTest(endpointType, noticeType) {
   let sessionId = await querySession.createBlankSession(db)
   let sessionPartitionId = await querySession.insertSessionPartition(
     db,
@@ -1054,7 +1075,7 @@ async function importEndpointTypeForTest(endpointType) {
     db,
     endpointTypeId
   )
-  let notices = await querySessionNotification.getNotification(db, sessionId)
+  let notices = await waitForSessionNotices(sessionId, noticeType)
   return { sessionId, endpointTypeId, linked, notices }
 }
 
@@ -1063,19 +1084,22 @@ test(
   async () => {
     // MA-onofflight is code 0x0100 / profile 0x0103. The stored name is the
     // old <name>, which is what a .zap file keeps after that XML element changes.
-    let result = await importEndpointTypeForTest({
-      name: 'Anonymous Endpoint Type',
-      deviceTypes: [
-        {
-          code: 0x0100,
-          profileId: 0x0103,
-          name: 'On/Off Light',
-          deviceTypeOrder: 0
-        }
-      ],
-      deviceVersions: [1],
-      deviceIdentifiers: [0x0100]
-    })
+    let result = await importEndpointTypeForTest(
+      {
+        name: 'Anonymous Endpoint Type',
+        deviceTypes: [
+          {
+            code: 0x0100,
+            profileId: 0x0103,
+            name: 'On/Off Light',
+            deviceTypeOrder: 0
+          }
+        ],
+        deviceVersions: [1],
+        deviceIdentifiers: [0x0100]
+      },
+      'WARNING'
+    )
 
     expect(result.linked.length).toBe(1)
     expect(result.linked[0].deviceIdentifier).toBe(0x0100)
@@ -1137,35 +1161,41 @@ test(
 test(
   'Import does not guess a device type when the code is missing or ambiguous',
   async () => {
-    let missing = await importEndpointTypeForTest({
-      name: 'Anonymous Endpoint Type',
-      deviceTypes: [
-        {
-          code: 0x7e57,
-          profileId: 0x0103,
-          name: 'Does Not Exist'
-        }
-      ],
-      deviceVersions: [1],
-      deviceIdentifiers: [0x7e57]
-    })
+    let missing = await importEndpointTypeForTest(
+      {
+        name: 'Anonymous Endpoint Type',
+        deviceTypes: [
+          {
+            code: 0x7e57,
+            profileId: 0x0103,
+            name: 'Does Not Exist'
+          }
+        ],
+        deviceVersions: [1],
+        deviceIdentifiers: [0x7e57]
+      },
+      'ERROR'
+    )
     expect(missing.linked.length).toBe(0)
     expect(
       missing.notices.filter((notice) => notice.type == 'ERROR').length
     ).toBe(1)
 
     // Code 0x0100 is used by several lights with different profiles.
-    let sharedCode = await importEndpointTypeForTest({
-      name: 'Anonymous Endpoint Type',
-      deviceTypes: [
-        {
-          code: 0x0100,
-          name: 'On/Off Light'
-        }
-      ],
-      deviceVersions: [1],
-      deviceIdentifiers: [0x0100]
-    })
+    let sharedCode = await importEndpointTypeForTest(
+      {
+        name: 'Anonymous Endpoint Type',
+        deviceTypes: [
+          {
+            code: 0x0100,
+            name: 'On/Off Light'
+          }
+        ],
+        deviceVersions: [1],
+        deviceIdentifiers: [0x0100]
+      },
+      'ERROR'
+    )
     expect(sharedCode.linked.length).toBe(0)
     expect(
       sharedCode.notices.filter((notice) => notice.type == 'ERROR').length
@@ -1182,18 +1212,21 @@ test(
       [zclPackageId, 0x7e57, 0x0103, 'Ambiguous Two', 'CHIP']
     )
     try {
-      let ambiguous = await importEndpointTypeForTest({
-        name: 'Anonymous Endpoint Type',
-        deviceTypes: [
-          {
-            code: 0x7e57,
-            profileId: 0x0103,
-            name: 'Old Ambiguous Name'
-          }
-        ],
-        deviceVersions: [1],
-        deviceIdentifiers: [0x7e57]
-      })
+      let ambiguous = await importEndpointTypeForTest(
+        {
+          name: 'Anonymous Endpoint Type',
+          deviceTypes: [
+            {
+              code: 0x7e57,
+              profileId: 0x0103,
+              name: 'Old Ambiguous Name'
+            }
+          ],
+          deviceVersions: [1],
+          deviceIdentifiers: [0x7e57]
+        },
+        'ERROR'
+      )
       expect(ambiguous.linked.length).toBe(0)
       expect(
         ambiguous.notices.filter((notice) => notice.type == 'ERROR').length

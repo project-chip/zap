@@ -334,7 +334,7 @@ async function importEndpointType(
       let profiles = new Set(fallbackRows.map((row) => row.PROFILE_ID))
       if (names.size == 1 && profiles.size == 1) {
         rows = fallbackRows
-        await sessionNotification.setNotification(
+        sessionNotification.setNotification(
           db,
           'WARNING',
           `Device type name "${deviceTypes[i].name}" does not match device type code ${parseInt(deviceTypes[i].code)} in the current ZCL data. Using "${fallbackRows[0].NAME}".`,
@@ -347,7 +347,7 @@ async function importEndpointType(
 
     // Log an error message into the session notice table when device types being imported are not found
     if (!rows || rows.length == 0) {
-      await sessionNotification.setNotification(
+      sessionNotification.setNotification(
         db,
         'ERROR',
         'Device Types could not be found in the ZCL extensions linked to this project. Please make sure the zcl and template json files listed in your zap file exist.',
