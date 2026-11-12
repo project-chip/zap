@@ -150,6 +150,7 @@ CREATE TABLE IF NOT EXISTS "CLUSTER" (
   "MANUFACTURER_CODE" integer,
   "NAME" text,
   "DESCRIPTION" text,
+  "INTEGRATION_GUIDANCE" text,
   "DEFINE" text,
   "IS_SINGLETON" integer,
   "REVISION" integer,

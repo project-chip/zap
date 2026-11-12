@@ -412,6 +412,9 @@ function prepareCluster(cluster, types, isExtension = false) {
   } else {
     ret.code = parseInt(normalizeHexValue(cluster.$.id))
     ret.name = cluster.$.name
+    ret.integrationGuidance = cluster.integrationGuidance
+      ? cluster.integrationGuidance[0].trim()
+      : ''
     //ret.description = '' // TODO: no description in dotdot zcl
     ret.define = cluster.$.name // TODO: no define in dotdot zcl
     ret.domain = cluster.classification[0].$.role
