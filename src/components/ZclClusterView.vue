@@ -79,18 +79,6 @@ limitations under the License.
                   </q-input>
                 </div>
               </div>
-              <q-banner
-                v-if="selectedCluster.integrationGuidance"
-                class="bg-blue-1 text-dark q-mb-md"
-                rounded
-              >
-                <div class="text-subtitle2 q-mb-xs">
-                  Implementation guidance
-                </div>
-                <div style="white-space: pre-line">
-                  {{ selectedCluster.integrationGuidance }}
-                </div>
-              </q-banner>
             </div>
             <div class="col column">
               <div class="row items-center justify-between q-pl-lg">
