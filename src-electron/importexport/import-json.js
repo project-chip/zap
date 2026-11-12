@@ -1712,18 +1712,31 @@ async function importEndpointTypes(
         ? conformanceWarningTitle.concat(conformanceWarnings)
         : ''
 
+    // Device type, cluster, and conformance gaps are independent. Cluster
+    // compliance is what the GUI notification list shows for mandatory
+    // attributes and commands, so it must be printed even when the device
+    // type section is empty. Otherwise `analyze` stays silent while the UI
+    // lists those warnings.
+    let specComplianceMessage = ''
     if (deviceTypeSpecCheckComplianceMessage.length > 0) {
-      deviceTypeSpecCheckComplianceMessage = dottedLine.concat(
+      specComplianceMessage = specComplianceMessage.concat(
         deviceTypeSpecCheckComplianceFailureTitle,
-        deviceTypeSpecCheckComplianceMessage,
-        clusterSpecCheckComplianceFailureTitle,
-        clusterSpecCheckComplianceMessage,
-        conformanceWarningMessage,
-        dottedLine
+        deviceTypeSpecCheckComplianceMessage
       )
-      if (!process.env.TEST) {
-        console.log(deviceTypeSpecCheckComplianceMessage)
-      }
+    }
+    if (clusterSpecCheckComplianceMessage.length > 0) {
+      specComplianceMessage = specComplianceMessage.concat(
+        clusterSpecCheckComplianceFailureTitle,
+        clusterSpecCheckComplianceMessage
+      )
+    }
+    if (conformanceWarningMessage.length > 0) {
+      specComplianceMessage = specComplianceMessage.concat(
+        conformanceWarningMessage
+      )
+    }
+    if (specComplianceMessage.length > 0 && !process.env.TEST) {
+      console.log(dottedLine.concat(specComplianceMessage, dottedLine))
     }
   }
 }
