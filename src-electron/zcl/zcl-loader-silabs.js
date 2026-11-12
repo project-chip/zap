@@ -557,9 +557,6 @@ function prepareCluster(cluster, context, isExtension = false) {
     ret.code = parseInt(cluster.code[0])
     ret.name = cluster.name[0]
     ret.description = cluster.description ? cluster.description[0].trim() : ''
-    ret.integrationGuidance = cluster.integrationGuidance
-      ? cluster.integrationGuidance[0].trim()
-      : ''
     ret.define = cluster.define[0]
     // handle domain data parsed from both formats:
     // <domain>General</domain> and <domain name="General"/>

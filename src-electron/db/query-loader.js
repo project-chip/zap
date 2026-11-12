@@ -36,7 +36,6 @@ INSERT INTO CLUSTER (
   MANUFACTURER_CODE,
   NAME,
   DESCRIPTION,
-  INTEGRATION_GUIDANCE,
   DEFINE,
   DOMAIN_NAME,
   IS_SINGLETON,
@@ -45,7 +44,7 @@ INSERT INTO CLUSTER (
   REMOVED_IN_REF,
   API_MATURITY
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   ?
@@ -846,7 +845,6 @@ async function insertClusters(db, packageId, data) {
           cluster.manufacturerCode,
           cluster.name,
           cluster.description,
-          cluster.integrationGuidance,
           cluster.define,
           cluster.domain,
           cluster.isSingleton,
