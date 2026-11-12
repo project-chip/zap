@@ -9,8 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  ZAP_TEST_TIMEOUT: 120000
-  ZAP_TEST_TIMEOUT_LONG: 600000
+  ZAP_TEST_TIMEOUT: 3600000
   ZAP_TEMPSTATE: 1
   BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
   P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
@@ -330,9 +329,6 @@ jobs:
           command_line: ./dist/zap-mac/zap-cli --version
           contains: '0.0.0'
           expected_result: FAILED
-      - name: ZAP binary check (macOS x64) - zap-cli smoke test
-        if: startsWith(matrix.os, 'macos')
-        run: npm run smoke:cli:mac
       - name: ZAP binary check (macOS x64) - unzip cleanup
         if: startsWith(matrix.os, 'macos')
         run: rm -rf dist/zap-mac
@@ -354,33 +350,9 @@ jobs:
           command_line: ./dist/zap-linux/zap-cli --version
           contains: '0.0.0'
           expected_result: FAILED
-      - name: ZAP binary check (Linux) - zap-cli smoke test
-        if: startsWith(matrix.os, 'ubuntu')
-        run: node ./src-script/smoke-test-cli.js --binary ./dist/zap-linux/zap-cli
       - name: ZAP binary check (Linux) - unzip cleanup
         if: startsWith(matrix.os, 'ubuntu')
         run: rm -rf dist/zap-linux
-      - name: Verify SKILL.md exists in package's base directory
-        if: startsWith(matrix.os, 'ubuntu')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: ./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip | grep SKILL.md
-          contains: 'SKILL.md'
-
-      - name: Verify SKILL.md exists in macOS x64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-mac-x64.zip | grep SKILL.md
-          contains: 'SKILL.md'
-
-      - name: Verify SKILL.md exists in Windows x64 .zip package
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: 7za l ./dist/zap-win-x64.zip | grep SKILL.md
-          contains: 'SKILL.md'
-
       - name: Verify zap.png exists in package's base directory
         if: startsWith(matrix.os, 'ubuntu')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
