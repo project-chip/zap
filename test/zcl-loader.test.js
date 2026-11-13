@@ -33,6 +33,7 @@ const testUtil = require('./test-util')
 const testQuery = require('./test-query')
 const fs = require('fs')
 const genEngine = require('../src-electron/generator/generation-engine')
+const conformParser = require('../src-electron/validation/conformance-xml-parser')
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -821,6 +822,40 @@ test(
     }
   },
   testUtil.timeout.long()
+)
+
+test(
+  'redundant optional and conformance warning is Matter-only',
+  () => {
+    let element = {
+      $: { name: 'ChangeToMode', optional: 'false' },
+      mandatoryConform: ['']
+    }
+    let spy = jest.spyOn(env, 'logWarningToFile').mockImplementation(() => {})
+    try {
+      expect(
+        conformParser.getOptionalAttributeFromXML(
+          element,
+          'command',
+          dbEnum.helperCategory.zigbee
+        )
+      ).toBeFalsy()
+      expect(spy).not.toHaveBeenCalled()
+
+      expect(
+        conformParser.getOptionalAttributeFromXML(
+          element,
+          'command',
+          dbEnum.helperCategory.matter
+        )
+      ).toBeFalsy()
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy.mock.calls[0][0]).toContain('ChangeToMode')
+    } finally {
+      spy.mockRestore()
+    }
+  },
+  testUtil.timeout.short()
 )
 
 test(
