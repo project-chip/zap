@@ -157,19 +157,19 @@ function convertIntToBigEndian(value, size) {
  * the default byte array.
  *
  * @param {*} size Size of bytes generated.
- * @param {*} type Type of the object.
+ * @param {object|string} typeInfo Type metadata or the legacy type name.
  * @param {*} value Default value.
  * @returns string which is a C-formatted byte array.
  */
-function longTypeDefaultValue(size, type, value) {
+function longTypeDefaultValue(size, typeInfo, value) {
   let v = ''
   if (value == null || value.length == 0) {
     v = '0x00, '.repeat(size)
-  } else if (isString(type)) {
+  } else if (isString(typeInfo)) {
     // String Value
-    if (isOneBytePrefixedString(type)) {
+    if (isOneBytePrefixedString(typeInfo)) {
       v = bin.stringToOneByteLengthPrefixCBytes(value, size).content
-    } else if (isTwoBytePrefixedString(type)) {
+    } else if (isTwoBytePrefixedString(typeInfo)) {
       v = bin.stringToTwoByteLengthPrefixCBytes(value, size).content
     } else {
       v = bin.hexToCBytes(bin.stringToHex(value))
@@ -241,8 +241,12 @@ function convertToCliType(str) {
  * @param {*} type
  * @returns true if type is string, false otherwise
  */
-function isString(type) {
-  switch (type.toLowerCase()) {
+function isString(typeInfoOrName) {
+  if (typeInfoOrName != null && typeof typeInfoOrName === 'object') {
+    return !!typeInfoOrName.isString
+  }
+  if (typeInfoOrName == null) return false
+  switch (typeInfoOrName.toLowerCase()) {
     case 'char_string':
     case 'octet_string':
     case 'long_char_string':
@@ -292,9 +296,13 @@ async function isSignedInteger(db, sessionId, type) {
  * @param {*} type
  * @returns true if the said type is a string prefixed by one byte length
  */
-function isOneBytePrefixedString(type) {
-  type = type.toLowerCase()
-  return type == 'char_string' || type == 'octet_string'
+function isOneBytePrefixedString(typeInfoOrName) {
+  if (typeInfoOrName != null && typeof typeInfoOrName === 'object') {
+    return !!typeInfoOrName.isString && !typeInfoOrName.isLong
+  }
+  if (typeInfoOrName == null) return false
+  let name = typeInfoOrName.toLowerCase()
+  return name == 'char_string' || name == 'octet_string'
 }
 /**
  * Checks if type is a two-byte lengh string.
@@ -302,9 +310,13 @@ function isOneBytePrefixedString(type) {
  * @param {*} type
  * @returns true if the said type is a string prefixed by two byte length
  */
-function isTwoBytePrefixedString(type) {
-  type = type.toLowerCase()
-  return type == 'long_char_string' || type == 'long_octet_string'
+function isTwoBytePrefixedString(typeInfoOrName) {
+  if (typeInfoOrName != null && typeof typeInfoOrName === 'object') {
+    return !!typeInfoOrName.isString && !!typeInfoOrName.isLong
+  }
+  if (typeInfoOrName == null) return false
+  let name = typeInfoOrName.toLowerCase()
+  return name == 'long_char_string' || name == 'long_octet_string'
 }
 
 /**
@@ -313,20 +325,20 @@ function isTwoBytePrefixedString(type) {
  * of strings from the longTypeDefaultValue function, ensuring that the latter
  * does not need to be aware of these details.
  *
- * @param {string} type - The type of the string, which determines its null representation.
+ * @param {object|string} typeInfo - Type metadata or the legacy type name.
  * @returns {string} The default value for a null string of the specified type.
  * @throws {Error} Throws an error if the string type is unknown.
  */
-function nullStringDefaultValue(type) {
+function nullStringDefaultValue(typeInfo) {
   // We don't want to make longTypeDefaultValue know about our null
   // string representation.
   let def
-  if (isOneBytePrefixedString(type)) {
+  if (isOneBytePrefixedString(typeInfo)) {
     def = '0xFF,'
-  } else if (isTwoBytePrefixedString(type)) {
+  } else if (isTwoBytePrefixedString(typeInfo)) {
     def = '0xFF, 0xFF,'
   } else {
-    throw new Error(`Unknown string type: ${type}`)
+    throw new Error(`Unknown string type: ${JSON.stringify(typeInfo)}`)
   }
   return def
 }

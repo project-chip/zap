@@ -23,6 +23,7 @@ ExternalAddon : {{test_external_addon_helper}}
 {{#zcl_atomics}}
 {{#if baseType}}
 Base type for {{name}} : {{baseType}}
+Underlying type for {{name}} : {{asUnderlyingZclType name}}
 {{/if}}
 {{/zcl_atomics}}
 
