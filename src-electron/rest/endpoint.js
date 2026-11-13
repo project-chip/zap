@@ -21,14 +21,9 @@
  * @module REST API: endpoint
  */
 
-const queryEndpointType = require('../db/query-endpoint-type.js')
-const queryEndpoint = require('../db/query-endpoint.js')
-const queryConfig = require('../db/query-config.js')
-const querySession = require('../db/query-session.js')
-const queryPackage = require('../db/query-package.js')
-const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
-const notification = require('../db/query-session-notification.js')
+const configurationApi = require('../configuration')
+const { OperationError } = require('../configuration/errors.js')
 const { StatusCodes } = require('http-status-codes')
 
 /**
@@ -40,11 +35,21 @@ const { StatusCodes } = require('http-status-codes')
 function httpDeleteEndpoint(db) {
   return async (request, response) => {
     let id = request.query.id
-    let removed = await queryEndpoint.deleteEndpoint(db, id)
+    // The user interface has always deleted an endpoint regardless of its
+    // children (the schema detaches them), so the CLI's child guard is not
+    // applied here. The endpoint type is removed with it when nothing else
+    // uses it; the response says so, so the client does not ask again.
+    let outcome = await configurationApi.executeRequest(
+      db,
+      request,
+      'endpoint.delete',
+      { endpointId: id, force: true }
+    )
 
     response.status(StatusCodes.OK).json({
-      successful: removed > 0,
-      id: id
+      successful: outcome.changed,
+      id: id,
+      removedEndpointTypeId: outcome.removedEndpointTypeId
     })
   }
 }
@@ -58,9 +63,22 @@ function httpDeleteEndpoint(db) {
 function httpDeleteEndpointType(db) {
   return async (request, response) => {
     let id = request.query.id
-    let removed = await queryEndpointType.deleteEndpointType(db, id)
+    let removed = false
+    try {
+      let outcome = await configurationApi.executeRequest(
+        db,
+        request,
+        'endpointtype.delete',
+        { endpointTypeId: id }
+      )
+      removed = outcome.changed
+    } catch (err) {
+      // An endpoint type that is already gone (deleted along with its
+      // endpoint) is reported as not removed, as this handler always has.
+      if (!(err instanceof OperationError)) throw err
+    }
     response.status(StatusCodes.OK).json({
-      successful: removed > 0,
+      successful: removed,
       id: id
     })
   }
@@ -82,26 +100,29 @@ function httpPostEndpoint(db) {
       deviceIdentifier,
       parentEndpointIdentifier
     } = request.body
-    let sessionId = request.zapSessionId
-    let parentEndpointRef = await queryEndpoint.getParentEndpointRef(
+    let parentEndpointRef = await configurationApi.readParentEndpointRef(
       db,
-      parentEndpointIdentifier,
-      sessionId
+      request.zapSessionId,
+      parentEndpointIdentifier
     )
     if (parentEndpointRef == null && parentEndpointIdentifier != null) {
       parentEndpointIdentifier = null
     }
-    let newId = await queryEndpoint.insertEndpoint(
+    let outcome = await configurationApi.executeRequest(
       db,
-      sessionId,
-      endpointId,
-      endpointType,
-      networkId,
-      profileId,
-      parentEndpointRef
+      request,
+      'endpoint.attach',
+      {
+        endpoint: endpointId,
+        endpointTypeId: endpointType,
+        network: networkId,
+        profile: profileId,
+        parentId: parentEndpointRef
+      }
     )
+    let newId = outcome.id
     try {
-      let validationData = await validation.validateEndpoint(db, newId)
+      let validationData = await configurationApi.validateEndpoint(db, newId)
       response.status(StatusCodes.OK).json({
         id: newId,
         endpointId: endpointId,
@@ -127,32 +148,52 @@ function httpPostEndpoint(db) {
 function httpPatchEndpoint(db) {
   return async (request, response) => {
     let context = request.body
-    let sessionIdexport = request.zapSessionId
     let parentEndpointIdentifier = context.parentEndpointIdentifier
-    let parentEndpointRef = await queryEndpoint.getParentEndpointRef(
+    let endpoint = await configurationApi.readEndpointById(
       db,
-      parentEndpointIdentifier,
-      sessionIdexport
+      request.zapSessionId,
+      context.id
     )
-    if (parentEndpointRef == null && parentEndpointIdentifier != null) {
-      parentEndpointIdentifier = null
+    if (endpoint == null) {
+      return response.status(StatusCodes.NOT_FOUND).json({
+        error: `Unknown endpoint id ${context.id}`
+      })
     }
-    await queryConfig.updateParentEndpoint(
-      db,
-      sessionIdexport,
-      context.id,
-      parentEndpointRef
-    )
-    let changes = context.changes.map((data) => {
-      let paramType = ''
-      return {
-        key: data.updatedKey,
-        value: data.value,
-        type: paramType
+    let changes = context.changes.map((data) => ({
+      updatedKey: data.updatedKey,
+      value: data.value
+    }))
+    let params = { endpointId: endpoint.id }
+    for (const change of changes) {
+      if (change.updatedKey === restApi.updateKey.endpointId) {
+        params.newEndpoint = change.value
+      } else if (change.updatedKey === restApi.updateKey.profileId) {
+        params.profile = change.value
+      } else if (change.updatedKey === restApi.updateKey.networkId) {
+        params.network = change.value
       }
-    })
-    await queryConfig.updateEndpoint(db, sessionIdexport, context.id, changes)
-    let validationData = await validation.validateEndpoint(db, context.id)
+    }
+    params.parent =
+      parentEndpointIdentifier == null ? null : parentEndpointIdentifier
+    if (parentEndpointIdentifier != null) {
+      let parentRef = await configurationApi.readParentEndpointRef(
+        db,
+        request.zapSessionId,
+        parentEndpointIdentifier
+      )
+      params.parentId = parentRef
+      if (parentRef == null) {
+        parentEndpointIdentifier = null
+        params.parent = null
+      }
+    }
+    await configurationApi.executeRequest(
+      db,
+      request,
+      'endpoint.update',
+      params
+    )
+    let validationData = await configurationApi.validateEndpoint(db, context.id)
     response.status(StatusCodes.OK).json({
       endpointId: context.id,
       changes: context.changes,
@@ -171,34 +212,23 @@ function httpPatchEndpoint(db) {
 function httpPostEndpointType(db) {
   return async (request, response) => {
     let { name, deviceTypeRef, deviceIdentifier, deviceVersion } = request.body
-    let sessionId = request.zapSessionId
-    // Get session partition given the device type reference
-    let sessionPartitionInfo =
-      await querySession.selectSessionPartitionInfoFromDeviceType(
-        db,
-        sessionId,
-        deviceTypeRef
-      )
-    try {
-      let newId = await queryConfig.insertEndpointType(
-        db,
-        sessionPartitionInfo[0],
-        name,
-        deviceTypeRef,
-        deviceIdentifier,
-        deviceVersion
-      )
-
-      response.status(StatusCodes.OK).json({
-        id: newId,
+    let outcome = await configurationApi.executeRequest(
+      db,
+      request,
+      'endpointtype.create',
+      {
         name: name,
         deviceTypeRef: deviceTypeRef,
-        deviceTypeIdentifier: deviceVersion,
-        deviceTypeVersion: deviceVersion
-      })
-    } catch (err) {
-      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
-    }
+        deviceVersion: deviceVersion
+      }
+    )
+    response.status(StatusCodes.OK).json({
+      id: outcome.id,
+      name: name,
+      deviceTypeRef: deviceTypeRef,
+      deviceTypeIdentifier: deviceIdentifier,
+      deviceTypeVersion: deviceVersion
+    })
   }
 }
 
@@ -211,13 +241,8 @@ function httpPostEndpointType(db) {
 function httpGetInitialComposition(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let packages = await queryPackage.getPackageSessionPackagePairBySessionId(
-      db,
-      sessionId
-    )
-    let packageIds = packages.map((item) => item.pkg.id)
-    let rootNode = await queryEndpoint.getRootNode(db, packageIds)
-    response.status(StatusCodes.OK).json(rootNode[0])
+    let rootNode = await configurationApi.readInitialComposition(db, sessionId)
+    response.status(StatusCodes.OK).json(rootNode)
   }
 }
 
@@ -230,23 +255,16 @@ function httpGetInitialComposition(db) {
 function httpPatchEndpointType(db) {
   return async (request, response) => {
     let context = request.body
-    let sessionId = request.zapSessionId
-    // Changes may include device type refs, versions or identifiers
-    let changes = context.changes.map((data) => {
-      let paramType = ''
-      return {
-        key: data.updatedKey,
-        value: data.value,
-        type: paramType
-      }
-    })
+    let changes = context.changes.map((data) => ({
+      key: data.updatedKey,
+      value: data.value,
+      type: ''
+    }))
 
-    await queryConfig.updateEndpointType(
-      db,
-      sessionId,
-      context.endpointTypeId,
-      changes
-    )
+    await configurationApi.executeRequest(db, request, 'endpointtype.update', {
+      endpointTypeId: context.endpointTypeId,
+      changes: changes
+    })
 
     response.status(StatusCodes.OK).json({
       endpointTypeId: context.endpointTypeId,

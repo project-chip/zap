@@ -7,6 +7,10 @@ generated-html
 # Temp generation file
 docs/zap-schema.dot
 
+# Generated from docs/zap-cli-architecture.md; regenerate with
+# docs/make-zap-cli-architecture-pdf
+docs/zap-cli-architecture.pdf
+
 # Quasar core related directories
 .quasar
 /dist

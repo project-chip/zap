@@ -28,6 +28,8 @@ const fs = require('fs')
 const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
 const env = require('./env.js')
+const sdkArgs = require('./sdk-args.js')
+const cliCommands = require('../cli/cli-commands.js')
 
 /**
  * Get environment variable details.
@@ -64,6 +66,204 @@ function expandCommaSeparatedZapPaths(tokens) {
 }
 
 /**
+ * Turns bundled data model names into the metafile paths they stand for, so
+ * `--zcl matter` works the same from a packaged binary as from a source tree.
+ * Anything that is not a known name is left alone and treated as a file path.
+ *
+ * @param {*} value One `--zcl` value, or an array of them.
+ * @returns {*} the value with names replaced by paths
+ */
+function resolveZclMetafileNames(value) {
+  if (Array.isArray(value)) {
+    return value.map((v) => resolveZclMetafileNames(v))
+  }
+  if (typeof value !== 'string') return value
+  // A real path wins over a name, so a local file called 'matter' still loads.
+  if (fs.existsSync(value)) return value
+  let resolved = env.builtinZclMetafileByName(value)
+  return resolved == null ? value : resolved
+}
+
+/**
+ * Turns bundled generation-template names into the metafile paths they stand
+ * for, so `--gen matter` works the same from a packaged binary as from a
+ * source tree. Anything that is not a known name is left alone.
+ *
+ * @param {*} value One `--gen` value, or an array of them.
+ * @returns {*} the value with names replaced by paths
+ */
+function resolveGenTemplateMetafileNames(value) {
+  if (Array.isArray(value)) {
+    return value.map((v) => resolveGenTemplateMetafileNames(v))
+  }
+  if (typeof value !== 'string') return value
+  if (fs.existsSync(value)) return value
+  let resolved = env.builtinGenTemplateMetafileByName(value)
+  return resolved == null ? value : resolved
+}
+
+/**
+ * True when the caller did not set a generation template, so the CLI should
+ * pick the test template that goes with the ZCL data model.
+ *
+ * @param {*} value
+ * @returns {boolean}
+ */
+function generationTemplateUnset(value) {
+  if (value == null) return true
+  if (Array.isArray(value)) {
+    return value.length === 0 || value.every((v) => v == null || v === '')
+  }
+  return value === ''
+}
+
+/**
+ * True when the caller did not name a data model. Unlike `--gen`, `--zcl`
+ * always arrives with something in it, so "unset" means "still the bundled
+ * Zigbee data model that yargs fills in".
+ *
+ * @param {*} value
+ * @returns {boolean}
+ */
+function zclPropertiesUnset(value) {
+  if (value == null) return true
+  let builtin = env.builtinSilabsZclMetafile()
+  let list = Array.isArray(value) ? value : [value]
+  return (
+    list.length === 0 ||
+    list.every((v) => v == null || v === '' || v === builtin)
+  )
+}
+
+/**
+ * The .zap file a command line is about to work on, whichever way it was
+ * named. Used to find the SDK arguments that were resolved for it.
+ *
+ * @param {*} ret Parsed arguments.
+ * @returns {string|null} one path, or null
+ */
+function zapFileFromArgs(ret) {
+  if (typeof ret.zapFile === 'string') return ret.zapFile
+  if (Array.isArray(ret.zapFiles) && typeof ret.zapFiles[0] === 'string') {
+    return ret.zapFiles[0]
+  }
+  return null
+}
+
+/**
+ * Fills in the packages the SDK resolved for the project, for a command line
+ * that named a project .zap file and no packages.
+ *
+ * This is the same answer Studio and `slc generate` get by expanding the
+ * `zcl.*` properties of apack.json, and the same one the server reads when the
+ * interface opens a project file. Without it a bare command line falls back to
+ * the bundled test data model and templates, which package matching then writes
+ * into the file, so the next generation quietly produces nothing.
+ *
+ * @param {*} ret Parsed arguments, modified in place.
+ * @returns {*} the same parsed arguments
+ */
+function applySdkProvidedPackages(ret) {
+  let zclUnset = zclPropertiesUnset(ret.zclProperties)
+  let genUnset = generationTemplateUnset(ret.generationTemplate)
+  if (!zclUnset && !genUnset) return ret
+
+  let sdk = sdkArgs.packagesForZapFile(zapFileFromArgs(ret))
+  if (sdk == null) return ret
+
+  let used = []
+  if (zclUnset && sdk.zclProperties.length > 0) {
+    ret.zclProperties = sdk.zclProperties
+    used.push('--zcl')
+  }
+  if (genUnset && sdk.generationTemplate.length > 0) {
+    ret.generationTemplate = sdk.generationTemplate
+    used.push('--generationTemplate')
+  }
+  if (used.length > 0) {
+    console.log(
+      env.formatEmojiMessage(
+        '🔧',
+        `${used.join(' and ')} from ${sdkArgs.slcArgsFileName}: ${sdk.categories.join(', ')}`
+      )
+    )
+  }
+  return ret
+}
+
+/**
+ * Applies the settings that every command needs regardless of how it was
+ * parsed: the Jenkins adjustments, the save file format, the emoji preference
+ * and the state directory.
+ *
+ * @param {*} ret Parsed arguments, modified in place.
+ * @returns {*} the same parsed arguments
+ */
+function applyEnvironmentSettings(ret) {
+  // Before the bundled names are resolved, so that asking for a bundled data
+  // model by name still counts as asking for one.
+  applySdkProvidedPackages(ret)
+
+  if (ret.zclProperties != null) {
+    ret.zclProperties = resolveZclMetafileNames(ret.zclProperties)
+  }
+
+  // When --gen is omitted and the project has nothing to say, load the test
+  // templates that match the ZCL data model so a packaged binary has something
+  // to generate / attach without the caller knowing where the bundle mounts
+  // those files.
+  if (generationTemplateUnset(ret.generationTemplate)) {
+    ret.generationTemplate = env.defaultGenTemplatesForZcl(ret.zclProperties)
+  } else {
+    ret.generationTemplate = resolveGenTemplateMetafileNames(
+      ret.generationTemplate
+    )
+  }
+
+  if (ret.jenkins) {
+    console.log(
+      env.formatEmojiMessage(
+        '🔧',
+        'Detected Jenkins environment. Making necessary adjustments.'
+      )
+    )
+    if (process.env[env.environmentVariable.skipPostGen.name] == null) {
+      ret.skipPostGen = true
+    }
+    if (process.env[env.environmentVariable.uniqueStateDir.name] == null) {
+      ret.tempState = true
+    }
+  }
+
+  env.setSaveFileFormat(ret.saveFileFormat)
+  env.setRecentFileDays(ret.recentFileDays)
+
+  // Set emoji preference via environment variable
+  if (ret.noEmoji) {
+    process.env.NO_EMOJI = '1'
+  }
+
+  if (ret.tempState) {
+    let tempDir = fs.mkdtempSync(`${os.tmpdir()}${path.sep}zap.`)
+    console.log(
+      env.formatEmojiMessage(
+        '🔧',
+        `Using temporary state directory: ${env.setAppDirectory(tempDir)}`
+      )
+    )
+  } else {
+    console.log(
+      env.formatEmojiMessage(
+        '🔧',
+        `Using state directory: ${env.setAppDirectory(ret.stateDirectory)}`
+      )
+    )
+  }
+
+  return ret
+}
+
+/**
  * Process the command line arguments and resets the state in this file
  * to the specified values.
  *
@@ -72,6 +272,20 @@ function expandCommaSeparatedZapPaths(tokens) {
  * @returns parsed argv object
  */
 export function processCommandLineArguments(argv) {
+  // The configuration commands (`endpoint list`, `new file.zap`, `help`, ...)
+  // have a nested subcommand tree of their own, so they get parsed by a
+  // dedicated parser instead of the flat one below. That keeps per-subcommand
+  // help and required-option checking working.
+  if (cliCommands.isCliCommandLine(argv)) {
+    // The console has to be routed before anything else prints, because the
+    // state directory notice below already goes to stdout.
+    return applyEnvironmentSettings(
+      cliCommands.routeConsoleForMachineOutput(
+        cliCommands.parseCliCommandLine(argv)
+      )
+    )
+  }
+
   let zapVersion = env.zapVersion()
   let commands = new Map([
     ['generate', 'Generate ZCL artifacts.'],
@@ -81,7 +295,10 @@ export function processCommandLineArguments(argv) {
     ['status', 'Query the status of a zap server.'],
     ['server', 'Run zap in a server mode.'],
     ['stop', 'Stop zap server if one is running.'],
-    ['new', 'If in client mode, start a new window on a main instance.'],
+    [
+      'new',
+      'With a .zap file, create an empty configuration (`zap new file.zap`). Without one, start a new window on a main instance.'
+    ],
     ['regenerateSdk', 'Perform full SDK regeneration.'],
     ['validate', 'Validate ZCL/Data-Model elements in one or more .zap files.']
   ])
@@ -114,7 +331,9 @@ export function processCommandLineArguments(argv) {
       default: null
     })
     .option('zclProperties', {
-      desc: 'zcl.properties file to read in.',
+      desc: `zcl.properties file to read in. Also accepts a bundled data model name: ${env
+        .builtinZclMetafileNameList()
+        .join(', ')}.`,
       alias: ['zcl', 'z'],
       type: 'array',
       default: env.builtinSilabsZclDemoMetafile()
@@ -125,7 +344,11 @@ export function processCommandLineArguments(argv) {
       default: null
     })
     .option('generationTemplate', {
-      desc: 'generation template metafile (gen-template.json) to read in.',
+      desc: `generation template metafile (gen-templates.json) to read in. Also accepts a bundled name: ${env
+        .builtinGenTemplateMetafileNameList()
+        .join(
+          ', '
+        )}. When omitted, the test templates matching --zcl are used.`,
       alias: ['gen', 'g'],
       type: 'array',
       default: env.builtinTemplateMetafile()
@@ -279,7 +502,9 @@ export function processCommandLineArguments(argv) {
       type: 'boolean',
       default: false
     })
-    .usage('Usage: $0 <command> [options] ... [file.zap] ...')
+    .usage(
+      'Usage: $0 <command> [options] ... [file.zap] ...\n\nTo change a .zap file: $0 <group> <operation> <file.zap> [options], for example $0 endpoint list app.zap. See: $0 help'
+    )
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${
         zapVersion.featureLevel
@@ -298,30 +523,6 @@ For more information, see ${commonUrl.projectUrl}`
     )
     .wrap(null)
     .parse(argv)
-
-  // Apply Jenkins logic.
-  if (ret.jenkins) {
-    console.log(
-      env.formatEmojiMessage(
-        '🔧',
-        'Detected Jenkins environment. Making necessary adjustments.'
-      )
-    )
-    if (process.env[env.environmentVariable.skipPostGen.name] == null) {
-      ret.skipPostGen = true
-    }
-    if (process.env[env.environmentVariable.uniqueStateDir.name] == null) {
-      ret.tempState = true
-    }
-  }
-
-  env.setSaveFileFormat(ret.saveFileFormat)
-  env.setRecentFileDays(ret.recentFileDays)
-
-  // Set emoji preference via environment variable
-  if (ret.noEmoji) {
-    process.env.NO_EMOJI = '1'
-  }
 
   // Collect files that are passed as loose arguments
   let allFiles = ret._.filter((arg, index) => {
@@ -361,22 +562,5 @@ For more information, see ${commonUrl.projectUrl}`
     ret.zapFileExtensions = allZapFileExtensions
   }
 
-  if (ret.tempState) {
-    let tempDir = fs.mkdtempSync(`${os.tmpdir()}${path.sep}zap.`)
-    console.log(
-      env.formatEmojiMessage(
-        '🔧',
-        `Using temporary state directory: ${env.setAppDirectory(tempDir)}`
-      )
-    )
-  } else {
-    console.log(
-      env.formatEmojiMessage(
-        '🔧',
-        `Using state directory: ${env.setAppDirectory(ret.stateDirectory)}`
-      )
-    )
-  }
-
-  return ret
+  return applyEnvironmentSettings(ret)
 }

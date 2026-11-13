@@ -21,7 +21,8 @@ export default defineConfig({
         config.excludeSpecPattern = [
           ...(config.excludeSpecPattern || []),
           '**/matter/**',
-          '**/multiprotocol/**'
+          '**/multiprotocol/**',
+          '**/silabs-demo/**'
         ]
       } else if (mode === Mode.matter) {
         config.specPattern = 'cypress/e2e/**/*.cy.js'

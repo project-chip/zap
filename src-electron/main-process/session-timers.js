@@ -30,37 +30,51 @@
 
 let ASYNC_DEFAULT_TIMER_INTERVAL_MS = 6000
 
-let sessionTimerIdArrayMap = {}
+// Session ids are only unique within a database.
+const databaseTimers = new Map()
 
 /**
- * Start session specific validation.
- *
+ * Start session specific validation, replacing any previous timers.
  */
 function initSessionTimers(db, session, sessionTimersSetupArray) {
-  if (!sessionTimerIdArrayMap[session.sessionId]) {
-    sessionTimerIdArrayMap[session.sessionId] = []
-  }
-  sessionTimersSetupArray.forEach((setup) => {
-    sessionTimerIdArrayMap[session.sessionId].push(
+  deinitSessionTimers(session, db)
+  if (sessionTimersSetupArray.length === 0) return
+  if (!databaseTimers.has(db)) databaseTimers.set(db, new Map())
+  databaseTimers.get(db).set(
+    session.sessionId,
+    sessionTimersSetupArray.map((setup) =>
       setInterval(
         setup.func,
         setup.timerInterval || ASYNC_DEFAULT_TIMER_INTERVAL_MS
       )
     )
-  })
+  )
 }
 
 /**
- * Deinitalize all validation timers associated with a specific session.
- * @param db
- * @param session
+ * Stop validation timers for a session. If no database is supplied, stop
+ * matching sessions in all databases for compatibility with existing callers.
  */
-function deinitSessionTimers(session) {
-  let asyncIdArray = sessionTimerIdArrayMap[session.sessionId]
-  Object.keys(asyncIdArray).forEach((timer) =>
-    clearInterval(asyncIdArray[timer])
-  )
+function deinitSessionTimers(session, db) {
+  for (const [database, sessions] of databaseTimers) {
+    if (db != null && database !== db) continue
+    const timers = sessions.get(session.sessionId)
+    if (timers) timers.forEach(clearInterval)
+    sessions.delete(session.sessionId)
+    if (sessions.size === 0) databaseTimers.delete(database)
+  }
+}
+
+/**
+ * Stop all session validation before closing their database.
+ */
+function deinitDatabaseSessionTimers(db) {
+  const sessions = databaseTimers.get(db)
+  if (!sessions) return
+  for (const timers of sessions.values()) timers.forEach(clearInterval)
+  databaseTimers.delete(db)
 }
 
 exports.initSessionTimers = initSessionTimers
 exports.deinitSessionTimers = deinitSessionTimers
+exports.deinitDatabaseSessionTimers = deinitDatabaseSessionTimers

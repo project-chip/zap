@@ -45,6 +45,9 @@ const exportJs = require('../importexport/export.js')
 const validateAll = require('../validation/validate-all.js')
 const watchdog = require('./watchdog')
 const sdkUtil = require('../util/sdk-util')
+const cliCommands = require('../cli/cli-commands.js')
+const cliError = require('../cli/cli-error.js')
+const cliOutput = require('../cli/cli-output.js')
 
 let mainDatabase = null
 
@@ -766,6 +769,36 @@ async function startValidate(argv, options) {
 }
 
 /**
+ * Runs a configuration command, which performs the same edits on a .zap
+ * file that a person would perform in the user interface.
+ *
+ * Failures are reported through `options.errorPrinter`, which defaults to
+ * stderr so that a machine readable result on stdout stays parseable. Tests
+ * override it to assert on what the user is actually told.
+ *
+ * @param {*} argv
+ * @param {*} options
+ * @returns exit code, 0 on success
+ */
+async function startCli(argv, options = {}) {
+  let errorPrinter = options.errorPrinter || env.printToStderr
+  try {
+    return await cliCommands.run(argv, options)
+  } catch (err) {
+    if (err instanceof cliError.CliError) {
+      errorPrinter(env.formatEmojiMessage('⛔', err.message))
+      err.hints.forEach((hint) => errorPrinter(hint))
+      cliOutput
+        .renderSteps(err.remedies, argv.zapFile)
+        .forEach((command) => errorPrinter(`  ${command}`))
+    } else {
+      errorPrinter(env.formatEmojiMessage('⛔', `${err.stack || err}`))
+    }
+    return 1
+  }
+}
+
+/**
  * Starts zap in a server mode.
  *
  * @param {*} options
@@ -1399,6 +1432,8 @@ async function startUpMainInstance(argv, callbacks) {
         env.printToStderr(`Zap validation error: ${err}`)
         cleanExit(argv.cleanupDelay, 1)
       })
+  } else if (argv.cliOperation != null) {
+    return startCli(argv).then((code) => cleanExit(argv.cleanupDelay, code))
   } else if (argv._.includes('server')) {
     return startServer(argv, quitFunction)
   } else if (argv._.includes('convert')) {
@@ -1485,6 +1520,7 @@ exports.clearDatabaseFile = clearDatabaseFile
 exports.startConvert = startConvert
 exports.startAnalyze = startAnalyze
 exports.startValidate = startValidate
+exports.startCli = startCli
 exports.startUpMainInstance = startUpMainInstance
 exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown

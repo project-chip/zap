@@ -22,27 +22,61 @@
  */
 
 const env = require('../util/env')
-const queryZcl = require('../db/query-zcl.js')
-const queryAttribute = require('../db/query-attribute.js')
-const queryCommand = require('../db/query-command.js')
-const queryEvent = require('../db/query-event.js')
-const queryFeature = require('../db/query-feature')
-const queryConfig = require('../db/query-config.js')
-const upgrade = require('../sdk/matter.js')
 const querySessionNotification = require('../db/query-session-notification.js')
 const queryPackageNotification = require('../db/query-package-notification')
-const queryEndpointType = require('../db/query-endpoint-type.js')
-const queryEndpoint = require('../db/query-endpoint.js')
-const querySession = require('../db/query-session.js')
-const queryPackage = require('../db/query-package.js')
-const asyncValidation = require('../validation/async-validation.js')
-const validation = require('../validation/validation.js')
-const validateAll = require('../validation/validate-all.js')
 const restApi = require('../../src-shared/rest-api.js')
-const zclLoader = require('../zcl/zcl-loader.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
-const conformChecker = require('../validation/conformance-checker.js')
+const configurationApi = require('../configuration')
+
+/**
+ * The endpoint and cluster a feature request is about, by database id.
+ *
+ * The interface knows the exact rows it is showing, so it sends their ids
+ * (`endpointRef`, `clusterRef`) and the operation needs no name lookup. A
+ * lookup by endpoint number and cluster name is ambiguous in a multiprotocol
+ * configuration, or wherever two packages define a cluster of the same name,
+ * so the names are only a fallback for callers that have nothing else.
+ *
+ * @param {*} body the request body
+ * @param {*} [featureData] the feature row, which carries its cluster id
+ * @returns {*} `{ endpointId, clusterId }`, each undefined when not sent
+ */
+function featureTarget(body, featureData = null) {
+  let clusterId = body.clusterRef
+  if (clusterId == null && featureData != null)
+    clusterId = featureData.clusterRef
+  return {
+    endpointId: body.endpointRef == null ? undefined : body.endpointRef,
+    clusterId: clusterId == null ? undefined : clusterId
+  }
+}
+
+/** Runs one shared operation for each distinct endpoint type in a GUI edit. */
+async function applyOperationToEndpointTypes(
+  db,
+  request,
+  endpointTypeIds,
+  name,
+  params
+) {
+  const endpoints = await configurationApi.readEndpointsForSession(
+    db,
+    request.zapSessionId
+  )
+  for (const endpointTypeId of [...new Set(endpointTypeIds.map(Number))]) {
+    const endpoint = endpoints.find(
+      (candidate) => Number(candidate.endpointTypeRef) === endpointTypeId
+    )
+    if (endpoint == null) {
+      throw new Error(`No endpoint uses endpoint type ${endpointTypeId}`)
+    }
+    await configurationApi.executeRequest(db, request, name, {
+      ...params,
+      endpointId: endpoint.id
+    })
+  }
+}
 
 /**
  * HTTP GET: session key values
@@ -53,7 +87,7 @@ const conformChecker = require('../validation/conformance-checker.js')
 function httpGetSessionKeyValues(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let sessionKeyValues = await querySession.getAllSessionKeyValues(
+    let sessionKeyValues = await configurationApi.readSessionKeyValues(
       db,
       sessionId
     )
@@ -69,11 +103,7 @@ function httpGetSessionKeyValues(db) {
 function httpGetEndpointIds(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let endpoints = await queryEndpoint.selectAllEndpoints(db, sessionId)
-    let endpointIds = []
-    endpoints.forEach((endpoint) => {
-      endpointIds.push(endpoint.endpointIdentifier)
-    })
+    let endpointIds = await configurationApi.readEndpointIds(db, sessionId)
     response.status(StatusCodes.OK).json(endpointIds)
   }
 }
@@ -88,7 +118,7 @@ function httpGetDeviceTypeFeatures(db) {
   return async (request, response) => {
     let { deviceTypeRefs, endpointTypeRef } = request.query
     if (Array.isArray(deviceTypeRefs) && deviceTypeRefs.length > 0) {
-      let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
+      let deviceTypeFeatures = await configurationApi.readDeviceTypeFeatures(
         db,
         deviceTypeRefs,
         endpointTypeRef
@@ -109,59 +139,44 @@ function httpGetDeviceTypeFeatures(db) {
  */
 function httpPostCheckConformOnFeatureUpdate(db) {
   return async (request, response) => {
-    let sessionId = request.zapSessionId
-    let {
-      featureData,
-      featureMap,
-      clusterFeatures,
-      endpointId,
-      endpointTypeId,
-      changeConfirmed
-    } = request.body
-
-    let endpointTypeClusterId =
-      await conformChecker.getEndpointTypeClusterIdFromFeatureData(
-        db,
-        featureData,
-        endpointTypeId
-      )
-    let elements = await queryEndpointType.getEndpointTypeElements(
+    let { featureData, endpointId, cluster, enabled } = request.body
+    const outcome = await configurationApi.executeRequest(
       db,
-      endpointTypeClusterId
-    )
-
-    // check element conform and return elements that need to be updated
-    let result = conformChecker.checkElementConformance(
-      elements,
-      featureMap,
-      featureData,
-      endpointId,
-      clusterFeatures
-    )
-
-    if (changeConfirmed || result.disableChange) {
-      // set feature related warnings
-      await querySessionNotification.setNotificationOnFeatureChange(
-        db,
-        sessionId,
-        result
-      )
-      // set element warnings, if feature change is not disabled
-      if (!result.disableChange) {
-        let outdatedWarnings = conformChecker.getOutdatedElementWarning(
-          featureData.code,
-          elements,
-          result.elementMap
-        )
-        await querySessionNotification.deleteNotificationWithPatterns(
-          db,
-          sessionId,
-          outdatedWarnings
-        )
+      request,
+      'feature.preview',
+      {
+        ...featureTarget(request.body, featureData),
+        endpoint: endpointId,
+        cluster: cluster || featureData.cluster,
+        feature: featureData.code,
+        enabled,
+        persistWarning: true
       }
-    }
+    )
+    response.status(StatusCodes.OK).json(
+      outcome.preview || {
+        attributesToUpdate: [],
+        commandsToUpdate: [],
+        eventsToUpdate: [],
+        displayWarning: false,
+        warningMessage: '',
+        disableChange: false
+      }
+    )
+  }
+}
 
-    response.status(StatusCodes.OK).json(result)
+/** Applies a confirmed feature change through the shared operation core. */
+function httpPostApplyFeatureUpdate(db) {
+  return async (request, response) => {
+    const { endpoint, cluster, feature, enabled } = request.body
+    const outcome = await configurationApi.executeRequest(
+      db,
+      request,
+      enabled ? 'feature.enable' : 'feature.disable',
+      { ...featureTarget(request.body), endpoint, cluster, feature }
+    )
+    response.status(StatusCodes.OK).json(outcome)
   }
 }
 
@@ -172,25 +187,14 @@ function httpPostCheckConformOnFeatureUpdate(db) {
  */
 function httpPostRequiredElements(db) {
   return async (request, response) => {
-    let { featureMap, endpointTypeId, featureData, clusterRef } = request.body
-
-    let endpointTypeClusterId =
-      await conformChecker.getEndpointTypeClusterIdFromFeatureData(
-        db,
-        featureData,
-        endpointTypeId,
-        clusterRef
-      )
-    let endpointTypeElements = await queryEndpointType.getEndpointTypeElements(
+    const { endpoint, cluster } = request.body
+    const outcome = await configurationApi.executeRequest(
       db,
-      endpointTypeClusterId
+      request,
+      'feature.requirements',
+      { ...featureTarget(request.body), endpoint, cluster }
     )
-    let result = conformChecker.checkElementConformance(
-      endpointTypeElements,
-      featureMap
-    )
-
-    response.status(StatusCodes.OK).json(result)
+    response.status(StatusCodes.OK).json(outcome.requirements)
   }
 }
 
@@ -203,7 +207,7 @@ function httpPostRequiredElements(db) {
 function httpGetFeatureMapAttribute(db) {
   return async (request, response) => {
     let { attributeId, clusterId, endpointTypeId } = request.query
-    let featureMapAttribute = await queryZcl.selectEndpointTypeAttribute(
+    let featureMapAttribute = await configurationApi.readEndpointTypeAttribute(
       db,
       endpointTypeId,
       attributeId,
@@ -330,7 +334,7 @@ function httpPostSaveSessionKeyValue(db) {
     let { key, value } = request.body
     let sessionId = request.zapSessionId
     env.logDebug(`[${sessionId}]: Saving: ${key} => ${value}`)
-    await querySession.updateSessionKeyValue(db, sessionId, key, value)
+    await configurationApi.saveSessionValue(db, sessionId, key, value)
     response.status(StatusCodes.OK).json({
       key: key,
       value: value
@@ -347,38 +351,15 @@ function httpPostSaveSessionKeyValue(db) {
 function httpPostCluster(db) {
   return async (request, response) => {
     let { id, side, flag, endpointTypeId } = request.body
-    let sessionId = request.zapSessionId
 
     try {
-      let pkgs = await queryPackage.getSessionPackagesWithTypes(db, sessionId)
-      pkgs = pkgs.filter(
-        (pkg) =>
-          pkg.type == dbEnum.packageType.zclProperties ||
-          pkg.type == dbEnum.packageType.zclXmlStandalone
-      )
-      let packageIds = pkgs.map((pkg) => pkg.packageRef)
-
-      let insertDefault = await queryConfig
-        .selectClusterState(db, endpointTypeId, id, side)
-        .then((state) => state == null)
-
-      await queryConfig.insertOrReplaceClusterState(
-        db,
-        endpointTypeId,
-        id,
-        side,
-        flag
-      )
-
-      if (insertDefault) {
-        await queryConfig.insertClusterDefaults(
+      for (const clusterSide of Array.isArray(side) ? side : [side]) {
+        await applyOperationToEndpointTypes(
           db,
-          endpointTypeId,
-          packageIds,
-          {
-            clusterRef: id,
-            side: side
-          }
+          request,
+          [endpointTypeId],
+          flag ? 'cluster.enable' : 'cluster.disable',
+          { clusterId: id, side: clusterSide }
         )
       }
 
@@ -412,12 +393,10 @@ function httpPostCluster(db) {
 function httpPostForcedExternal(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let packages = await queryPackage.getPackageSessionPackagePairBySessionId(
+    let forcedExternal = await configurationApi.readForcedExternalStorage(
       db,
       sessionId
     )
-    let packageIds = packages.map((item) => item.pkg.id)
-    let forcedExternal = await upgrade.getForcedExternalStorage(db, packageIds)
     response.status(StatusCodes.OK).json(forcedExternal)
   }
 }
@@ -446,39 +425,61 @@ function httpPostAttributeUpdate(db) {
       return response.status(StatusCodes.BAD_REQUEST).json()
     }
 
-    let paramType
+    let changes = {}
     switch (listType) {
+      case restApi.updateKey.init:
+        changes.initialize = true
+        break
+      case restApi.updateKey.attributeSelected:
+        changes.enabled = value
+        break
       case restApi.updateKey.attributeStorage:
+        changes.storage = value
+        break
       case restApi.updateKey.attributeDefault:
-        paramType = 'text'
+        changes.default = value
+        break
+      case restApi.updateKey.attributeSingleton:
+        changes.singleton = value
+        break
+      case restApi.updateKey.attributeBounded:
+        changes.bounded = value
+        break
+      case restApi.updateKey.attributeReporting:
+        changes.reporting = value
+        break
+      case restApi.updateKey.attributeReportMin:
+        changes.minInterval = value
+        break
+      case restApi.updateKey.attributeReportMax:
+        changes.maxInterval = value
+        break
+      case restApi.updateKey.attributeReportChange:
+        changes.reportableChange = value
         break
       default:
-        paramType = ''
-        break
+        return response.status(StatusCodes.BAD_REQUEST).json({
+          error: `Unknown attribute update key ${listType}`
+        })
     }
-    let paramArray =
-      listType == restApi.updateKey.init
-        ? null
-        : [{ key: listType, value: value, type: paramType }]
+    if (reportMinInterval != null) changes.minInterval = reportMinInterval
+    if (reportMaxInterval != null) changes.maxInterval = reportMaxInterval
+    if (reportableChange != null) changes.reportableChange = reportableChange
 
-    // all endpoints
-    await Promise.all(
-      endpointTypeIdList.map((endpointTypeId) =>
-        queryConfig.insertOrUpdateAttributeState(
-          db,
-          endpointTypeId,
-          clusterRef,
-          attributeSide,
-          id,
-          paramArray,
-          reportMinInterval,
-          reportMaxInterval,
-          reportableChange
-        )
-      )
+    await applyOperationToEndpointTypes(
+      db,
+      request,
+      endpointTypeIdList,
+      'attribute.set',
+      {
+        clusterId: clusterRef,
+        attributeId: id,
+        side: attributeSide,
+        ...changes
+      }
     )
     // send latest value to frontend to update UI
-    let eptAttr = await queryZcl.selectEndpointTypeAttribute(
+    let eptAttr = await configurationApi.readEndpointTypeAttribute(
       db,
       selectedEndpoint,
       id,
@@ -488,7 +489,7 @@ function httpPostAttributeUpdate(db) {
     // only return 1 validation result.
     // error isn't endpoint specific.
     // endpointTypeId doesn't matter since all attributes are the seame.
-    let validationData = await validation.validateAttribute(
+    let validationData = await configurationApi.validateAttribute(
       db,
       selectedEndpoint,
       id,
@@ -539,18 +540,21 @@ function httpPostCommandUpdate(db) {
         break
     }
 
-    await Promise.all(
-      endpointTypeIdList.map((endpointTypeId) =>
-        queryConfig.insertOrUpdateCommandState(
-          db,
-          endpointTypeId,
-          clusterRef,
-          commandSide,
-          id,
-          value,
-          isIncoming
-        )
-      )
+    if (isIncoming == null) {
+      return response.status(StatusCodes.BAD_REQUEST).json({
+        error: `Unknown command update key ${listType}`
+      })
+    }
+    await applyOperationToEndpointTypes(
+      db,
+      request,
+      endpointTypeIdList,
+      value ? 'command.enable' : 'command.disable',
+      {
+        clusterId: clusterRef,
+        commandId: id,
+        direction: isIncoming ? 'in' : 'out'
+      }
     )
 
     response.status(StatusCodes.OK).json({
@@ -575,13 +579,12 @@ function httpPostEventUpdate(db) {
   return async (request, response) => {
     let { action, endpointTypeId, id, value, listType, clusterRef, eventSide } =
       request.body
-    await queryConfig.insertOrUpdateEventState(
+    await applyOperationToEndpointTypes(
       db,
-      endpointTypeId,
-      clusterRef,
-      eventSide,
-      id,
-      value
+      request,
+      [endpointTypeId],
+      value ? 'event.enable' : 'event.disable',
+      { clusterId: clusterRef, eventId: id, side: eventSide }
     )
 
     response.status(StatusCodes.OK).json({
@@ -608,18 +611,7 @@ function httpGetInitialState(db) {
     let state = { endpointTypes: [], endpoints: [], sessionKeyValues: [] }
 
     try {
-      let session = await querySession.getSessionFromSessionId(db, sessionId)
-      if (session) await asyncValidation.initAsyncValidation(db, session)
-
-      let results = await Promise.all([
-        queryEndpointType.selectAllEndpointTypes(db, sessionId),
-        queryEndpoint.selectAllEndpoints(db, sessionId),
-        querySession.getAllSessionKeyValues(db, sessionId)
-      ])
-
-      state.endpointTypes = results[0]
-      state.endpoints = results[1]
-      state.sessionKeyValues = results[2]
+      state = await configurationApi.readInitialState(db, sessionId)
     } catch (error) {
       console.error(error)
     }
@@ -638,12 +630,7 @@ function httpGetOption(db) {
   return async (request, response) => {
     const { category } = request.params
     let sessionId = request.zapSessionId
-    let packages = await queryPackage.getSessionPackages(db, sessionId)
-    let p = packages.map((pkg) =>
-      queryPackage.selectAllOptionsValues(db, pkg.packageRef, category)
-    )
-    let data = await Promise.all(p)
-    data = data.flat(1)
+    let data = await configurationApi.readOptions(db, sessionId, category)
     response.status(StatusCodes.OK).json(data)
   }
 }
@@ -656,11 +643,7 @@ function httpGetOption(db) {
 function httpGetUiOptions(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let packages = await queryPackage.getSessionPackages(db, sessionId)
-    let zclPackage = await queryPackage.getZclPropertiesPackage(db, packages)
-    let data = []
-    if (zclPackage != null && zclPackage.length > 0)
-      data = await queryPackage.selectAllUiOptions(db, zclPackage[0].id)
+    let data = await configurationApi.readUiOptions(db, sessionId)
     response.status(StatusCodes.OK).json(data)
   }
 }
@@ -672,7 +655,7 @@ function httpGetPackages(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
     let packageSessionPackagePairs =
-      await queryPackage.getPackageSessionPackagePairBySessionId(db, sessionId)
+      await configurationApi.readPackageSessionPairs(db, sessionId)
     response.status(StatusCodes.OK).json(packageSessionPackagePairs)
   }
 }
@@ -682,7 +665,7 @@ function httpGetPackages(db) {
  */
 function httpGetAllPackages(db) {
   return async (request, response) => {
-    let packages = await queryPackage.getAllPackages(db)
+    let packages = await configurationApi.readAllPackages(db)
     response.status(StatusCodes.OK).json({ packages })
   }
 }
@@ -695,22 +678,18 @@ function httpPostAddNewPackage(db) {
     let sessionId = req.zapSessionId
     let filePath = req.body.path
     try {
-      let data = await zclLoader.loadIndividualFile(db, filePath, sessionId)
-      let status
-      if (data.err) {
-        status = {
-          isValid: false,
-          err: data.err.message
-        }
-      } else {
-        status = {
-          isValid: data.succeeded,
-          sessionId: sessionId
-        }
-      }
-      res.status(StatusCodes.OK).json(status)
+      await configurationApi.executeRequest(db, req, 'package.add', {
+        xml: [filePath]
+      })
+      res.status(StatusCodes.OK).json({
+        isValid: true,
+        sessionId: sessionId
+      })
     } catch (err) {
-      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
+      res.status(StatusCodes.OK).json({
+        isValid: false,
+        err: err.message || String(err)
+      })
     }
   }
 }
@@ -733,7 +712,7 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
   return async (request, response) => {
     let { endpointTypeIdList } = request.body
     let sessionId = request.zapSessionId
-    let packageIds = await queryPackage.getSessionPackagesByType(
+    let packageIds = await configurationApi.readSessionPackagesByType(
       db,
       sessionId,
       dbEnum.packageType.zclProperties
@@ -745,294 +724,14 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
       return response.status(StatusCodes.BAD_REQUEST).send()
     }
 
-    // Get a list of clusters enabled by multiple (>1) endpoints
-    let sharedClusterList = await queryEndpointType
-      .selectAllClustersDetailsFromEndpointTypes(
-        db,
-        endpointTypeIdList.map((id) => {
-          return { endpointTypeId: id }
-        })
-      )
-      .then((list) => list.filter((entry) => entry.endpointCount > 1))
-
-    let attrDefaults = await attributeDefaults(
+    let result = await configurationApi.shareClusterStatesAcrossEndpoints(
       db,
       endpointTypeIdList,
-      sharedClusterList,
-      packageIds
-    )
-    await writeAttributeDefaults(db, attrDefaults)
-
-    let cmdDefaults = await commandDefaults(
-      db,
-      endpointTypeIdList,
-      sharedClusterList,
-      packageIds
-    )
-    await writeCommandDefaults(db, cmdDefaults)
-
-    return response.status(StatusCodes.OK).json({
-      sharedClusterList,
-      sharedAttributeDefaults: attrDefaults
-    })
-  }
-}
-
-/**
- * Get shared command defaults across endpoints.
- *
- * @param {*} db
- * @param {*} endpointTypeIdList
- * @param {*} sharedClusterList
- * @param {*} packageIds
- * @returns sharedCmdDefaults
- */
-async function commandDefaults(
-  db,
-  endpointTypeIdList,
-  sharedClusterList,
-  packageIds
-) {
-  let sharedCmdDefaults = {}
-  let clusCmdToCmdObj = {}
-  let sharedCommandList =
-    await queryCommand.selectAllCommandDetailsFromEnabledClusters(
-      db,
-      sharedClusterList.map((c) => {
-        return { endpointTypeClusterRef: c.endpointClusterId }
-      }),
       packageIds
     )
 
-  for (const endpointTypeId of endpointTypeIdList) {
-    for (const sharedCmd of sharedCommandList) {
-      let clusCmdKey = JSON.stringify({
-        clusterId: sharedCmd.clusterId,
-        clusterSide: sharedCmd.clusterSide,
-        id: sharedCmd.id, // command id
-        code: sharedCmd.code,
-        mfgCode: sharedCmd.mfgCode
-      })
-
-      if (!(endpointTypeId in sharedCmdDefaults)) {
-        sharedCmdDefaults[endpointTypeId] = []
-      }
-
-      if (clusCmdKey in clusCmdToCmdObj) {
-        sharedCmdDefaults[endpointTypeId].push(clusCmdToCmdObj[clusCmdKey])
-      } else {
-        let cmds = await queryEndpoint.selectEndpointClusterCommands(
-          db,
-          sharedCmd.clusterId,
-          endpointTypeId
-        )
-
-        // find attr
-        let matched = cmds.filter((cmd) => commandEquals(cmd, sharedCmd))
-        if (matched.length) {
-          let m = matched.shift()
-
-          sharedCmdDefaults[endpointTypeId].push(m)
-          clusCmdToCmdObj[clusCmdKey] = m
-        }
-      }
-    }
+    return response.status(StatusCodes.OK).json(result)
   }
-  return sharedCmdDefaults
-}
-
-/**
- * Insert command defaults into the database.
- *
- * @param {*} db
- * @param {*} defaults
- */
-async function writeCommandDefaults(db, defaults) {
-  let promises = []
-  for (const [endpointTypeId, commandList] of Object.entries(defaults)) {
-    for (const cmd of commandList) {
-      promises.push(
-        queryConfig.insertOrUpdateCommandState(
-          db,
-          endpointTypeId,
-          cmd.clusterId,
-          cmd.source,
-          cmd.id,
-          cmd.isIncoming,
-          true
-        )
-      )
-
-      promises.push(
-        queryConfig.insertOrUpdateCommandState(
-          db,
-          endpointTypeId,
-          cmd.clusterId,
-          cmd.source,
-          cmd.id,
-          cmd.isOutgoing,
-          false
-        )
-      )
-    }
-  }
-  await Promise.all(promises)
-}
-
-/**
- * Shared attribute defaults across endpoints.
- *
- * @param {*} db
- * @param {*} endpointTypeIdList
- * @param {*} sharedClusterList
- * @param {*} packageIds
- * @returns sharedAttributeDefaults
- */
-async function attributeDefaults(
-  db,
-  endpointTypeIdList,
-  sharedClusterList,
-  packageIds
-) {
-  let sharedAttributeDefaults = {}
-  let clusterIdnSideToAttrCache = {}
-  let sharedAttributeList =
-    await queryAttribute.selectAttributeDetailsFromEnabledClusters(
-      db,
-      sharedClusterList,
-      packageIds
-    )
-
-  for (const endpointTypeId of endpointTypeIdList) {
-    for (const sharedAttr of sharedAttributeList) {
-      let clusAttrCacheKey = JSON.stringify({
-        clusterId: sharedAttr.clusterId,
-        side: sharedAttr.side,
-        id: sharedAttr.id, // attr id
-        code: sharedAttr.code,
-        name: sharedAttr.name,
-        type: sharedAttr.type,
-        mfgCode: sharedAttr.mfgCode,
-        define: sharedAttr.define
-      })
-
-      if (clusAttrCacheKey in clusterIdnSideToAttrCache) {
-        !(endpointTypeId in sharedAttributeDefaults) &&
-          (sharedAttributeDefaults[endpointTypeId] = [])
-        sharedAttributeDefaults[endpointTypeId].push(
-          clusterIdnSideToAttrCache[clusAttrCacheKey]
-        )
-      } else {
-        let attributes = await queryEndpoint.selectEndpointClusterAttributes(
-          db,
-          sharedAttr.clusterId,
-          sharedAttr.side,
-          endpointTypeId
-        )
-
-        // find attr
-        let matched = attributes.filter((attr) =>
-          attributeEquals(attr, sharedAttr)
-        )
-        if (matched.length) {
-          let m = matched.shift()
-
-          !(endpointTypeId in sharedAttributeDefaults) &&
-            (sharedAttributeDefaults[endpointTypeId] = [])
-          sharedAttributeDefaults[endpointTypeId].push(m)
-          clusterIdnSideToAttrCache[clusAttrCacheKey] = m
-        }
-      }
-    }
-  }
-  return sharedAttributeDefaults
-}
-
-/**
- * Write attribute defaults.
- *
- * @param {*} db
- * @param {*} defaults
- */
-async function writeAttributeDefaults(db, defaults) {
-  let promises = []
-  for (const [endpointTypeId, attributeList] of Object.entries(defaults)) {
-    for (const attr of attributeList) {
-      promises.push(
-        queryConfig.insertOrUpdateAttributeState(
-          db,
-          endpointTypeId,
-          attr.clusterId,
-          attr.side,
-          attr.id,
-          [
-            { key: restApi.updateKey.attributeSelected, value: 1 },
-            {
-              key: restApi.updateKey.attributeStorage,
-              value: `"${attr.storage}"`
-            },
-            {
-              key: restApi.updateKey.attributeSingleton,
-              value: attr.isSingleton
-            },
-            {
-              key: restApi.updateKey.attributeBounded,
-              value: attr.isBounded
-            },
-            {
-              key: restApi.updateKey.attributeDefault,
-              value: attr.defaultValue
-            },
-            {
-              key: restApi.updateKey.attributeReporting,
-              value: attr.includedReportable
-            }
-          ],
-          attr.min,
-          attr.max,
-          attr.reportableChange
-        )
-      )
-    }
-  }
-
-  await Promise.all(promises)
-}
-
-/**
- * Compares 2 commands for equality.
- *
- * @param {*} a
- * @param {*} b
- * @returns boolean
- */
-function commandEquals(a, b) {
-  return (
-    a.id === b.id &&
-    a.name === b.name &&
-    a.code === b.code &&
-    a.source === b.source &&
-    a.manufacturerCode === b.mfgCode
-  )
-}
-
-/**
- * Compares 2 attributes for equality.
- *
- * @param {*} a
- * @param {*} b
- * @returns boolean
- */
-function attributeEquals(a, b) {
-  return (
-    a.id === b.id &&
-    a.code === b.code &&
-    a.name === b.name &&
-    a.side === b.side &&
-    a.type === b.type &&
-    a.manufacturerCode === b.mfgCode &&
-    a.define === b.define
-  )
 }
 
 /**
@@ -1044,15 +743,9 @@ function attributeEquals(a, b) {
 function httpDeleteSessionPackage(db) {
   return async (request, response) => {
     let { sessionRef, packageRef } = request.query
-    let sessionPartitionInfo =
-      await querySession.selectSessionPartitionInfoFromPackageId(
-        db,
-        sessionRef,
-        packageRef
-      )
-    let removed = await queryPackage.deleteSessionPackage(
+    let removed = await configurationApi.deleteSessionPackage(
       db,
-      sessionPartitionInfo[0].sessionPartitionId,
+      sessionRef,
       packageRef
     )
 
@@ -1075,13 +768,17 @@ function httpPostDuplicateEndpoint(db) {
     let endpointId = req.body.id
     let endpointIdentifier = req.body.endpointIdentifier
     let endpointTypeId = req.body.endpointTypeId
-    let id = await queryEndpoint.duplicateEndpoint(
+    let outcome = await configurationApi.executeRequest(
       db,
-      endpointId,
-      endpointIdentifier,
-      endpointTypeId
+      req,
+      'endpoint.duplicate',
+      {
+        endpointId: endpointId,
+        newEndpoint: endpointIdentifier,
+        endpointTypeId: endpointTypeId
+      }
     )
-    res.status(StatusCodes.OK).json({ id: id })
+    res.status(StatusCodes.OK).json({ id: outcome.id })
   }
 }
 
@@ -1094,32 +791,15 @@ function httpPostDuplicateEndpoint(db) {
 function httpPostDuplicateEndpointType(db) {
   return async (request, response) => {
     let { endpointTypeId } = request.body
-    let newId = await queryConfig.duplicateEndpointType(db, endpointTypeId)
-
-    duplicateEndpointTypeClusters(db, endpointTypeId, newId)
-
-    response.status(StatusCodes.OK).json({
-      id: newId
-    })
-  }
-}
-
-/**
- * Update feature map attribute with given new value
- *
- * @param {*} db
- * @returns status of the update
- */
-function httpPatchUpdateBitOfFeatureMapAttribute(db) {
-  return async (request, response) => {
-    let { featureMapAttributeId, newValue } = request.body
-    let updated = await queryConfig.updateEndpointTypeAttribute(
+    let outcome = await configurationApi.executeRequest(
       db,
-      featureMapAttributeId,
-      [['defaultValue', newValue]]
+      request,
+      'endpointtype.duplicate',
+      { endpointTypeId: endpointTypeId }
     )
+
     response.status(StatusCodes.OK).json({
-      successful: updated > 0
+      id: outcome.id
     })
   }
 }
@@ -1132,7 +812,7 @@ function httpPatchUpdateBitOfFeatureMapAttribute(db) {
  */
 function httpGetConformDataExists(db) {
   return async (request, response) => {
-    let conformDataExists = await queryFeature.checkIfConformanceDataExist(db)
+    let conformDataExists = await configurationApi.hasConformanceData(db)
     response.status(StatusCodes.OK).json(conformDataExists)
   }
 }
@@ -1146,9 +826,11 @@ function httpGetConformDataExists(db) {
 function httpGetValidateAll(db) {
   return async (request, response) => {
     try {
-      const report = await validateAll.validateAll(db, request.zapSessionId, {
-        persistConformanceNotifications: false
-      })
+      const report = await configurationApi.validateSession(
+        db,
+        request.zapSessionId,
+        { persistConformanceNotifications: false }
+      )
       response.status(StatusCodes.OK).json(report)
     } catch (err) {
       env.logError(err)
@@ -1160,29 +842,12 @@ function httpGetValidateAll(db) {
 }
 
 /**
- * Set warning for the required element, and delete its existing warning if any.
- *
- * @param {*} db
- * @returns response of setting the warning notification
- */
-function httpPostRequiredElementWarning(db) {
-  return async (request, response) => {
-    let resp = await querySessionNotification.setRequiredElementWarning(
-      db,
-      request.body,
-      request.zapSessionId
-    )
-    response.status(StatusCodes.OK).json(resp)
-  }
-}
-
-/**
  * Disable obsolete attributes, commands, events, and features enabled by an
  * older configuration, and notify the user about each affected element.
  */
 function httpPostDisableObsoleteElements(db) {
   return async (request, response) => {
-    const elements = await queryConfig.disableObsoleteElements(
+    const elements = await configurationApi.disableObsoleteElements(
       db,
       request.zapSessionId,
       request.body.endpointTypeId
@@ -1198,66 +863,6 @@ function httpPostDisableObsoleteElements(db) {
  * @param {*} oldEndpointTypeId
  * @param {*} newEndpointTypeId
  */
-async function duplicateEndpointTypeClusters(
-  db,
-  oldEndpointTypeId,
-  newEndpointTypeId
-) {
-  let oldEndpointTypeClusters = await queryConfig.selectEndpointClusters(
-    db,
-    oldEndpointTypeId
-  )
-  oldEndpointTypeClusters.forEach(async (endpointTypeCluster) => {
-    let newEndpointTypeClusterId =
-      await queryConfig.insertOrReplaceClusterState(
-        db,
-        newEndpointTypeId,
-        endpointTypeCluster.clusterRef,
-        endpointTypeCluster.side,
-        endpointTypeCluster.enabled
-      )
-    let oldAttributes =
-      await queryAttribute.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
-        db,
-        oldEndpointTypeId,
-        endpointTypeCluster.endpointTypeClusterId
-      )
-    oldAttributes.forEach(async (attrubute) => {
-      await queryAttribute.duplicateEndpointTypeAttribute(
-        db,
-        newEndpointTypeClusterId,
-        attrubute
-      )
-    })
-    let oldCommands =
-      await queryCommand.selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef(
-        db,
-        oldEndpointTypeId,
-        endpointTypeCluster.endpointTypeClusterId
-      )
-    oldCommands.forEach(async (command) => {
-      await queryCommand.duplicateEndpointTypeCommand(
-        db,
-        newEndpointTypeClusterId,
-        command
-      )
-    })
-    let oldEvents =
-      await queryEvent.selectEndpointTypeEventsByEndpointTypeRefAndClusterRef(
-        db,
-        oldEndpointTypeId,
-        endpointTypeCluster.endpointTypeClusterId
-      )
-    oldEvents.forEach(async (event) => {
-      await queryEvent.duplicateEndpointTypeEvent(
-        db,
-        newEndpointTypeClusterId,
-        event
-      )
-    })
-  })
-}
-
 exports.post = [
   {
     uri: restApi.uri.forcedExternal,
@@ -1304,8 +909,8 @@ exports.post = [
     callback: httpPostCheckConformOnFeatureUpdate
   },
   {
-    uri: restApi.uri.requiredElementWarning,
-    callback: httpPostRequiredElementWarning
+    uri: restApi.uri.applyFeatureUpdate,
+    callback: httpPostApplyFeatureUpdate
   },
   {
     uri: restApi.uri.disableObsoleteElements,
@@ -1399,12 +1004,7 @@ exports.delete = [
   }
 ]
 
-exports.patch = [
-  {
-    uri: restApi.uri.updateBitOfFeatureMapAttribute,
-    callback: httpPatchUpdateBitOfFeatureMapAttribute
-  }
-]
+exports.patch = []
 
 //Exports added for testing
 exports.httpPostDuplicateEndpointType = httpPostDuplicateEndpointType

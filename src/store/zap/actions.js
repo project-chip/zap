@@ -605,6 +605,13 @@ export function addEndpoint(context, newEndpointContext) {
   return axiosRequests
     .$serverPost(restApi.uri.endpoint, newEndpointContext)
     .then((res) => {
+      if (!res) {
+        // Refused (for instance a duplicate endpoint identifier); the
+        // request layer has shown the reason.
+        throw new Error(
+          `Endpoint ${newEndpointContext.endpointId} was not created`
+        )
+      }
       let arg = res.data
       context.commit('addEndpoint', {
         id: arg.id,
@@ -664,10 +671,18 @@ export function duplicateEndpointType(context, { endpointTypeId }) {
  * @param {*} endpointId
  */
 export function deleteEndpoint(context, endpointId) {
-  axiosRequests
+  return axiosRequests
     .$serverDelete(restApi.uri.endpoint, { params: { id: endpointId } })
     .then((response) => {
+      if (!response) return null
       context.commit('deleteEndpoint', { id: response.data.id })
+      // The backend removes the endpoint type along with its last endpoint.
+      if (response.data.removedEndpointTypeId != null) {
+        context.commit('removeEndpointType', {
+          id: response.data.removedEndpointTypeId
+        })
+      }
+      return response.data
     })
 }
 
@@ -987,6 +1002,27 @@ export function setCommandStateLists(context, selectionContext) {
   })
 }
 
+/** Refresh state changed by a confirmed feature operation. */
+export async function refreshEndpointTypeConfiguration(
+  context,
+  endpointTypeId
+) {
+  const [attributes, commands, events] = await Promise.all([
+    axiosRequests.$serverGet(
+      `${restApi.uri.endpointTypeAttributes}${endpointTypeId}`
+    ),
+    axiosRequests.$serverGet(
+      `${restApi.uri.endpointTypeCommands}${endpointTypeId}`
+    ),
+    axiosRequests.$serverGet(
+      `${restApi.uri.endpointTypeEvents}${endpointTypeId}`
+    )
+  ])
+  setAttributeStateLists(context, attributes.data || [])
+  setCommandStateLists(context, commands.data || [])
+  setEventStateLists(context, events.data || [])
+}
+
 /**
  * Set recommended cluster list for the endpoint.
  * @param {*} context
@@ -1120,7 +1156,7 @@ export function setRequiredElements(context, data) {
   return axiosRequests
     .$serverPost(restApi.uri.requiredElements, data)
     .then((response) => {
-      context.commit('setRequiredElements', response.data)
+      if (response) context.commit('setRequiredElements', response.data)
     })
 }
 

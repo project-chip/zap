@@ -254,8 +254,6 @@ export default {
         addedValue = false
       }
 
-      this.setRequiredElementNotifications(commandData, addedValue, 'commands')
-
       let editContext = {
         action: 'boolean',
         endpointTypeIdList: this.endpointTypeIdList,

@@ -140,7 +140,7 @@ pipeline
             {
                 script
                 {
-                    withEnv(['ZAP_TEST_TIMEOUT=3600000', 'ZAP_TEMPSTATE=1'])
+                    withEnv(['ZAP_TEST_TIMEOUT=120000', 'ZAP_TEST_TIMEOUT_LONG=600000', 'ZAP_TEMPSTATE=1'])
                     {
                         sh 'npm run test:unit'
                     }

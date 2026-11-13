@@ -166,7 +166,7 @@ export default {
             currentPackage.warnings.push(notification)
           }
         })
-        this.$set(this.notisData, packageId, currentPackage)
+        this.notisData[packageId] = currentPackage
       })
     },
     // Custom xml currently not supported for multi-protocol
