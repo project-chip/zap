@@ -22629,7 +22629,7 @@ This module provides utilities for parsing conformance data from XML into expres
 * [Validation API: Parse conformance data from XML](#module_Validation API_ Parse conformance data from XML)
     * [~parseConformanceFromXML(operand)](#module_Validation API_ Parse conformance data from XML..parseConformanceFromXML) ⇒
     * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Validation API_ Parse conformance data from XML..parseConformanceRecursively) ⇒
-    * [~getOptionalAttributeFromXML(element, elementType)](#module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML) ⇒
+    * [~getOptionalAttributeFromXML(element, elementType, category)](#module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML) ⇒
     * [~getApiMaturityFromXML(element)](#module_Validation API_ Parse conformance data from XML..getApiMaturityFromXML) ⇒ <code>string</code> \| <code>null</code>
 
 <a name="module_Validation API_ Parse conformance data from XML..parseConformanceFromXML"></a>
@@ -22694,20 +22694,23 @@ When they appear, stop recursing and return the name inside directly
 
 <a name="module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML"></a>
 
-### Validation API: Parse conformance data from XML~getOptionalAttributeFromXML(element, elementType) ⇒
+### Validation API: Parse conformance data from XML~getOptionalAttributeFromXML(element, elementType, category) ⇒
 if optional attribute is defined, return its value
 if optional attribute is undefined, check if the element conformance is mandatory
 if both optional attribute and conformance are undefined, return false
-Optional attribute takes precedence over conformance for backward compatibility on certain elements
-Log warnings to zap.log if both optional attribute and conformance are defined
+Optional attribute takes precedence over conformance for backward compatibility on certain elements.
+Log warnings to zap.log if both optional attribute and conformance are defined.
+Conformance tags are a Matter construct. Zigbee ZCL uses the optional attribute, and
+shared XML may carry both, so the redundancy warning is skipped for Zigbee packages.
 
 **Kind**: inner method of [<code>Validation API: Parse conformance data from XML</code>](#module_Validation API_ Parse conformance data from XML)  
 **Returns**: true if the element is optional, false if the element is mandatory  
 
-| Param | Type |
-| --- | --- |
-| element | <code>\*</code> | 
-| elementType | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| element | <code>\*</code> |  |
+| elementType | <code>\*</code> |  |
+| category | <code>\*</code> | ZCL package category, such as 'matter' or 'zigbee' |
 
 <a name="module_Validation API_ Parse conformance data from XML..getApiMaturityFromXML"></a>
 
