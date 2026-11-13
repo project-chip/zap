@@ -164,16 +164,20 @@ async function endpoints(context) {
 
 /**
  * Deletes an endpoint. The endpoint type behind it goes too, unless another
- * endpoint still uses it, and an endpoint that still has children is refused
- * unless the caller forces it. That is the same removal the command line
- * performs.
+ * endpoint still uses it. The row deleted is the one the script was given.
+ * Children are detached, which is what a script has always done.
  *
  * @param {*} context
  * @param {*} endpoint
  */
 async function deleteEndpoint(context, endpoint) {
+  // The script already holds the row. Deleting by that id keeps a second
+  // endpoint with the same number (a multiprotocol file) from being the one
+  // that goes. Children are detached by the schema, which is what this call
+  // has always done, so the command line's child guard is not applied.
   return run(context, 'endpoint.delete', {
-    endpoint: endpoint.endpointIdentifier
+    endpointId: endpoint.id,
+    force: true
   })
 }
 

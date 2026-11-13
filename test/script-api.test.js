@@ -30,6 +30,7 @@ const testUtil = require('./test-util')
 const queryEndpoint = require('../src-electron/db/query-endpoint')
 const dbEnum = require('../src-shared/db-enum')
 const utilJs = require('../src-electron/util/util')
+const scriptApi = require('../src-electron/util/post-import-api')
 
 let testFile = testUtil.zigbeeTestFile.threeEp
 let testScript2 = path.join(__dirname, 'resource/test-script-2.js')
@@ -129,6 +130,43 @@ test(
 
     expect(endpoints.length).toBe(3)
     expect(endpoints[0].endpointIdentifier).toBe(41)
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'post-load delete removes the endpoint it was given, even when another shares its number and lists it as parent',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile, { sessionId: sid })
+    let context = { db: db, sessionId: sid }
+    let endpoints = await scriptApi.endpoints(context)
+    expect(endpoints.length).toBeGreaterThan(1)
+    let target = endpoints[0]
+    let other = endpoints[1]
+
+    // Same visible number, and the other endpoint is a child. Looking the
+    // target up by number would either refuse the collision or refuse the
+    // parent. The script was handed the row, so that row is what goes.
+    await dbApi.dbUpdate(
+      db,
+      'UPDATE ENDPOINT SET ENDPOINT_IDENTIFIER = ? WHERE ENDPOINT_ID = ?',
+      [target.endpointIdentifier, other.id]
+    )
+    await dbApi.dbUpdate(
+      db,
+      'UPDATE ENDPOINT SET PARENT_ENDPOINT_REF = ? WHERE ENDPOINT_ID = ?',
+      [target.id, other.id]
+    )
+
+    let outcome = await scriptApi.deleteEndpoint(context, target)
+    expect(outcome).not.toBeNull()
+    expect(outcome.changed).toBe(true)
+
+    let left = await queryEndpoint.selectAllEndpoints(db, sid)
+    let leftIds = left.map((endpoint) => endpoint.id)
+    expect(leftIds).not.toContain(target.id)
+    expect(leftIds).toContain(other.id)
   },
   testUtil.timeout.medium()
 )

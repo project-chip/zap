@@ -111,7 +111,9 @@ jest.mock('../src-shared/rest-api.js', () => ({
     getAllPackages: '/getAllPackages',
     sessionPackage: '/sessionPackage',
     addNewPackage: '/addNewPackage',
-    getAllSessionKeyValues: '/getAllSessionKeyValues'
+    getAllSessionKeyValues: '/getAllSessionKeyValues',
+    saveSessionKeyValue: '/save',
+    disableObsoleteElements: '/zcl/disableObsoleteElements'
   },
   uc: {
     componentAdd: '/componentAdd',
@@ -436,6 +438,58 @@ describe('zap actions', () => {
         domain: 'dom',
         packageRef: 2
       }
+    })
+  })
+
+  /**
+   * The calls that follow the obsolete-element post read lists. The default
+   * GET mock answers an object, which those calls cannot flatten.
+   * @param {Function} body
+   */
+  async function withListGets(body) {
+    const requests = require('../src/boot/axios').axiosRequests
+    const previous = requests.$serverGet.getMockImplementation()
+    requests.$serverGet.mockImplementation(() => Promise.resolve({ data: [] }))
+    try {
+      return await body(requests)
+    } finally {
+      requests.$serverGet.mockImplementation(previous)
+    }
+  }
+
+  it('setDeviceTypeReference disables obsolete elements on that endpoint type', async () => {
+    await withListGets(async (requests) => {
+      await actions.setDeviceTypeReference(context, {
+        endpointTypeId: 7,
+        deviceTypeRef: [1]
+      })
+      expect(requests.$serverPost).toHaveBeenCalledWith(
+        '/zcl/disableObsoleteElements',
+        { endpointTypeId: 7 }
+      )
+    })
+  })
+
+  it('refreshEndpointTypeCluster disables obsolete elements before reloading', async () => {
+    await withListGets(async (requests) => {
+      await actions.refreshEndpointTypeCluster(context, 7)
+      expect(requests.$serverPost).toHaveBeenCalledWith(
+        '/zcl/disableObsoleteElements',
+        { endpointTypeId: 7 }
+      )
+    })
+  })
+
+  it('updateSelectedEndpointType disables obsolete elements before reloading', async () => {
+    await withListGets(async (requests) => {
+      await actions.updateSelectedEndpointType(context, {
+        endpointType: 7,
+        deviceTypeRef: [1]
+      })
+      expect(requests.$serverPost).toHaveBeenCalledWith(
+        '/zcl/disableObsoleteElements',
+        { endpointTypeId: 7 }
+      )
     })
   })
 })

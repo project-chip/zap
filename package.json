@@ -391,7 +391,6 @@
       "dist/src-electron/db/zap-schema.sql",
       "zcl-builtin/**/*",
       "test/gen-template/**/*",
-      "examples/**/*",
       "spa/**/*",
       "**/node_sqlite3.node"
     ]

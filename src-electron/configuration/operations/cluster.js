@@ -145,10 +145,14 @@ async function clusterSetEnabled(ctx, params, enabled) {
   }
 
   if (changedSides.length === 0) {
+    // Nothing was written, so the file is not saved. The components an enable
+    // needs are still worth reporting, as they were before this was a no-op.
     let messages = [
-      `${enabled ? 'Enabled' : 'Disabled'} cluster ${cluster.name} (${asHex(
+      `Cluster ${cluster.name} (${asHex(
         cluster.code
-      )}) ${sides.join('/')} on endpoint ${endpoint.endpointIdentifier}`
+      )}) is already ${enabled ? 'enabled' : 'disabled'} on ${sides.join(
+        '/'
+      )} of endpoint ${endpoint.endpointIdentifier}`
     ]
     if (enabled && !ctx.studioIntegration) {
       messages.push(
@@ -157,7 +161,7 @@ async function clusterSetEnabled(ctx, params, enabled) {
         ]))
       )
     }
-    return result(true, messages)
+    return result(false, messages)
   }
 
   let messages = [

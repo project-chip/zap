@@ -792,6 +792,28 @@ test(
 )
 
 test(
+  'cli: enabling a cluster that is already on does not rewrite the file',
+  async () => {
+    let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'already-on.zap')
+    let before = fs.readFileSync(file)
+
+    // Endpoint 2 is the light and already has On/off on the server side.
+    let again = await runCli({
+      cliOperation: 'cluster.enable',
+      zapFile: file,
+      endpoint: 2,
+      cluster: 'On/off',
+      side: 'server'
+    })
+    expect(again.code).toBe(0)
+    expect(again.output).toMatch(/already enabled/)
+    expect(again.output).not.toMatch(/^Saved /m)
+    expect(fs.readFileSync(file)).toEqual(before)
+  },
+  testUtil.timeout.long()
+)
+
+test(
   'cli: rejects an out of range default value under --strict',
   async () => {
     let file = scratchCopy(testUtil.zigbeeTestFile.onOff, 'strict.zap')
@@ -1468,7 +1490,9 @@ test(
       script: script
     })
     expect(applied.code).toBe(0)
-    expect(applied.output).toContain('Enabled cluster Level Control')
+    // The light already has Level Control on, so enabling it is a no-op and
+    // says so rather than claiming a change. The other steps still save.
+    expect(applied.output).toContain('already enabled on server of endpoint 2')
     expect(applied.output).toContain('default=5')
     expect(applied.output).toContain('Enabled command Move')
     expect(applied.output).toContain('Saved')
@@ -3770,17 +3794,18 @@ test(
         )
       ).toBe(true)
 
-      // --force is the way through for someone who means it.
+      // --force is the way through for someone who means it. Identify is already
+      // on, so the forced change is a disable, which is a real edit and so saves.
       let forced = await runCli({
         ...matter,
-        cliOperation: 'cluster.enable',
+        cliOperation: 'cluster.disable',
         endpoint: 1,
         cluster: 'Identify',
         side: 'server',
         force: true
       })
       expect(forced.code).toBe(0)
-      expect(forced.output).toContain('Enabled cluster Identify')
+      expect(forced.output).toContain('Disabled cluster Identify')
     })
 
     // Forcing it through wrote the file without the package it could not load,
@@ -3945,6 +3970,54 @@ describe('cli UC component reporting', () => {
       })
       expect(disabled.code).toBe(0)
       expect(disabled.output).not.toContain('UC component(s)')
+    },
+    testUtil.timeout.long()
+  )
+
+  test(
+    'cli: enabling a cluster that is already on still names its missing UC components, and saves nothing',
+    async () => {
+      let file = path.join(workDir, 'components-again.zap')
+      let created = await runCli({
+        ...componentPackages,
+        cliOperation: 'new',
+        zapFile: file
+      })
+      expect(created.code).toBe(0)
+      let endpoint = await runCli({
+        ...componentPackages,
+        cliOperation: 'endpoint.create',
+        zapFile: file,
+        endpoint: 1,
+        deviceType: ['ZLL-onofflight']
+      })
+      expect(endpoint.code).toBe(0)
+      let first = await runCli({
+        ...componentPackages,
+        cliOperation: 'cluster.enable',
+        zapFile: file,
+        endpoint: 1,
+        cluster: 'Level Control',
+        side: 'server'
+      })
+      expect(first.code).toBe(0)
+      expect(first.output).toContain('UC component(s) not installed')
+
+      let before = fs.readFileSync(file)
+      let again = await runCli({
+        ...componentPackages,
+        cliOperation: 'cluster.enable',
+        zapFile: file,
+        endpoint: 1,
+        cluster: 'Level Control',
+        side: 'server'
+      })
+      expect(again.code).toBe(0)
+      expect(again.output).toMatch(/already enabled/)
+      expect(again.output).toContain('UC component(s) not installed')
+      expect(again.output).toContain('zigbee_zll_level_control_server')
+      expect(again.output).not.toMatch(/^Saved /m)
+      expect(fs.readFileSync(file)).toEqual(before)
     },
     testUtil.timeout.long()
   )
