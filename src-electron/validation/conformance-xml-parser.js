@@ -167,17 +167,20 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
  * if optional attribute is defined, return its value
  * if optional attribute is undefined, check if the element conformance is mandatory
  * if both optional attribute and conformance are undefined, return false
- * Optional attribute takes precedence over conformance for backward compatibility on certain elements
- * Log warnings to zap.log if both optional attribute and conformance are defined
+ * Optional attribute takes precedence over conformance for backward compatibility on certain elements.
+ * Log warnings to zap.log if both optional attribute and conformance are defined.
+ * Conformance tags are a Matter construct. Zigbee ZCL uses the optional attribute, and
+ * shared XML may carry both, so the redundancy warning is skipped for Zigbee packages.
  *
  * @param {*} element
  * @param {*} elementType
+ * @param {*} category ZCL package category, such as 'matter' or 'zigbee'
  * @returns true if the element is optional, false if the element is mandatory
  */
-function getOptionalAttributeFromXML(element, elementType) {
+function getOptionalAttributeFromXML(element, elementType, category) {
   let conformance = parseConformanceFromXML(element)
   if (element.$.optional) {
-    if (conformance) {
+    if (conformance && category != dbEnum.helperCategory.zigbee) {
       env.logWarningToFile(
         `Redundant 'optional' attribute and 'conformance' tag defined for ${elementType}: ${element.$.name}.` +
           " 'optional' takes precedence, but consider removing it as 'conformance' is the recommended format."
