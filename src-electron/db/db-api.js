@@ -478,6 +478,10 @@ async function updateSetting(db, rows) {
  * @returns  A promise resolving the entire SETTING table
  */
 async function selectSettings(db) {
+  // A schema reload that failed partway can leave PACKAGE in place and
+  // SETTING missing. Treat that as an empty settings list so the reload
+  // can finish instead of aborting.
+  if (!(await tableExists(db, 'SETTING'))) return []
   let rows = []
   rows = await dbAll(db, 'SELECT CATEGORY,KEY,VALUE FROM SETTING')
   return rows.map(dbMapping.map.settings)

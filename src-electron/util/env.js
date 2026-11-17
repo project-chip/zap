@@ -25,7 +25,9 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const pino = require('pino')
-const electron = require('electron')
+// Under plain Node (e.g. the pkg-built zap-cli) the electron package tries to
+// download its binary on require, so only load it inside Electron.
+const electron = process.versions.electron != null ? require('electron') : null
 const emojiUtil = require('./emoji-util')
 const zapBaseUrl = 'http://localhost:'
 
@@ -742,8 +744,6 @@ function isPackagedElectronApp() {
   if (process.versions.electron == null) {
     return false
   }
-  // Under Electron this is the API object; under plain Node the electron
-  // package exports a path string to the binary.
   return electron?.app?.isPackaged === true
 }
 

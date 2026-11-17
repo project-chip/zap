@@ -163,3 +163,17 @@ test(
   },
   timeout.medium()
 )
+
+test(
+  'Schema reload finishes when SETTING is missing',
+  async () => {
+    await dbApi.dbUpdate(db, 'DROP TABLE SETTING', [])
+    await dbApi.dbUpdate(db, 'UPDATE PACKAGE SET CRC = ? WHERE TYPE = ?', [
+      'stale-crc',
+      dbEnum.packageType.sqlSchema
+    ])
+    db = await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion(), dbFile)
+    expect(await recentFiles.recentFileDays(db)).toBe(21)
+  },
+  timeout.medium()
+)
