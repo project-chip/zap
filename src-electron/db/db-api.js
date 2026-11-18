@@ -478,9 +478,10 @@ async function updateSetting(db, rows) {
  * @returns  A promise resolving the entire SETTING table
  */
 async function selectSettings(db) {
-  // SETTING is created after PACKAGE. A reload that stopped between them
-  // has no rows to copy. loadSchema refuses to continue when a backup of
-  // the previous database is still present.
+  // SETTING is created after PACKAGE. Under the lock taken by
+  // initDatabaseAndLoadSchema, a missing table means an earlier reload was
+  // abandoned, so there are no rows to copy. loadSchema refuses to continue
+  // when a backup of the previous database is still present.
   if (!(await tableExists(db, 'SETTING'))) return []
   let rows = []
   rows = await dbAll(db, 'SELECT CATEGORY,KEY,VALUE FROM SETTING')
@@ -662,7 +663,10 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
       let message = `ZAP stopped reloading ${sqliteFile}. That file has no SETTING table, and the previous database is still at ${backupFile}. A schema reload moves the good database aside and builds a new one. This file was left unfinished, which happens when that rebuild is interrupted. The usual cause is the ZAP window and zap-cli using this file at the same time. Continuing would delete the previous database, including saved settings and recent files. Close any other ZAP window, rename ${backupFile} over ${sqliteFile}, and start again.`
       env.logError(message)
       env.printToStderr(message)
-      if (process.versions.electron != null) {
+      // The packaged executable also runs headless commands, so the Electron
+      // version is not enough to decide. A dialog there would wait for a
+      // click and hold unattended generation. Stderr already has the error.
+      if (env.isInteractiveUi()) {
         require('electron').dialog.showErrorBox(
           'ZAP database was not reloaded',
           message
@@ -717,16 +721,22 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
 /**
  * Init database and load the schema.
  *
+ * Opening the file, checking its schema and rebuilding it happen under a lock
+ * file beside the database. A second process starting at the same time waits
+ * for the first to finish building, then finds a complete schema and reuses it.
+ * Without the lock it could see PACKAGE before SETTING exist and move the file
+ * while the first process is still writing to it.
+ *
  * @param {*} sqliteFile
  * @param {*} schemaFile
  * @param {*} zapVersion
  * @returns Promise that resolves into the database object.
  */
 async function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
-  let hasFile = fs.existsSync(sqliteFile)
-
-  let db = await initDatabase(sqliteFile)
-  return loadSchema(db, schemaFile, zapVersion, sqliteFile)
+  return util.withFileLock(sqliteFile + '.lock', async () => {
+    let db = await initDatabase(sqliteFile)
+    return loadSchema(db, schemaFile, zapVersion, sqliteFile)
+  })
 }
 
 /**

@@ -25,6 +25,7 @@ const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
 const dbEnum = require('../src-shared/db-enum')
 const recentFiles = require('../src-electron/util/recent-files')
+const util = require('../src-electron/util/util')
 const { timeout } = require('./test-util')
 
 let db
@@ -205,6 +206,76 @@ test(
     ])
     db = await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion(), dbFile)
     expect(await recentFiles.recentFileDays(db)).toBe(21)
+  },
+  timeout.medium()
+)
+
+test(
+  'Two processes starting on a fresh file build the schema once',
+  async () => {
+    let file = env.sqliteTestFile('recent-files-concurrent')
+    let [first, second] = await Promise.all([
+      dbApi.initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion()),
+      dbApi.initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
+    ])
+    try {
+      expect(fs.existsSync(file + '~')).toBe(false)
+      expect(fs.existsSync(file + '.lock')).toBe(false)
+      expect(await recentFiles.recentFileDays(first)).toBe(21)
+      expect(await recentFiles.recentFileDays(second)).toBe(21)
+    } finally {
+      await dbApi.closeDatabase(first)
+      await dbApi.closeDatabase(second)
+    }
+  },
+  timeout.medium()
+)
+
+test(
+  'Startup waits while another live process holds the lock',
+  async () => {
+    let file = env.sqliteTestFile('recent-files-locked')
+    fs.writeFileSync(file + '.lock', String(process.pid))
+    let settled = false
+    let pending = dbApi
+      .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
+      .then((d) => {
+        settled = true
+        return d
+      })
+    await util.waitFor(400)
+    expect(settled).toBe(false)
+    expect(fs.existsSync(file)).toBe(false)
+
+    fs.unlinkSync(file + '.lock')
+    let opened = await pending
+    try {
+      expect(settled).toBe(true)
+      expect(fs.existsSync(file + '.lock')).toBe(false)
+      expect(await recentFiles.recentFileDays(opened)).toBe(21)
+    } finally {
+      await dbApi.closeDatabase(opened)
+    }
+  },
+  timeout.medium()
+)
+
+test(
+  'Startup takes over a lock left by a process that no longer exists',
+  async () => {
+    let file = env.sqliteTestFile('recent-files-stale-lock')
+    fs.writeFileSync(file + '.lock', '2147483646')
+    let opened = await dbApi.initDatabaseAndLoadSchema(
+      file,
+      env.schemaFile(),
+      env.zapVersion()
+    )
+    try {
+      expect(fs.existsSync(file + '.lock')).toBe(false)
+      expect(await recentFiles.recentFileDays(opened)).toBe(21)
+    } finally {
+      await dbApi.closeDatabase(opened)
+    }
   },
   timeout.medium()
 )

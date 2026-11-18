@@ -798,6 +798,91 @@ function waitFor(time) {
 }
 
 /**
+ * Tells whether the process that wrote a lock file is gone.
+ *
+ * @param {string} lockPath
+ * @param {number} emptyLockGraceMs How long a lock with no pid yet is trusted.
+ * @returns {boolean} true if the lock can be taken over.
+ */
+function isStaleFileLock(lockPath, emptyLockGraceMs = 5000) {
+  let content
+  let mtimeMs
+  try {
+    content = fs.readFileSync(lockPath, 'utf8').trim()
+    mtimeMs = fs.statSync(lockPath).mtimeMs
+  } catch {
+    // The lock was released between our attempt and this check.
+    return false
+  }
+  let pid = parseInt(content, 10)
+  if (!Number.isInteger(pid) || pid <= 0) {
+    // The owner has created the file and not written its pid yet.
+    return Date.now() - mtimeMs > emptyLockGraceMs
+  }
+  try {
+    process.kill(pid, 0)
+    return false
+  } catch (err) {
+    // EPERM means the process exists and belongs to another user.
+    return err.code !== 'EPERM'
+  }
+}
+
+/**
+ * Runs an async function while holding an exclusive lock file, so that
+ * processes sharing a file take turns. Waiters poll until the lock is
+ * released. A lock whose owner process no longer exists is taken over.
+ *
+ * @param {string} lockPath
+ * @param {Function} fn async function to run under the lock.
+ * @param {object} options timeoutMs (default 120000), pollMs (default 100).
+ * @returns {Promise<*>} whatever fn resolves to.
+ */
+async function withFileLock(lockPath, fn, options = {}) {
+  let timeoutMs = options.timeoutMs ?? 120000
+  let pollMs = options.pollMs ?? 100
+  let deadline = Date.now() + timeoutMs
+  fs.mkdirSync(path.dirname(lockPath), { recursive: true })
+  let acquired = false
+  while (!acquired) {
+    try {
+      let fd = fs.openSync(lockPath, 'wx')
+      try {
+        fs.writeSync(fd, String(process.pid))
+      } finally {
+        fs.closeSync(fd)
+      }
+      acquired = true
+    } catch (err) {
+      if (err.code !== 'EEXIST') throw err
+      if (isStaleFileLock(lockPath)) {
+        env.logWarning(`Removing stale lock file: ${lockPath}`)
+        try {
+          fs.unlinkSync(lockPath)
+        } catch {
+          // Another waiter removed it first.
+        }
+      } else if (Date.now() > deadline) {
+        throw new Error(
+          `Timed out after ${timeoutMs / 1000}s waiting for ${lockPath}. Another ZAP process is using this state directory. Close it and try again.`
+        )
+      } else {
+        await waitFor(pollMs)
+      }
+    }
+  }
+  try {
+    return await fn()
+  } finally {
+    try {
+      fs.unlinkSync(lockPath)
+    } catch {
+      // Already removed.
+    }
+  }
+}
+
+/**
  * Returns a promise that resolve into a parsed XML object.
  * @param {*} fileContent
  * @returns promise that resolves into parsed object.
@@ -1024,6 +1109,7 @@ exports.executeExternalProgram = executeExternalProgram
 exports.locateRelativeFilePath = locateRelativeFilePath
 exports.createUuid = createUuid
 exports.waitFor = waitFor
+exports.withFileLock = withFileLock
 exports.getClusterExtension = getClusterExtension
 exports.getClusterExtensionDefault = getClusterExtensionDefault
 exports.parseXml = parseXml

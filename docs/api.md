@@ -4040,6 +4040,12 @@ would replace that previous database.
 ### JS API: low level database access~initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) ⇒
 Init database and load the schema.
 
+Opening the file, checking its schema and rebuilding it happen under a lock
+file beside the database. A second process starting at the same time waits
+for the first to finish building, then finds a complete schema and reuses it.
+Without the lock it could see PACKAGE before SETTING exist and move the file
+while the first process is still writing to it.
+
 **Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
 **Returns**: Promise that resolves into the database object.  
 
@@ -22698,6 +22704,8 @@ Environment utilities for ZAP
     * [~defaultFileFormat()](#module_JS API_ Environment utilities..defaultFileFormat) ⇒
     * [~setRecentFileDays(n)](#module_JS API_ Environment utilities..setRecentFileDays)
     * [~getRecentFileDays()](#module_JS API_ Environment utilities..getRecentFileDays) ⇒ <code>number</code>
+    * [~setInteractiveUi(value)](#module_JS API_ Environment utilities..setInteractiveUi)
+    * [~isInteractiveUi()](#module_JS API_ Environment utilities..isInteractiveUi) ⇒ <code>boolean</code>
     * [~builtinSilabsZclMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclMetafile) ⇒
     * [~builtinSilabsZclDemoMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclDemoMetafile) ⇒
     * [~builtinSilabsTemplatesMetaFile()](#module_JS API_ Environment utilities..builtinSilabsTemplatesMetaFile) ⇒
@@ -22795,6 +22803,23 @@ Set how many days a .zap file stays on the recent-files list.
 
 ### JS API: Environment utilities~getRecentFileDays() ⇒ <code>number</code>
 Get how many days a .zap file stays on the recent-files list.
+
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+<a name="module_JS API_ Environment utilities..setInteractiveUi"></a>
+
+### JS API: Environment utilities~setInteractiveUi(value)
+Record whether this process will open the main window.
+
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+
+| Param | Type |
+| --- | --- |
+| value | <code>boolean</code> | 
+
+<a name="module_JS API_ Environment utilities..isInteractiveUi"></a>
+
+### JS API: Environment utilities~isInteractiveUi() ⇒ <code>boolean</code>
+Whether this process will open the main window.
 
 **Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 <a name="module_JS API_ Environment utilities..builtinSilabsZclMetafile"></a>
@@ -24351,6 +24376,8 @@ back into a JS integer.
     * [~getClusterExtension(extensions, property, clusterCode)](#module_JS API_ random utilities..getClusterExtension) ⇒
     * [~createUuid()](#module_JS API_ random utilities..createUuid)
     * [~waitFor(time)](#module_JS API_ random utilities..waitFor)
+    * [~isStaleFileLock(lockPath, emptyLockGraceMs)](#module_JS API_ random utilities..isStaleFileLock) ⇒ <code>boolean</code>
+    * [~withFileLock(lockPath, fn, options)](#module_JS API_ random utilities..withFileLock) ⇒ <code>Promise.&lt;\*&gt;</code>
     * [~parseXml(fileContent)](#module_JS API_ random utilities..parseXml) ⇒
     * [~readFileContentAndCrc(metadata)](#module_JS API_ random utilities..readFileContentAndCrc) ⇒
     * [~duration(nsDifference)](#module_JS API_ random utilities..duration) ⇒
@@ -24555,6 +24582,35 @@ Returns a promise that resolves after time milliseconds
 | Param |
 | --- |
 | time | 
+
+<a name="module_JS API_ random utilities..isStaleFileLock"></a>
+
+### JS API: random utilities~isStaleFileLock(lockPath, emptyLockGraceMs) ⇒ <code>boolean</code>
+Tells whether the process that wrote a lock file is gone.
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module_JS API_ random utilities)  
+**Returns**: <code>boolean</code> - true if the lock can be taken over.  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| lockPath | <code>string</code> |  |  |
+| emptyLockGraceMs | <code>number</code> | <code>5000</code> | How long a lock with no pid yet is trusted. |
+
+<a name="module_JS API_ random utilities..withFileLock"></a>
+
+### JS API: random utilities~withFileLock(lockPath, fn, options) ⇒ <code>Promise.&lt;\*&gt;</code>
+Runs an async function while holding an exclusive lock file, so that
+processes sharing a file take turns. Waiters poll until the lock is
+released. A lock whose owner process no longer exists is taken over.
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module_JS API_ random utilities)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - whatever fn resolves to.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| lockPath | <code>string</code> |  |
+| fn | <code>function</code> | async function to run under the lock. |
+| options | <code>object</code> | timeoutMs (default 120000), pollMs (default 100). |
 
 <a name="module_JS API_ random utilities..parseXml"></a>
 

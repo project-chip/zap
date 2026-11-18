@@ -1481,6 +1481,9 @@ async function startUpMainInstance(argv, callbacks) {
       argv.standalone = true
     }
     let uiEnabled = !argv.noUi
+    // Set before startNormal loads the database. Only this branch opens a
+    // window, and only when the UI was not turned off.
+    env.setInteractiveUi(uiEnabled && uiFunction != null)
     let zapFiles = argv.zapFiles
     let port = await startNormal(quitFunction, argv)
     let zapFileExtensions = null
