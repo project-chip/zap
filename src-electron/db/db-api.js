@@ -478,9 +478,9 @@ async function updateSetting(db, rows) {
  * @returns  A promise resolving the entire SETTING table
  */
 async function selectSettings(db) {
-  // A schema reload that failed partway can leave PACKAGE in place and
-  // SETTING missing. Treat that as an empty settings list so the reload
-  // can finish instead of aborting.
+  // SETTING is created after PACKAGE. A reload that stopped between them
+  // has no rows to copy. loadSchema refuses to continue when a backup of
+  // the previous database is still present.
   if (!(await tableExists(db, 'SETTING'))) return []
   let rows = []
   rows = await dbAll(db, 'SELECT CATEGORY,KEY,VALUE FROM SETTING')
@@ -628,6 +628,10 @@ async function performSchemaLoad(db, schemaContent) {
  * SETTING and RECENT_FILE tables are read from the old database before it is
  * closed and written into the new one, so they survive the reload.
  *
+ * If that reload stopped after PACKAGE was created and before SETTING, and
+ * the previous database is still beside this file, reloading stops. Continuing
+ * would replace that previous database.
+ *
  * @export
  * @param {*} db
  * @param {*} schemaPath
@@ -649,6 +653,23 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
     context.crc
   )
   if (schemaStatus.mustLoad && schemaStatus.hasSchema) {
+    let backupFile = sqliteFile == null ? null : sqliteFile + '~'
+    if (
+      !(await tableExists(db, 'SETTING')) &&
+      backupFile != null &&
+      fs.existsSync(backupFile)
+    ) {
+      let message = `ZAP stopped reloading ${sqliteFile}. That file has no SETTING table, and the previous database is still at ${backupFile}. A schema reload moves the good database aside and builds a new one. This file was left unfinished, which happens when that rebuild is interrupted. The usual cause is the ZAP window and zap-cli using this file at the same time. Continuing would delete the previous database, including saved settings and recent files. Close any other ZAP window, rename ${backupFile} over ${sqliteFile}, and start again.`
+      env.logError(message)
+      env.printToStderr(message)
+      if (process.versions.electron != null) {
+        require('electron').dialog.showErrorBox(
+          'ZAP database was not reloaded',
+          message
+        )
+      }
+      throw new Error(message)
+    }
     settingRows = await selectSettings(db)
     recentFileRows = await selectRecentFiles(db)
     await closeDatabase(db)

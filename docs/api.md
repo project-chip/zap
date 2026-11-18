@@ -4022,6 +4022,10 @@ the old database file is moved aside and a new one is created. Rows of the
 SETTING and RECENT_FILE tables are read from the old database before it is
 closed and written into the new one, so they survive the reload.
 
+If that reload stopped after PACKAGE was created and before SETTING, and
+the previous database is still beside this file, reloading stops. Continuing
+would replace that previous database.
+
 **Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
 **Returns**: A promise that resolves with the same db that got passed in, or rejects with an error.  
 

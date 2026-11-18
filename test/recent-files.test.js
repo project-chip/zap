@@ -165,9 +165,40 @@ test(
 )
 
 test(
+  'Schema reload stops when SETTING is missing and a backup exists',
+  async () => {
+    await recentFiles.setRecentFileDays(db, 9)
+    await dbApi.closeDatabase(db)
+    fs.copyFileSync(dbFile, dbFile + '~')
+    let backupStat = fs.statSync(dbFile + '~')
+
+    db = await dbApi.initDatabase(dbFile)
+    await dbApi.dbUpdate(db, 'DROP TABLE SETTING', [])
+    await dbApi.dbUpdate(db, 'UPDATE PACKAGE SET CRC = ? WHERE TYPE = ?', [
+      'stale-crc',
+      dbEnum.packageType.sqlSchema
+    ])
+    await expect(
+      dbApi.loadSchema(db, env.schemaFile(), env.zapVersion(), dbFile)
+    ).rejects.toThrow(/rebuild is interrupted/)
+
+    let backupStatAfter = fs.statSync(dbFile + '~')
+    expect(backupStatAfter.size).toBe(backupStat.size)
+    expect(backupStatAfter.mtimeMs).toBe(backupStat.mtimeMs)
+    let setting = await dbApi.dbGet(
+      db,
+      "SELECT NAME FROM sqlite_master WHERE TYPE = 'table' AND NAME = ?",
+      ['SETTING']
+    )
+    expect(setting).toBeUndefined()
+  },
+  timeout.medium()
+)
+
+test(
   'Schema reload finishes when SETTING is missing',
   async () => {
-    await dbApi.dbUpdate(db, 'DROP TABLE SETTING', [])
+    fs.rmSync(dbFile + '~', { force: true })
     await dbApi.dbUpdate(db, 'UPDATE PACKAGE SET CRC = ? WHERE TYPE = ?', [
       'stale-crc',
       dbEnum.packageType.sqlSchema
