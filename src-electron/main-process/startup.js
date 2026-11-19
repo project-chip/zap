@@ -1435,7 +1435,9 @@ async function startUpMainInstance(argv, callbacks) {
   } else if (argv.cliOperation != null) {
     return startCli(argv).then((code) => cleanExit(argv.cleanupDelay, code))
   } else if (argv._.includes('server')) {
-    return startServer(argv, quitFunction)
+    return startServer(argv, quitFunction).catch((err) =>
+      reportStartupFailure(err, argv)
+    )
   } else if (argv._.includes('convert')) {
     return startConvert(argv, {
       logger: console.log,
@@ -1489,19 +1491,7 @@ async function startUpMainInstance(argv, callbacks) {
     try {
       port = await startNormal(quitFunction, argv)
     } catch (err) {
-      // Report the reason and exit. Nothing else would end the process, and
-      // the console would show no error. The database opened before the
-      // failure is closed first: exiting while sqlite3 has queued work aborts
-      // the process inside node-sqlite3's callback.
-      env.printToStderr(env.formatEmojiMessage('⛔', err.message))
-      if (env.isInteractiveUi()) {
-        require('electron').dialog.showErrorBox(
-          'ZAP could not start',
-          err.message
-        )
-      }
-      await shutdown().catch(() => {})
-      cleanExit(argv.cleanupDelay, 1)
+      await reportStartupFailure(err, argv)
       return
     }
     let zapFileExtensions = null
@@ -1523,6 +1513,39 @@ async function startUpMainInstance(argv, callbacks) {
       }
     }
   }
+}
+
+/**
+ * Text of a startup failure. Some loaders throw a string rather than an Error,
+ * and reading .message on those yields undefined.
+ *
+ * @param {*} err
+ * @returns {string}
+ */
+function startupFailureMessage(err) {
+  if (typeof err === 'string' && err !== '') return err
+  if (err != null && err.message != null && err.message !== '') {
+    return String(err.message)
+  }
+  return err == null ? 'ZAP could not start' : String(err)
+}
+
+/**
+ * Reports a startup failure, closes what startup opened, and exits nonzero.
+ * Exiting while sqlite3 still has queued work aborts inside its callback.
+ *
+ * @param {*} err
+ * @param {*} argv
+ * @returns {Promise<void>}
+ */
+async function reportStartupFailure(err, argv) {
+  let message = startupFailureMessage(err)
+  env.printToStderr(env.formatEmojiMessage('⛔', message))
+  if (env.isInteractiveUi()) {
+    require('electron').dialog.showErrorBox('ZAP could not start', message)
+  }
+  await shutdown().catch(() => {})
+  cleanExit(argv.cleanupDelay, 1)
 }
 
 /**
@@ -1552,3 +1575,4 @@ exports.gatherFiles = gatherFiles
 exports.noopConvert = noopConvert
 exports.findZapFiles = findZapFiles
 exports.outputFile = outputFile
+exports.startupFailureMessage = startupFailureMessage

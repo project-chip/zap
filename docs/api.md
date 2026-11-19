@@ -3657,6 +3657,7 @@ This module provides generic DB functions for performing SQL queries.
     * [~updateCurrentSchemaCrc(db, filePath, crc)](#module_JS API_ low level database access..updateCurrentSchemaCrc) ⇒
     * [~performSchemaLoad(db, schemaContent)](#module_JS API_ low level database access..performSchemaLoad) ⇒
     * [~loadSchema(db, schemaPath, zapVersion)](#module_JS API_ low level database access..loadSchema) ⇒
+    * [~loadSchemaInto(db, schemaPath, zapVersion, sqliteFile, onReplace)](#module_JS API_ low level database access..loadSchemaInto) ⇒
     * [~openLockDatabase(lockFile)](#module_JS API_ low level database access..openLockDatabase) ⇒ <code>Promise.&lt;\*&gt;</code>
     * [~closeLockDatabase(db)](#module_JS API_ low level database access..closeLockDatabase) ⇒ <code>Promise.&lt;void&gt;</code>
     * [~runOnLockDatabase(db, sql)](#module_JS API_ low level database access..runOnLockDatabase) ⇒ <code>Promise.&lt;void&gt;</code>
@@ -4082,6 +4083,23 @@ would replace that previous database.
 | db | <code>\*</code> | 
 | schemaPath | <code>\*</code> | 
 | zapVersion | <code>\*</code> | 
+
+<a name="module_JS API_ low level database access..loadSchemaInto"></a>
+
+### JS API: low level database access~loadSchemaInto(db, schemaPath, zapVersion, sqliteFile, onReplace) ⇒
+Loads the schema into db, which a rebuild may replace. Calls onReplace with
+the connection that replaces db, so the caller can close it if this rejects.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+**Returns**: the connection the schema was loaded into.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| schemaPath | <code>\*</code> | 
+| zapVersion | <code>\*</code> | 
+| sqliteFile | <code>\*</code> | 
+| onReplace | <code>function</code> | 
 
 <a name="module_JS API_ low level database access..openLockDatabase"></a>
 

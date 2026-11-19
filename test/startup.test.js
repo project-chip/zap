@@ -443,6 +443,18 @@ test(
   testUtil.timeout.long()
 )
 
+test('startup failure text keeps a thrown string', () => {
+  expect(
+    startup.startupFailureMessage(
+      'Template requires feature level 200, we only have 110'
+    )
+  ).toBe('Template requires feature level 200, we only have 110')
+  expect(startup.startupFailureMessage(new Error('port in use'))).toBe(
+    'port in use'
+  )
+  expect(startup.startupFailureMessage(null)).toBe('ZAP could not start')
+})
+
 test(
   'startup: analyze',
   () => {

@@ -693,6 +693,48 @@ async function performSchemaLoad(db, schemaContent) {
  * @returns A promise that resolves with the same db that got passed in, or rejects with an error.
  */
 async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
+  // Set once this function has closed the caller's connection and opened a
+  // replacement. A failure after that must close the replacement; the caller's
+  // own connection is already closed. A failure before that leaves the
+  // caller's connection alone, so a caller that catches the error can still
+  // read it.
+  let replacement = null
+  try {
+    return await loadSchemaInto(
+      db,
+      schemaPath,
+      zapVersion,
+      sqliteFile,
+      (next) => {
+        replacement = next
+      }
+    )
+  } catch (err) {
+    if (replacement != null && replacement._closed !== true) {
+      await closeDatabase(replacement).catch(() => {})
+    }
+    throw err
+  }
+}
+
+/**
+ * Loads the schema into db, which a rebuild may replace. Calls onReplace with
+ * the connection that replaces db, so the caller can close it if this rejects.
+ *
+ * @param {*} db
+ * @param {*} schemaPath
+ * @param {*} zapVersion
+ * @param {*} sqliteFile
+ * @param {Function} onReplace
+ * @returns the connection the schema was loaded into.
+ */
+async function loadSchemaInto(
+  db,
+  schemaPath,
+  zapVersion,
+  sqliteFile,
+  onReplace
+) {
   let schemaFileContent = await fsp.readFile(schemaPath, 'utf8')
   let settingRows = []
   let recentFileRows = []
@@ -738,6 +780,7 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
     } else {
       db = await initDatabase(sqliteFile)
     }
+    onReplace(db)
   }
   if (schemaStatus.mustLoad) {
     await performSchemaLoad(db, context.data)
@@ -872,7 +915,16 @@ async function withDatabaseLock(lockFile, fn, timeoutMs = 120000) {
 async function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
   return withDatabaseLock(sqliteFile + '-lock', async () => {
     let db = await initDatabase(sqliteFile)
-    return loadSchema(db, schemaFile, zapVersion, sqliteFile)
+    try {
+      return await loadSchema(db, schemaFile, zapVersion, sqliteFile)
+    } catch (err) {
+      // Damaged-database and interrupted-rebuild errors are thrown before
+      // startup records the connection, so nothing else closes it.
+      if (db != null && db._closed !== true) {
+        await closeDatabase(db).catch(() => {})
+      }
+      throw err
+    }
   })
 }
 
