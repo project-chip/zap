@@ -24,6 +24,7 @@
 const sqlite = require('sqlite3')
 const fs = require('fs')
 const fsp = fs.promises
+const path = require('path')
 const env = require('../util/env')
 const util = require('../util/util.js')
 const asyncReporting = require('../util/async-reporting.js')
@@ -554,8 +555,13 @@ async function insertRecentFiles(db, rows) {
 /**
  * Checks the state of schema.
  *
+ * The decision uses the checksum, not the schema file's path. The desktop
+ * app and zap-cli resolve that file to different paths, so a path comparison
+ * makes the second one rebuild a database the first one is still using.
+ *
  * @param {*} db
- * @param {*} context
+ * @param {*} filePath kept for callers; the path is not part of the decision
+ * @param {*} crc checksum of the schema file contents
  * @returns object containing "mustLoad" and "hasSchema" elements.
  */
 async function determineIfSchemaShouldLoad(db, filePath, crc) {
@@ -566,22 +572,69 @@ async function determineIfSchemaShouldLoad(db, filePath, crc) {
   try {
     let row = await dbGet(
       db,
-      'SELECT CRC FROM PACKAGE WHERE PATH = ?',
-      [filePath],
+      'SELECT CRC FROM PACKAGE WHERE TYPE = ? AND CRC = ?',
+      [dbEnum.packageType.sqlSchema, crc],
       false
     )
-    if (row == null) {
-      result.mustLoad = true
-    } else {
-      result.mustLoad = row.CRC != crc
-    }
+    result.mustLoad = row == null
     result.hasSchema = true
+    return result
   } catch (err) {
-    // Fall through, do nothing
+    // Only a file without PACKAGE is blank. Running the schema over a file
+    // that failed for another reason, such as damage, stops partway through
+    // and leaves it in a state no later start can load.
+    if (!isMissingTableError(err)) throw err
     result.mustLoad = true
     result.hasSchema = false
   }
   return result
+}
+
+/**
+ * Tells whether an error means a queried table does not exist.
+ *
+ * @param {*} err
+ * @returns {boolean}
+ */
+function isMissingTableError(err) {
+  return (
+    err != null &&
+    err.code === 'SQLITE_ERROR' &&
+    /no such table/.test(String(err.message))
+  )
+}
+
+/**
+ * Tells whether an error means SQLite cannot read the file as a database.
+ *
+ * @param {*} err
+ * @returns {boolean}
+ */
+function isDamagedDatabaseError(err) {
+  return (
+    err != null &&
+    (err.code === 'SQLITE_CORRUPT' || err.code === 'SQLITE_NOTADB')
+  )
+}
+
+/**
+ * Reports a problem that stops the database from loading, then throws it.
+ * The message goes to the log and stderr, and to a dialog when a ZAP window
+ * is being opened.
+ *
+ * @param {string} title
+ * @param {string} message
+ */
+function stopDatabaseLoad(title, message) {
+  env.logError(message)
+  env.printToStderr(message)
+  // The packaged executable also runs headless commands, so the Electron
+  // version is not enough to decide. A dialog there would wait for a
+  // click and hold unattended generation. Stderr already has the error.
+  if (env.isInteractiveUi()) {
+    require('electron').dialog.showErrorBox(title, message)
+  }
+  throw new Error(message)
 }
 
 /**
@@ -648,11 +701,20 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
     data: schemaFileContent,
     crc: util.checksum(schemaFileContent)
   }
-  let schemaStatus = await determineIfSchemaShouldLoad(
-    db,
-    context.filePath,
-    context.crc
-  )
+  let schemaStatus
+  try {
+    schemaStatus = await determineIfSchemaShouldLoad(
+      db,
+      context.filePath,
+      context.crc
+    )
+  } catch (err) {
+    if (sqliteFile == null || !isDamagedDatabaseError(err)) throw err
+    stopDatabaseLoad(
+      'ZAP database is damaged',
+      `ZAP cannot read ${sqliteFile}: ${err.message}. The file is damaged. This happens when the file is moved or rebuilt while another ZAP process still has it open, for example a ZAP window and zap-cli from different versions running at the same time, or when ZAP is stopped while it writes the file. The file holds loaded ZCL data, saved settings and recent files. Your .zap files are kept elsewhere and are safe. Close every ZAP window and zap-cli, move ${sqliteFile} aside (also ${sqliteFile}-journal if it exists), and start again. ZAP builds a new file, which starts without saved settings and recent files.`
+    )
+  }
   if (schemaStatus.mustLoad && schemaStatus.hasSchema) {
     let backupFile = sqliteFile == null ? null : sqliteFile + '~'
     if (
@@ -660,19 +722,10 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
       backupFile != null &&
       fs.existsSync(backupFile)
     ) {
-      let message = `ZAP stopped reloading ${sqliteFile}. That file has no SETTING table, and the previous database is still at ${backupFile}. A schema reload moves the good database aside and builds a new one. This file was left unfinished, which happens when that rebuild is interrupted. The usual cause is the ZAP window and zap-cli using this file at the same time. Continuing would delete the previous database, including saved settings and recent files. Close any other ZAP window, rename ${backupFile} over ${sqliteFile}, and start again.`
-      env.logError(message)
-      env.printToStderr(message)
-      // The packaged executable also runs headless commands, so the Electron
-      // version is not enough to decide. A dialog there would wait for a
-      // click and hold unattended generation. Stderr already has the error.
-      if (env.isInteractiveUi()) {
-        require('electron').dialog.showErrorBox(
-          'ZAP database was not reloaded',
-          message
-        )
-      }
-      throw new Error(message)
+      stopDatabaseLoad(
+        'ZAP database was not reloaded',
+        `ZAP stopped reloading ${sqliteFile}. That file has no SETTING table, and the previous database is still at ${backupFile}. A schema reload moves the good database aside and builds a new one. This file was left unfinished, which happens when that rebuild is interrupted. The usual cause is the ZAP window and zap-cli using this file at the same time. Continuing would delete the previous database, including saved settings and recent files. Close any other ZAP window, rename ${backupFile} over ${sqliteFile}, and start again.`
+      )
     }
     settingRows = await selectSettings(db)
     recentFileRows = await selectRecentFiles(db)
@@ -719,11 +772,95 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
 }
 
 /**
+ * Opens the connection that holds a lock. It is kept apart from initDatabase
+ * and closeDatabase, which reset caches and reporting for the whole process.
+ *
+ * @param {string} lockFile
+ * @returns {Promise<*>} the connection.
+ */
+function openLockDatabase(lockFile) {
+  return new Promise((resolve, reject) => {
+    let db = new sqlite.Database(lockFile, (err) =>
+      err ? reject(util.toErrorObject(err)) : resolve(db)
+    )
+  })
+}
+
+/**
+ * Closes a connection opened by openLockDatabase.
+ *
+ * @param {*} db
+ * @returns {Promise<void>}
+ */
+function closeLockDatabase(db) {
+  return new Promise((resolve, reject) => {
+    db.close((err) => (err ? reject(util.toErrorObject(err)) : resolve()))
+  })
+}
+
+/**
+ * Runs one statement on a lock connection.
+ *
+ * @param {*} db
+ * @param {string} sql
+ * @returns {Promise<void>}
+ */
+function runOnLockDatabase(db, sql) {
+  return new Promise((resolve, reject) => {
+    db.run(sql, [], (err) =>
+      err ? reject(util.toErrorObject(err)) : resolve()
+    )
+  })
+}
+
+/**
+ * Runs an async function while this process holds an exclusive lock on
+ * lockFile, so that processes sharing a database take turns.
+ *
+ * The lock is an exclusive SQLite transaction on a separate, empty database
+ * file. The operating system holds it for the connection, so it is released
+ * when the owner closes it or exits for any reason, including a crash. No
+ * process ever deletes the lock file, so one owner cannot remove another's
+ * lock. Waiters block in SQLite's busy handler until the lock is free or
+ * timeoutMs passes.
+ *
+ * @param {string} lockFile
+ * @param {Function} fn async function to run under the lock.
+ * @param {number} timeoutMs how long to wait for another owner.
+ * @returns {Promise<*>} whatever fn resolves to.
+ */
+async function withDatabaseLock(lockFile, fn, timeoutMs = 120000) {
+  fs.mkdirSync(path.dirname(lockFile), { recursive: true })
+  let lockDb = await openLockDatabase(lockFile)
+  try {
+    lockDb.configure('busyTimeout', timeoutMs)
+    await runOnLockDatabase(lockDb, 'BEGIN EXCLUSIVE')
+  } catch (err) {
+    await closeLockDatabase(lockDb)
+    if (err.code === 'SQLITE_BUSY') {
+      throw new Error(
+        `Timed out after ${timeoutMs / 1000}s waiting for ${lockFile}. Another ZAP process is using this state directory. Close it and try again.`
+      )
+    }
+    throw err
+  }
+  try {
+    return await fn()
+  } finally {
+    try {
+      await runOnLockDatabase(lockDb, 'ROLLBACK')
+    } finally {
+      await closeLockDatabase(lockDb)
+    }
+  }
+}
+
+/**
  * Init database and load the schema.
  *
  * Opening the file, checking its schema and rebuilding it happen under a lock
- * file beside the database. A second process starting at the same time waits
- * for the first to finish building, then finds a complete schema and reuses it.
+ * beside the database. A second process starting at the same time waits for
+ * the first to finish building, then finds a complete schema and reuses it.
  * Without the lock it could see PACKAGE before SETTING exist and move the file
  * while the first process is still writing to it.
  *
@@ -733,7 +870,7 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
  * @returns Promise that resolves into the database object.
  */
 async function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
-  return util.withFileLock(sqliteFile + '.lock', async () => {
+  return withDatabaseLock(sqliteFile + '-lock', async () => {
     let db = await initDatabase(sqliteFile)
     return loadSchema(db, schemaFile, zapVersion, sqliteFile)
   })
@@ -785,6 +922,7 @@ exports.initRamDatabase = initRamDatabase
 exports.initDatabase = initDatabase
 exports.loadSchema = loadSchema
 exports.initDatabaseAndLoadSchema = initDatabaseAndLoadSchema
+exports.withDatabaseLock = withDatabaseLock
 exports.insertOrReplaceSetting = insertOrReplaceSetting
 exports.selectSetting = selectSetting
 exports.toDbBool = toDbBool

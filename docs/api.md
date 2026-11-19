@@ -3650,10 +3650,17 @@ This module provides generic DB functions for performing SQL queries.
     * [~tableExists(db, tableName)](#module_JS API_ low level database access..tableExists) ⇒
     * [~selectRecentFiles(db)](#module_JS API_ low level database access..selectRecentFiles) ⇒
     * [~insertRecentFiles(db, rows)](#module_JS API_ low level database access..insertRecentFiles) ⇒
-    * [~determineIfSchemaShouldLoad(db, context)](#module_JS API_ low level database access..determineIfSchemaShouldLoad) ⇒
+    * [~determineIfSchemaShouldLoad(db, filePath, crc)](#module_JS API_ low level database access..determineIfSchemaShouldLoad) ⇒
+    * [~isMissingTableError(err)](#module_JS API_ low level database access..isMissingTableError) ⇒ <code>boolean</code>
+    * [~isDamagedDatabaseError(err)](#module_JS API_ low level database access..isDamagedDatabaseError) ⇒ <code>boolean</code>
+    * [~stopDatabaseLoad(title, message)](#module_JS API_ low level database access..stopDatabaseLoad)
     * [~updateCurrentSchemaCrc(db, filePath, crc)](#module_JS API_ low level database access..updateCurrentSchemaCrc) ⇒
     * [~performSchemaLoad(db, schemaContent)](#module_JS API_ low level database access..performSchemaLoad) ⇒
     * [~loadSchema(db, schemaPath, zapVersion)](#module_JS API_ low level database access..loadSchema) ⇒
+    * [~openLockDatabase(lockFile)](#module_JS API_ low level database access..openLockDatabase) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [~closeLockDatabase(db)](#module_JS API_ low level database access..closeLockDatabase) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [~runOnLockDatabase(db, sql)](#module_JS API_ low level database access..runOnLockDatabase) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [~withDatabaseLock(lockFile, fn, timeoutMs)](#module_JS API_ low level database access..withDatabaseLock) ⇒ <code>Promise.&lt;\*&gt;</code>
     * [~initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion)](#module_JS API_ low level database access..initDatabaseAndLoadSchema) ⇒
     * [~toDbBool(value)](#module_JS API_ low level database access..toDbBool) ⇒
     * [~fromDbBool(value)](#module_JS API_ low level database access..fromDbBool) ⇒
@@ -3974,16 +3981,57 @@ Inserts rows into the RECENT_FILE table.
 
 <a name="module_JS API_ low level database access..determineIfSchemaShouldLoad"></a>
 
-### JS API: low level database access~determineIfSchemaShouldLoad(db, context) ⇒
+### JS API: low level database access~determineIfSchemaShouldLoad(db, filePath, crc) ⇒
 Checks the state of schema.
+
+The decision uses the checksum, not the schema file's path. The desktop
+app and zap-cli resolve that file to different paths, so a path comparison
+makes the second one rebuild a database the first one is still using.
 
 **Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
 **Returns**: object containing "mustLoad" and "hasSchema" elements.  
 
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| filePath | <code>\*</code> | kept for callers; the path is not part of the decision |
+| crc | <code>\*</code> | checksum of the schema file contents |
+
+<a name="module_JS API_ low level database access..isMissingTableError"></a>
+
+### JS API: low level database access~isMissingTableError(err) ⇒ <code>boolean</code>
+Tells whether an error means a queried table does not exist.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+
 | Param | Type |
 | --- | --- |
-| db | <code>\*</code> | 
-| context | <code>\*</code> | 
+| err | <code>\*</code> | 
+
+<a name="module_JS API_ low level database access..isDamagedDatabaseError"></a>
+
+### JS API: low level database access~isDamagedDatabaseError(err) ⇒ <code>boolean</code>
+Tells whether an error means SQLite cannot read the file as a database.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+
+| Param | Type |
+| --- | --- |
+| err | <code>\*</code> | 
+
+<a name="module_JS API_ low level database access..stopDatabaseLoad"></a>
+
+### JS API: low level database access~stopDatabaseLoad(title, message)
+Reports a problem that stops the database from loading, then throws it.
+The message goes to the log and stderr, and to a dialog when a ZAP window
+is being opened.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+
+| Param | Type |
+| --- | --- |
+| title | <code>string</code> | 
+| message | <code>string</code> | 
 
 <a name="module_JS API_ low level database access..updateCurrentSchemaCrc"></a>
 
@@ -4035,14 +4083,72 @@ would replace that previous database.
 | schemaPath | <code>\*</code> | 
 | zapVersion | <code>\*</code> | 
 
+<a name="module_JS API_ low level database access..openLockDatabase"></a>
+
+### JS API: low level database access~openLockDatabase(lockFile) ⇒ <code>Promise.&lt;\*&gt;</code>
+Opens the connection that holds a lock. It is kept apart from initDatabase
+and closeDatabase, which reset caches and reporting for the whole process.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - the connection.  
+
+| Param | Type |
+| --- | --- |
+| lockFile | <code>string</code> | 
+
+<a name="module_JS API_ low level database access..closeLockDatabase"></a>
+
+### JS API: low level database access~closeLockDatabase(db) ⇒ <code>Promise.&lt;void&gt;</code>
+Closes a connection opened by openLockDatabase.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_JS API_ low level database access..runOnLockDatabase"></a>
+
+### JS API: low level database access~runOnLockDatabase(db, sql) ⇒ <code>Promise.&lt;void&gt;</code>
+Runs one statement on a lock connection.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sql | <code>string</code> | 
+
+<a name="module_JS API_ low level database access..withDatabaseLock"></a>
+
+### JS API: low level database access~withDatabaseLock(lockFile, fn, timeoutMs) ⇒ <code>Promise.&lt;\*&gt;</code>
+Runs an async function while this process holds an exclusive lock on
+lockFile, so that processes sharing a database take turns.
+
+The lock is an exclusive SQLite transaction on a separate, empty database
+file. The operating system holds it for the connection, so it is released
+when the owner closes it or exits for any reason, including a crash. No
+process ever deletes the lock file, so one owner cannot remove another's
+lock. Waiters block in SQLite's busy handler until the lock is free or
+timeoutMs passes.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - whatever fn resolves to.  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| lockFile | <code>string</code> |  |  |
+| fn | <code>function</code> |  | async function to run under the lock. |
+| timeoutMs | <code>number</code> | <code>120000</code> | how long to wait for another owner. |
+
 <a name="module_JS API_ low level database access..initDatabaseAndLoadSchema"></a>
 
 ### JS API: low level database access~initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) ⇒
 Init database and load the schema.
 
 Opening the file, checking its schema and rebuilding it happen under a lock
-file beside the database. A second process starting at the same time waits
-for the first to finish building, then finds a complete schema and reuses it.
+beside the database. A second process starting at the same time waits for
+the first to finish building, then finds a complete schema and reuses it.
 Without the lock it could see PACKAGE before SETTING exist and move the file
 while the first process is still writing to it.
 
@@ -24376,8 +24482,6 @@ back into a JS integer.
     * [~getClusterExtension(extensions, property, clusterCode)](#module_JS API_ random utilities..getClusterExtension) ⇒
     * [~createUuid()](#module_JS API_ random utilities..createUuid)
     * [~waitFor(time)](#module_JS API_ random utilities..waitFor)
-    * [~isStaleFileLock(lockPath, emptyLockGraceMs)](#module_JS API_ random utilities..isStaleFileLock) ⇒ <code>boolean</code>
-    * [~withFileLock(lockPath, fn, options)](#module_JS API_ random utilities..withFileLock) ⇒ <code>Promise.&lt;\*&gt;</code>
     * [~parseXml(fileContent)](#module_JS API_ random utilities..parseXml) ⇒
     * [~readFileContentAndCrc(metadata)](#module_JS API_ random utilities..readFileContentAndCrc) ⇒
     * [~duration(nsDifference)](#module_JS API_ random utilities..duration) ⇒
@@ -24582,35 +24686,6 @@ Returns a promise that resolves after time milliseconds
 | Param |
 | --- |
 | time | 
-
-<a name="module_JS API_ random utilities..isStaleFileLock"></a>
-
-### JS API: random utilities~isStaleFileLock(lockPath, emptyLockGraceMs) ⇒ <code>boolean</code>
-Tells whether the process that wrote a lock file is gone.
-
-**Kind**: inner method of [<code>JS API: random utilities</code>](#module_JS API_ random utilities)  
-**Returns**: <code>boolean</code> - true if the lock can be taken over.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| lockPath | <code>string</code> |  |  |
-| emptyLockGraceMs | <code>number</code> | <code>5000</code> | How long a lock with no pid yet is trusted. |
-
-<a name="module_JS API_ random utilities..withFileLock"></a>
-
-### JS API: random utilities~withFileLock(lockPath, fn, options) ⇒ <code>Promise.&lt;\*&gt;</code>
-Runs an async function while holding an exclusive lock file, so that
-processes sharing a file take turns. Waiters poll until the lock is
-released. A lock whose owner process no longer exists is taken over.
-
-**Kind**: inner method of [<code>JS API: random utilities</code>](#module_JS API_ random utilities)  
-**Returns**: <code>Promise.&lt;\*&gt;</code> - whatever fn resolves to.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| lockPath | <code>string</code> |  |
-| fn | <code>function</code> | async function to run under the lock. |
-| options | <code>object</code> | timeoutMs (default 120000), pollMs (default 100). |
 
 <a name="module_JS API_ random utilities..parseXml"></a>
 

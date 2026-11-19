@@ -18,9 +18,11 @@
  * @jest-environment node
  */
 
+const childProcess = require('child_process')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
+const sqlite = require('sqlite3')
 const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
 const dbEnum = require('../src-shared/db-enum')
@@ -211,6 +213,37 @@ test(
 )
 
 test(
+  'Schema is not rebuilt when the same schema was recorded under another path',
+  async () => {
+    let file = env.sqliteTestFile('recent-files-shared-schema')
+    let opened = await dbApi.initDatabaseAndLoadSchema(
+      file,
+      env.schemaFile(),
+      env.zapVersion()
+    )
+    // The desktop app and zap-cli resolve zap-schema.sql to different paths
+    // and record that path. The checksum is what the two have in common.
+    await dbApi.dbUpdate(opened, 'UPDATE PACKAGE SET PATH = ? WHERE TYPE = ?', [
+      '/Applications/ZAP.app/Contents/Resources/app.asar/db/zap-schema.sql',
+      dbEnum.packageType.sqlSchema
+    ])
+    opened = await dbApi.loadSchema(
+      opened,
+      env.schemaFile(),
+      env.zapVersion(),
+      file
+    )
+    try {
+      expect(fs.existsSync(file + '~')).toBe(false)
+      expect(await recentFiles.recentFileDays(opened)).toBe(21)
+    } finally {
+      await dbApi.closeDatabase(opened)
+    }
+  },
+  timeout.medium()
+)
+
+test(
   'Two processes starting on a fresh file build the schema once',
   async () => {
     let file = env.sqliteTestFile('recent-files-concurrent')
@@ -220,7 +253,6 @@ test(
     ])
     try {
       expect(fs.existsSync(file + '~')).toBe(false)
-      expect(fs.existsSync(file + '.lock')).toBe(false)
       expect(await recentFiles.recentFileDays(first)).toBe(21)
       expect(await recentFiles.recentFileDays(second)).toBe(21)
     } finally {
@@ -231,11 +263,37 @@ test(
   timeout.medium()
 )
 
+/**
+ * Starts a separate node process that takes the lock and then kills itself
+ * without releasing it, the way a crash would.
+ * @param {string} lockFile
+ * @param {number} holdMs
+ * @returns {Promise<*>} the child process, once it holds the lock.
+ */
+function holdLockInChildThenCrash(lockFile, holdMs) {
+  let script = `
+    const sqlite = require('sqlite3')
+    const db = new sqlite.Database(${JSON.stringify(lockFile)})
+    db.run('BEGIN EXCLUSIVE', (err) => {
+      if (err) { console.error(err.message); process.exit(2) }
+      console.log('held')
+      setTimeout(() => process.kill(process.pid, 'SIGKILL'), ${holdMs})
+    })`
+  let child = childProcess.spawn(process.execPath, ['-e', script], {
+    cwd: path.join(__dirname, '..'),
+    stdio: ['ignore', 'pipe', 'inherit']
+  })
+  return new Promise((resolve, reject) => {
+    child.stdout.once('data', () => resolve(child))
+    child.once('exit', (code) => reject(new Error(`child exited ${code}`)))
+  })
+}
+
 test(
-  'Startup waits while another live process holds the lock',
+  'Startup waits for another process and continues when that process dies',
   async () => {
     let file = env.sqliteTestFile('recent-files-locked')
-    fs.writeFileSync(file + '.lock', String(process.pid))
+    await holdLockInChildThenCrash(file + '-lock', 1500)
     let settled = false
     let pending = dbApi
       .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
@@ -247,11 +305,8 @@ test(
     expect(settled).toBe(false)
     expect(fs.existsSync(file)).toBe(false)
 
-    fs.unlinkSync(file + '.lock')
     let opened = await pending
     try {
-      expect(settled).toBe(true)
-      expect(fs.existsSync(file + '.lock')).toBe(false)
       expect(await recentFiles.recentFileDays(opened)).toBe(21)
     } finally {
       await dbApi.closeDatabase(opened)
@@ -261,21 +316,78 @@ test(
 )
 
 test(
-  'Startup takes over a lock left by a process that no longer exists',
+  'Waiting for the lock gives up with an error that names the lock',
   async () => {
-    let file = env.sqliteTestFile('recent-files-stale-lock')
-    fs.writeFileSync(file + '.lock', '2147483646')
-    let opened = await dbApi.initDatabaseAndLoadSchema(
+    let lockFile = env.sqliteTestFile('recent-files-timeout') + '-lock'
+    let holder = new sqlite.Database(lockFile)
+    await new Promise((resolve, reject) =>
+      holder.run('BEGIN EXCLUSIVE', (err) => (err ? reject(err) : resolve()))
+    )
+    let ran = false
+    try {
+      await expect(
+        dbApi.withDatabaseLock(
+          lockFile,
+          async () => {
+            ran = true
+          },
+          300
+        )
+      ).rejects.toThrow(
+        /Timed out after 0.3s waiting for .*recent-files-timeout/
+      )
+      expect(ran).toBe(false)
+    } finally {
+      await new Promise((resolve) => holder.close(resolve))
+    }
+    await dbApi.withDatabaseLock(lockFile, async () => {
+      ran = true
+    })
+    expect(ran).toBe(true)
+    expect(fs.existsSync(lockFile)).toBe(true)
+  },
+  timeout.medium()
+)
+
+test(
+  'Startup stops on a damaged database and leaves the file as it was',
+  async () => {
+    let file = env.sqliteTestFile('recent-files-damaged')
+    let built = await dbApi.initDatabaseAndLoadSchema(
       file,
       env.schemaFile(),
       env.zapVersion()
     )
-    try {
-      expect(fs.existsSync(file + '.lock')).toBe(false)
-      expect(await recentFiles.recentFileDays(opened)).toBe(21)
-    } finally {
-      await dbApi.closeDatabase(opened)
-    }
+    let root = await dbApi.dbGet(
+      built,
+      "SELECT rootpage AS ROOT FROM sqlite_master WHERE NAME = 'PACKAGE'",
+      []
+    )
+    let pageSize = (await dbApi.dbGet(built, 'PRAGMA page_size', [])).page_size
+    await dbApi.closeDatabase(built)
+    let fd = fs.openSync(file, 'r+')
+    fs.writeSync(
+      fd,
+      Buffer.alloc(pageSize, 0xff),
+      0,
+      pageSize,
+      (root.ROOT - 1) * pageSize
+    )
+    fs.closeSync(fd)
+    let before = fs.readFileSync(file)
+
+    await expect(
+      dbApi.initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
+    ).rejects.toThrow(/The file is damaged/)
+    expect(fs.readFileSync(file).equals(before)).toBe(true)
+    expect(fs.existsSync(file + '~')).toBe(false)
+
+    let text = env.sqliteTestFile('recent-files-not-a-database')
+    fs.writeFileSync(text, 'not a database '.repeat(100))
+    await expect(
+      dbApi.initDatabaseAndLoadSchema(text, env.schemaFile(), env.zapVersion())
+    ).rejects.toThrow(/The file is damaged/)
+    expect(fs.readFileSync(text, 'utf8')).toBe('not a database '.repeat(100))
   },
   timeout.medium()
 )

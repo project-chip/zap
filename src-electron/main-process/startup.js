@@ -1485,7 +1485,25 @@ async function startUpMainInstance(argv, callbacks) {
     // window, and only when the UI was not turned off.
     env.setInteractiveUi(uiEnabled && uiFunction != null)
     let zapFiles = argv.zapFiles
-    let port = await startNormal(quitFunction, argv)
+    let port
+    try {
+      port = await startNormal(quitFunction, argv)
+    } catch (err) {
+      // Report the reason and exit. Nothing else would end the process, and
+      // the console would show no error. The database opened before the
+      // failure is closed first: exiting while sqlite3 has queued work aborts
+      // the process inside node-sqlite3's callback.
+      env.printToStderr(env.formatEmojiMessage('⛔', err.message))
+      if (env.isInteractiveUi()) {
+        require('electron').dialog.showErrorBox(
+          'ZAP could not start',
+          err.message
+        )
+      }
+      await shutdown().catch(() => {})
+      cleanExit(argv.cleanupDelay, 1)
+      return
+    }
     let zapFileExtensions = null
     if ('zapFileExtension' in argv) {
       zapFileExtensions = [argv.zapFileExtension]
