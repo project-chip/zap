@@ -229,4 +229,16 @@ describe('Environment Tests', () => {
       expect(e.stack.includes('env.test.js:225')).toBeTruthy()
     }
   })
+
+  test(
+    'Interactive UI is off unless a launch opens the main window',
+    () => {
+      expect(env.isInteractiveUi()).toBe(false)
+      env.setInteractiveUi(true)
+      expect(env.isInteractiveUi()).toBe(true)
+      env.setInteractiveUi(false)
+      expect(env.isInteractiveUi()).toBe(false)
+    },
+    timeout.short()
+  )
 })

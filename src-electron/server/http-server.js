@@ -201,6 +201,19 @@ async function initHttpServer(
     httpServer = app.listen(port, () => {
       resolve(app)
     })
+    // Without this listener a failed listen is thrown as an uncaught error and
+    // the promise never settles, so the caller waits forever.
+    httpServer.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        let busy = new Error(
+          `Another ZAP is already running with the state directory ${env.appDirectory()} (port ${port} is in use). Close that ZAP window or other zap-cli process, then start again.`
+        )
+        busy.code = 'EADDRINUSE'
+        reject(busy)
+      } else {
+        reject(err)
+      }
+    })
 
     process.on('uncaughtException', function (err) {
       env.logWarning(`HTTP server exception.`, err)

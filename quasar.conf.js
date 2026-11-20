@@ -187,7 +187,7 @@ module.exports = configure(function (ctx) {
         extraResource: ['src-electron/db/zap-schema.sql', 'src-electron/icons'],
         afterCopy: [
           (buildPath, electronVersion, platform, arch, callback) => {
-            require('electron-rebuild')
+            require('@electron/rebuild')
               .rebuild({ buildPath, electronVersion, arch })
               .then(() => callback())
               .catch((error) => callback(error))

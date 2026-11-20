@@ -147,7 +147,11 @@ export function windowCreate(port, args) {
   })
 
   ipcMain.on('set-title-bar-overlay', (_event, value) => {
-    w.setTitleBarOverlay(value)
+    // setTitleBarOverlay is implemented on Windows and Linux. Electron on
+    // macOS does not provide it, and calling it throws.
+    if (typeof w.setTitleBarOverlay === 'function') {
+      w.setTitleBarOverlay(value)
+    }
   })
 
   let queryString = createQueryString(

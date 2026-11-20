@@ -233,7 +233,7 @@ pipeline
                         script
                         {
                             withEnv(['PATH+LOCAL_BIN=/usr/local/bin',
-                                     'PATH+NODE14=/usr/local/opt/node@14/bin',
+                                     'PATH+NODE24=/usr/local/opt/node@24/bin:/opt/homebrew/opt/node@24/bin',
                                      //'DEBUG=electron-builder',
                                      'NODE_TLS_REJECT_UNAUTHORIZED=0']) // workaround for a self-signed cert issue on canvas 2.7.0 on mac
                             {

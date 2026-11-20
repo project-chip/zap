@@ -25,12 +25,18 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const pino = require('pino')
-const electron = require('electron')
+// Under plain Node (e.g. the pkg-built zap-cli) the electron package tries to
+// download its binary on require, so only load it inside Electron.
+const electron = process.versions.electron != null ? require('electron') : null
 const emojiUtil = require('./emoji-util')
 const zapBaseUrl = 'http://localhost:'
 
 let saveFileFormat = 2 // This is the enabled only .zap file format
 let recentFileDays = 21 // How long a .zap file stays on the config-page recent list
+// True only for a launch that opens the main window. Headless commands such
+// as `generate --noUi --noServer` run inside the packaged executable, where
+// process.versions.electron is set, but they must not wait on a dialog.
+let interactiveUi = false
 
 /**
  * Set save file format.
@@ -66,6 +72,22 @@ function setRecentFileDays(n) {
  */
 function getRecentFileDays() {
   return recentFileDays
+}
+
+/**
+ * Record whether this process will open the main window.
+ * @param {boolean} value
+ */
+function setInteractiveUi(value) {
+  interactiveUi = value === true
+}
+
+/**
+ * Whether this process will open the main window.
+ * @returns {boolean}
+ */
+function isInteractiveUi() {
+  return interactiveUi
 }
 
 /**
@@ -742,8 +764,6 @@ function isPackagedElectronApp() {
   if (process.versions.electron == null) {
     return false
   }
-  // Under Electron this is the API object; under plain Node the electron
-  // package exports a path string to the binary.
   return electron?.app?.isPackaged === true
 }
 
@@ -830,6 +850,8 @@ exports.setSaveFileFormat = setSaveFileFormat
 exports.defaultFileFormat = defaultFileFormat
 exports.setRecentFileDays = setRecentFileDays
 exports.getRecentFileDays = getRecentFileDays
+exports.setInteractiveUi = setInteractiveUi
+exports.isInteractiveUi = isInteractiveUi
 exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
 exports.builtinSilabsZclDemoMetafile = builtinSilabsZclDemoMetafile
 exports.builtinSilabsZclSpecialMetafile = builtinSilabsZclSpecialMetafile
