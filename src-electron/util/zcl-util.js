@@ -512,10 +512,10 @@ async function dataTypeCharacterFormatter(
         .then((atomic) => {
           if (
             atomic &&
-            (atomic.name == 'char_string' ||
-              atomic.name == 'octet_string' ||
-              atomic.name == 'long_octet_string' ||
-              atomic.name == 'long_char_string')
+            (atomic.name == dbEnum.atomicTypeName.charString ||
+              atomic.name == dbEnum.atomicTypeName.octetString ||
+              atomic.name == dbEnum.atomicTypeName.longOctetString ||
+              atomic.name == dbEnum.atomicTypeName.longCharString)
           ) {
             return atomic.name
           } else {
@@ -907,7 +907,14 @@ async function determineType(db, type, packageIds) {
   if (atomic != null)
     return {
       type: dbEnum.zclType.atomic,
-      atomicType: atomic.name
+      atomicType: atomic.name,
+      isString: atomic.isString,
+      isLong: atomic.isLong,
+      isChar: atomic.isChar,
+      isFloat: atomic.isFloat,
+      isSigned: atomic.isSigned,
+      baseType: atomic.baseType,
+      size: atomic.size
     }
 
   let theEnum = await queryZcl.selectEnumByName(db, type, packageIds)

@@ -1,0 +1,12 @@
+{
+  "description": "Atomics without baseType; no invented string/float XML attrs",
+  "version": 1,
+  "category": "matter",
+  "xmlRoot": ["."],
+  "xmlFile": ["types.xml"],
+  "options": {
+    "manufacturerCodes": {
+      "1000": "Test"
+    }
+  }
+}
