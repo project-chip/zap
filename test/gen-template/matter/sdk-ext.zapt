@@ -31,7 +31,7 @@ property="testCommandExtension"}}', isLargeMessage: {{isLargeMessage}}
 ------------------- Attributes -------------------
 {{#zcl_attributes}}
 // attribute: {{asHex clusterCode 4}} / {{asHex code 4}} => {{label}}, extensions: '{{attribute_extension
-property="testAttributeExtension1"}}', '{{attribute_extension property="testAttributeExtension2"}}', scene: {{isSceneRequired}}, isChangeOmitted: {{isChangeOmitted}}, persistence: {{persistence}}
+property="testAttributeExtension1"}}', '{{attribute_extension property="testAttributeExtension2"}}', scene: {{isSceneRequired}}, isChangeOmitted: {{isChangeOmitted}}, persistence: {{persistence}}, isQuieterReporting: {{isQuieterReporting}}, isSourceAttribution: {{isSourceAttribution}}, isAtomic: {{isAtomic}}, quieterReportingHelper: {{#if_attribute_quality "quieterReporting"}}yes{{else}}no{{/if_attribute_quality}}
 {{/zcl_attributes}}
 
 -------------------- Events -----------------------
